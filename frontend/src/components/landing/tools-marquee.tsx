@@ -1,43 +1,62 @@
-import { useState } from 'react'
+import {
+  Bot,
+  Brush,
+  FileText,
+  Film,
+  Image as ImageIcon,
+  Mic,
+  Network,
+  Palette,
+  Search,
+  Smile,
+  Sparkles,
+  Star,
+  Wind,
+  Workflow,
+  Zap,
+  type LucideIcon,
+} from 'lucide-react'
 import { Eyebrow } from './eyebrow'
 import { Reveal } from './reveal'
 
 /**
- * Section "Outils maîtrisés" — défilement infini de logos IA en grayscale.
+ * Section "Outils maîtrisés" — défilement infini des outils IA couverts.
  *
- * Comble visuellement l'espace entre Hero et FourPillars.
- * Les logos viennent de Simple Icons CDN (https://simpleicons.org) ; ceux
- * qui n'y figurent pas (Midjourney, DALL·E, Runway) sont rendus en texte
- * stylé avec une typographie cohérente.
+ * 100% Lucide React (déjà installé dans le projet) :
+ *   - 0 dépendance CDN externe (RGPD : aucun partage d'IP visiteur).
+ *   - 0 risque de 404 si un slug upstream est renommé.
+ *   - Style cohérent avec le reste de l'app (toutes nos icônes sont Lucide).
  *
- * Au hover : la couleur d'origine du logo réapparaît + opacité 100%.
- * Sur desktop, le défilement se met en pause au survol.
- * Respect de `prefers-reduced-motion` (animation désactivée si l'utilisateur
- * a désactivé les animations système).
+ * Sur desktop, le défilement se met en pause au survol (CSS dans
+ * index.css `.tools-marquee-track`). Respect de `prefers-reduced-motion`
+ * (animation désactivée si l'utilisateur a réduit les animations système).
+ *
+ * Position : entre <Hero /> et <FourPillars /> dans routes/index.tsx.
  */
 
 interface Tool {
   name: string
-  /** Slug Simple Icons (https://simpleicons.org). Si absent → rendu texte. */
-  slug?: string
+  icon: LucideIcon
 }
 
+// Mapping IA-tool → icône Lucide. Choix d'icônes distinctes (pas deux
+// outils avec la même icône dans la séquence) et reconnaissables.
 const TOOLS: Tool[] = [
-  { name: 'ChatGPT', slug: 'openai' },
-  { name: 'Claude', slug: 'anthropic' },
-  { name: 'Gemini', slug: 'googlegemini' },
-  { name: 'Mistral', slug: 'mistralai' },
-  { name: 'Midjourney' },
-  { name: 'DALL·E' },
-  { name: 'Runway' },
-  { name: 'Make', slug: 'make' },
-  { name: 'Zapier', slug: 'zapier' },
-  { name: 'n8n', slug: 'n8n' },
-  { name: 'Notion AI', slug: 'notion' },
-  { name: 'Canva', slug: 'canva' },
-  { name: 'ElevenLabs', slug: 'elevenlabs' },
-  { name: 'Hugging Face', slug: 'huggingface' },
-  { name: 'Perplexity', slug: 'perplexity' },
+  { name: 'ChatGPT', icon: Bot },
+  { name: 'Claude', icon: Sparkles },
+  { name: 'Gemini', icon: Star },
+  { name: 'Mistral', icon: Wind },
+  { name: 'Midjourney', icon: Brush },
+  { name: 'DALL·E', icon: Palette },
+  { name: 'Runway', icon: Film },
+  { name: 'Make', icon: Workflow },
+  { name: 'Zapier', icon: Zap },
+  { name: 'n8n', icon: Network },
+  { name: 'Notion AI', icon: FileText },
+  { name: 'Canva', icon: ImageIcon },
+  { name: 'ElevenLabs', icon: Mic },
+  { name: 'Hugging Face', icon: Smile },
+  { name: 'Perplexity', icon: Search },
 ]
 
 export function ToolsMarquee() {
@@ -61,8 +80,9 @@ export function ToolsMarquee() {
           </Reveal>
         </div>
 
-        {/* Marquee : duplication 2× du tableau pour boucle infinie sans saut.
-            Les masks gauche/droite font fade-in/fade-out propre sur les bords. */}
+        {/* Marquee : duplication 2× du tableau pour boucle infinie sans
+            saut. Les masks gauche/droite font fade-in/fade-out propre sur
+            les bords. */}
         <div
           className="relative mt-10 overflow-hidden sm:mt-12"
           style={{
@@ -72,9 +92,9 @@ export function ToolsMarquee() {
               'linear-gradient(to right, transparent, black 8%, black 92%, transparent)',
           }}
         >
-          <div className="tools-marquee-track flex items-center gap-12 sm:gap-16">
+          <div className="tools-marquee-track flex items-center">
             {[...TOOLS, ...TOOLS].map((tool, idx) => (
-              <ToolLogo
+              <ToolTile
                 key={`${tool.name}-${idx}`}
                 tool={tool}
                 aria-hidden={idx >= TOOLS.length ? 'true' : undefined}
@@ -87,35 +107,24 @@ export function ToolsMarquee() {
   )
 }
 
-function ToolLogo({
+function ToolTile({
   tool,
   ...rest
 }: {
   tool: Tool
   'aria-hidden'?: 'true' | undefined
 }) {
-  const [imgFailed, setImgFailed] = useState(false)
-  const showText = !tool.slug || imgFailed
-
+  const Icon = tool.icon
   return (
     <div
       {...rest}
-      className="group flex h-8 w-[110px] shrink-0 items-center justify-center sm:h-9 sm:w-[140px]"
+      className="group flex shrink-0 flex-col items-center gap-2 px-6 text-[var(--muted-foreground)] transition-colors duration-200 hover:text-[var(--primary)] sm:px-8"
       title={tool.name}
     >
-      {showText ? (
-        <span className="select-none font-display text-base font-bold tracking-tight text-[#737373] opacity-60 transition-colors duration-200 group-hover:text-[#0A0A0A] group-hover:opacity-100 sm:text-lg">
-          {tool.name}
-        </span>
-      ) : (
-        <img
-          src={`https://cdn.simpleicons.org/${tool.slug}`}
-          alt={tool.name}
-          loading="lazy"
-          onError={() => setImgFailed(true)}
-          className="h-7 w-auto max-w-full select-none opacity-50 grayscale transition-all duration-200 group-hover:opacity-100 group-hover:grayscale-0 sm:h-8"
-        />
-      )}
+      <Icon className="h-8 w-8" aria-hidden="true" />
+      <span className="select-none whitespace-nowrap text-xs font-medium sm:text-sm">
+        {tool.name}
+      </span>
     </div>
   )
 }
