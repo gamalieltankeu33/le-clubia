@@ -19,12 +19,17 @@ interface ResumeData {
 }
 
 async function fetchResumeData(userId: string): Promise<ResumeData | null> {
-  // Cherche la dernière progression non-complétée
+  // Cherche la dernière progression. La table user_formation_progress
+  // n'a pas de colonne updated_at — on utilise completed_at (timestamp
+  // posé à la complétion d'un chapitre). nullsFirst:false pour que les
+  // chapitres "en cours" (completed_at = null) ne polluent pas la tête
+  // du tri ; on veut prioritairement les formations récemment touchées
+  // par une complétion.
   const { data: progressRows, error: pErr } = await supabase
     .from('user_formation_progress')
-    .select('formation_id, completed, updated_at')
+    .select('formation_id, completed, completed_at')
     .eq('user_id', userId)
-    .order('updated_at', { ascending: false })
+    .order('completed_at', { ascending: false, nullsFirst: false })
     .limit(50)
   if (pErr || !progressRows?.length) return null
 

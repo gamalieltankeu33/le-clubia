@@ -305,8 +305,6 @@ export type Database = {
           completed: boolean
           completed_at: string | null
           last_position_seconds: number
-          created_at: string
-          updated_at: string
         }
         Insert: {
           id?: string
@@ -316,8 +314,6 @@ export type Database = {
           completed?: boolean
           completed_at?: string | null
           last_position_seconds?: number
-          created_at?: string
-          updated_at?: string
         }
         Update: {
           id?: string
@@ -327,8 +323,6 @@ export type Database = {
           completed?: boolean
           completed_at?: string | null
           last_position_seconds?: number
-          created_at?: string
-          updated_at?: string
         }
         Relationships: []
       }
