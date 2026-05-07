@@ -200,6 +200,55 @@ serve(async (req: Request) => {
     auth: { persistSession: false },
   })
 
+  // ---- Rate limit : 5 lancements/jour par admin ----
+  // La RPC check_rate_limit utilise auth.uid() côté DB, donc on doit
+  // l'appeler avec un client construit sur le JWT user (pas service-role).
+  // L'admin reste soumis au rate limit — il consomme OpenAI à chaque
+  // lancement, on protège contre une boucle accidentelle ou un abus.
+  try {
+    const sbUser = createClient(supabaseUrl, anonKey, {
+      global: { headers: { Authorization: authHeader } },
+      auth: { persistSession: false },
+    })
+    const { data: rlData, error: rlErr } = await sbUser.rpc(
+      'check_rate_limit',
+      {
+        p_action_type: 'news_manual',
+        p_max_count: 5,
+        p_window_seconds: 86400,
+      },
+    )
+    if (rlErr) {
+      console.warn(
+        `[news-agent-manual] rate_limit RPC error → fail open:`,
+        rlErr,
+      )
+    } else {
+      const row = (Array.isArray(rlData) ? rlData[0] : rlData) as
+        | {
+            allowed: boolean
+            current_count: number
+            retry_after_seconds: number
+          }
+        | undefined
+      if (row && !row.allowed) {
+        console.log(
+          `[news-agent-manual] Rate limit BLOCKED admin=${adminEmail} count=${row.current_count} retry=${row.retry_after_seconds}s`,
+        )
+        return jsonResponse(200, {
+          ok: false,
+          reason: 'Limite quotidienne atteinte (5 lancements de l\'agent IA par jour).',
+          suggestion: `Réessaie dans ${Math.ceil(row.retry_after_seconds / 3600)}h.`,
+          retry_after_seconds: row.retry_after_seconds,
+          duration_ms: Date.now() - startedAt,
+        })
+      }
+    }
+  } catch (err) {
+    console.warn('[news-agent-manual] rate_limit check failed:', err)
+    // fail open : on continue, on ne bloque pas l'admin si le check échoue
+  }
+
   try {
     // ============== 1. Fetch RSS ==============
     console.log(

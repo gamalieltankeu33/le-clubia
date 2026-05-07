@@ -14,8 +14,20 @@ import type { SuggestionOptions } from '@tiptap/suggestion'
 import tippy, { type Instance as TippyInstance } from 'tippy.js'
 import { supabase } from '@/lib/supabase'
 import { MentionList, type MentionItem, type MentionListRef } from './mention-list'
+import { checkRateLimit } from '@/lib/use-rate-limit'
 
 async function searchMembers(query: string): Promise<MentionItem[]> {
+  // Rate limit anti-bot : 20 recherches/minute. À chaque keystroke
+  // dans un éditeur Tiptap on appelle cette fonction → un humain n'a
+  // pas le temps d'atteindre 20 recherches en 60s, mais un script qui
+  // automatise la frappe pour scraper des profils membres serait
+  // bloqué. En cas de blocage on retourne [] (dropdown vide), pas
+  // d'erreur visible au user — c'est silencieux côté UX.
+  const rl = await checkRateLimit('mention_search')
+  if (!rl.allowed) {
+    console.warn('[mention] rate limited, returning empty results')
+    return []
+  }
   // @ts-expect-error - search_mentionable_users est une RPC custom non typée dans Database['public']['Functions']
   const { data, error } = await supabase.rpc('search_mentionable_users', {
     p_query: query,

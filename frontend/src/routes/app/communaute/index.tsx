@@ -22,6 +22,7 @@ import { PostCard, type FeedPost } from '@/components/community/post-card'
 import { FeedSkeleton } from '@/components/community/feed-skeleton'
 import { htmlToPlainText } from '@/lib/sanitize-html'
 import { useConfirm } from '@/hooks/use-confirm'
+import { checkRateLimit } from '@/lib/use-rate-limit'
 
 // PostComposerModal embarque Tiptap (~120 kB). On le lazy-load pour ne le
 // télécharger qu'au moment où l'utilisateur clique "Créer un post".
@@ -80,6 +81,15 @@ function CommunityFeedPage() {
       like: boolean
     }) => {
       if (!user) throw new Error('not-auth')
+      // Rate limit (100/min) : très large pour un humain, sert surtout
+      // à bloquer les bots qui spam des likes en boucle. Si bloqué, on
+      // throw une erreur typée que onError captera pour un toast soft.
+      const rl = await checkRateLimit('post_like')
+      if (!rl.allowed) {
+        const err = new Error('rate_limited')
+        err.name = 'RateLimitError'
+        throw err
+      }
       if (like) {
         const { error } = await supabase
           .from('post_likes')
@@ -127,10 +137,14 @@ function CommunityFeedPage() {
       // Mémorise pour rollback éventuel
       return { prev }
     },
-    onError: (_err, _vars, ctx) => {
+    onError: (err, _vars, ctx) => {
       const key = ['community-feed', user?.id ?? null]
       if (ctx?.prev) queryClient.setQueryData(key, ctx.prev)
-      toast.error('Action impossible. Réessaie.')
+      if (err instanceof Error && err.name === 'RateLimitError') {
+        toast.warning("Trop d'actions trop rapides. Détends-toi un peu 😊")
+      } else {
+        toast.error('Action impossible. Réessaie.')
+      }
     },
     onSettled: () => {
       setPendingLikeId(null)

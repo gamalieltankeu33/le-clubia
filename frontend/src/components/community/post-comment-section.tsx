@@ -34,6 +34,7 @@ import {
   extractMentionedUserIds,
 } from './mention-extension'
 import { useConfirm } from '@/hooks/use-confirm'
+import { checkRateLimit, formatRateLimitToast } from '@/lib/use-rate-limit'
 
 const MAX_CHARS = 1000
 const REPLIES_FIRST_PAGE = 10
@@ -244,6 +245,17 @@ export function PostCommentSection({
       parent_comment_id: string | null
     }) => {
       if (!user) throw new Error('not-auth')
+
+      // Rate limit avant l'INSERT. Si bloqué, on jette une erreur typée
+      // que le onError captera pour afficher le toast adapté (au lieu
+      // du toast générique "Envoi impossible").
+      const rl = await checkRateLimit('comment_create')
+      if (!rl.allowed) {
+        const err = new Error(formatRateLimitToast('comment_create', rl))
+        err.name = 'RateLimitError'
+        throw err
+      }
+
       const { data, error } = await supabase
         .from('post_comments')
         .insert({
@@ -347,7 +359,14 @@ export function PostCommentSection({
       if (input.parent_comment_id === null && ctx?.previous) {
         queryClient.setQueryData(rootQueryKey, ctx.previous)
       }
-      toast.error('Envoi impossible. Réessaie.')
+      // Toast adapté : si c'est un blocage rate-limit, on affiche le
+      // message précis ("Limite atteinte … Réessaie dans X minutes").
+      // Sinon toast générique d'erreur réseau / DB.
+      if (err instanceof Error && err.name === 'RateLimitError') {
+        toast.error(`Trop de commentaires récents. ${err.message}`)
+      } else {
+        toast.error('Envoi impossible. Réessaie.')
+      }
     },
     onSuccess: (_id, input) => {
       if (input.parent_comment_id) {

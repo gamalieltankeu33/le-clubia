@@ -11,6 +11,7 @@ import { PostCommentSection } from '@/components/community/post-comment-section'
 import { FeedSkeleton } from '@/components/community/feed-skeleton'
 import { htmlToPlainText } from '@/lib/sanitize-html'
 import { useConfirm } from '@/hooks/use-confirm'
+import { checkRateLimit } from '@/lib/use-rate-limit'
 
 export const Route = createFileRoute('/app/communaute/$postId')({
   component: PostDetailPage,
@@ -42,6 +43,12 @@ function PostDetailPage() {
       like: boolean
     }) => {
       if (!user) throw new Error('not-auth')
+      const rl = await checkRateLimit('post_like')
+      if (!rl.allowed) {
+        const err = new Error('rate_limited')
+        err.name = 'RateLimitError'
+        throw err
+      }
       if (like) {
         const { error } = await supabase
           .from('post_likes')
@@ -69,10 +76,14 @@ function PostDetailPage() {
       }
       return { prev }
     },
-    onError: (_err, _vars, ctx) => {
+    onError: (err, _vars, ctx) => {
       const key = ['community-post', postId, user?.id ?? null]
       if (ctx?.prev) queryClient.setQueryData(key, ctx.prev)
-      toast.error('Action impossible.')
+      if (err instanceof Error && err.name === 'RateLimitError') {
+        toast.warning("Trop d'actions trop rapides. Détends-toi un peu 😊")
+      } else {
+        toast.error('Action impossible.')
+      }
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['community-feed'] })

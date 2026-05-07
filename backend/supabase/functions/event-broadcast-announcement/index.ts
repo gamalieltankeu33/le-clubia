@@ -133,6 +133,51 @@ serve(async (req: Request) => {
     auth: { persistSession: false },
   })
 
+  // Rate limit : 3 envois d'annonce/heure max — applique uniquement aux
+  // appels admin via JWT (mode A service-role bypass car c'est un appel
+  // server-to-server contrôlé). La RPC check_rate_limit utilise
+  // auth.uid(), donc on l'appelle avec un client JWT user dédié.
+  if (!isServiceRole) {
+    try {
+      const sbUser = createClient(supabaseUrl, anonKey, {
+        global: { headers: { Authorization: authHeader } },
+        auth: { persistSession: false },
+      })
+      const { data: rlData, error: rlErr } = await sbUser.rpc(
+        'check_rate_limit',
+        {
+          p_action_type: 'event_email_send',
+          p_max_count: 3,
+          p_window_seconds: 3600,
+        },
+      )
+      if (rlErr) {
+        console.warn('[event-broadcast] rate_limit RPC error → fail open:', rlErr)
+      } else {
+        const row = (Array.isArray(rlData) ? rlData[0] : rlData) as
+          | {
+              allowed: boolean
+              current_count: number
+              retry_after_seconds: number
+            }
+          | undefined
+        if (row && !row.allowed) {
+          console.log(
+            `[event-broadcast] Rate limit BLOCKED count=${row.current_count} retry=${row.retry_after_seconds}s`,
+          )
+          return jsonResponse(200, {
+            ok: false,
+            error: `Limite atteinte (3 envois d'annonce événement par heure). Réessaie dans ${Math.ceil(row.retry_after_seconds / 60)} minutes.`,
+            retry_after_seconds: row.retry_after_seconds,
+          })
+        }
+      }
+    } catch (err) {
+      console.warn('[event-broadcast] rate_limit check failed:', err)
+      // fail open
+    }
+  }
+
   console.log('[event-broadcast] event_id=', body.event_id, 'force=', !!body.force)
 
   // 1. Récupère l'event

@@ -27,6 +27,7 @@ import { extractHashtags } from '@/lib/extract-hashtags'
 import { cn } from '@/lib/utils'
 import { MentionExtension } from './mention-extension'
 import { useConfirm } from '@/hooks/use-confirm'
+import { checkRateLimit } from '@/lib/use-rate-limit'
 
 const MAX_CHARS = 2000
 const MAX_IMAGE_MB = 5
@@ -157,6 +158,17 @@ export function PostComposerModal({
         return
       }
       finalLinkUrl = trimmedLink
+    }
+
+    // Rate limit AVANT setSubmitting → si bloqué, on n'entre même pas
+    // en état "submitting" et le composer reste interactif (l'admin /
+    // user peut copier son brouillon ailleurs sans le perdre).
+    const rl = await checkRateLimit('post_create')
+    if (!rl.allowed) {
+      toast.error(
+        `Tu as atteint la limite de publications. ${rl.message}`,
+      )
+      return
     }
 
     setSubmitting(true)
