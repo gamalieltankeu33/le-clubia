@@ -1,7 +1,33 @@
 import { create } from 'zustand'
 import type { User } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
+import { queryClient } from '@/lib/query-client'
 import type { Profile, Subscription } from '@/lib/database.types'
+import { useNotificationsStore } from './notifications-store'
+import { useCoachStore } from './coach-store'
+
+/**
+ * Cleanup complet à exécuter au logout (clic explicite OU SIGNED_OUT
+ * cross-tab / token expiré). Vide TOUTES les sources de données du user
+ * courant pour empêcher toute fuite vers un user qui se reconnecterait
+ * juste après sur le même navigateur. RLS protège déjà côté DB, mais
+ * sans ce cleanup les caches et stores satellites afficheraient ~500ms
+ * les anciennes données avant de re-fetcher.
+ *
+ * Ordre :
+ *   1. cancelQueries → stoppe les requêtes en cours (évite les toasts
+ *      "Erreur réseau" malvenus pendant la déconnexion).
+ *   2. queryClient.clear() → vide tous les caches React Query.
+ *   3. notifications-store.reset() → vide les notifs + ferme les
+ *      channels Realtime.
+ *   4. coach-store.reset() → vide les conversations Coach IA.
+ */
+function clearAuthSideEffects() {
+  void queryClient.cancelQueries()
+  queryClient.clear()
+  useNotificationsStore.getState().reset()
+  useCoachStore.getState().reset()
+}
 
 interface AuthState {
   user: User | null
@@ -71,9 +97,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       set({ user: session.user, profile, subscription })
     }
 
-    // Listener cross-tab : recharge le store si la session change ailleurs
+    // Listener cross-tab : recharge le store si la session change ailleurs.
+    // SIGNED_OUT déclenche le même cleanup complet que signOut() — sinon
+    // un token expiré ou un logout dans un autre onglet laisserait les
+    // caches React Query + notifications + coach en mémoire.
     supabase.auth.onAuthStateChange(async (event, newSession) => {
       if (event === 'SIGNED_OUT' || !newSession) {
+        clearAuthSideEffects()
         set({ user: null, profile: null, subscription: null })
         return
       }
@@ -165,8 +195,18 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   signOut: async () => {
     set({ isLoading: true })
+    // Ordre : on cleanup AVANT le signOut côté Supabase pour annuler
+    // les mutations en cours pendant que le JWT est encore valide
+    // (sinon une mutation tardive partirait avec un JWT révoqué et
+    // déclencherait un toast d'erreur 401).
+    clearAuthSideEffects()
     await supabase.auth.signOut()
     set({ user: null, profile: null, subscription: null, isLoading: false })
+    // Note : le listener onAuthStateChange ci-dessus va lui aussi être
+    // déclenché par supabase.auth.signOut() avec event=SIGNED_OUT et
+    // re-exécuter clearAuthSideEffects(). L'opération est idempotente
+    // (clear sur cache vide = no-op, reset() sur store déjà vide aussi)
+    // donc pas de souci.
   },
 
   refreshUserData: async () => {
@@ -179,7 +219,20 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   isAuthenticated: () => get().user !== null,
   isMember: () => {
     const sub = get().subscription
-    return sub?.status === 'active' || sub?.status === 'trialing'
+    if (!sub) return false
+    if (sub.status !== 'active' && sub.status !== 'trialing') return false
+    // Cohérence avec is_active_member() côté DB (cf. 0001) qui exige
+    // current_period_end IS NULL OR current_period_end > now(). Sans ce
+    // check, l'UI peut considérer un membre "actif" alors que sa période
+    // est techniquement expirée → toutes ses mutations seraient ensuite
+    // bloquées par RLS sans que l'UI ne l'explique clairement.
+    if (
+      sub.current_period_end &&
+      new Date(sub.current_period_end) < new Date()
+    ) {
+      return false
+    }
+    return true
   },
   isAdmin: () => get().profile?.role === 'admin',
 }))

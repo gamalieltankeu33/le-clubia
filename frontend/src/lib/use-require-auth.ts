@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { useNavigate } from '@tanstack/react-router'
+import { toast } from 'sonner'
 import { useAuthStore } from '@/stores/auth-store'
 
 interface RequireAuthOptions {
@@ -48,6 +49,11 @@ export function useRequireAuth(opts: RequireAuthOptions = {}): boolean {
       }
     }
     if (opts.requireAdmin && profile?.role !== 'admin') {
+      // Toast d'erreur uniquement quand un user CONNECTÉ tente d'accéder
+      // à une route admin sans en avoir le rôle. Pour le cas !user, on
+      // a déjà redirect vers /auth ligne 35 (sans toast — c'est juste
+      // une redirection de session, pas un refus d'accès).
+      toast.error('Accès réservé aux administrateurs.')
       navigate({ to: '/app/dashboard' })
     }
   }, [

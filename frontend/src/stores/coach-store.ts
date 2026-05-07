@@ -36,6 +36,10 @@ interface CoachState {
   sendMessage: (content: string) => Promise<{ error: string | null }>
   refreshHistory: () => Promise<void>
   refreshQuota: () => Promise<void>
+  /** Reset complet (à appeler au logout) — empêche que les conversations
+   *  Coach IA d'un user A restent visibles à un user B qui se reconnecte
+   *  sur le même navigateur. Symétrique avec notifications-store.reset(). */
+  reset: () => void
 }
 
 export const useCoachStore = create<CoachState>((set, get) => ({
@@ -273,5 +277,20 @@ export const useCoachStore = create<CoachState>((set, get) => ({
       .eq('role', 'user')
       .gte('created_at', todayStart.toISOString())
     set({ quotaUsed: count ?? 0, quotaLimit: DAILY_LIMIT })
+  },
+
+  reset: () => {
+    set({
+      isOpen: false,
+      view: 'chat',
+      conversations: [],
+      currentConversationId: null,
+      messages: [],
+      isSending: false,
+      isLoadingHistory: false,
+      isLoadingConversation: false,
+      quotaUsed: 0,
+      quotaLimit: DAILY_LIMIT,
+    })
   },
 }))
