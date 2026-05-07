@@ -1,0 +1,330 @@
+import { useMemo, useState } from 'react'
+import { createFileRoute } from '@tanstack/react-router'
+import { useQuery } from '@tanstack/react-query'
+import { motion } from 'framer-motion'
+import { Check, GraduationCap, Search, X } from 'lucide-react'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+import { supabase } from '@/lib/supabase'
+import { useAuthStore } from '@/stores/auth-store'
+import {
+  FORMATION_CATEGORIES,
+  LEVELS,
+  LEVEL_LABELS,
+} from '@/lib/formation-helpers'
+import type {
+  Formation,
+  FormationLevel,
+  UserFormationProgress,
+} from '@/lib/database.types'
+import {
+  FormationCard,
+  type FormationCardData,
+} from '@/components/formations/formation-card'
+import { cn } from '@/lib/utils'
+
+export const Route = createFileRoute('/app/formations/')({
+  component: FormationsCatalogPage,
+})
+
+interface FormationWithCount extends Formation {
+  formation_chapters: { count: number }[]
+}
+
+async function fetchPublishedFormations(): Promise<FormationCardData[]> {
+  const { data, error } = await supabase
+    .from('formations')
+    .select('*, formation_chapters(count)')
+    .eq('is_published', true)
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return (data ?? []).map((f) => {
+    const withCount = f as unknown as FormationWithCount
+    return {
+      ...(f as Formation),
+      chapter_count: withCount.formation_chapters?.[0]?.count ?? 0,
+      completed_count: 0,
+    }
+  })
+}
+
+async function fetchUserProgress(
+  userId: string,
+): Promise<UserFormationProgress[]> {
+  // On récupère TOUTES les rows de progression (pas seulement les completed),
+  // pour pouvoir distinguer "pas commencé" / "en cours" / "terminé" sur les cards.
+  const { data, error } = await supabase
+    .from('user_formation_progress')
+    .select('*')
+    .eq('user_id', userId)
+  if (error) throw error
+  return (data ?? []) as UserFormationProgress[]
+}
+
+function FormationsCatalogPage() {
+  const userId = useAuthStore((s) => s.user?.id)
+  const [search, setSearch] = useState('')
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([])
+  const [selectedLevel, setSelectedLevel] = useState<FormationLevel | null>(
+    null,
+  )
+
+  const formationsQuery = useQuery({
+    queryKey: ['formations', 'catalog'],
+    queryFn: fetchPublishedFormations,
+    staleTime: 5 * 60 * 1000,
+  })
+
+  const progressQuery = useQuery({
+    queryKey: ['user-progress', userId],
+    queryFn: () => fetchUserProgress(userId!),
+    enabled: Boolean(userId),
+    staleTime: 5 * 60 * 1000,
+  })
+
+  // Merge progress dans les formations
+  const formations = useMemo<FormationCardData[]>(() => {
+    if (!formationsQuery.data) return []
+    const completedByFormation = new Map<string, number>()
+    const startedFormations = new Set<string>()
+    for (const p of progressQuery.data ?? []) {
+      startedFormations.add(p.formation_id)
+      if (p.completed) {
+        completedByFormation.set(
+          p.formation_id,
+          (completedByFormation.get(p.formation_id) ?? 0) + 1,
+        )
+      }
+    }
+    return formationsQuery.data.map((f) => ({
+      ...f,
+      completed_count: completedByFormation.get(f.id) ?? 0,
+      has_started: startedFormations.has(f.id),
+    }))
+  }, [formationsQuery.data, progressQuery.data])
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase()
+    return formations.filter((f) => {
+      if (q && !f.title.toLowerCase().includes(q) &&
+          !(f.description?.toLowerCase().includes(q))) {
+        return false
+      }
+      if (selectedCategories.length > 0 &&
+          !selectedCategories.includes(f.category)) {
+        return false
+      }
+      if (selectedLevel && f.level !== selectedLevel) return false
+      return true
+    })
+  }, [formations, search, selectedCategories, selectedLevel])
+
+  function toggleCategory(cat: string) {
+    setSelectedCategories((prev) =>
+      prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat],
+    )
+  }
+
+  function clearFilters() {
+    setSearch('')
+    setSelectedCategories([])
+    setSelectedLevel(null)
+  }
+
+  const hasActiveFilters =
+    search.trim() !== '' ||
+    selectedCategories.length > 0 ||
+    selectedLevel !== null
+
+  return (
+    <div className="mx-auto max-w-6xl px-6 py-10 lg:py-14">
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, ease: 'easeOut' }}
+      >
+        <div className="flex items-center gap-3">
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--primary)]/10 text-[var(--primary)]">
+            <GraduationCap className="h-5 w-5" />
+          </span>
+          <h1 className="font-display text-3xl font-semibold tracking-tight md:text-4xl">
+            Catalogue de formations
+          </h1>
+        </div>
+        <p className="mt-3 max-w-2xl text-lg text-[var(--muted-foreground)]">
+          Explore toutes les formations IA et choisis ta prochaine compétence.
+        </p>
+      </motion.div>
+
+      {/* Search + filters */}
+      <div className="mt-8 space-y-4">
+        <div className="relative">
+          <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--muted-foreground)]" />
+          <Input
+            type="search"
+            placeholder="Rechercher une formation…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+
+        <div className="space-y-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="mr-1 text-xs font-semibold uppercase tracking-wider text-[var(--muted-foreground)]">
+              Catégories
+            </span>
+            {FORMATION_CATEGORIES.map((cat) => {
+              const selected = selectedCategories.includes(cat)
+              return (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => toggleCategory(cat)}
+                  className={cn(
+                    'flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs transition-colors',
+                    selected
+                      ? 'border-[var(--primary)] bg-[var(--primary)] text-[var(--primary-foreground)]'
+                      : 'border-[var(--border)] bg-[var(--card)] text-[var(--foreground)] hover:border-[var(--muted-foreground)]',
+                  )}
+                >
+                  {selected && <Check className="h-3 w-3" />}
+                  {cat}
+                </button>
+              )
+            })}
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="mr-1 text-xs font-semibold uppercase tracking-wider text-[var(--muted-foreground)]">
+              Niveau
+            </span>
+            {LEVELS.map((lvl) => {
+              const selected = selectedLevel === lvl
+              return (
+                <button
+                  key={lvl}
+                  type="button"
+                  onClick={() => setSelectedLevel(selected ? null : lvl)}
+                  className={cn(
+                    'rounded-full border px-3 py-1 text-xs transition-colors',
+                    selected
+                      ? 'border-[var(--accent)] bg-[var(--accent)] text-[var(--accent-foreground)]'
+                      : 'border-[var(--border)] bg-[var(--card)] text-[var(--foreground)] hover:border-[var(--muted-foreground)]',
+                  )}
+                >
+                  {LEVEL_LABELS[lvl]}
+                </button>
+              )
+            })}
+
+            {hasActiveFilters && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={clearFilters}
+                className="ml-auto"
+              >
+                <X className="h-3.5 w-3.5" />
+                Réinitialiser
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Results */}
+      <div className="mt-10">
+        {formationsQuery.isLoading ? (
+          <CatalogSkeleton />
+        ) : formationsQuery.isError ? (
+          <ErrorState
+            message="Impossible de charger le catalogue. Réessaie."
+            onRetry={() => formationsQuery.refetch()}
+          />
+        ) : formations.length === 0 ? (
+          <EmptyCatalog />
+        ) : filtered.length === 0 ? (
+          <NoResults onClear={clearFilters} />
+        ) : (
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {filtered.map((f) => (
+              <FormationCard key={f.id} formation={f} />
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function CatalogSkeleton() {
+  return (
+    <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      {Array.from({ length: 6 }).map((_, i) => (
+        <div
+          key={i}
+          className="overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)]"
+        >
+          <div className="aspect-video animate-pulse bg-[var(--secondary)]" />
+          <div className="space-y-3 p-5">
+            <div className="h-4 w-24 animate-pulse rounded bg-[var(--secondary)]" />
+            <div className="h-5 w-3/4 animate-pulse rounded bg-[var(--secondary)]" />
+            <div className="h-4 w-full animate-pulse rounded bg-[var(--secondary)]" />
+            <div className="h-3 w-1/2 animate-pulse rounded bg-[var(--secondary)]" />
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function EmptyCatalog() {
+  return (
+    <div className="rounded-2xl border border-dashed border-[var(--border)] bg-[var(--card)] p-12 text-center">
+      <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--secondary)] text-[var(--muted-foreground)]">
+        <GraduationCap className="h-5 w-5" />
+      </span>
+      <h2 className="mt-4 font-display text-xl font-semibold">
+        Les premières formations arrivent bientôt
+      </h2>
+      <p className="mx-auto mt-2 max-w-md text-sm text-[var(--muted-foreground)]">
+        On termine la production des premiers contenus. Reviens vite, ça va
+        être bon.
+      </p>
+    </div>
+  )
+}
+
+function NoResults({ onClear }: { onClear: () => void }) {
+  return (
+    <div className="rounded-2xl border border-dashed border-[var(--border)] bg-[var(--card)] p-12 text-center">
+      <h2 className="font-display text-lg font-semibold">
+        Aucune formation ne correspond
+      </h2>
+      <p className="mt-2 text-sm text-[var(--muted-foreground)]">
+        Essaie d'élargir ta recherche ou de retirer des filtres.
+      </p>
+      <Button variant="outline" className="mt-5" onClick={onClear}>
+        Réinitialiser les filtres
+      </Button>
+    </div>
+  )
+}
+
+function ErrorState({
+  message,
+  onRetry,
+}: {
+  message: string
+  onRetry: () => void
+}) {
+  return (
+    <div className="rounded-2xl border border-dashed border-[var(--border)] bg-[var(--card)] p-12 text-center">
+      <p className="text-sm text-[var(--muted-foreground)]">{message}</p>
+      <Button variant="outline" className="mt-4" onClick={onRetry}>
+        Réessayer
+      </Button>
+    </div>
+  )
+}

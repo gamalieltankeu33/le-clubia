@@ -1,0 +1,245 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Bricolage Grotesque", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Instrument Serif", Georgia, serif;
+
+  --color-bg: #fafaf9;
+  --color-fg: #0a0a0a;
+  --color-muted: #737373;
+  --color-border: #e5e5e5;
+  --color-card: #ffffff;
+
+  --color-brand: #1e40af;
+  --color-brand-foreground: #ffffff;
+  --color-accent: #f97316;
+  --color-accent-foreground: #ffffff;
+
+  --radius-sm: 0.5rem;
+  --radius: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.25rem;
+}
+
+:root {
+  /* Surface */
+  --background: #fafaf9;
+  --background-pure: #ffffff;
+  --foreground: #0a0a0a;
+  --foreground-soft: #1f1f1f;
+  --card: #ffffff;
+  --card-foreground: #0a0a0a;
+  --popover: #ffffff;
+  --popover-foreground: #0a0a0a;
+
+  /* Brand */
+  --primary: #1e40af;
+  --primary-foreground: #ffffff;
+  --accent: #f97316;
+  --accent-foreground: #ffffff;
+
+  /* Neutres */
+  --secondary: #f4f4f5;
+  --secondary-foreground: #0a0a0a;
+  --muted: #f5f5f5;
+  --muted-foreground: #737373;
+  --border: #e5e5e5;
+  --input: #e5e5e5;
+  --ring: #1e40af;
+
+  /* CTA noir style izi.club */
+  --black-cta: #0a0a0a;
+  --black-cta-foreground: #ffffff;
+  --black-cta-hover: #1f1f1f;
+
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+  html {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    min-height: 100vh;
+    margin: 0;
+    /* Garde-fou contre les débordements horizontaux sur mobile (halos,
+       carrousels, etc.). Aucun composant ne devrait dépendre du scroll
+       horizontal global. */
+    overflow-x: hidden;
+  }
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+    color: var(--foreground);
+  }
+}
+
+@layer utilities {
+  /* Marquee défilement infini (logos d'outils sur la landing).
+     2× le tableau dans le DOM, on translate de -50% pour boucler proprement.
+     Pause au hover sur desktop, désactivé si l'utilisateur a "reduce motion". */
+  @keyframes tools-marquee-scroll {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  .tools-marquee-track {
+    width: max-content;
+    animation: tools-marquee-scroll 50s linear infinite;
+    will-change: transform;
+  }
+  @media (min-width: 640px) {
+    .tools-marquee-track {
+      animation-duration: 40s;
+    }
+  }
+  .tools-marquee-track:hover {
+    animation-play-state: paused;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .tools-marquee-track {
+      animation: none;
+    }
+  }
+
+  /* Phrase-clé en rupture : Instrument Serif italique en bleu primary.
+     Usage : <span class="serif-accent">Pas demain.</span> */
+  .serif-accent {
+    font-family: var(--font-serif);
+    font-style: italic;
+    color: var(--primary);
+    letter-spacing: -0.01em;
+    font-weight: 400;
+  }
+
+  /* Eyebrow éditorial : uppercase, tracking large, sobre. */
+  .eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-size: 0.75rem; /* text-xs */
+    font-weight: 500;
+    color: var(--muted-foreground);
+  }
+
+  /* Mention @membre : pill bleu cliquable, identique dans l'éditeur
+     Tiptap et dans le rendu HTML sanitisé d'un commentaire. */
+  .mention {
+    color: var(--primary);
+    font-weight: 500;
+    text-decoration: none;
+    border-radius: 4px;
+    padding: 0 2px;
+    transition: background-color 150ms ease;
+  }
+  .mention:hover {
+    background-color: color-mix(in srgb, var(--primary) 10%, transparent);
+    text-decoration: none;
+  }
+  /* Suggestion dropdown Tippy : retire le background blanc par défaut
+     pour laisser MentionList gérer son propre style. */
+  .tippy-box[data-theme~='mention'] {
+    background: transparent;
+    box-shadow: none;
+  }
+  .tippy-box[data-theme~='mention'] .tippy-content {
+    padding: 0;
+  }
+
+  /* CTA noir style izi.club. */
+  .cta-black {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background-color: var(--black-cta);
+    color: var(--black-cta-foreground);
+    border-radius: 9999px;
+    padding: 1rem 2rem;
+    font-weight: 500;
+    font-size: 1rem;
+    line-height: 1;
+    transition: background-color 300ms ease, box-shadow 300ms ease, transform 300ms ease;
+    box-shadow: 0 4px 14px 0 rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+    border: none;
+    white-space: nowrap;
+  }
+  .cta-black:hover {
+    background-color: var(--black-cta-hover);
+    box-shadow: 0 8px 28px 0 rgba(0, 0, 0, 0.22);
+    transform: translateY(-1px);
+  }
+  .cta-black:disabled,
+  .cta-black[aria-disabled="true"] {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: 0 4px 14px 0 rgba(0, 0, 0, 0.1);
+  }
+
+  /* Variante XL pour le hero. Padding réduit sur mobile (≤480px) pour
+     éviter que le bouton dépasse les bords sur petits téléphones. */
+  .cta-black-xl {
+    padding: 1.25rem 2.5rem;
+    font-size: 1.0625rem;
+  }
+  @media (max-width: 480px) {
+    .cta-black-xl {
+      padding: 1rem 1.5rem;
+      font-size: 1rem;
+    }
+  }
+
+  /* CTA primary : version bleu profond pour les actions secondaires. */
+  .cta-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background-color: var(--primary);
+    color: var(--primary-foreground);
+    border-radius: 9999px;
+    padding: 0.875rem 1.75rem;
+    font-weight: 500;
+    font-size: 0.9375rem;
+    line-height: 1;
+    transition: background-color 300ms ease, box-shadow 300ms ease;
+    box-shadow: 0 4px 14px 0 rgba(30, 64, 175, 0.18);
+    cursor: pointer;
+    border: none;
+    white-space: nowrap;
+  }
+  .cta-primary:hover {
+    background-color: #1c3a9e;
+    box-shadow: 0 8px 28px 0 rgba(30, 64, 175, 0.28);
+  }
+
+  /* CTA tertiary : ghost lien sobre. */
+  .cta-ghost {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    color: var(--foreground);
+    font-weight: 500;
+    font-size: 0.9375rem;
+    transition: color 300ms ease;
+  }
+  .cta-ghost:hover {
+    color: var(--primary);
+  }
+}
