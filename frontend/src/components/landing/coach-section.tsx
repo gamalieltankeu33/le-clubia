@@ -1,4 +1,5 @@
 import { ArrowRight, Check } from 'lucide-react'
+import { motion } from 'framer-motion'
 import { Eyebrow } from './eyebrow'
 import { Reveal } from './reveal'
 import { CoachMockup } from './mockups'
