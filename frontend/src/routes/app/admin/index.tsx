@@ -224,7 +224,7 @@ function AdminDashboardPage() {
         <KpiCard
           icon={GraduationCap}
           label="Taux de complétion"
-          value={query.data?.overview.average_completion_rate}
+          value={query.data?.overview?.average_completion_rate}
           unit="%"
           subtext="Moyenne sur toutes les formations"
           loading={query.isLoading}
@@ -232,7 +232,7 @@ function AdminDashboardPage() {
         <KpiCard
           icon={Activity}
           label="Lecture (24h)"
-          value={query.data?.overview.chapters_read_24h}
+          value={query.data?.overview?.chapters_read_24h}
           subtext="Chapitres validés aujourd'hui"
           loading={query.isLoading}
         />
@@ -322,7 +322,7 @@ function AdminDashboardPage() {
           title="Top 5 Formations (Engagement)"
           loading={query.isLoading}
         >
-          {query.data && query.data.learning_engagement.top_formations.length > 0 ? (
+          {query.data?.learning_engagement?.top_formations && query.data.learning_engagement.top_formations.length > 0 ? (
             <ResponsiveContainer width="100%" height={240}>
               <BarChart
                 data={query.data.learning_engagement.top_formations}
