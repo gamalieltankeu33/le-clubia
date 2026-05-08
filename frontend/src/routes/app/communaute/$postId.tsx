@@ -86,7 +86,9 @@ function PostDetailPage() {
       }
     },
     onSettled: () => {
+      // On invalide tout pour garantir la synchro (Feed + Détail)
       queryClient.invalidateQueries({ queryKey: ['community-feed'] })
+      queryClient.invalidateQueries({ queryKey: ['community-post', postId] })
     },
   })
 
