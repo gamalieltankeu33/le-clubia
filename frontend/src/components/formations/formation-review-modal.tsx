@@ -13,6 +13,8 @@ interface FormationReviewModalProps {
   onClose: () => void
   formationId: string
   formationTitle: string
+  chapterId?: string | null // Nouveau
+  chapterTitle?: string | null // Nouveau
   userId: string
 }
 
@@ -21,6 +23,8 @@ export function FormationReviewModal({
   onClose,
   formationId,
   formationTitle,
+  chapterId = null,
+  chapterTitle = null,
   userId,
 }: FormationReviewModalProps) {
   const [rating, setRating] = useState(0)
@@ -28,6 +32,8 @@ export function FormationReviewModal({
   const [comment, setComment] = useState('')
   const queryClient = useQueryClient()
   const titleId = useId()
+
+  const isChapterReview = !!chapterId
 
   // Reset state on open
   useEffect(() => {
@@ -44,6 +50,7 @@ export function FormationReviewModal({
       const { error } = await supabase.from('formation_reviews').insert({
         user_id: userId,
         formation_id: formationId,
+        chapter_id: chapterId,
         rating,
         comment: comment.trim() || null,
       })
@@ -103,15 +110,24 @@ export function FormationReviewModal({
                 </div>
                 
                 <h2 id={titleId} className="font-display text-2xl font-bold tracking-tight md:text-3xl">
-                  Félicitations ! 🎉
+                  {isChapterReview ? 'Module terminé ! 📖' : 'Félicitations ! 🎉'}
                 </h2>
                 <p className="mt-2 text-[var(--muted-foreground)]">
-                  Tu as terminé la formation :<br />
-                  <span className="font-semibold text-[var(--foreground)]">« {formationTitle} »</span>
+                  {isChapterReview ? (
+                    <>
+                      Tu as validé : <br />
+                      <span className="font-semibold text-[var(--foreground)]">« {chapterTitle} »</span>
+                    </>
+                  ) : (
+                    <>
+                      Tu as terminé la formation :<br />
+                      <span className="font-semibold text-[var(--foreground)]">« {formationTitle} »</span>
+                    </>
+                  )}
                 </p>
                 
                 <p className="mt-6 text-sm font-medium uppercase tracking-widest text-[var(--muted-foreground)]">
-                  Qu'en as-tu pensé ?
+                  {isChapterReview ? "Qu'as-tu pensé de ce module ?" : "Qu'en as-tu pensé au global ?"}
                 </p>
 
                 {/* Star Rating */}

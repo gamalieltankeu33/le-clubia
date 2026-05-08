@@ -80,13 +80,12 @@ async function fetchProgressForFormation(
   return (data ?? []) as UserFormationProgress[]
 }
 
-async function fetchUserReview(userId: string, formationId: string) {
+async function fetchUserReviews(userId: string, formationId: string) {
   const { data, error } = await supabase
     .from('formation_reviews')
     .select('*')
     .eq('user_id', userId)
     .eq('formation_id', formationId)
-    .maybeSingle()
   if (error) throw error
   return data
 }
@@ -127,14 +126,32 @@ function FormationDetailPage() {
   }, [progressQuery.data])
 
   const [activeChapterId, setActiveChapterId] = useState<string | null>(null)
-  const [showReviewModal, setShowReviewModal] = useState(false)
+  
+  // Gestion des avis (modale)
+  const [reviewTarget, setReviewTarget] = useState<{
+    type: 'chapter' | 'formation'
+    chapterId?: string
+    chapterTitle?: string
+  } | null>(null)
 
-  const reviewQuery = useQuery({
-    queryKey: ['formation-review', userId, formation?.id],
-    queryFn: () => fetchUserReview(userId!, formation!.id),
+  const reviewsQuery = useQuery({
+    queryKey: ['formation-reviews', userId, formation?.id],
+    queryFn: () => fetchUserReviews(userId!, formation!.id),
     enabled: Boolean(userId && formation?.id),
-    staleTime: Infinity, // On ne change pas d'avis toutes les 5 min
+    staleTime: 60_000,
   })
+
+  const reviewedChapterIds = useMemo(() => {
+    const s = new Set<string>()
+    for (const r of reviewsQuery.data ?? []) {
+      if (r.chapter_id) s.add(r.chapter_id)
+    }
+    return s
+  }, [reviewsQuery.data])
+
+  const hasFormationReview = useMemo(() => {
+    return (reviewsQuery.data ?? []).some((r) => !r.chapter_id)
+  }, [reviewsQuery.data])
 
   // IDs de chapitres pour lesquels l'utilisateur a re-cliqué alors qu'ils
   // étaient déjà complétés → on redémarre la lecture à 0 (revisite).
@@ -250,20 +267,44 @@ function FormationDetailPage() {
     }
   }, [isFullyCompleted, formation?.id, celebratedFor])
 
-  // Fenêtre d'avis : trigger si 100% ET pas encore d'avis
+  // Fenêtre d'avis : trigger si un chapitre vient d'être complété ET pas encore d'avis
   useEffect(() => {
+    if (!activeChapter || !reviewsQuery.isSuccess || reviewTarget) return
+
+    // 1. Priorité : Avis du chapitre actuel
     if (
-      isFullyCompleted &&
-      formation?.id &&
-      reviewQuery.isSuccess &&
-      !reviewQuery.data && // Pas encore d'avis
-      !showReviewModal // Pas déjà ouverte
+      completedChapterIds.has(activeChapter.id) &&
+      !reviewedChapterIds.has(activeChapter.id)
     ) {
-      // Petit délai pour laisser le toast de célébration s'afficher avant
-      const timer = setTimeout(() => setShowReviewModal(true), 1500)
+      const timer = setTimeout(() => {
+        setReviewTarget({
+          type: 'chapter',
+          chapterId: activeChapter.id,
+          chapterTitle: activeChapter.title,
+        })
+      }, 1500)
       return () => clearTimeout(timer)
     }
-  }, [isFullyCompleted, formation?.id, reviewQuery.isSuccess, reviewQuery.data, showReviewModal])
+
+    // 2. Secondaire : Avis global si 100%
+    if (
+      isFullyCompleted &&
+      !hasFormationReview
+    ) {
+      const timer = setTimeout(() => {
+        setReviewTarget({ type: 'formation' })
+      }, 1500)
+      return () => clearTimeout(timer)
+    }
+  }, [
+    activeChapter?.id,
+    completedChapterIds,
+    reviewedChapterIds,
+    isFullyCompleted,
+    hasFormationReview,
+    reviewsQuery.isSuccess,
+    reviewTarget,
+  ])
 
   // Sauve la position courante, puis change de chapitre.
   // Si la cible est un chapitre déjà complété ET différent du courant,
@@ -579,10 +620,12 @@ function FormationDetailPage() {
 
       {formation && userId && (
         <FormationReviewModal
-          isOpen={showReviewModal}
-          onClose={() => setShowReviewModal(false)}
+          isOpen={!!reviewTarget}
+          onClose={() => setReviewTarget(null)}
           formationId={formation.id}
           formationTitle={formation.title}
+          chapterId={reviewTarget?.chapterId}
+          chapterTitle={reviewTarget?.chapterTitle}
           userId={userId}
         />
       )}
