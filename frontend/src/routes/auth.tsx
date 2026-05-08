@@ -12,6 +12,7 @@ import { nextRouteAfterAuth } from '@/lib/auth-redirect'
 import { validatePassword } from '@/lib/password-validator'
 import { supabase } from '@/lib/supabase'
 import { cn } from '@/lib/utils'
+import { Reveal } from '@/components/landing/reveal'
 
 export const Route = createFileRoute('/auth')({
   component: AuthPage,
