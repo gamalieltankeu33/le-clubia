@@ -42,7 +42,7 @@ export function MyPointsCard() {
   })
 
   return (
-    <div className="rounded-2xl border border-[var(--border)] bg-gradient-to-br from-[var(--accent)]/5 via-[var(--card)] to-[var(--card)] p-5 sm:p-6">
+    <div className="rounded-2xl border border-[var(--border)] bg-gradient-to-br from-[var(--accent)]/5 via-[var(--card)] to-[var(--card)] p-5">
       <div className="flex items-start gap-3">
         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--accent)]/15 text-[var(--accent)]">
           <Trophy className="h-5 w-5" />
@@ -59,10 +59,10 @@ export function MyPointsCard() {
             </div>
           ) : !data || data.total_points === 0 ? (
             <>
-              <p className="mt-1 font-display text-2xl font-bold tracking-tight">
+              <p className="mt-1 font-display text-lg font-bold tracking-tight">
                 Pas encore de points
               </p>
-              <p className="mt-2 max-w-md text-sm text-[var(--muted-foreground)]">
+              <p className="mt-2 max-w-md text-xs text-[var(--muted-foreground)]">
                 Publie un post (+10 pts), commente (+3 pts), reçois des likes
                 (+2 pts) ou termine un chapitre de formation (+5 pts) pour
                 grimper au classement et tenter de gagner la prime mensuelle
@@ -76,7 +76,7 @@ export function MyPointsCard() {
           ) : (
             <>
               <div className="mt-1 flex items-baseline gap-3">
-                <p className="font-display text-3xl font-bold tracking-tight tabular-nums">
+                <p className="font-display text-2xl font-bold tracking-tight tabular-nums">
                   {data.total_points}
                 </p>
                 <p className="text-sm text-[var(--muted-foreground)]">

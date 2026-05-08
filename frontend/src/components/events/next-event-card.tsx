@@ -102,11 +102,11 @@ export function NextEventCard() {
         </div>
 
         {/* Détails */}
-        <div className="flex flex-col gap-3 p-5 sm:p-6 md:p-7">
+        <div className="flex flex-col gap-2 p-5">
           <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--accent)]">
             Prochain coaching live
           </span>
-          <h2 className="font-display text-xl font-semibold leading-tight tracking-tight sm:text-2xl">
+          <h2 className="font-display text-lg font-semibold leading-tight tracking-tight sm:text-xl">
             {event.title}
           </h2>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-[var(--muted-foreground)]">
@@ -122,11 +122,11 @@ export function NextEventCard() {
             )}
           </div>
           {event.description && (
-            <p className="line-clamp-2 text-sm leading-relaxed text-[var(--muted-foreground)]">
+            <p className="line-clamp-2 text-xs leading-relaxed text-[var(--muted-foreground)]">
               {event.description}
             </p>
           )}
-          <div className="mt-2 flex flex-wrap gap-2">
+          <div className="mt-1 flex flex-wrap gap-2">
             {live && event.meet_url ? (
               <Button asChild>
                 <a
