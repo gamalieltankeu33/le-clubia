@@ -87,14 +87,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ isLoading: true })
 
     const {
-      data: { session },
-    } = await supabase.auth.getSession()
+      data: { user },
+    } = await supabase.auth.getUser()
 
-    if (session?.user) {
+    if (user) {
       const { profile, subscription } = await fetchProfileAndSubscription(
-        session.user.id,
+        user.id,
       )
-      set({ user: session.user, profile, subscription })
+      set({ user, profile, subscription })
     }
 
     // Listener cross-tab : recharge le store si la session change ailleurs.

@@ -1,45 +1,26 @@
-import {
-  Bot,
-  Brush,
-  FileText,
-  Film,
-  Image as ImageIcon,
-  Mic,
-  Network,
-  Palette,
-  Search,
-  Smile,
-  Sparkles,
-  Star,
-  Wind,
-  Workflow,
-  Zap,
-  type LucideIcon,
-} from 'lucide-react'
 import { Eyebrow } from './eyebrow'
 import { Reveal } from './reveal'
 
 interface Tool {
   name: string
-  icon: LucideIcon
+  slug: string
 }
 
 const TOOLS: Tool[] = [
-  { name: 'ChatGPT', icon: Bot },
-  { name: 'Claude', icon: Sparkles },
-  { name: 'Gemini', icon: Star },
-  { name: 'Mistral', icon: Wind },
-  { name: 'Midjourney', icon: Brush },
-  { name: 'DALL·E', icon: Palette },
-  { name: 'Runway', icon: Film },
-  { name: 'Make', icon: Workflow },
-  { name: 'Zapier', icon: Zap },
-  { name: 'n8n', icon: Network },
-  { name: 'Notion AI', icon: FileText },
-  { name: 'Canva', icon: ImageIcon },
-  { name: 'ElevenLabs', icon: Mic },
-  { name: 'Hugging Face', icon: Smile },
-  { name: 'Perplexity', icon: Search },
+  { name: 'ChatGPT', slug: 'openai' },
+  { name: 'Claude', slug: 'anthropic' },
+  { name: 'Gemini', slug: 'googlegemini' },
+  { name: 'Mistral', slug: 'mistral' },
+  { name: 'Midjourney', slug: 'midjourney' },
+  { name: 'Runway', slug: 'runwayml' },
+  { name: 'Make', slug: 'make' },
+  { name: 'Zapier', slug: 'zapier' },
+  { name: 'n8n', slug: 'n8n' },
+  { name: 'Notion', slug: 'notion' },
+  { name: 'Canva', slug: 'canva' },
+  { name: 'ElevenLabs', slug: 'elevenlabs' },
+  { name: 'Hugging Face', slug: 'huggingface' },
+  { name: 'Perplexity', slug: 'perplexity' },
 ]
 
 export function ToolsMarquee() {
@@ -75,7 +56,7 @@ export function ToolsMarquee() {
           <div className="tools-marquee-track flex items-center py-4">
             {[...TOOLS, ...TOOLS].map((tool, idx) => (
               <ToolTile
-                key={`${tool.name}-${idx}`}
+                key={`${tool.slug}-${idx}`}
                 tool={tool}
                 aria-hidden={idx >= TOOLS.length ? 'true' : undefined}
               />
@@ -94,19 +75,20 @@ function ToolTile({
   tool: Tool
   'aria-hidden'?: 'true' | undefined
 }) {
-  const Icon = tool.icon
   return (
     <div
       {...rest}
-      className="group flex shrink-0 flex-col items-center gap-4 px-10 text-[var(--muted-foreground)] transition-all duration-500 hover:text-[var(--primary)] sm:px-14"
+      className="group flex shrink-0 flex-col items-center gap-4 px-10 sm:px-14"
       title={tool.name}
     >
-      <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl border border-[var(--border)] bg-[var(--background)] transition-all duration-500 group-hover:scale-110 group-hover:border-[var(--primary)]/30 group-hover:bg-white group-hover:shadow-[0_12px_24px_-8px_rgba(30,64,175,0.15)] sm:h-20 sm:w-20">
-        <Icon className="h-7 w-7 transition-transform duration-500 group-hover:scale-110 sm:h-9 sm:w-9" aria-hidden="true" />
+      <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl border border-[var(--border)] bg-[var(--background)] transition-all duration-500 group-hover:scale-110 group-hover:border-[var(--primary)]/20 group-hover:bg-white group-hover:shadow-[0_12px_24px_-8px_rgba(0,0,0,0.08)] sm:h-20 sm:w-20">
+        <img
+          src={`https://cdn.simpleicons.org/${tool.slug}`}
+          alt={tool.name}
+          className="h-8 w-8 transition-all duration-500 grayscale opacity-40 group-hover:grayscale-0 group-hover:opacity-100 sm:h-10 sm:w-10"
+          loading="lazy"
+        />
       </div>
-      <span className="select-none whitespace-nowrap text-xs font-semibold tracking-wider uppercase opacity-60 transition-opacity duration-500 group-hover:opacity-100 sm:text-sm">
-        {tool.name}
-      </span>
     </div>
   )
 }
