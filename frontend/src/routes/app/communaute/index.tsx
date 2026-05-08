@@ -115,6 +115,7 @@ function CommunityFeedPage() {
         pageParams: number[]
       }>(key, (data) => {
         if (!data) return data
+        console.log('[Community] Optimistic update:', { postId: post.id, targetLike: like })
         return {
           ...data,
           pages: data.pages.map((page) => ({
@@ -126,7 +127,7 @@ function CommunityFeedPage() {
                     liked_by_me: like,
                     likes_count: Math.max(
                       0,
-                      p.likes_count + (like ? 1 : -1),
+                      (Number(p.likes_count) || 0) + (like ? 1 : -1),
                     ),
                   }
                 : p,

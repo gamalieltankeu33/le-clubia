@@ -300,25 +300,25 @@ export function PostCard({
         {/* Bouton compteur de likes : ouvre le modal des likers.
             Style hover bleu + soulignement pour signifier qu'il est
             cliquable. Désactivé visuellement à 0 (pas de modal vide). */}
-        {post.likes_count > 0 ? (
-          <button
-            type="button"
-            aria-label={`Voir qui a aimé (${post.likes_count})`}
-            title="Voir qui a aimé"
-            data-no-navigate
-            onClick={(e) => {
-              e.stopPropagation()
-              setLikersOpen(true)
-            }}
-            className="inline-flex items-center rounded-lg px-2 py-1.5 text-sm tabular-nums text-[var(--muted-foreground)] transition-colors hover:bg-[var(--primary)]/10 hover:text-[var(--primary)] hover:underline focus-visible:bg-[var(--primary)]/10 focus-visible:text-[var(--primary)] focus-visible:outline-none"
-          >
-            {post.likes_count}
-          </button>
-        ) : (
-          <span className="px-2 py-1.5 text-sm tabular-nums text-[var(--muted-foreground)]">
-            0
-          </span>
-        )}
+        <button
+          type="button"
+          aria-label={`Voir qui a aimé (${post.likes_count})`}
+          title="Voir qui a aimé"
+          data-no-navigate
+          onClick={(e) => {
+            if (post.likes_count === 0) return
+            e.stopPropagation()
+            setLikersOpen(true)
+          }}
+          className={cn(
+            'inline-flex items-center rounded-lg px-2 py-1.5 text-sm tabular-nums transition-colors focus-visible:outline-none',
+            post.likes_count > 0
+              ? 'text-[var(--muted-foreground)] hover:bg-[var(--primary)]/10 hover:text-[var(--primary)] hover:underline focus-visible:bg-[var(--primary)]/10 focus-visible:text-[var(--primary)]'
+              : 'text-[var(--muted-foreground)]/50 cursor-default',
+          )}
+        >
+          {post.likes_count}
+        </button>
 
         <ActionButton
           ariaLabel={

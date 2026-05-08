@@ -68,10 +68,11 @@ function PostDetailPage() {
       await queryClient.cancelQueries({ queryKey: key })
       const prev = queryClient.getQueryData<FeedPost | null>(key)
       if (prev) {
+        console.log('[Community Detail] Optimistic update:', { postId, targetLike: like })
         queryClient.setQueryData<FeedPost | null>(key, {
           ...prev,
           liked_by_me: like,
-          likes_count: Math.max(0, prev.likes_count + (like ? 1 : -1)),
+          likes_count: Math.max(0, (Number(prev.likes_count) || 0) + (like ? 1 : -1)),
         })
       }
       return { prev }
