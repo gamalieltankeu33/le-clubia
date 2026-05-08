@@ -9,6 +9,8 @@ import {
   Image as ImageIcon,
   Loader2,
   MessageSquare,
+  Pin,
+  PinOff,
   Trash2,
 } from 'lucide-react'
 import { toast } from 'sonner'
@@ -33,6 +35,7 @@ interface PostRow {
   hashtags: string[]
   likes_count: number
   comments_count: number
+  is_pinned: boolean
   created_at: string
   author: {
     first_name: string | null
@@ -77,6 +80,7 @@ async function fetchAllPosts(): Promise<PostRow[]> {
     hashtags: ((p.hashtags as string[] | null) ?? []) as string[],
     likes_count: (p.likes_count as number) ?? 0,
     comments_count: (p.comments_count as number) ?? 0,
+    is_pinned: Boolean(p.is_pinned),
     created_at: p.created_at as string,
     author: byId.get(p.user_id as string) ?? null,
   }))
@@ -131,6 +135,21 @@ function AdminCommunityPage() {
       queryClient.invalidateQueries({ queryKey: ['admin-stats'] })
     },
     onError: () => toast.error('Suppression impossible.'),
+  })
+
+  const pinMutation = useMutation({
+    mutationFn: async ({ postId, pinned }: { postId: string; pinned: boolean }) => {
+      const { error } = await supabase
+        .from('posts')
+        .update({ is_pinned: pinned })
+        .eq('id', postId)
+      if (error) throw error
+    },
+    onSuccess: (_data, vars) => {
+      toast.success(vars.pinned ? 'Post épinglé.' : 'Post désépinglé.')
+      queryClient.invalidateQueries({ queryKey: ['admin-community-posts'] })
+    },
+    onError: () => toast.error('Action impossible.'),
   })
 
   async function handleDelete(post: PostRow) {
@@ -279,7 +298,28 @@ function AdminCommunityPage() {
                     )}
                     Supprimer
                   </Button>
+                  <Button
+                    variant={p.is_pinned ? 'secondary' : 'outline'}
+                    size="sm"
+                    onClick={() => pinMutation.mutate({ postId: p.id, pinned: !p.is_pinned })}
+                    disabled={pinMutation.isPending}
+                  >
+                    {pinMutation.isPending ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : p.is_pinned ? (
+                      <PinOff className="h-3.5 w-3.5" />
+                    ) : (
+                      <Pin className="h-3.5 w-3.5" />
+                    )}
+                    {p.is_pinned ? 'Désépingler' : 'Épingler'}
+                  </Button>
                 </header>
+                {p.is_pinned && (
+                  <div className="mb-3 flex items-center gap-1.5 text-xs font-semibold text-[var(--accent)]">
+                    <Pin className="h-3 w-3" />
+                    Épinglé en haut du flux
+                  </div>
+                )}
                 <div className="mt-3 whitespace-pre-wrap text-sm">
                   {p.content}
                 </div>
