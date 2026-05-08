@@ -4,23 +4,24 @@ import { Reveal } from './reveal'
 interface Tool {
   name: string
   slug: string
+  color: string
 }
 
 const TOOLS: Tool[] = [
-  { name: 'ChatGPT', slug: 'chatgpt' },
-  { name: 'Claude', slug: 'anthropic-claude' },
-  { name: 'Gemini', slug: 'google-gemini' },
-  { name: 'Mistral', slug: 'mistral' },
-  { name: 'Midjourney', slug: 'midjourney' },
-  { name: 'Runway', slug: 'runway' },
-  { name: 'Make', slug: 'make' },
-  { name: 'Zapier', slug: 'zapier' },
-  { name: 'n8n', slug: 'n8n' },
-  { name: 'Notion', slug: 'notion' },
-  { name: 'Canva', slug: 'canva' },
-  { name: 'ElevenLabs', slug: 'elevenlabs' },
-  { name: 'Hugging Face', slug: 'hugging-face' },
-  { name: 'Perplexity', slug: 'perplexity' },
+  { name: 'ChatGPT', slug: 'openai', color: '#412991' },
+  { name: 'Claude', slug: 'anthropic', color: '#D97757' },
+  { name: 'Gemini', slug: 'googlegemini', color: '#1A73E8' },
+  { name: 'Mistral', slug: 'mistralai', color: '#FD722E' },
+  { name: 'Midjourney', slug: 'midjourney', color: '#000000' },
+  { name: 'Runway', slug: 'runway', color: '#FF5C00' },
+  { name: 'Make', slug: 'make', color: '#FF0000' },
+  { name: 'Zapier', slug: 'zapier', color: '#FF4A00' },
+  { name: 'n8n', slug: 'n8n', color: '#FF6600' },
+  { name: 'Notion', slug: 'notion', color: '#000000' },
+  { name: 'Canva', slug: 'canva', color: '#00C4CC' },
+  { name: 'ElevenLabs', slug: 'elevenlabs', color: '#000000' },
+  { name: 'Hugging Face', slug: 'huggingface', color: '#FFD21E' },
+  { name: 'Perplexity', slug: 'perplexity', color: '#000000' },
 ]
 
 export function ToolsMarquee() {
@@ -75,6 +76,9 @@ function ToolTile({
   tool: Tool
   'aria-hidden'?: 'true' | undefined
 }) {
+  // Pattern CDN GitHub officiel de Simple Icons (extrêmement robuste)
+  const iconUrl = `https://raw.githubusercontent.com/simple-icons/simple-icons/v11.13.0/icons/${tool.slug}.svg`
+
   return (
     <div
       {...rest}
@@ -82,11 +86,26 @@ function ToolTile({
       title={tool.name}
     >
       <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl border border-[var(--border)] bg-[var(--background)] transition-all duration-500 group-hover:scale-110 group-hover:border-[var(--primary)]/20 group-hover:bg-white group-hover:shadow-[0_12px_24px_-8px_rgba(0,0,0,0.08)] sm:h-20 sm:w-20">
-        <img
-          src={`https://api.svgl.app/static/icons/${tool.slug}.svg`}
-          alt={tool.name}
-          className="h-8 w-8 transition-all duration-500 grayscale opacity-40 group-hover:grayscale-0 group-hover:opacity-100 sm:h-10 sm:w-10"
-          loading="lazy"
+        <div
+          className="h-8 w-8 transition-all duration-500 sm:h-10 sm:w-10"
+          style={{
+            backgroundColor: 'currentColor',
+            color: '#94a3b8', // Slate-400 (gris neutre élégant)
+            maskImage: `url(${iconUrl})`,
+            WebkitMaskImage: `url(${iconUrl})`,
+            maskSize: 'contain',
+            WebkitMaskSize: 'contain',
+            maskRepeat: 'no-repeat',
+            WebkitMaskRepeat: 'no-repeat',
+            maskPosition: 'center',
+            WebkitMaskPosition: 'center',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = tool.color
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = '#94a3b8'
+          }}
         />
       </div>
     </div>
