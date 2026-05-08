@@ -48,20 +48,20 @@ const PAYMENT_METHODS = [
 const FALLBACK_PLANS: PublicPricingPlan[] = [
   {
     id: 'annual',
-    display_name: 'Annuel',
+    display_name: 'Plan Master',
     price_xof: 99_000,
     duration_months: 12,
     is_recommended: true,
-    description: 'Économise 39 000 FCFA par an. Le plus populaire.',
+    description: 'La maîtrise totale. Économise 39 000 FCFA par an.',
     monthly_price_xof: 8_250,
   },
   {
     id: 'semestrial',
-    display_name: '6 mois',
+    display_name: 'Plan Progress',
     price_xof: 69_000,
     duration_months: 6,
     is_recommended: false,
-    description: 'Idéal pour découvrir Le Club IA en douceur',
+    description: 'Idéal pour lancer ta transformation IA sur 6 mois',
     monthly_price_xof: 11_500,
   },
 ]

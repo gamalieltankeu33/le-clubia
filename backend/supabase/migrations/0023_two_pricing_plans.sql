@@ -54,8 +54,8 @@ create trigger trg_pricing_plans_updated_at
 insert into public.pricing_plans
   (id, display_name, price_xof, duration_months, is_active, is_recommended, description)
 values
-  ('semestrial',    '6 mois',                69000,  6, true,  false, 'Idéal pour découvrir Le Club IA en douceur'),
-  ('annual',        'Annuel',                99000, 12, true,  true,  'Économise 39 000 FCFA par an. Le plus populaire.'),
+  ('semestrial',    'Plan Progress',         69000,  6, true,  false, 'Idéal pour lancer ta transformation IA sur 6 mois'),
+  ('annual',        'Plan Master',           99000, 12, true,  true,  'La maîtrise totale. Économise 39 000 FCFA par an.'),
   ('legacy_annual', 'Annuel (ancien tarif)', 79000, 12, false, false, 'Plan historique pour les early adopters')
 on conflict (id) do update set
   display_name    = excluded.display_name,
