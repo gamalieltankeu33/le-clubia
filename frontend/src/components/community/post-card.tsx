@@ -8,6 +8,7 @@ import {
   Loader2,
   MessageCircle,
   MoreHorizontal,
+  Pin,
   Trash2,
 } from 'lucide-react'
 import { AvatarDisplay } from '@/components/avatar-display'
@@ -43,6 +44,7 @@ export interface FeedPost {
   hashtags: string[]
   likes_count: number
   comments_count: number
+  is_pinned: boolean
   created_at: string
   author: {
     id: string
@@ -128,6 +130,12 @@ export function PostCard({
       )}
       data-card-surface="true"
     ><div className="p-5">
+      {post.is_pinned && (
+        <div className="mb-4 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[var(--accent)]">
+          <Pin className="h-3.5 w-3.5 fill-[var(--accent)]/10" />
+          Épinglé par Le Club
+        </div>
+      )}
       <header className="flex items-start gap-3">
         <Link
           to="/app/membres/$userId"
