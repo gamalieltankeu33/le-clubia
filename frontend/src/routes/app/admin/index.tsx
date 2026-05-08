@@ -519,6 +519,7 @@ function KpiCard({
   icon: Icon,
   label,
   value,
+  unit,
   delta,
   deltaLabel,
   subtext,
