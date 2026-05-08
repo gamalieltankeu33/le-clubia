@@ -56,8 +56,17 @@
   --black-cta-foreground: #ffffff;
   --black-cta-hover: #1f1f1f;
 
+  /* Glassmorphism */
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.2);
+  --glass-blur: 12px;
+
   --destructive: #dc2626;
   --destructive-foreground: #ffffff;
+
+  /* Cinematic Animation Tokens */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-expo: cubic-bezier(0.87, 0, 0.13, 1);
 }
 
 @layer base {
@@ -83,6 +92,21 @@
     font-family: var(--font-display);
     letter-spacing: -0.02em;
     color: var(--foreground);
+    line-height: 1.1;
+  }
+
+  /* Cinematic Noise Overlay */
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    opacity: 0.03;
+    pointer-events: none;
+    z-index: 9999;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
   }
 }
 
@@ -241,5 +265,38 @@
   }
   .cta-ghost:hover {
     color: var(--primary);
+  }
+
+  /* Glassmorphism utility */
+  .glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--glass-border);
+  }
+
+  /* Reveal animation classes */
+  .reveal-up {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 1.2s var(--ease-out-expo), transform 1.2s var(--ease-out-expo);
+  }
+
+  .reveal-up.active {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Smooth scroll container */
+  .lenis.lenis-smooth {
+    height: auto;
+  }
+
+  .lenis.lenis-smooth [data-lenis-prevent] {
+    overscroll-behavior: contain;
+  }
+
+  .lenis.lenis-stopped {
+    overflow: hidden;
   }
 }

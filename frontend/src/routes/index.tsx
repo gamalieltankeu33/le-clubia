@@ -14,6 +14,7 @@ import { Testimonials } from '@/components/landing/testimonials'
 import { FAQ } from '@/components/landing/faq'
 import { FinalCTA } from '@/components/landing/final-cta'
 import { LandingFooter } from '@/components/landing/landing-footer'
+import { SmoothScroll } from '@/components/landing/smooth-scroll'
 
 export const Route = createFileRoute('/')({
   component: LandingPage,
@@ -21,24 +22,26 @@ export const Route = createFileRoute('/')({
 
 function LandingPage() {
   return (
-    <div className="relative min-h-screen scroll-smooth bg-white text-[#0A0A0A]">
-      <LandingHeader />
-      <main>
-        <Hero />
-        <NextEventBanner />
-        <ToolsMarquee />
-        <FourPillars />
-        <CoachSection />
-        <BeyondClub />
-        <NewsAgentSection />
-        <Personas />
-        <FeaturedMembers />
-        <PricingCard />
-        <Testimonials />
-        <FAQ />
-        <FinalCTA />
-      </main>
-      <LandingFooter />
-    </div>
+    <SmoothScroll>
+      <div className="relative min-h-screen scroll-smooth bg-white text-[#0A0A0A]">
+        <LandingHeader />
+        <main>
+          <Hero />
+          <NextEventBanner />
+          <ToolsMarquee />
+          <FourPillars />
+          <CoachSection />
+          <BeyondClub />
+          <NewsAgentSection />
+          <Personas />
+          <FeaturedMembers />
+          <PricingCard />
+          <Testimonials />
+          <FAQ />
+          <FinalCTA />
+        </main>
+        <LandingFooter />
+      </div>
+    </SmoothScroll>
   )
 }

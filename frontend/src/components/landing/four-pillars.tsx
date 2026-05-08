@@ -58,46 +58,51 @@ const PILLARS: Pillar[] = [
 
 export function FourPillars() {
   return (
-    <section id="piliers" className="bg-white py-16 sm:py-24 lg:py-32">
-      <div className="mx-auto max-w-6xl px-6">
+    <section id="piliers" className="relative bg-white py-24 sm:py-32 lg:py-40">
+      {/* Background depth halo */}
+      <div className="pointer-events-none absolute left-0 top-1/2 h-[500px] w-[500px] -translate-y-1/2 rounded-full bg-[var(--primary)]/[0.03] blur-[100px]" />
+
+      <div className="mx-auto max-w-7xl px-6">
         <div className="mx-auto max-w-3xl text-center">
           <Reveal>
-            <Eyebrow>Tout en un</Eyebrow>
-            <h2 className="mt-6 font-display text-4xl font-bold leading-[1.05] tracking-tight text-[var(--foreground)] sm:text-5xl lg:text-6xl">
+            <Eyebrow className="mb-4">Tout en un</Eyebrow>
+            <h2 className="font-display text-4xl font-bold tracking-tight text-[var(--foreground)] sm:text-5xl lg:text-7xl">
               Quatre piliers.{' '}
               <span className="serif-accent">Une expérience complète.</span>
             </h2>
-            <p className="mx-auto mt-5 max-w-2xl text-lg text-[var(--muted-foreground)]">
+            <p className="mx-auto mt-8 max-w-2xl text-lg leading-relaxed text-[var(--muted-foreground)] sm:text-xl">
               Pensé pour que tu maîtrises l'IA en autonomie, sans te disperser
-              dans 15 abonnements.
+              dans 15 abonnements différents. Une plateforme unique, optimisée.
             </p>
           </Reveal>
         </div>
 
-        <div className="mt-12 grid gap-5 sm:mt-16 sm:gap-6 md:grid-cols-2">
+        <div className="mt-16 grid gap-6 sm:mt-24 sm:gap-8 md:grid-cols-2">
           {PILLARS.map((p, i) => (
-            <Reveal key={p.title} delay={(i % 2) * 0.08}>
+            <Reveal key={p.title} delay={i * 0.1} direction={i % 2 === 0 ? 'right' : 'left'}>
               <a
                 href={p.anchor}
-                className="group flex h-full flex-col overflow-hidden rounded-2xl border border-[var(--border)] bg-white transition-all duration-300 hover:-translate-y-0.5 hover:border-[var(--foreground)]/15 hover:shadow-xl hover:shadow-black/5"
+                className="group relative flex h-full flex-col overflow-hidden rounded-[2rem] border border-[var(--border)] bg-white transition-all duration-700 hover:scale-[1.01] hover:border-[var(--primary)]/20 hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.08)]"
               >
-                <div className="flex flex-col p-6 sm:p-7">
-                  <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[var(--foreground)] text-white">
-                    <p.icon className="h-5 w-5" />
-                  </span>
-                  <h3 className="mt-5 font-display text-2xl font-bold tracking-tight text-[var(--foreground)]">
+                <div className="relative z-10 flex flex-col p-8 sm:p-10">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--foreground)] text-white shadow-xl shadow-black/10 transition-transform duration-500 group-hover:scale-110 group-hover:bg-[var(--primary)]">
+                    <p.icon className="h-6 w-6" />
+                  </div>
+                  <h3 className="mt-8 font-display text-3xl font-bold tracking-tight text-[var(--foreground)] sm:text-4xl">
                     {p.title}
                   </h3>
-                  <p className="mt-2 text-[var(--muted-foreground)]">
+                  <p className="mt-4 text-lg leading-relaxed text-[var(--muted-foreground)]">
                     {p.description}
                   </p>
-                  <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-[var(--foreground)] transition-colors group-hover:text-[var(--primary)]">
-                    Découvrir
-                    <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
-                  </span>
+                  <div className="mt-6 inline-flex items-center gap-2 text-sm font-bold tracking-tight text-[var(--foreground)] transition-all duration-300 group-hover:gap-3 group-hover:text-[var(--primary)]">
+                    Explorer la feature
+                    <ArrowRight className="h-4 w-4" />
+                  </div>
                 </div>
-                <div className="mt-auto border-t border-[var(--border)] bg-[var(--background)] p-5 sm:p-8">
-                  <div className="mx-auto max-w-md">{p.mockup}</div>
+                <div className="mt-auto border-t border-[var(--border)] bg-[var(--background)] p-6 sm:p-10">
+                  <div className="mx-auto max-w-md transition-transform duration-700 group-hover:scale-[1.03]">
+                    {p.mockup}
+                  </div>
                 </div>
               </a>
             </Reveal>

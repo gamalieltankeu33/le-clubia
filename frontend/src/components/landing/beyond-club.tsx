@@ -4,70 +4,59 @@ import { Eyebrow } from './eyebrow'
 import { Reveal } from './reveal'
 import { cn } from '@/lib/utils'
 
-/**
- * Section "Au-delà du club" — 2 cards mettant en avant les bénéfices
- * exclusifs ajoutés à l'offre Le Club IA :
- *  1. Coaching live mensuel (90 min visio + replay)
- *  2. Prime mensuelle de 50 000 FCFA pour le membre le plus actif
- *
- * Position : entre <CoachSection /> et <Personas /> dans routes/index.tsx.
- */
 export function BeyondClub() {
   return (
-    <section className="bg-white py-16 sm:py-24 lg:py-32">
-      <div className="mx-auto max-w-6xl px-6">
+    <section className="relative overflow-hidden bg-white py-24 sm:py-32 lg:py-40">
+      <div className="mx-auto max-w-7xl px-6">
         <div className="mx-auto max-w-3xl text-center">
           <Reveal>
-            <Eyebrow>Bénéfices exclusifs</Eyebrow>
-            <h2 className="mt-6 font-display text-3xl font-bold leading-[1.05] tracking-tight text-[var(--foreground)] sm:text-4xl lg:text-5xl xl:text-6xl">
-              Bien plus qu'<span className="serif-accent">une plateforme.</span>
+            <Eyebrow className="mb-6">Bénéfices exclusifs</Eyebrow>
+            <h2 className="font-display text-4xl font-bold tracking-tight text-[var(--foreground)] sm:text-5xl lg:text-7xl">
+              Bien plus qu'<span className="serif-accent italic">une plateforme.</span>
             </h2>
-            <p className="mx-auto mt-5 max-w-2xl text-base text-[var(--muted-foreground)] sm:text-lg">
-              Le Club IA t'accompagne en présentiel virtuel chaque mois et
-              récompense ton engagement.
+            <p className="mx-auto mt-8 max-w-2xl text-lg leading-relaxed text-[var(--muted-foreground)] sm:text-xl">
+              Le Club IA t'accompagne avec une présence humaine et des récompenses concrètes pour booster ta carrière.
             </p>
           </Reveal>
         </div>
 
-        <div className="mt-12 grid gap-5 sm:mt-16 sm:gap-6 lg:grid-cols-2">
-          <Reveal>
+        <div className="mt-16 grid gap-8 lg:grid-cols-2 lg:mt-24">
+          <Reveal direction="right">
             <BenefitCard
               icon={Calendar}
               accent="primary"
               title="Coaching live mensuel"
-              description="Une fois par mois, on se retrouve en visio pour une séance de coaching avec moi ou un expert invité. Tu poses tes questions, tu présentes ton projet, tu repars avec un plan d'action."
+              description="Chaque mois, rejoins-nous en direct pour une session de coaching stratégique. Pose tes questions, débloque tes projets et profite de l'expertise de mentors invités."
               points={[
-                'Sessions de 90 minutes en visio',
-                'Experts invités sur des thématiques pointues',
-                'Replay disponible si tu manques la session',
+                '90 minutes d'échange interactif',
+                'Experts invités de classe mondiale',
+                'Replay HD disponible sous 24h',
               ]}
             />
           </Reveal>
 
-          <Reveal delay={0.1}>
+          <Reveal direction="left" delay={0.1}>
             <BenefitCard
               icon={Trophy}
               accent="accent"
               title={
                 <>
-                  <span className="text-[var(--primary)]">50&nbsp;000&nbsp;FCFA</span>{' '}
-                  pour le membre le plus actif
+                  Prime de <span className="text-[var(--primary)]">50&nbsp;000&nbsp;FCFA</span>
                 </>
               }
               description={
                 <>
-                  Chaque fin de mois, le membre le plus engagé reçoit une prime de{' '}
+                  Nous récompensons l'engagement. Chaque mois, le membre le plus actif reçoit une prime de{' '}
                   <span className="font-bold text-[var(--primary)]">
                     50&nbsp;000&nbsp;FCFA
                   </span>{' '}
-                  pour booster son projet IA : formation, abonnement outil,
-                  publicité, équipement… toi seul·e décides comment l'utiliser.
+                  pour financer ses outils ou sa croissance.
                 </>
               }
               points={[
-                'Classement basé sur ton activité dans la communauté',
-                'Prime versée par mobile money',
-                'Reconnaissance publique sur la plateforme',
+                'Classement d'activité transparent',
+                'Prime versée par Mobile Money',
+                'Visibilité boostée au sein du réseau',
               ]}
             />
           </Reveal>
@@ -91,39 +80,39 @@ function BenefitCard({
   points: string[]
 }) {
   return (
-    <article className="group flex h-full flex-col rounded-3xl border border-[var(--border)] bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-[var(--foreground)]/15 hover:shadow-xl hover:shadow-black/5 sm:p-8 lg:p-10">
-      <span
+    <article className="group relative h-full flex flex-col rounded-[2.5rem] border border-[var(--border)] bg-white p-8 transition-all duration-700 hover:scale-[1.01] hover:border-[var(--primary)]/20 hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.08)] sm:p-12">
+      <div
         className={cn(
-          'flex h-12 w-12 items-center justify-center rounded-2xl sm:h-14 sm:w-14',
+          'flex h-14 w-14 items-center justify-center rounded-2xl transition-transform duration-500 group-hover:scale-110 shadow-lg',
           accent === 'primary'
-            ? 'bg-[var(--primary)]/10 text-[var(--primary)]'
-            : 'bg-[var(--accent)]/15 text-[var(--accent)]',
+            ? 'bg-[var(--primary)] text-white shadow-[var(--primary)]/20'
+            : 'bg-[var(--accent)] text-white shadow-[var(--accent)]/20',
         )}
       >
-        <Icon className="h-5 w-5 sm:h-6 sm:w-6" />
-      </span>
+        <Icon className="h-6 w-6" />
+      </div>
 
-      <h3 className="mt-5 font-display text-2xl font-bold tracking-tight text-[var(--foreground)] sm:mt-6 sm:text-3xl">
+      <h3 className="mt-8 font-display text-3xl font-bold tracking-tight text-[var(--foreground)]">
         {title}
       </h3>
-      <p className="mt-3 text-base leading-relaxed text-[var(--muted-foreground)]">
+      <p className="mt-4 text-lg leading-relaxed text-[var(--muted-foreground)] flex-1">
         {description}
       </p>
 
-      <ul className="mt-6 space-y-3 border-t border-[var(--border)] pt-5 text-sm text-[var(--foreground)]">
+      <ul className="mt-10 space-y-4 border-t border-[var(--border)] pt-8">
         {points.map((p) => (
-          <li key={p} className="flex items-start gap-3">
-            <span
+          <li key={p} className="flex items-start gap-4">
+            <div
               className={cn(
-                'mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full',
+                'mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full',
                 accent === 'primary'
                   ? 'bg-[var(--primary)]/10 text-[var(--primary)]'
-                  : 'bg-[var(--accent)]/15 text-[var(--accent)]',
+                  : 'bg-[var(--accent)]/10 text-[var(--accent)]',
               )}
             >
-              <Check className="h-3 w-3" />
-            </span>
-            {p}
+              <Check className="h-3.5 w-3.5" />
+            </div>
+            <span className="text-lg font-medium text-[var(--foreground)]/80">{p}</span>
           </li>
         ))}
       </ul>
