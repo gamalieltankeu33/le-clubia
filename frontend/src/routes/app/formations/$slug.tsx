@@ -34,6 +34,7 @@ import { ChapterList } from '@/components/formations/chapter-list'
 import { ChapterPlayer } from '@/components/formations/chapter-player'
 import { MarkdownRenderer } from '@/components/coach/markdown-renderer'
 import { saveProgressKeepalive } from '@/lib/save-progress-keepalive'
+import { FormationReviewModal } from '@/components/formations/formation-review-modal'
 
 export const Route = createFileRoute('/app/formations/$slug')({
   component: FormationDetailPage,
@@ -79,6 +80,17 @@ async function fetchProgressForFormation(
   return (data ?? []) as UserFormationProgress[]
 }
 
+async function fetchUserReview(userId: string, formationId: string) {
+  const { data, error } = await supabase
+    .from('formation_reviews')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('formation_id', formationId)
+    .maybeSingle()
+  if (error) throw error
+  return data
+}
+
 function FormationDetailPage() {
   const { slug } = Route.useParams()
   const userId = useAuthStore((s) => s.user?.id)
@@ -115,6 +127,14 @@ function FormationDetailPage() {
   }, [progressQuery.data])
 
   const [activeChapterId, setActiveChapterId] = useState<string | null>(null)
+  const [showReviewModal, setShowReviewModal] = useState(false)
+
+  const reviewQuery = useQuery({
+    queryKey: ['formation-review', userId, formation?.id],
+    queryFn: () => fetchUserReview(userId!, formation!.id),
+    enabled: Boolean(userId && formation?.id),
+    staleTime: Infinity, // On ne change pas d'avis toutes les 5 min
+  })
 
   // IDs de chapitres pour lesquels l'utilisateur a re-cliqué alors qu'ils
   // étaient déjà complétés → on redémarre la lecture à 0 (revisite).
@@ -229,6 +249,21 @@ function FormationDetailPage() {
       setCelebratedFor(formation.id)
     }
   }, [isFullyCompleted, formation?.id, celebratedFor])
+
+  // Fenêtre d'avis : trigger si 100% ET pas encore d'avis
+  useEffect(() => {
+    if (
+      isFullyCompleted &&
+      formation?.id &&
+      reviewQuery.isSuccess &&
+      !reviewQuery.data && // Pas encore d'avis
+      !showReviewModal // Pas déjà ouverte
+    ) {
+      // Petit délai pour laisser le toast de célébration s'afficher avant
+      const timer = setTimeout(() => setShowReviewModal(true), 1500)
+      return () => clearTimeout(timer)
+    }
+  }, [isFullyCompleted, formation?.id, reviewQuery.isSuccess, reviewQuery.data, showReviewModal])
 
   // Sauve la position courante, puis change de chapitre.
   // Si la cible est un chapitre déjà complété ET différent du courant,
@@ -541,6 +576,16 @@ function FormationDetailPage() {
           </div>
         )}
       </div>
+
+      {formation && userId && (
+        <FormationReviewModal
+          isOpen={showReviewModal}
+          onClose={() => setShowReviewModal(false)}
+          formationId={formation.id}
+          formationTitle={formation.title}
+          userId={userId}
+        />
+      )}
     </div>
   )
 }
