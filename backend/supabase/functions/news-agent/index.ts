@@ -53,10 +53,18 @@ const TARGET_SECTIONS = 5
 const MODEL = 'gpt-4o-mini'
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Origin': 'https://leclubia.com',
   'Access-Control-Allow-Headers':
     'authorization, x-client-info, apikey, content-type',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
+}
+
+const getCorsHeaders = (req: Request) => {
+  const origin = req.headers.get('Origin')
+  if (origin && (origin === 'https://leclubia.com' || origin.startsWith('http://localhost:'))) {
+    return { ...corsHeaders, 'Access-Control-Allow-Origin': origin }
+  }
+  return corsHeaders
 }
 
 // -----------------------------------------------------------------------------
@@ -109,11 +117,12 @@ class FatalOpenAIAuthError extends Error {
 // -----------------------------------------------------------------------------
 
 serve(async (req: Request) => {
+  const headers = getCorsHeaders(req)
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response('ok', { headers })
   }
   if (req.method !== 'POST') {
-    return jsonResponse(405, { error: 'Méthode non autorisée.' })
+    return jsonResponse(405, { error: 'Méthode non autorisée.' }, headers)
   }
 
   // ============== Phase 1 : config + auth ==============
@@ -128,7 +137,7 @@ serve(async (req: Request) => {
       ok: false,
       error: 'Configuration Supabase manquante côté serveur.',
       hint: 'Définis SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY.',
-    })
+    }, headers)
   }
   if (!openaiKey) {
     console.error('[news-agent] OPENAI_API_KEY manquante')
@@ -136,7 +145,7 @@ serve(async (req: Request) => {
       ok: false,
       error: "OPENAI_API_KEY n'est pas configurée.",
       hint: 'Dashboard → Edge Functions → Secrets. Format attendu : sk-…',
-    })
+    }, headers)
   }
 
   // ---- Auth : 2 modes acceptés ----
@@ -151,7 +160,7 @@ serve(async (req: Request) => {
   // espaces parasites dans l'header).
   const authHeader = req.headers.get('Authorization')
   if (!authHeader) {
-    return jsonResponse(401, { error: 'Authorization manquante.' })
+    return jsonResponse(401, { error: 'Authorization manquante.' }, headers)
   }
   const token = authHeader.replace(/^Bearer\s+/i, '').trim()
 
@@ -176,7 +185,7 @@ serve(async (req: Request) => {
           '[news-agent] Auth : JWT user invalide.',
           userErr?.message ?? 'no user',
         )
-        return jsonResponse(401, { error: 'Session invalide.' })
+        return jsonResponse(401, { error: 'Session invalide.' }, headers)
       }
       const sbAdmin = createClient(supabaseUrl, serviceKey, {
         auth: { persistSession: false },
@@ -187,7 +196,7 @@ serve(async (req: Request) => {
         .eq('id', user.id)
         .maybeSingle()
       if (!profile || profile.role !== 'admin') {
-        return jsonResponse(403, { error: 'Accès admin requis.' })
+        return jsonResponse(403, { error: 'Accès admin requis.' }, headers)
       }
       console.log(
         `[news-agent] Auth : admin user ${user.email ?? user.id}`,
@@ -196,7 +205,7 @@ serve(async (req: Request) => {
       console.error('[news-agent] Auth check failed:', err)
       return jsonResponse(401, {
         error: "Impossible de vérifier l'authentification.",
-      })
+      }, headers)
     }
   }
 
@@ -238,7 +247,7 @@ serve(async (req: Request) => {
       stats.reason = `Récap déjà publié dans les ${RECAP_LOOKBACK_DAYS} derniers jours (slug ${existingRecap.slug}).`
       console.log(`[news-agent] ${stats.reason} — skip.`)
       stats.finished_at = new Date().toISOString()
-      return jsonResponse(200, stats)
+      return jsonResponse(200, stats, headers)
     }
 
     // 1. Fetch RSS sources en parallèle
@@ -283,7 +292,7 @@ serve(async (req: Request) => {
       stats.reason = `Pas assez d'articles frais cette semaine (${candidates.length} < ${MIN_SECTIONS}).`
       console.log(`[news-agent] ${stats.reason}`)
       stats.finished_at = new Date().toISOString()
-      return jsonResponse(200, stats)
+      return jsonResponse(200, stats, headers)
     }
 
     // 3. Génération du récap (un seul call OpenAI)
@@ -293,7 +302,7 @@ serve(async (req: Request) => {
       stats.reason = 'Échec de la génération du récap (réponse OpenAI invalide).'
       stats.errors.push(stats.reason)
       stats.finished_at = new Date().toISOString()
-      return jsonResponse(200, stats)
+      return jsonResponse(200, stats, headers)
     }
 
     // 4. Assemblage markdown + insert
@@ -318,7 +327,7 @@ serve(async (req: Request) => {
       console.error(`[news-agent] Insert recap → ${insertErr.message}`)
       stats.errors.push(`Insert recap → ${insertErr.message}`)
       stats.finished_at = new Date().toISOString()
-      return jsonResponse(200, stats)
+      return jsonResponse(200, stats, headers)
     }
 
     stats.recap_published = true
@@ -420,7 +429,7 @@ serve(async (req: Request) => {
   console.log(
     `[news-agent] Fin pipeline — published=${stats.recap_published}, candidates=${stats.candidates_count}, errors=${stats.errors.length}`,
   )
-  return jsonResponse(200, stats)
+  return jsonResponse(200, stats, headers)
 })
 
 // -----------------------------------------------------------------------------
@@ -730,10 +739,10 @@ async function callOpenAI(
 // Helpers
 // -----------------------------------------------------------------------------
 
-function jsonResponse(status: number, body: unknown) {
+function jsonResponse(status: number, body: unknown, headers?: Record<string, string>) {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    headers: { ...(headers || corsHeaders), 'Content-Type': 'application/json' },
   })
 }
 

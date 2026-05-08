@@ -56,10 +56,19 @@ const TEMPERATURE = 0.7
 const MODEL = 'gpt-4o-mini'
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Origin': 'https://leclubia.com',
   'Access-Control-Allow-Headers':
     'authorization, x-client-info, apikey, content-type',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
+}
+
+// Pour le développement local, on peut accepter localhost
+const getCorsHeaders = (req: Request) => {
+  const origin = req.headers.get('Origin')
+  if (origin && (origin === 'https://leclubia.com' || origin.startsWith('http://localhost:'))) {
+    return { ...corsHeaders, 'Access-Control-Allow-Origin': origin }
+  }
+  return corsHeaders
 }
 
 const sseHeaders = {
@@ -82,11 +91,12 @@ interface ChatRequest {
 }
 
 serve(async (req: Request) => {
+  const headers = getCorsHeaders(req)
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response('ok', { headers })
   }
   if (req.method !== 'POST') {
-    return jsonResponse(405, { error: 'Méthode non autorisée.' })
+    return jsonResponse(405, { error: 'Méthode non autorisée.' }, headers)
   }
 
   // ============== Phase synchrone — toute erreur renvoie un JSON ==========
@@ -96,12 +106,12 @@ serve(async (req: Request) => {
     return jsonResponse(503, {
       error:
         "Coach IA temporairement indisponible. La clé OPENAI_API_KEY n'est pas configurée côté serveur.",
-    })
+    }, headers)
   }
 
   const authHeader = req.headers.get('Authorization')
   if (!authHeader) {
-    return jsonResponse(401, { error: 'Non authentifié.' })
+    return jsonResponse(401, { error: 'Non authentifié.' }, headers)
   }
 
   const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
@@ -109,7 +119,7 @@ serve(async (req: Request) => {
   if (!supabaseUrl || !supabaseAnonKey) {
     return jsonResponse(500, {
       error: 'Configuration Supabase manquante côté serveur.',
-    })
+    }, headers)
   }
 
   const supabase = createClient(supabaseUrl, supabaseAnonKey, {
@@ -122,7 +132,7 @@ serve(async (req: Request) => {
     error: userError,
   } = await supabase.auth.getUser()
   if (userError || !user) {
-    return jsonResponse(401, { error: 'Session invalide ou expirée.' })
+    return jsonResponse(401, { error: 'Session invalide ou expirée.' }, headers)
   }
 
   // Membre actif requis
@@ -134,13 +144,13 @@ serve(async (req: Request) => {
     console.error('[coach-chat] is_active_member RPC error:', activeErr)
     return jsonResponse(500, {
       error: 'Impossible de vérifier ton abonnement.',
-    })
+    }, headers)
   }
   if (!isActive) {
     return jsonResponse(403, {
       error:
         'Le Coach IA est réservé aux membres actifs. Rejoins Le Club pour y accéder.',
-    })
+    }, headers)
   }
 
   // Parse body
@@ -148,12 +158,12 @@ serve(async (req: Request) => {
   try {
     body = await req.json()
   } catch {
-    return jsonResponse(400, { error: 'Corps de requête JSON invalide.' })
+    return jsonResponse(400, { error: 'Corps de requête JSON invalide.' }, headers)
   }
 
   const { conversation_id, messages } = body
   if (!Array.isArray(messages) || messages.length === 0) {
-    return jsonResponse(400, { error: 'Messages manquants.' })
+    return jsonResponse(400, { error: 'Messages manquants.' }, headers)
   }
 
   const lastMessage = messages[messages.length - 1]
@@ -165,12 +175,12 @@ serve(async (req: Request) => {
   ) {
     return jsonResponse(400, {
       error: 'Le dernier message doit être un message utilisateur non-vide.',
-    })
+    }, headers)
   }
   if (lastMessage.content.length > MAX_USER_MESSAGE_CHARS) {
     return jsonResponse(400, {
       error: `Message trop long (max ${MAX_USER_MESSAGE_CHARS} caractères).`,
-    })
+    }, headers)
   }
 
   // Quota AVANT le stream (le decrement effectif = insert user msg ci-dessous)
@@ -184,14 +194,14 @@ serve(async (req: Request) => {
     .gte('created_at', todayStart.toISOString())
   if (countError) {
     console.error('[coach-chat] Quota count error:', countError)
-    return jsonResponse(500, { error: 'Erreur de lecture du quota.' })
+    return jsonResponse(500, { error: 'Erreur de lecture du quota.' }, headers)
   }
   const used = count ?? 0
   if (used >= DAILY_LIMIT) {
     return jsonResponse(429, {
       error: `Tu as atteint la limite de ${DAILY_LIMIT} messages aujourd'hui. Reviens demain pour reprendre la conversation.`,
       quota: { used, limit: DAILY_LIMIT },
-    })
+    }, headers)
   }
 
   // Conversation
@@ -203,7 +213,7 @@ serve(async (req: Request) => {
       .eq('id', convId)
       .maybeSingle()
     if (convError || !existing) {
-      return jsonResponse(404, { error: 'Conversation introuvable.' })
+      return jsonResponse(404, { error: 'Conversation introuvable.' }, headers)
     }
   } else {
     const trimmed = lastMessage.content.trim()
@@ -218,7 +228,7 @@ serve(async (req: Request) => {
       console.error('[coach-chat] Create conv error:', createError)
       return jsonResponse(500, {
         error: 'Impossible de créer la conversation.',
-      })
+      }, headers)
     }
     convId = newConv.id
   }
@@ -237,7 +247,7 @@ serve(async (req: Request) => {
     })
   if (insertUserError) {
     console.error('[coach-chat] Insert user msg error:', insertUserError)
-    return jsonResponse(500, { error: "Impossible d'enregistrer ton message." })
+    return jsonResponse(500, { error: "Impossible d'enregistrer ton message." }, headers)
   }
 
   // ============== Phase streaming ==========
@@ -429,12 +439,12 @@ serve(async (req: Request) => {
     },
   })
 
-  return new Response(stream, { status: 200, headers: sseHeaders })
+  return new Response(stream, { status: 200, headers: { ...headers, ...sseHeaders } })
 })
 
-function jsonResponse(status: number, body: unknown) {
+function jsonResponse(status: number, body: unknown, headers?: Record<string, string>) {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    headers: { ...(headers || corsHeaders), 'Content-Type': 'application/json' },
   })
 }

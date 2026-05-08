@@ -10,15 +10,24 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.4'
 const XOF_PER_EUR = 656
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Origin': 'https://leclubia.com',
   'Access-Control-Allow-Headers':
     'authorization, x-client-info, apikey, content-type',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
 }
 
+const getCorsHeaders = (req: Request) => {
+  const origin = req.headers.get('Origin')
+  if (origin && (origin === 'https://leclubia.com' || origin.startsWith('http://localhost:'))) {
+    return { ...corsHeaders, 'Access-Control-Allow-Origin': origin }
+  }
+  return corsHeaders
+}
+
 serve(async (req) => {
+  const headers = getCorsHeaders(req)
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response('ok', { headers })
   }
 
   try {
@@ -29,13 +38,13 @@ serve(async (req) => {
     if (!supabaseUrl || !anonKey || !serviceKey) {
       return jsonResponse(500, {
         error: 'Configuration Supabase manquante côté serveur.',
-      })
+      }, headers)
     }
 
     // 1. Auth via le JWT du caller
     const authHeader = req.headers.get('Authorization')
     if (!authHeader) {
-      return jsonResponse(401, { error: 'Non authentifié.' })
+      return jsonResponse(401, { error: 'Non authentifié.' }, headers)
     }
     const sbUser = createClient(supabaseUrl, anonKey, {
       global: { headers: { Authorization: authHeader } },
@@ -46,7 +55,7 @@ serve(async (req) => {
       error: userErr,
     } = await sbUser.auth.getUser()
     if (userErr || !user) {
-      return jsonResponse(401, { error: 'Session invalide.' })
+      return jsonResponse(401, { error: 'Session invalide.' }, headers)
     }
 
     // 2. Vérification du rôle admin
@@ -59,7 +68,7 @@ serve(async (req) => {
       .eq('id', user.id)
       .maybeSingle()
     if (!profile || profile.role !== 'admin') {
-      return jsonResponse(403, { error: 'Accès réservé aux administrateurs.' })
+      return jsonResponse(403, { error: 'Accès réservé aux administrateurs.' }, headers)
     }
 
     // 3. Requêtes en parallèle
@@ -321,36 +330,10 @@ serve(async (req) => {
     // Réponse
     return jsonResponse(200, {
       overview: {
-        members_total: membersTotal,
-        members_today: membersToday,
-        members_active_7d: membersActive7d,
-        subscriptions_active: subsActive,
-        // MRR calculé exactement à partir des plans réels (cf. RPC
-        // compute_active_mrr_xof, migration 0023). Plus de constante
-        // hardcodée. mrr_estimate_eur conservé pour rétrocompat des
-        // composants admin qui l'affichent ; ajout de mrr_xof + breakdown
-        // pour les nouvelles vues.
-        mrr_estimate_eur: mrrEur,
-        mrr_xof: mrrXof,
-        mrr_breakdown: mrrBreakdown,
-        posts_total: postsTotal,
-        posts_today: postsToday,
-        formations_published: formationsPub,
-        formations_drafts: formationsDraft,
-        resources_published: resourcesPub,
-        news_published: newsPub,
-      },
-      signups_30d,
-      interests_distribution,
-      top_formations_categories,
-      recent_signups,
-      recent_posts,
-      top_active_members,
-      generated_at: new Date().toISOString(),
-    })
+        // ... (truncated for brevity in TargetContent but must match exactly)
   } catch (err) {
     console.error('admin-stats error:', err)
-    return jsonResponse(500, { error: 'Erreur interne.' })
+    return jsonResponse(500, { error: 'Erreur interne.' }, getCorsHeaders(req))
   }
 })
 
@@ -361,9 +344,9 @@ function ymd(d: Date): string {
   return `${y}-${m}-${day}`
 }
 
-function jsonResponse(status: number, body: unknown) {
+function jsonResponse(status: number, body: unknown, headers?: Record<string, string>) {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    headers: { ...(headers || corsHeaders), 'Content-Type': 'application/json' },
   })
 }
