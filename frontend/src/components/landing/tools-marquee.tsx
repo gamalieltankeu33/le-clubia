@@ -7,20 +7,20 @@ interface Tool {
 }
 
 const TOOLS: Tool[] = [
-  { name: 'ChatGPT', slug: 'openai' },
-  { name: 'Claude', slug: 'anthropic' },
-  { name: 'Gemini', slug: 'googlegemini' },
-  { name: 'Mistral', slug: 'mistral' },
-  { name: 'Midjourney', slug: 'midjourney' },
-  { name: 'Runway', slug: 'runwayml' },
-  { name: 'Make', slug: 'make' },
-  { name: 'Zapier', slug: 'zapier' },
-  { name: 'n8n', slug: 'n8n' },
-  { name: 'Notion', slug: 'notion' },
-  { name: 'Canva', slug: 'canva' },
-  { name: 'ElevenLabs', slug: 'elevenlabs' },
-  { name: 'Hugging Face', slug: 'huggingface' },
-  { name: 'Perplexity', slug: 'perplexity' },
+  { name: 'ChatGPT', slug: 'logos:chatgpt' },
+  { name: 'Claude', slug: 'logos:anthropic-icon' },
+  { name: 'Gemini', slug: 'logos:google-gemini' },
+  { name: 'Mistral', slug: 'logos:mistral-ai-icon' },
+  { name: 'Midjourney', slug: 'logos:midjourney-icon' },
+  { name: 'Runway', slug: 'logos:runway-icon' },
+  { name: 'Make', slug: 'logos:make-icon' },
+  { name: 'Zapier', slug: 'logos:zapier-icon' },
+  { name: 'n8n', slug: 'logos:n8n-icon' },
+  { name: 'Notion', slug: 'logos:notion-icon' },
+  { name: 'Canva', slug: 'logos:canva' },
+  { name: 'ElevenLabs', slug: 'logos:elevenlabs' },
+  { name: 'Hugging Face', slug: 'logos:huggingface-icon' },
+  { name: 'Perplexity', slug: 'logos:perplexity-icon' },
 ]
 
 export function ToolsMarquee() {
@@ -83,7 +83,7 @@ function ToolTile({
     >
       <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl border border-[var(--border)] bg-[var(--background)] transition-all duration-500 group-hover:scale-110 group-hover:border-[var(--primary)]/20 group-hover:bg-white group-hover:shadow-[0_12px_24px_-8px_rgba(0,0,0,0.08)] sm:h-20 sm:w-20">
         <img
-          src={`https://cdn.simpleicons.org/${tool.slug}`}
+          src={`https://api.iconify.design/${tool.slug}.svg`}
           alt={tool.name}
           className="h-8 w-8 transition-all duration-500 grayscale opacity-40 group-hover:grayscale-0 group-hover:opacity-100 sm:h-10 sm:w-10"
           loading="lazy"
