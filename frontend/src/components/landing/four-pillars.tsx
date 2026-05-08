@@ -66,7 +66,7 @@ export function FourPillars() {
         <div className="mx-auto max-w-3xl text-center">
           <Reveal>
             <Eyebrow className="mb-4">Tout en un</Eyebrow>
-            <h2 className="font-display text-4xl font-bold tracking-tight text-[var(--foreground)] sm:text-5xl lg:text-7xl">
+            <h2 className="font-display text-4xl font-bold tracking-tight text-[var(--foreground)] sm:text-5xl lg:text-6xl">
               Quatre piliers.{' '}
               <span className="serif-accent">Une expérience complète.</span>
             </h2>

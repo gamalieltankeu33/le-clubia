@@ -11,7 +11,7 @@ export function BeyondClub() {
         <div className="mx-auto max-w-3xl text-center">
           <Reveal>
             <Eyebrow className="mb-6">Bénéfices exclusifs</Eyebrow>
-            <h2 className="font-display text-4xl font-bold tracking-tight text-[var(--foreground)] sm:text-5xl lg:text-7xl">
+            <h2 className="font-display text-4xl font-bold tracking-tight text-[var(--foreground)] sm:text-5xl lg:text-6xl">
               Bien plus qu'<span className="serif-accent italic">une plateforme.</span>
             </h2>
             <p className="mx-auto mt-8 max-w-2xl text-lg leading-relaxed text-[var(--muted-foreground)] sm:text-xl">

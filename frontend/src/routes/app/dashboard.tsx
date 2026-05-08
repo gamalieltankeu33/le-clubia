@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 import { useAuthStore } from '@/stores/auth-store'
 import { useCoachStore } from '@/stores/coach-store'
+import { Reveal } from '@/components/landing/reveal'
 import { ResumeFormationCard } from '@/components/formations/resume-formation-card'
 import { RecentPostsCard } from '@/components/community/recent-posts-card'
 import { MyPointsCard } from '@/components/community/my-points-card'
@@ -69,135 +70,150 @@ function DashboardPage() {
     'membre'
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10 lg:py-14">
-      {/* Hero */}
-      <motion.section
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, ease: 'easeOut' }}
-      >
-        <h1 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl md:text-5xl">
-          Bienvenue, {firstName}
-        </h1>
-        <p className="mt-2 max-w-2xl text-base text-[var(--muted-foreground)] sm:text-lg">
-          Voici ce qui se passe dans Le Club IA aujourd'hui.
-        </p>
-      </motion.section>
+    <div className="mx-auto max-w-6xl px-6 py-10 sm:py-14 lg:py-16">
+      {/* Hero Welcome */}
+      <Reveal>
+        <section>
+          <div className="flex items-center gap-3">
+            <h1 className="font-display text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
+              Bienvenue, {firstName} <span className="serif-accent italic">👋</span>
+            </h1>
+          </div>
+          <p className="mt-3 max-w-2xl text-lg text-[var(--muted-foreground)] sm:text-xl leading-relaxed">
+            Heureux de te revoir. Voici l'essentiel du Club IA pour ta croissance aujourd'hui.
+          </p>
+        </section>
+      </Reveal>
 
-      {/* Prochain coaching live (visible uniquement si un event est à venir) */}
-      <section className="mt-8">
-        <NextEventCard />
-      </section>
+      {/* Prochain coaching live */}
+      <Reveal delay={0.1} distance={20}>
+        <section className="mt-12">
+          <NextEventCard />
+        </section>
+      </Reveal>
 
       {/* Carte vedette Coach IA */}
-      <motion.section
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, delay: 0.05 }}
-        className="mt-8"
-      >
-        <button
-          type="button"
-          onClick={openCoach}
-          className="group relative flex w-full items-center gap-5 overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--primary)] p-6 text-left text-[var(--primary-foreground)] transition-shadow hover:shadow-lg sm:p-7"
-        >
-          <span
-            aria-hidden="true"
-            className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-[var(--accent)]/30 blur-3xl"
-          />
-          <span className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/15 backdrop-blur">
-            <Sparkles className="h-6 w-6" />
-          </span>
-          <div className="relative min-w-0 flex-1">
-            <p className="text-xs font-semibold uppercase tracking-wider text-white/70">
-              Nouveau
-            </p>
-            <h2 className="mt-1 font-display text-xl font-semibold tracking-tight text-white sm:text-2xl">
-              Coach IA — ton assistant personnel
-            </h2>
-            <p className="mt-1 text-sm text-white/80">
-              Pose tes questions à ton Coach IA personnel, 24/7. 30 messages
-              offerts par jour.
-            </p>
-          </div>
-          <ArrowRight className="relative hidden h-5 w-5 -translate-x-1 transition-transform group-hover:translate-x-0 sm:block" />
-        </button>
-      </motion.section>
+      <Reveal delay={0.2} distance={20}>
+        <section className="mt-12">
+          <button
+            type="button"
+            onClick={openCoach}
+            className="group relative flex w-full flex-col sm:flex-row sm:items-center gap-6 overflow-hidden rounded-[2rem] border border-[var(--primary)]/20 bg-[var(--primary)] p-8 text-left text-white shadow-2xl shadow-[var(--primary)]/20 transition-all hover:scale-[1.01]"
+          >
+            {/* Animated Halo in background */}
+            <div
+              aria-hidden="true"
+              className="absolute -right-10 -top-10 h-64 w-64 rounded-full bg-[var(--accent)]/40 blur-[80px] transition-opacity group-hover:opacity-80"
+            />
+            
+            <div className="relative flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/10 backdrop-blur-md border border-white/20">
+              <Sparkles className="h-7 w-7 text-white" />
+            </div>
+            
+            <div className="relative min-w-0 flex-1">
+              <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-[10px] font-bold uppercase tracking-widest border border-white/10 mb-3">
+                Assistant personnel
+              </div>
+              <h2 className="font-display text-2xl font-bold tracking-tight sm:text-3xl">
+                Coach IA — prêt pour tes questions
+              </h2>
+              <p className="mt-2 text-base text-white/80 leading-relaxed max-w-xl">
+                Besoin d'un prompt, d'un résumé ou d'un conseil stratégique ? Ton coach Claude 4.5 est disponible 24/7.
+              </p>
+            </div>
+            
+            <div className="relative flex h-12 w-12 items-center justify-center rounded-full bg-white text-[var(--primary)] shadow-lg transition-transform group-hover:translate-x-2">
+              <ArrowRight className="h-6 w-6" />
+            </div>
+          </button>
+        </section>
+      </Reveal>
 
       {/* 4 raccourcis */}
-      <section className="mt-10">
-        <h2 className="font-display text-xl font-semibold tracking-tight">
-          Explore les 4 piliers
-        </h2>
-        <div className="mt-5 grid gap-4 sm:grid-cols-2">
+      <section className="mt-16">
+        <Reveal delay={0.3}>
+          <div className="flex items-center gap-4 mb-8">
+            <h2 className="font-display text-xl font-bold uppercase tracking-[0.15em] text-[var(--muted-foreground)] opacity-80">
+              Les 4 Piliers
+            </h2>
+            <div className="h-px flex-1 bg-[var(--border)]" />
+          </div>
+        </Reveal>
+        
+        <div className="grid gap-6 sm:grid-cols-2">
           {SHORTCUTS.map((card, i) => (
-            <motion.div
-              key={card.to}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: 0.05 + i * 0.04 }}
-            >
+            <Reveal key={card.to} delay={0.4 + i * 0.1} distance={20}>
               <Link
                 to={card.to}
-                className="group block h-full rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 transition-all hover:border-[var(--primary)]/30 hover:shadow-md"
+                className="group relative block h-full overflow-hidden rounded-[2rem] border border-[var(--border)] bg-white p-8 transition-all duration-500 hover:border-[var(--primary)]/30 hover:shadow-[0_32px_64px_-16px_rgba(0,0,0,0.08)]"
               >
-                <div className="flex items-start gap-4">
-                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[var(--primary)]/10 text-[var(--primary)]">
-                    <card.icon className="h-5 w-5" />
-                  </span>
-                  <div className="min-w-0 flex-1">
+                <div className="flex flex-col gap-6">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--primary)]/5 text-[var(--primary)] transition-colors group-hover:bg-[var(--primary)] group-hover:text-white">
+                    <card.icon className="h-6 w-6" />
+                  </div>
+                  <div className="min-w-0">
                     <div className="flex items-center justify-between">
-                      <h3 className="font-display text-lg font-semibold">
+                      <h3 className="font-display text-2xl font-bold tracking-tight">
                         {card.title}
                       </h3>
-                      <ArrowRight className="h-4 w-4 -translate-x-1 text-[var(--muted-foreground)] opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100" />
+                      <ArrowRight className="h-5 w-5 -translate-x-2 text-[var(--primary)] opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100" />
                     </div>
-                    <p className="mt-1 text-sm text-[var(--muted-foreground)]">
+                    <p className="mt-2 text-base leading-relaxed text-[var(--muted-foreground)]">
                       {card.description}
                     </p>
                   </div>
                 </div>
               </Link>
-            </motion.div>
+            </Reveal>
           ))}
         </div>
       </section>
 
       {/* Mes points du mois */}
-      <section className="mt-10">
-        <MyPointsCard />
-      </section>
+      <Reveal delay={0.8} distance={20}>
+        <section className="mt-16">
+          <MyPointsCard />
+        </section>
+      </Reveal>
 
       {/* Reprends ta dernière formation */}
-      <section className="mt-12">
-        <div className="flex items-center justify-between">
-          <h2 className="font-display text-xl font-semibold tracking-tight">
-            Reprends ta dernière formation
-          </h2>
-          <Link
-            to="/app/formations"
-            className="text-sm text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
-          >
-            Voir tout
-          </Link>
-        </div>
-        <ResumeFormationCard />
+      <section className="mt-20">
+        <Reveal delay={0.9}>
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="font-display text-xl font-bold uppercase tracking-[0.15em] text-[var(--muted-foreground)] opacity-80">
+              Continuer l'apprentissage
+            </h2>
+            <Link
+              to="/app/formations"
+              className="text-sm font-bold text-[var(--primary)] hover:underline"
+            >
+              Catalogue complet
+            </Link>
+          </div>
+        </Reveal>
+        <Reveal delay={1} distance={20}>
+          <ResumeFormationCard />
+        </Reveal>
       </section>
 
       {/* Activité récente de la communauté */}
-      <section className="mt-12">
-        <div className="flex items-center justify-between">
-          <h2 className="font-display text-xl font-semibold tracking-tight">
-            Activité récente de la communauté
-          </h2>
-          <Link
-            to="/app/communaute"
-            className="text-sm text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
-          >
-            Voir le feed
-          </Link>
-        </div>
-        <RecentPostsCard />
+      <section className="mt-20">
+        <Reveal delay={1.1}>
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="font-display text-xl font-bold uppercase tracking-[0.15em] text-[var(--muted-foreground)] opacity-80">
+              Flux Communautaire
+            </h2>
+            <Link
+              to="/app/communaute"
+              className="text-sm font-bold text-[var(--primary)] hover:underline"
+            >
+              Rejoindre la discussion
+            </Link>
+          </div>
+        </Reveal>
+        <Reveal delay={1.2} distance={20}>
+          <RecentPostsCard />
+        </Reveal>
       </section>
     </div>
   )

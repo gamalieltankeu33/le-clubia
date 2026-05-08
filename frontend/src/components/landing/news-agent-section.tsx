@@ -48,7 +48,7 @@ export function NewsAgentSection() {
 
         <Reveal direction="left" className="order-1 lg:order-2">
           <Eyebrow className="mb-6">Intelligence Collective</Eyebrow>
-          <h2 className="font-display text-4xl font-bold tracking-tight text-[var(--foreground)] sm:text-5xl lg:text-7xl">
+          <h2 className="font-display text-4xl font-bold tracking-tight text-[var(--foreground)] sm:text-5xl lg:text-6xl">
             Pendant que tu dors,{' '}
             <span className="serif-accent">l'agent travaille.</span>
           </h2>

@@ -102,7 +102,7 @@ export function PricingCard() {
         <div className="text-center">
           <Reveal>
             <Eyebrow className="mb-6">Investis sur toi</Eyebrow>
-            <h2 className="font-display text-4xl font-bold tracking-tight text-[var(--foreground)] sm:text-5xl lg:text-7xl">
+            <h2 className="font-display text-4xl font-bold tracking-tight text-[var(--foreground)] sm:text-5xl lg:text-6xl">
               Prêt à dominer l'IA ?
             </h2>
             <p className="mx-auto mt-8 max-w-2xl text-lg leading-relaxed text-[var(--muted-foreground)] sm:text-xl">

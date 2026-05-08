@@ -133,24 +133,44 @@ function AuthPage() {
     isSignup && password.length > 0 ? validatePassword(password) : null
 
   return (
-    <div className="flex min-h-screen flex-col bg-[var(--background)] px-5 py-10 sm:px-6 sm:py-12">
-      <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center">
-        <div className="mb-6 flex justify-center sm:mb-8">
-          <BrandLogo size="md" variant="primary" />
-        </div>
+    <div className="relative flex min-h-screen flex-col overflow-hidden bg-[var(--background)] px-5 py-10 sm:px-6 sm:py-12">
+      {/* Cinematic Background Halos */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 -z-10"
+      >
+        <div className="absolute -top-48 left-1/2 h-[800px] w-[800px] -translate-x-1/2 rounded-full bg-gradient-to-b from-[var(--primary)]/[0.05] to-transparent blur-[120px]" />
+        <div className="absolute right-[10%] top-1/4 h-[500px] w-[500px] rounded-full bg-[var(--accent)]/[0.03] blur-[100px]" />
+      </div>
 
-        <div className="rounded-2xl border border-[var(--border)] bg-white p-6 shadow-sm sm:p-10">
-          {/* Titre + sous-titre dynamique */}
-          <div>
-            <h1 className="font-display text-2xl font-bold tracking-tight text-[var(--foreground)] sm:text-3xl">
-              Bienvenue dans Le Club IA
-            </h1>
-            <p className="mt-2 text-sm text-[var(--muted-foreground)]">
-              {isSignup
-                ? 'Crée ton compte en moins de 30 secondes.'
-                : 'Heureux de te revoir parmi nous.'}
-            </p>
+      <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center">
+        <Reveal delay={0.1}>
+          <div className="mb-8 flex justify-center">
+            <BrandLogo size="md" variant="primary" />
           </div>
+        </Reveal>
+
+        <Reveal delay={0.2} distance={20}>
+          <div className="glass overflow-hidden rounded-[2.5rem] border border-[var(--border)] p-6 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] sm:p-10">
+            {/* Titre + sous-titre dynamique */}
+            <div>
+              <h1 className="font-display text-2xl font-bold tracking-tight text-[var(--foreground)] sm:text-4xl">
+                {isSignup ? (
+                  <>
+                    Rejoins <span className="serif-accent italic">Le Club.</span>
+                  </>
+                ) : (
+                  <>
+                    Ravi de te <span className="serif-accent italic">revoir.</span>
+                  </>
+                )}
+              </h1>
+              <p className="mt-3 text-base text-[var(--muted-foreground)]">
+                {isSignup
+                  ? 'Crée ton compte en moins de 30 secondes.'
+                  : 'Connecte-toi pour accéder à tes ressources.'}
+              </p>
+            </div>
 
           {/* Tabs login / signup */}
           <ModeTabs
@@ -281,28 +301,30 @@ function AuthPage() {
               )}
             </form>
           </div>
-        </div>
+        </Reveal>
 
-        <p className="mt-8 text-center text-xs text-[var(--muted-foreground)]">
-          © {new Date().getFullYear()} Le Club IA ·{' '}
-          <Link to="/cgu" className="hover:text-[var(--foreground)]">
-            CGU
-          </Link>{' '}
-          ·{' '}
-          <Link
-            to="/confidentialite"
-            className="hover:text-[var(--foreground)]"
-          >
-            Confidentialité
-          </Link>{' '}
-          ·{' '}
-          <Link
-            to="/mentions-legales"
-            className="hover:text-[var(--foreground)]"
-          >
-            Mentions légales
-          </Link>
-        </p>
+        <Reveal delay={0.4}>
+          <p className="mt-10 text-center text-xs text-[var(--muted-foreground)]">
+            © {new Date().getFullYear()} Le Club IA ·{' '}
+            <Link to="/cgu" className="hover:text-[var(--foreground)]">
+              CGU
+            </Link>{' '}
+            ·{' '}
+            <Link
+              to="/confidentialite"
+              className="hover:text-[var(--foreground)]"
+            >
+              Confidentialité
+            </Link>{' '}
+            ·{' '}
+            <Link
+              to="/mentions-legales"
+              className="hover:text-[var(--foreground)]"
+            >
+              Mentions légales
+            </Link>
+          </p>
+        </Reveal>
       </div>
     </div>
   )
@@ -321,7 +343,7 @@ function ModeTabs({
     <div
       role="tablist"
       aria-label="Choisir entre se connecter et s'inscrire"
-      className="mt-6 grid grid-cols-2 gap-1 rounded-xl bg-[var(--secondary)] p-1"
+      className="mt-8 grid grid-cols-2 gap-1 rounded-2xl bg-black/5 p-1 backdrop-blur-sm"
     >
       <TabButton
         active={mode === 'login'}
@@ -360,10 +382,9 @@ function TabButton({
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        'rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-200',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]/40',
+        'rounded-xl px-3 py-2.5 text-sm font-semibold transition-all duration-300',
         active
-          ? 'bg-[var(--foreground)] text-white shadow-sm'
+          ? 'bg-white text-[var(--foreground)] shadow-sm'
           : 'bg-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)]',
         disabled && 'cursor-not-allowed opacity-60',
       )}
@@ -375,12 +396,12 @@ function TabButton({
 
 function Divider({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative">
+    <div className="relative py-4">
       <div className="absolute inset-0 flex items-center">
         <span className="w-full border-t border-[var(--border)]" />
       </div>
       <div className="relative flex justify-center">
-        <span className="bg-white px-3 text-xs uppercase tracking-wider text-[var(--muted-foreground)]">
+        <span className="bg-white/50 px-3 text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--muted-foreground)] backdrop-blur-sm">
           {children}
         </span>
       </div>

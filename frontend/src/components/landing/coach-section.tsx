@@ -26,7 +26,7 @@ export function CoachSection() {
       <div className="mx-auto grid max-w-7xl items-center gap-16 px-6 lg:grid-cols-2 lg:gap-24">
         <Reveal direction="right">
           <Eyebrow variant="accent" className="mb-6">Feature exclusive</Eyebrow>
-          <h2 className="font-display text-4xl font-bold tracking-tight text-[var(--foreground)] sm:text-5xl lg:text-7xl">
+          <h2 className="font-display text-4xl font-bold tracking-tight text-[var(--foreground)] sm:text-5xl lg:text-6xl">
             Un coach IA{' '}
             <span className="serif-accent italic">qui te connaît.</span>
           </h2>

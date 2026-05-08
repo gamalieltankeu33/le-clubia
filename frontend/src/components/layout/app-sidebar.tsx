@@ -76,25 +76,25 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
   }
 
   return (
-    <div className="flex h-full w-full flex-col bg-[var(--card)]">
+    <div className="flex h-full w-full flex-col bg-white/70 backdrop-blur-md">
       {/* Logo + badge admin */}
-      <div className="flex items-center gap-2 px-5 py-5">
-        <Link to="/app/dashboard" onClick={onNavigate} className="inline-flex">
+      <div className="flex items-center gap-2 px-6 py-8">
+        <Link to="/app/dashboard" onClick={onNavigate} className="inline-flex transition-transform hover:scale-[1.02]">
           <BrandLogo size="sm" variant="primary" asLink={false} />
         </Link>
         {isAdmin && (
-          <span className="ml-auto rounded-full bg-[var(--accent)]/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[var(--accent)]">
+          <span className="ml-auto rounded-full bg-[var(--accent)]/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[var(--accent)] border border-[var(--accent)]/20">
             Admin
           </span>
         )}
       </div>
 
       {/* Navigation principale */}
-      <nav className="flex-1 overflow-y-auto px-3 py-2">
-        <p className="px-3 pb-2 pt-3 text-[11px] font-medium uppercase tracking-wider text-[var(--muted-foreground)]">
+      <nav className="flex-1 overflow-y-auto px-4 py-2">
+        <p className="px-3 pb-3 pt-3 text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--muted-foreground)] opacity-60">
           Navigation
         </p>
-        <ul className="space-y-1">
+        <ul className="space-y-1.5">
           {NAV_ITEMS.map((item) => {
             const active = pathname === item.to
             return (
@@ -103,21 +103,18 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
                   to={item.to}
                   onClick={onNavigate}
                   className={cn(
-                    'group relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors',
+                    'group relative flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-300',
                     active
-                      ? 'bg-[var(--primary)]/10 font-medium text-[var(--primary)]'
-                      : 'text-[var(--foreground)] hover:bg-[var(--secondary)]',
+                      ? 'bg-[var(--primary)] text-white shadow-lg shadow-[var(--primary)]/20'
+                      : 'text-[var(--foreground)] hover:bg-[var(--primary)]/5 hover:text-[var(--primary)]',
                   )}
                 >
-                  {active && (
-                    <span className="absolute inset-y-1 left-0 w-1 rounded-r-full bg-[var(--primary)]" />
-                  )}
                   <item.icon
                     className={cn(
-                      'h-4 w-4 shrink-0',
+                      'h-[18px] w-[18px] shrink-0 transition-colors',
                       active
-                        ? 'text-[var(--primary)]'
-                        : 'text-[var(--muted-foreground)] group-hover:text-[var(--foreground)]',
+                        ? 'text-white'
+                        : 'text-[var(--muted-foreground)] group-hover:text-[var(--primary)]',
                     )}
                   />
                   {item.label}
@@ -130,10 +127,10 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
         {/* Section Admin (visible uniquement si admin) */}
         {isAdmin && (
           <>
-            <p className="mt-6 px-3 pb-2 text-[11px] font-medium uppercase tracking-wider text-[var(--accent)]">
-              Admin
+            <p className="mt-8 px-3 pb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--accent)] opacity-60">
+              Administration
             </p>
-            <ul className="space-y-1">
+            <ul className="space-y-1.5">
               {ADMIN_NAV_ITEMS.map((item) => {
                 const active = item.matchPrefix
                   ? pathname.startsWith(item.matchPrefix)
@@ -144,21 +141,18 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
                       to={item.to}
                       onClick={onNavigate}
                       className={cn(
-                        'group relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors',
+                        'group relative flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-300',
                         active
-                          ? 'bg-[var(--accent)]/10 font-medium text-[var(--accent)]'
-                          : 'text-[var(--foreground)] hover:bg-[var(--secondary)]',
+                          ? 'bg-[var(--accent)] text-white shadow-lg shadow-[var(--accent)]/20'
+                          : 'text-[var(--foreground)] hover:bg-[var(--accent)]/5 hover:text-[var(--accent)]',
                       )}
                     >
-                      {active && (
-                        <span className="absolute inset-y-1 left-0 w-1 rounded-r-full bg-[var(--accent)]" />
-                      )}
                       <item.icon
                         className={cn(
-                          'h-4 w-4 shrink-0',
+                          'h-[18px] w-[18px] shrink-0 transition-colors',
                           active
-                            ? 'text-[var(--accent)]'
-                            : 'text-[var(--muted-foreground)] group-hover:text-[var(--foreground)]',
+                            ? 'text-white'
+                            : 'text-[var(--muted-foreground)] group-hover:text-[var(--accent)]',
                         )}
                       />
                       {item.label}
@@ -172,15 +166,15 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
       </nav>
 
       {/* Bas : profil + déconnexion */}
-      <div className="border-t border-[var(--border)] p-3">
+      <div className="mt-auto border-t border-[var(--border)] p-4">
         <Link
           to="/app/profil"
           onClick={onNavigate}
           className={cn(
-            'flex items-center gap-3 rounded-lg p-2 transition-colors',
+            'flex items-center gap-3 rounded-2xl p-3 transition-all duration-300',
             pathname === '/app/profil'
-              ? 'bg-[var(--primary)]/10'
-              : 'hover:bg-[var(--secondary)]',
+              ? 'bg-[var(--primary)]/5 border border-[var(--primary)]/10'
+              : 'hover:bg-[var(--secondary)] border border-transparent',
           )}
         >
           <AvatarDisplay
@@ -192,9 +186,8 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
             size="md"
           />
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-medium">{fullName}</p>
-            <p className="flex items-center gap-1 text-xs text-[var(--muted-foreground)]">
-              <User className="h-3 w-3" />
+            <p className="truncate text-sm font-bold tracking-tight">{fullName}</p>
+            <p className="flex items-center gap-1 text-[11px] font-medium text-[var(--muted-foreground)]">
               Mon profil
             </p>
           </div>
@@ -202,7 +195,7 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
         <button
           type="button"
           onClick={handleSignOut}
-          className="mt-1 flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-[var(--muted-foreground)] transition-colors hover:bg-[var(--secondary)] hover:text-[var(--foreground)]"
+          className="mt-2 flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium text-[var(--muted-foreground)] transition-all hover:bg-red-50 hover:text-red-600"
         >
           <LogOut className="h-4 w-4" />
           Se déconnecter

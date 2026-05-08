@@ -42,7 +42,7 @@ export function Hero() {
             <Eyebrow className="mb-8">Communauté × IA francophone</Eyebrow>
           </Reveal>
 
-          <h1 className="relative font-display text-[2.75rem] font-bold leading-[0.95] tracking-tight text-[var(--foreground)] sm:text-7xl lg:text-8xl xl:text-9xl">
+          <h1 className="relative font-display text-[2.5rem] font-bold leading-[0.95] tracking-tight text-[var(--foreground)] sm:text-5xl lg:text-6xl xl:text-7xl">
             {words.map((word, i) => (
               <motion.span
                 key={i}
@@ -53,7 +53,7 @@ export function Hero() {
                   delay: 0.2 + i * 0.1,
                   ease: EASE_EXPO,
                 }}
-                className={i === words.length - 1 ? 'serif-accent block sm:inline' : 'inline-block mr-[0.2em]'}
+                className={i === words.length - 1 ? 'serif-accent inline-block' : 'inline-block mr-[0.2em]'}
               >
                 {word}
               </motion.span>
