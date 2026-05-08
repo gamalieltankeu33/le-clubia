@@ -101,6 +101,7 @@ serve(async (req) => {
       activityPostsRes,
       activityCommentsRes,
       mrrRes,
+      learningEngagementRes,
     ] = await Promise.all([
       sb.from('profiles').select('*', { count: 'exact', head: true }),
       sb
@@ -168,6 +169,8 @@ serve(async (req) => {
       // MRR exact basé sur le JOIN subscriptions × pricing_plans (cf. 0023).
       // La RPC compute_active_mrr_xof retourne {total_mrr_xof, breakdown}.
       sb.rpc('compute_active_mrr_xof'),
+      // Engagement pédagogique (cf. 0029)
+      sb.rpc('get_admin_learning_engagement'),
     ])
 
     const membersTotal = membersTotalRes.count ?? 0
@@ -330,10 +333,35 @@ serve(async (req) => {
     // Réponse
     return jsonResponse(200, {
       overview: {
-        // ... (truncated for brevity in TargetContent but must match exactly)
+        members_total: membersTotal,
+        members_today: membersToday,
+        members_active_7d: membersActive7d,
+        subscriptions_active: subsActive,
+        mrr_estimate_eur: mrrEur,
+        posts_total: postsTotal,
+        posts_today: postsToday,
+        formations_published: formationsPub,
+        formations_drafts: formationsDraft,
+        resources_published: resourcesPub,
+        news_published: newsPub,
+        // New Learning Engagement KPIs
+        chapters_read_24h: learningEngagementRes.data?.chapters_read_24h ?? 0,
+        average_completion_rate: learningEngagementRes.data?.average_completion_rate ?? 0,
+      },
+      learning_engagement: {
+        top_formations: learningEngagementRes.data?.top_formations ?? [],
+      },
+      signups_30d,
+      interests_distribution,
+      top_formations_categories,
+      recent_signups,
+      recent_posts,
+      top_active_members,
+      generated_at: new Date().toISOString(),
+    }, headers)
   } catch (err) {
     console.error('admin-stats error:', err)
-    return jsonResponse(500, { error: 'Erreur interne.' }, getCorsHeaders(req))
+    return jsonResponse(500, { error: 'Erreur interne.' }, headers)
   }
 })
 

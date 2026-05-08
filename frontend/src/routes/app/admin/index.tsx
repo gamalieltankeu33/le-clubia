@@ -52,10 +52,18 @@ interface OverviewStats {
   formations_drafts: number
   resources_published: number
   news_published: number
+  // New
+  chapters_read_24h: number
+  average_completion_rate: number
+}
+
+interface LearningEngagement {
+  top_formations: { name: string; completions: number }[]
 }
 
 interface AdminStatsPayload {
   overview: OverviewStats
+  learning_engagement: LearningEngagement
   signups_30d: { date: string; count: number }[]
   interests_distribution: { interest: string; count: number }[]
   top_formations_categories: { category: string; completions: number }[]
@@ -213,6 +221,21 @@ function AdminDashboardPage() {
           }
           loading={query.isLoading}
         />
+        <KpiCard
+          icon={GraduationCap}
+          label="Taux de complétion"
+          value={query.data?.overview.average_completion_rate}
+          unit="%"
+          subtext="Moyenne sur toutes les formations"
+          loading={query.isLoading}
+        />
+        <KpiCard
+          icon={Activity}
+          label="Lecture (24h)"
+          value={query.data?.overview.chapters_read_24h}
+          subtext="Chapitres validés aujourd'hui"
+          loading={query.isLoading}
+        />
       </section>
 
       {/* Charts */}
@@ -291,6 +314,49 @@ function AdminDashboardPage() {
           ) : query.data ? (
             <p className="py-12 text-center text-sm text-[var(--muted-foreground)]">
               Pas encore de données.
+            </p>
+          ) : null}
+        </ChartCard>
+
+        <ChartCard
+          title="Top 5 Formations (Engagement)"
+          loading={query.isLoading}
+        >
+          {query.data && query.data.learning_engagement.top_formations.length > 0 ? (
+            <ResponsiveContainer width="100%" height={240}>
+              <BarChart
+                data={query.data.learning_engagement.top_formations}
+                layout="vertical"
+                margin={{ top: 5, right: 10, bottom: 0, left: 60 }}
+              >
+                <CartesianGrid
+                  horizontal={false}
+                  stroke="var(--border)"
+                  strokeDasharray="3 3"
+                />
+                <XAxis
+                  type="number"
+                  allowDecimals={false}
+                  tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
+                />
+                <YAxis
+                  type="category"
+                  dataKey="name"
+                  tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
+                  width={120}
+                />
+                <Tooltip content={<ChartTooltip />} />
+                <Bar
+                  dataKey="completions"
+                  fill="var(--primary)"
+                  radius={[0, 4, 4, 0]}
+                  name="Chapitres lus"
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          ) : query.data ? (
+            <p className="py-12 text-center text-sm text-[var(--muted-foreground)]">
+              Pas encore de données de lecture.
             </p>
           ) : null}
         </ChartCard>
@@ -461,6 +527,7 @@ function KpiCard({
   icon: LucideIcon
   label: string
   value?: number
+  unit?: string
   delta?: number
   deltaLabel?: string
   subtext?: string
@@ -482,6 +549,7 @@ function KpiCard({
         ) : (
           <p className="font-display text-3xl font-semibold tabular-nums">
             {(value ?? 0).toLocaleString('fr-FR')}
+            {unit && <span className="ml-1 text-xl text-[var(--muted-foreground)]">{unit}</span>}
           </p>
         )}
         {!loading && (delta !== undefined || subtext) && (
