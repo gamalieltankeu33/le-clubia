@@ -8,10 +8,10 @@ interface Tool {
 }
 
 const TOOLS: Tool[] = [
-  { name: 'ChatGPT', slug: 'chatgpt' },
+  { name: 'ChatGPT', slug: 'openai' },
   { name: 'Claude', slug: 'claude' },
   { name: 'Gemini', slug: 'gemini' },
-  { name: 'Mistral', slug: 'mistral' },
+  { name: 'Mistral', slug: 'mistralai' },
   { name: 'Midjourney', slug: 'midjourney' },
   { name: 'Runway', slug: 'runway' },
   { name: 'Make', slug: 'make' },
