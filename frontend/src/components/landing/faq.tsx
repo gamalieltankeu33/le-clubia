@@ -28,7 +28,7 @@ const FAQS = [
   },
   {
     q: 'Y a-t-il un essai gratuit ?',
-    a: "Pas de période d'essai gratuite. L'abonnement est annuel à 79 000 FCFA, sans reconduction automatique : tu testes le Club pendant un an, et tu décides librement si tu reconduis ensuite.",
+    a: "Pas de période d'essai gratuite. L'abonnement est annuel à 99 000 FCFA, sans reconduction automatique : tu testes le Club pendant un an, et tu décides librement si tu reconduis ensuite.",
   },
   {
     q: 'Quelle différence avec une simple newsletter IA ?',
