@@ -28,7 +28,7 @@ export function BeyondClub() {
               title="Coaching live mensuel"
               description="Chaque mois, rejoins-nous en direct pour une session de coaching stratégique. Pose tes questions, débloque tes projets et profite de l'expertise de mentors invités."
               points={[
-                '90 minutes d'échange interactif',
+                "90 minutes d'échange interactif",
                 'Experts invités de classe mondiale',
                 'Replay HD disponible sous 24h',
               ]}
@@ -54,7 +54,7 @@ export function BeyondClub() {
                 </>
               }
               points={[
-                'Classement d'activité transparent',
+                "Classement d'activité transparent",
                 'Prime versée par Mobile Money',
                 'Visibilité boostée au sein du réseau',
               ]}
