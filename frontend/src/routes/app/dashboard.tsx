@@ -114,10 +114,10 @@ function DashboardPage() {
               <div className="inline-flex items-center gap-1.5 rounded-full bg-white/20 px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-widest border border-white/10 mb-2">
                 Assistant personnel
               </div>
-              <h2 className="font-display text-xl font-bold tracking-tight sm:text-2xl">
+              <h2 className="font-display text-xl font-bold tracking-tight sm:text-2xl text-white">
                 Coach IA — prêt pour tes questions
               </h2>
-              <p className="mt-1 text-sm text-white leading-relaxed max-w-xl opacity-90">
+              <p className="mt-1 text-sm text-white leading-relaxed max-w-xl">
                 Besoin d'un prompt, d'un résumé ou d'un conseil ? Ton coach Claude est disponible 24/7.
               </p>
             </div>
