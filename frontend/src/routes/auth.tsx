@@ -301,33 +301,34 @@ function AuthPage() {
               )}
             </form>
           </div>
-        </Reveal>
+        </div>
+      </Reveal>
 
-        <Reveal delay={0.4}>
-          <p className="mt-10 text-center text-xs text-[var(--muted-foreground)]">
-            © {new Date().getFullYear()} Le Club IA ·{' '}
-            <Link to="/cgu" className="hover:text-[var(--foreground)]">
-              CGU
-            </Link>{' '}
-            ·{' '}
-            <Link
-              to="/confidentialite"
-              className="hover:text-[var(--foreground)]"
-            >
-              Confidentialité
-            </Link>{' '}
-            ·{' '}
-            <Link
-              to="/mentions-legales"
-              className="hover:text-[var(--foreground)]"
-            >
-              Mentions légales
-            </Link>
-          </p>
-        </Reveal>
-      </div>
+      <Reveal delay={0.4}>
+        <p className="mt-10 text-center text-xs text-[var(--muted-foreground)]">
+          © {new Date().getFullYear()} Le Club IA ·{' '}
+          <Link to="/cgu" className="hover:text-[var(--foreground)]">
+            CGU
+          </Link>{' '}
+          ·{' '}
+          <Link
+            to="/confidentialite"
+            className="hover:text-[var(--foreground)]"
+          >
+            Confidentialité
+          </Link>{' '}
+          ·{' '}
+          <Link
+            to="/mentions-legales"
+            className="hover:text-[var(--foreground)]"
+          >
+            Mentions légales
+          </Link>
+        </p>
+      </Reveal>
     </div>
-  )
+  </div>
+)
 }
 
 function ModeTabs({
