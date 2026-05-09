@@ -54,7 +54,7 @@ export function MyPointsCard() {
           </div>
 
           <p className="mt-2 text-xs leading-relaxed text-[var(--muted-foreground)]">
-            Gagne des points en terminant des cours (+10), en publiant (+5) ou en recevant des likes (+2).
+            Gagne des points en terminant des cours (+10), en publiant (+10), en commentant (+5) ou en likant (+1).
           </p>
         </div>
       </div>

@@ -296,6 +296,36 @@ export type Database = {
         }
         Relationships: []
       }
+      formation_reviews: {
+        Row: {
+          id: string
+          user_id: string
+          formation_id: string
+          chapter_id: string | null
+          rating: number
+          comment: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          formation_id: string
+          chapter_id?: string | null
+          rating: number
+          comment?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          formation_id?: string
+          chapter_id?: string | null
+          rating?: number
+          comment?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
       user_formation_progress: {
         Row: {
           id: string

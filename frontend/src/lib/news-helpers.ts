@@ -1,20 +1,25 @@
+// Catégories techniques synchronisées avec la CHECK constraint DB
+// (migration 0022_breaking_news.sql). Toute valeur non listée ici est
+// rejetée par Postgres avec une erreur 400 lors d'un INSERT/UPDATE.
 export const NEWS_CATEGORIES = [
   'weekly-recap',
-  'Modèles & recherche',
-  'Outils & produits',
-  'Lancements',
-  'Business & financements',
-  'Réglementation & société',
+  'breaking-news',
+  'news',
+  'tutorial',
+  'opinion',
+  'analysis',
 ] as const
 
 export type NewsCategory = (typeof NEWS_CATEGORIES)[number]
 
-/** Label affiché à l'utilisateur. Les catégories techniques côté DB
- *  ('weekly-recap', 'breaking-news') s'affichent avec un libellé éditorial
- *  et un emoji distinctif. */
+/** Label affiché à l'utilisateur pour chaque catégorie technique. */
 export const NEWS_CATEGORY_LABEL: Record<string, string> = {
   'weekly-recap': '📰 Récap de la semaine',
   'breaking-news': '🔥 Actualité chaude',
+  news: 'Actualité',
+  tutorial: 'Tutoriel',
+  opinion: 'Opinion',
+  analysis: 'Analyse',
 }
 
 export function getCategoryLabel(category: string): string {
@@ -34,25 +39,21 @@ export const NEWS_CATEGORY_VISUAL: Record<
     bg: 'bg-orange-100',
     fg: 'text-orange-700',
   },
-  'Modèles & recherche': {
+  news: {
     bg: 'bg-[var(--primary)]/10',
     fg: 'text-[var(--primary)]',
   },
-  'Outils & produits': {
-    bg: 'bg-[var(--accent)]/15',
-    fg: 'text-[var(--accent)]',
-  },
-  'Lancements': {
+  tutorial: {
     bg: 'bg-emerald-100',
     fg: 'text-emerald-700',
   },
-  'Business & financements': {
+  opinion: {
     bg: 'bg-violet-100',
     fg: 'text-violet-700',
   },
-  'Réglementation & société': {
-    bg: 'bg-amber-100',
-    fg: 'text-amber-800',
+  analysis: {
+    bg: 'bg-[var(--accent)]/15',
+    fg: 'text-[var(--accent)]',
   },
 }
 

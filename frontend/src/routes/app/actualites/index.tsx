@@ -6,7 +6,7 @@ import { Check, Newspaper, Search, Sparkles, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { fetchPublishedNews } from '@/lib/news-queries'
-import { NEWS_CATEGORIES } from '@/lib/news-helpers'
+import { NEWS_CATEGORIES, getCategoryLabel } from '@/lib/news-helpers'
 import { NewsCard } from '@/components/news/news-card'
 import { cn } from '@/lib/utils'
 
@@ -102,7 +102,7 @@ function NewsFeedPage() {
                 )}
               >
                 {selected && <Check className="h-3 w-3" />}
-                {cat}
+                {getCategoryLabel(cat)}
               </button>
             )
           })}

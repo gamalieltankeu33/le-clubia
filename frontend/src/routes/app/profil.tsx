@@ -37,6 +37,8 @@ function ProfilPage() {
   const conversations = useCoachStore((s) => s.conversations)
   const quotaUsed = useCoachStore((s) => s.quotaUsed)
   const quotaLimit = useCoachStore((s) => s.quotaLimit)
+  const refreshHistory = useCoachStore((s) => s.refreshHistory)
+  const refreshQuota = useCoachStore((s) => s.refreshQuota)
   const showHistory = useCoachStore((s) => s.showHistory)
   const openCoach = useCoachStore((s) => s.openPanel)
 

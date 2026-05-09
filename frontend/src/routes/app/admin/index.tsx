@@ -556,13 +556,14 @@ function AdminDashboardPage() {
                 : 'Modération'
             }
           />
-          <ShortcutDisabled
+          <Shortcut
+            to="/app/admin/actualites"
             icon={Newspaper}
             title="Actualités"
             description={
               query.data
                 ? `${query.data.overview.news_published} publiées`
-                : 'À venir'
+                : 'Gestion du flux IA'
             }
           />
           <ShortcutDisabled

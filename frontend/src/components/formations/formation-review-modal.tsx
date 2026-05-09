@@ -58,7 +58,7 @@ export function FormationReviewModal({
     },
     onSuccess: () => {
       toast.success('Merci pour ton avis !')
-      queryClient.invalidateQueries({ queryKey: ['formation-review', userId, formationId] })
+      queryClient.invalidateQueries({ queryKey: ['formation-reviews', userId, formationId] })
       onClose()
     },
     onError: (err: any) => {

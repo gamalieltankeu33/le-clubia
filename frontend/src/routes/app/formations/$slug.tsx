@@ -19,6 +19,7 @@ import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/auth-store'
+import { useCoachStore } from '@/stores/coach-store'
 import {
   formatDuration,
   LEVEL_LABELS,

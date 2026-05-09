@@ -16,30 +16,7 @@ import { ResumeFormationCard } from '@/components/formations/resume-formation-ca
 import { RecentPostsCard } from '@/components/community/recent-posts-card'
 import { MyPointsCard } from '@/components/community/my-points-card'
 import { NextEventCard } from '@/components/events/next-event-card'
-import { OnboardingGuide, type GuideStep } from '@/components/onboarding/onboarding-guide'
-
-const DASHBOARD_GUIDE: GuideStep[] = [
-  {
-    targetId: 'welcome-header',
-    title: 'Ton Accélérateur IA',
-    content: 'C’est ici que ton aventure commence. Nous avons centralisé tout ce dont tu as besoin pour maîtriser les outils IA et gagner un temps précieux chaque jour.'
-  },
-  {
-    targetId: 'coach-section',
-    title: 'Ton Expert 24h/24',
-    content: 'Un blocage sur un prompt ? Besoin d’un résumé express ? Clique ici pour demander à ton Coach Claude. Il connaît tout le contenu de tes formations.'
-  },
-  {
-    targetId: 'next-event',
-    title: 'Ne reste pas seul',
-    content: 'Participe à nos prochains coachings en direct pour poser tes questions et voir des démonstrations live. Ajoute-les à ton calendrier pour ne rien rater.'
-  },
-  {
-    targetId: 'points-section',
-    title: 'Mesure ton Impact',
-    content: 'Ta "Force" augmente à chaque action. Plus tu apprends et plus tu aides la communauté, plus ton niveau grimpe. Prêt à devenir le Major de promo ?'
-  }
-]
+import { OnboardingGuide } from '@/components/onboarding/onboarding-guide'
 
 export const Route = createFileRoute('/app/dashboard')({
   component: DashboardPage,
@@ -165,31 +142,35 @@ function DashboardPage() {
         </Reveal>
         
         <div className="grid gap-4 sm:grid-cols-2">
-          {SHORTCUTS.map((card, i) => (
-            <Reveal key={card.to} delay={0.4 + i * 0.05} distance={10}>
-              <Link
-                to={card.to}
-                className="group relative block h-full overflow-hidden rounded-2xl border border-[var(--border)] bg-white p-6 transition-all duration-300 hover:border-[var(--primary)]/30 hover:shadow-lg"
-              >
-                <div className="flex items-start gap-4">
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[var(--primary)]/5 text-[var(--primary)] transition-colors group-hover:bg-[var(--primary)] group-hover:text-white">
-                    <card.icon className="h-5 w-5" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-display text-lg font-bold tracking-tight">
-                        {card.title}
-                      </h3>
-                      <ArrowRight className="h-4 w-4 -translate-x-1 text-[var(--primary)] opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100" />
+          {SHORTCUTS.map((card, i) => {
+            const pillarId = `pillar-${card.to.split('/').pop()}`
+            return (
+              <Reveal key={card.to} delay={0.4 + i * 0.05} distance={10}>
+                <Link
+                  id={pillarId}
+                  to={card.to}
+                  className="group relative block h-full overflow-hidden rounded-2xl border border-[var(--border)] bg-white p-6 transition-all duration-300 hover:border-[var(--primary)]/30 hover:shadow-lg"
+                >
+                  <div className="flex items-start gap-4">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[var(--primary)]/5 text-[var(--primary)] transition-colors group-hover:bg-[var(--primary)] group-hover:text-white">
+                      <card.icon className="h-5 w-5" />
                     </div>
-                    <p className="mt-1 text-sm leading-relaxed text-[var(--muted-foreground)]">
-                      {card.description}
-                    </p>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between">
+                        <h3 className="font-display text-lg font-bold tracking-tight">
+                          {card.title}
+                        </h3>
+                        <ArrowRight className="h-4 w-4 -translate-x-1 text-[var(--primary)] opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100" />
+                      </div>
+                      <p className="mt-1 text-sm leading-relaxed text-[var(--muted-foreground)]">
+                        {card.description}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              </Link>
-            </Reveal>
-          ))}
+                </Link>
+              </Reveal>
+            )
+          })}
         </div>
       </section>
 
@@ -239,9 +220,7 @@ function DashboardPage() {
           <RecentPostsCard />
         </Reveal>
       </section>
-
-      <OnboardingGuide guideKey="dashboard-tour" steps={DASHBOARD_GUIDE} />
+      <OnboardingGuide />
     </div>
   )
 }
-

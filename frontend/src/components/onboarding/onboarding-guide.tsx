@@ -1,75 +1,105 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, ChevronRight, Sparkles } from 'lucide-react'
+import { X, ChevronRight, Sparkles, GraduationCap, MessagesSquare, Library, Newspaper, CheckCircle2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/auth-store'
 
-export interface GuideStep {
-  targetId: string
-  title: string
-  content: string
-  position?: 'top' | 'bottom' | 'left' | 'right'
-}
-
-interface OnboardingGuideProps {
-  guideKey: string
-  steps: GuideStep[]
-  onComplete?: () => void
-}
-
-export function OnboardingGuide({ guideKey, steps, onComplete }: OnboardingGuideProps) {
+export function OnboardingGuide() {
   const profile = useAuthStore((s) => s.profile)
   const refreshUserData = useAuthStore((s) => s.refreshUserData)
   
   const [currentStep, setCurrentStep] = useState(0)
   const [isVisible, setIsVisible] = useState(false)
-  const [coords, setCoords] = useState({ top: 0, left: 0, width: 0, height: 0 })
+  const [spotlightRect, setSpotlightRect] = useState<DOMRect | null>(null)
 
-  // Vérifie si le guide doit être affiché
   useEffect(() => {
     if (!profile) return
-    const hasSeen = profile.guides_seen?.includes(guideKey)
+    const hasSeen = profile.guides_seen?.includes('spotlight-v3')
     if (!hasSeen) {
-      // Petit délai pour laisser la page charger
       const timer = setTimeout(() => setIsVisible(true), 1500)
       return () => clearTimeout(timer)
     }
-  }, [profile, guideKey])
+  }, [profile])
 
-  // Met à jour la position de la bulle selon l'élément cible
+  const steps = [
+    {
+      targetId: "coach-section",
+      icon: <Sparkles className="h-5 w-5" />,
+      title: "Ton Coach IA",
+      content: "Ton expert disponible 24/7 pour tes prompts et tes questions.",
+    },
+    {
+      targetId: "pillar-formations",
+      icon: <GraduationCap className="h-5 w-5" />,
+      title: "Le Catalogue",
+      content: "Toutes nos formations pour maîtriser l'IA étape par étape.",
+    },
+    {
+      targetId: "pillar-communaute",
+      icon: <MessagesSquare className="h-5 w-5" />,
+      title: "La Communauté",
+      content: "Échange avec les membres et partage tes découvertes.",
+    },
+    {
+      targetId: "pillar-ressources",
+      icon: <Library className="h-5 w-5" />,
+      title: "Les Ressources",
+      content: "Bibliothèque de prompts, templates et outils.",
+    },
+    {
+      targetId: "pillar-actualites",
+      icon: <Newspaper className="h-5 w-5" />,
+      title: "L'Actualité IA",
+      content: "La veille stratégique pour ne rien rater d'essentiel.",
+    },
+    {
+      targetId: null,
+      icon: <CheckCircle2 className="h-5 w-5" />,
+      title: "Règles d'Or du Club",
+      content: "Bienveillance, partage de valeur et excellence. Prêt à commencer ?",
+    },
+  ]
+
+  const updateSpotlight = useCallback(() => {
+    const targetId = steps[currentStep]?.targetId
+    if (!targetId) {
+      setSpotlightRect(null)
+      return
+    }
+
+    const el = document.getElementById(targetId)
+    if (el) {
+      const rect = el.getBoundingClientRect()
+      // On vérifie si le rect a changé pour éviter des renders inutiles
+      setSpotlightRect(rect)
+    }
+  }, [currentStep])
+
   useEffect(() => {
-    if (!isVisible || steps.length === 0) return
+    if (!isVisible) return
 
-    const updatePosition = () => {
-      const target = document.getElementById(steps[currentStep].targetId)
-      if (target) {
-        const rect = target.getBoundingClientRect()
-        // On utilise les coordonnées RELATIVES au viewport car l'overlay est FIXED
-        setCoords({
-          top: rect.top,
-          left: rect.left,
-          width: rect.width,
-          height: rect.height
-        })
-
-        // On fait défiler doucement pour centrer l'élément
-        target.scrollIntoView({ behavior: 'smooth', block: 'center' })
-      } else {
-        setCoords({ top: 0, left: 0, width: 0, height: 0 })
+    const targetId = steps[currentStep]?.targetId
+    if (targetId) {
+      const el = document.getElementById(targetId)
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' })
       }
     }
 
-    const timer = setTimeout(updatePosition, 300)
-    window.addEventListener('resize', updatePosition)
-    window.addEventListener('scroll', updatePosition)
+    // On utilise un intervalle court pendant le changement d'étape 
+    // pour suivre les animations de scroll/reveal
+    const interval = setInterval(updateSpotlight, 16)
+    
+    window.addEventListener('resize', updateSpotlight)
+    window.addEventListener('scroll', updateSpotlight, true)
     
     return () => {
-      clearTimeout(timer)
-      window.removeEventListener('resize', updatePosition)
-      window.removeEventListener('scroll', updatePosition)
+      clearInterval(interval)
+      window.removeEventListener('resize', updateSpotlight)
+      window.removeEventListener('scroll', updateSpotlight, true)
     }
-  }, [isVisible, currentStep, steps])
+  }, [currentStep, isVisible, updateSpotlight])
 
   const handleNext = async () => {
     if (currentStep < steps.length - 1) {
@@ -83,7 +113,7 @@ export function OnboardingGuide({ guideKey, steps, onComplete }: OnboardingGuide
     setIsVisible(false)
     if (!profile) return
 
-    const newGuidesSeen = Array.from(new Set([...(profile.guides_seen || []), guideKey]))
+    const newGuidesSeen = Array.from(new Set([...(profile.guides_seen || []), 'spotlight-v3']))
     const { error } = await supabase
       .from('profiles')
       .update({ guides_seen: newGuidesSeen })
@@ -91,96 +121,92 @@ export function OnboardingGuide({ guideKey, steps, onComplete }: OnboardingGuide
 
     if (!error) {
       await refreshUserData()
-      if (onComplete) onComplete()
     }
   }
 
-  if (!isVisible || coords.width === 0) return null
+  if (!isVisible) return null
 
-  const step = steps[currentStep]
-  const bubbleTop = coords.top + coords.height + 20
-  const bubbleLeft = Math.max(20, Math.min(window.innerWidth - 360, coords.left + (coords.width / 2) - 170))
+  // On ajoute une petite marge autour de l'élément pour ne pas le coller
+  const padding = 8
+  const left = (spotlightRect?.left ?? 0) - padding
+  const top = (spotlightRect?.top ?? 0) - padding
+  const right = (spotlightRect?.right ?? 0) + padding
+  const bottom = (spotlightRect?.bottom ?? 0) + padding
 
   return (
-    <div className="pointer-events-auto fixed inset-0 z-[9999] overflow-hidden">
-      {/* Overlay de focus avec trou rectangulaire arrondi via clip-path */}
-      <div 
-        className="absolute inset-0 bg-black/70 transition-all duration-500 backdrop-blur-[1px]" 
-        style={{ 
-          clipPath: `path('M 0 0 h ${window.innerWidth} v ${window.innerHeight} h -${window.innerWidth} Z M ${coords.left - 5} ${coords.top - 5} a 12 12 0 0 0 -12 12 v ${coords.height + 10 - 24} a 12 12 0 0 0 12 12 h ${coords.width + 10 - 24} a 12 12 0 0 0 12 -12 v -${coords.height + 10 - 24} a 12 12 0 0 0 -12 -12 h -${coords.width + 10 - 24} Z')`,
-          fillRule: 'evenodd'
-        }}
-      />
-
-      {/* Cadre lumineux précis */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="absolute z-[9998] rounded-xl border-2 border-[var(--primary)] shadow-[0_0_20px_rgba(var(--primary-rgb),0.5)] pointer-events-none"
-        style={{
-          top: coords.top - 8,
-          left: coords.left - 8,
-          width: coords.width + 16,
-          height: coords.height + 16,
-        }}
-      />
-
-      {/* Bulle d'aide */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="absolute w-[340px] rounded-2xl bg-white p-6 shadow-[0_30px_60px_rgba(0,0,0,0.6)] border border-[var(--primary)]/10"
-        style={{
-          top: bubbleTop > window.innerHeight - 300 ? coords.top - 220 : bubbleTop,
-          left: bubbleLeft
-        }}
-      >
-        {/* Petite flèche qui pointe vers l'élément */}
-        <div 
-          className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white rotate-45 border-l border-t border-[var(--primary)]/10"
+    <div className="fixed inset-0 z-[10000] overflow-hidden pointer-events-none">
+      <AnimatePresence>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="absolute inset-0 bg-black/60 backdrop-blur-[2px] pointer-events-auto"
+          style={{
+            clipPath: spotlightRect 
+              ? `polygon(0% 0%, 0% 100%, ${left}px 100%, ${left}px ${top}px, ${right}px ${top}px, ${right}px ${bottom}px, ${left}px ${bottom}px, ${left}px 100%, 100% 100%, 100% 0%)`
+              : 'none'
+          }}
+          onClick={completeGuide}
         />
+      </AnimatePresence>
 
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[var(--primary)]/10 text-[var(--primary)]">
-            <Sparkles className="h-4 w-4" />
-          </div>
-          <div className="flex gap-1.5">
-            {steps.map((_, i) => (
-              <div 
-                key={i} 
-                className={cn(
-                  "h-1.5 rounded-full transition-all duration-300",
-                  i === currentStep ? "w-6 bg-[var(--primary)]" : "w-1.5 bg-[var(--primary)]/10"
-                )} 
-              />
-            ))}
-          </div>
-        </div>
-
-        <h4 className="font-display text-xl font-bold leading-tight text-[var(--foreground)]">
-          {step.title}
-        </h4>
-        <p className="mt-3 text-sm text-[var(--muted-foreground)] font-medium leading-relaxed">
-          {step.content}
-        </p>
-
-        <div className="mt-8 flex items-center justify-between gap-4">
-          <button 
-            onClick={completeGuide}
-            className="text-xs font-bold uppercase tracking-widest text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
+      <div className="relative h-full w-full flex items-center justify-center">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentStep}
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ 
+              opacity: 1, 
+              scale: 1, 
+              y: 0,
+              ...(spotlightRect ? {
+                position: 'fixed',
+                top: Math.min(window.innerHeight - 200, bottom + 24),
+                left: Math.max(20, Math.min(window.innerWidth - 340, left + ((right - left) / 2) - 160)),
+              } : {})
+            }}
+            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            transition={{ type: 'spring', damping: 20, stiffness: 200 }}
+            className="pointer-events-auto w-[320px] rounded-2xl bg-white p-5 shadow-2xl border border-[var(--border)]"
           >
-            Passer
-          </button>
-          <Button onClick={handleNext} className="rounded-xl px-6 h-11 font-bold shadow-lg shadow-[var(--primary)]/20">
-            {currentStep === steps.length - 1 ? "C'est parti !" : "Suivant"}
-            {currentStep < steps.length - 1 && <ChevronRight className="ml-2 h-4 w-4" />}
-          </Button>
-        </div>
-      </motion.div>
+            <div className="flex items-start gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--primary)]/10 text-[var(--primary)]">
+                {steps[currentStep].icon}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-display text-sm font-bold text-[var(--foreground)]">
+                    {steps[currentStep].title}
+                  </h3>
+                  <button onClick={completeGuide} className="text-[var(--muted-foreground)] hover:text-[var(--foreground)] p-1">
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+                <p className="mt-1.5 text-xs leading-relaxed text-[var(--muted-foreground)]">
+                  {steps[currentStep].content}
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-5 flex items-center justify-between gap-4">
+              <div className="flex gap-1.5">
+                {steps.map((_, i) => (
+                  <div
+                    key={i}
+                    className={`h-1 rounded-full transition-all duration-300 ${
+                      i === currentStep ? 'w-4 bg-[var(--primary)]' : 'w-1 bg-[var(--primary)]/20'
+                    }`}
+                  />
+                ))}
+              </div>
+              <Button size="sm" onClick={handleNext} className="h-8 rounded-lg text-xs font-bold px-4">
+                {currentStep === steps.length - 1 ? "C'est parti !" : "Suivant"}
+                <ChevronRight className="ml-1 h-3 w-3" />
+              </Button>
+            </div>
+          </motion.div>
+        </AnimatePresence>
+      </div>
     </div>
   )
-}
-
-function cn(...classes: any[]) {
-  return classes.filter(Boolean).join(' ')
 }

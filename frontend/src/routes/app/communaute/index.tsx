@@ -115,7 +115,6 @@ function CommunityFeedPage() {
         pageParams: number[]
       }>(key, (data) => {
         if (!data) return data
-        console.log('[Community] Optimistic update:', { postId: post.id, targetLike: like })
         return {
           ...data,
           pages: data.pages.map((page) => ({

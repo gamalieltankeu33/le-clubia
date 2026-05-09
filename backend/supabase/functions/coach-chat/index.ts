@@ -72,7 +72,6 @@ const getCorsHeaders = (req: Request) => {
 }
 
 const sseHeaders = {
-  ...corsHeaders,
   'Content-Type': 'text/event-stream; charset=utf-8',
   'Cache-Control': 'no-cache, no-transform',
   Connection: 'keep-alive',

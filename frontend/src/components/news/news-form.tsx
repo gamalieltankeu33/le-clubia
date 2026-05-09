@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { supabase } from '@/lib/supabase'
-import { NEWS_CATEGORIES } from '@/lib/news-helpers'
+import { NEWS_CATEGORIES, getCategoryLabel } from '@/lib/news-helpers'
 import { slugify } from '@/lib/formation-helpers'
 import { compressImage } from '@/lib/compress-image'
 import { MarkdownRenderer } from '@/components/coach/markdown-renderer'
@@ -186,8 +186,12 @@ export function NewsForm({
       toast.success(isEditing ? 'Article mis à jour.' : 'Article créé.')
       onSaved(id)
     } catch (err) {
-      console.error(err)
-      toast.error(err instanceof Error ? err.message : 'Erreur de sauvegarde.')
+      console.error('[news-form] save error', err)
+      const supaMsg =
+        err && typeof err === 'object' && 'message' in err
+          ? String((err as { message?: unknown }).message ?? '')
+          : ''
+      toast.error(supaMsg || 'Erreur de sauvegarde.')
     } finally {
       setSaving(false)
     }
@@ -242,7 +246,7 @@ export function NewsForm({
               >
                 {NEWS_CATEGORIES.map((c) => (
                   <option key={c} value={c}>
-                    {c}
+                    {getCategoryLabel(c)}
                   </option>
                 ))}
               </select>

@@ -299,4 +299,9 @@
   .lenis.lenis-stopped {
     overflow: hidden;
   }
+
+  /* ProseMirror / Tiptap Fix */
+  .ProseMirror {
+    white-space: pre-wrap !important;
+  }
 }
