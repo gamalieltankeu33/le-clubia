@@ -88,6 +88,14 @@ interface AdminStatsPayload {
     comments_count: number
     total_activity: number
   }[]
+  inactive_members: {
+    id: string
+    first_name: string | null
+    last_name: string | null
+    email: string
+    last_active_at: string | null
+    plan: string
+  }[]
   generated_at: string
 }
 
@@ -117,6 +125,17 @@ function AdminDashboardPage() {
     queryFn: fetchAdminStats,
     staleTime: 60_000,
   })
+
+  const {
+    overview,
+    signups_30d,
+    interests_distribution,
+    top_formations_categories,
+    recent_signups,
+    recent_posts,
+    top_active_members,
+    inactive_members,
+  } = (query.data as AdminStatsPayload) || {}
 
   const today = useMemo(
     () =>
@@ -188,24 +207,24 @@ function AdminDashboardPage() {
         <KpiCard
           icon={Users}
           label="Membres totaux"
-          value={query.data?.overview.members_total}
-          delta={query.data?.overview.members_today}
+          value={overview?.members_total}
+          delta={overview?.members_today}
           deltaLabel="aujourd'hui"
           loading={query.isLoading}
         />
         <KpiCard
           icon={Activity}
           label="Membres actifs (7j)"
-          value={query.data?.overview.members_active_7d}
+          value={overview?.members_active_7d}
           loading={query.isLoading}
         />
         <KpiCard
           icon={CreditCard}
           label="Abonnements actifs"
-          value={query.data?.overview.subscriptions_active}
+          value={overview?.subscriptions_active}
           subtext={
-            query.data
-              ? `MRR estimé : ${query.data.overview.mrr_estimate_eur} €`
+            overview
+              ? `MRR estimé : ${overview.mrr_estimate_eur} €`
               : undefined
           }
           loading={query.isLoading}
@@ -213,10 +232,10 @@ function AdminDashboardPage() {
         <KpiCard
           icon={MessageSquare}
           label="Posts publiés"
-          value={query.data?.overview.posts_total}
+          value={overview?.posts_total}
           subtext={
-            query.data
-              ? `${query.data.overview.posts_today} aujourd'hui`
+            overview
+              ? `${overview.posts_today} aujourd'hui`
               : undefined
           }
           loading={query.isLoading}
@@ -224,7 +243,7 @@ function AdminDashboardPage() {
         <KpiCard
           icon={GraduationCap}
           label="Taux de complétion"
-          value={query.data?.overview?.average_completion_rate}
+          value={overview?.average_completion_rate}
           unit="%"
           subtext="Moyenne sur toutes les formations"
           loading={query.isLoading}
@@ -232,7 +251,7 @@ function AdminDashboardPage() {
         <KpiCard
           icon={Activity}
           label="Lecture (24h)"
-          value={query.data?.overview?.chapters_read_24h}
+          value={overview?.chapters_read_24h}
           subtext="Chapitres validés aujourd'hui"
           loading={query.isLoading}
         />
@@ -446,6 +465,48 @@ function AdminDashboardPage() {
               </li>
             ))}
           </ul>
+        </ActivityCard>
+      </section>
+
+      {/* Membres à réengager */}
+      <section className="mt-10">
+        <ActivityCard
+          title="Membres inactifs (Risque de départ)"
+          loading={query.isLoading}
+          empty={!inactive_members?.length}
+          emptyText="Tous tes membres sont actifs ! 🎉"
+        >
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {inactive_members?.map((m) => {
+              const name = [m.first_name, m.last_name].filter(Boolean).join(' ') || 'Membre'
+              return (
+                <div key={m.id} className="flex items-center gap-3 rounded-xl border border-[var(--border)] bg-[var(--secondary)]/10 p-3">
+                  <InitialsAvatar
+                    firstName={m.first_name}
+                    lastName={m.last_name}
+                    email={m.email}
+                    size="sm"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium">{name}</p>
+                    <p className="truncate text-[10px] text-[var(--muted-foreground)] uppercase font-semibold tracking-wider">
+                      Plan {m.plan}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[10px] text-[var(--muted-foreground)] uppercase font-bold">
+                      Inactif depuis
+                    </p>
+                    <p className="text-xs font-semibold text-red-500">
+                      {m.last_active_at 
+                        ? formatDistanceToNow(new Date(m.last_active_at), { locale: fr })
+                        : 'Jamais connecté'}
+                    </p>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
         </ActivityCard>
       </section>
 

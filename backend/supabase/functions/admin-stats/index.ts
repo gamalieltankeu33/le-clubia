@@ -102,6 +102,7 @@ serve(async (req) => {
       activityCommentsRes,
       mrrRes,
       learningEngagementRes,
+      inactiveMembersRes,
     ] = await Promise.all([
       sb.from('profiles').select('*', { count: 'exact', head: true }),
       sb
@@ -171,6 +172,8 @@ serve(async (req) => {
       sb.rpc('compute_active_mrr_xof'),
       // Engagement pédagogique (cf. 0029)
       sb.rpc('get_admin_learning_engagement'),
+      // Membres inactifs (cf. 0031)
+      sb.rpc('get_admin_inactive_members'),
     ])
 
     const membersTotal = membersTotalRes.count ?? 0
@@ -357,6 +360,7 @@ serve(async (req) => {
       recent_signups,
       recent_posts,
       top_active_members,
+      inactive_members: inactiveMembersRes.data ?? [],
       generated_at: new Date().toISOString(),
     }, headers)
   } catch (err) {
