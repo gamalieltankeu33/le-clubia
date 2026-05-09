@@ -12,11 +12,7 @@ import {
   LEVELS,
   LEVEL_LABELS,
 } from '@/lib/formation-helpers'
-import type {
-  Formation,
-  FormationLevel,
-  UserFormationProgress,
-} from '@/lib/database.types'
+import type { Formation, FormationLevel } from '@/lib/database.types'
 import {
   FormationCard,
   type FormationCardData,
@@ -27,38 +23,26 @@ export const Route = createFileRoute('/app/formations/')({
   component: FormationsCatalogPage,
 })
 
-interface FormationWithCount extends Formation {
-  formation_chapters: { count: number }[]
+interface FormationWithProgressRow extends Formation {
+  total_chapters: number
+  completed_chapters: number
+  progress_percent: number
+  has_started: boolean
 }
 
-async function fetchPublishedFormations(): Promise<FormationCardData[]> {
-  const { data, error } = await supabase
-    .from('formations')
-    .select('*, formation_chapters(count)')
-    .eq('is_published', true)
-    .order('created_at', { ascending: false })
+async function fetchFormationsWithProgress(): Promise<FormationCardData[]> {
+  // RPC créée en migration 0036 : 1 round-trip, calcul DB-side, scope user
+  // automatique via auth.uid() (SECURITY DEFINER + filtre WHERE user_id).
+  // @ts-expect-error - RPC custom non typée dans Database['public']['Functions']
+  const { data, error } = await supabase.rpc('get_formations_with_progress')
   if (error) throw error
-  return (data ?? []).map((f) => {
-    const withCount = f as unknown as FormationWithCount
-    return {
-      ...(f as Formation),
-      chapter_count: withCount.formation_chapters?.[0]?.count ?? 0,
-      completed_count: 0,
-    }
-  })
-}
-
-async function fetchUserProgress(
-  userId: string,
-): Promise<UserFormationProgress[]> {
-  // On récupère TOUTES les rows de progression (pas seulement les completed),
-  // pour pouvoir distinguer "pas commencé" / "en cours" / "terminé" sur les cards.
-  const { data, error } = await supabase
-    .from('user_formation_progress')
-    .select('*')
-    .eq('user_id', userId)
-  if (error) throw error
-  return (data ?? []) as UserFormationProgress[]
+  return ((data ?? []) as FormationWithProgressRow[]).map((row) => ({
+    ...row,
+    chapter_count: row.total_chapters,
+    completed_count: row.completed_chapters,
+    progress_percent: row.progress_percent,
+    has_started: row.has_started,
+  }))
 }
 
 function FormationsCatalogPage() {
@@ -70,38 +54,12 @@ function FormationsCatalogPage() {
   )
 
   const formationsQuery = useQuery({
-    queryKey: ['formations', 'catalog'],
-    queryFn: fetchPublishedFormations,
+    queryKey: ['formations', 'catalog', userId ?? 'anon'],
+    queryFn: fetchFormationsWithProgress,
     staleTime: 5 * 60 * 1000,
   })
 
-  const progressQuery = useQuery({
-    queryKey: ['user-progress', userId],
-    queryFn: () => fetchUserProgress(userId!),
-    enabled: Boolean(userId),
-    staleTime: 5 * 60 * 1000,
-  })
-
-  // Merge progress dans les formations
-  const formations = useMemo<FormationCardData[]>(() => {
-    if (!formationsQuery.data) return []
-    const completedByFormation = new Map<string, number>()
-    const startedFormations = new Set<string>()
-    for (const p of progressQuery.data ?? []) {
-      startedFormations.add(p.formation_id)
-      if (p.completed) {
-        completedByFormation.set(
-          p.formation_id,
-          (completedByFormation.get(p.formation_id) ?? 0) + 1,
-        )
-      }
-    }
-    return formationsQuery.data.map((f) => ({
-      ...f,
-      completed_count: completedByFormation.get(f.id) ?? 0,
-      has_started: startedFormations.has(f.id),
-    }))
-  }, [formationsQuery.data, progressQuery.data])
+  const formations = formationsQuery.data ?? []
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase()

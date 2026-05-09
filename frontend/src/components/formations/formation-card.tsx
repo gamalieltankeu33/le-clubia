@@ -13,21 +13,26 @@ import {
 import { deriveProgressInfo } from '@/lib/use-formation-progress'
 import { cn } from '@/lib/utils'
 import { CoverImage } from './cover-image'
-import { ProgressBar } from './progress-bar'
+import { ProgressTube } from './progress-tube'
 
 export interface FormationCardData extends Formation {
   chapter_count: number
   completed_count: number
+  /** Pré-calculé en SQL par get_formations_with_progress(). */
+  progress_percent?: number
   /** L'utilisateur a-t-il au moins une row dans user_formation_progress ? */
   has_started?: boolean
 }
 
 export function FormationCard({ formation }: { formation: FormationCardData }) {
-  const { percent } = deriveProgressInfo({
+  const derived = deriveProgressInfo({
     completed: formation.completed_count,
     total: formation.chapter_count,
   })
-  // Statut effectif (intègre `has_started` au-delà du seul completed_count)
+  // On préfère le pourcentage déjà calculé par la RPC (évite un éventuel
+  // décalage d'arrondi entre SQL et JS), sinon fallback sur le calcul JS.
+  const percent = formation.progress_percent ?? derived.percent
+
   let status: 'not_started' | 'in_progress' | 'completed'
   if (formation.chapter_count > 0 && formation.completed_count >= formation.chapter_count) {
     status = 'completed'
@@ -37,20 +42,16 @@ export function FormationCard({ formation }: { formation: FormationCardData }) {
     status = 'not_started'
   }
 
-  const tooltip =
-    status === 'not_started'
-      ? undefined
-      : `${formation.completed_count}/${formation.chapter_count} chapitre${formation.chapter_count > 1 ? 's' : ''} terminé${formation.completed_count > 1 ? 's' : ''}`
+  const noContent = formation.chapter_count === 0
 
   return (
     <Link
       to="/app/formations/$slug"
       params={{ slug: formation.slug }}
-      title={tooltip}
       className={cn(
         'group relative flex h-full flex-col overflow-hidden rounded-2xl border bg-[var(--card)] transition-all hover:shadow-md',
         status === 'completed'
-          ? 'border-[var(--accent)]/30 hover:border-[var(--accent)]/60'
+          ? 'border-emerald-300/60 hover:border-emerald-400'
           : 'border-[var(--border)] hover:border-[var(--primary)]/30',
       )}
     >
@@ -93,33 +94,27 @@ export function FormationCard({ formation }: { formation: FormationCardData }) {
             </span>
           </div>
 
-          {status !== 'not_started' && (
-            <div className="mt-3 space-y-1">
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-[var(--muted-foreground)]">
-                  {status === 'completed' ? 'Terminé' : 'Progression'}
-                </span>
-                <span
-                  className={cn(
-                    'font-medium',
-                    status === 'completed'
-                      ? 'text-[var(--accent)]'
-                      : 'text-[var(--foreground)]',
-                  )}
-                >
-                  {percent}%
-                </span>
+          {/* Tube de progression style Skool — toujours visible */}
+          <div className="mt-4">
+            {noContent ? (
+              <div className="space-y-1">
+                <ProgressTube value={0} size="md" className="opacity-60" />
+                <p className="text-center text-[10px] font-medium uppercase tracking-wider text-[var(--muted-foreground)]">
+                  Pas encore disponible
+                </p>
               </div>
-              <ProgressBar
-                value={percent}
-                size="sm"
-                className={status === 'completed' ? 'bg-[var(--accent)]/10' : undefined}
-                barClassName={
-                  status === 'completed' ? 'bg-[var(--accent)]' : undefined
-                }
-              />
-            </div>
-          )}
+            ) : (
+              <div className="space-y-1">
+                <ProgressTube value={percent} size="md" />
+                {status !== 'not_started' && (
+                  <p className="text-center text-[11px] text-[var(--muted-foreground)]">
+                    {formation.completed_count}/{formation.chapter_count}{' '}
+                    chapitre{formation.chapter_count > 1 ? 's' : ''}
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </Link>
@@ -134,9 +129,9 @@ function StatusBadge({
   if (status === 'not_started') return null
   if (status === 'completed') {
     return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-[var(--accent)]/15 px-2.5 py-0.5 text-xs font-medium text-[var(--accent)]">
+      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-700">
         <CheckCircle2 className="h-3 w-3" />
-        Terminé
+        Terminée
       </span>
     )
   }
@@ -152,9 +147,9 @@ function CompletedRibbon() {
   return (
     <span
       aria-hidden="true"
-      className="pointer-events-none absolute right-[-32px] top-3 z-10 rotate-45 bg-[var(--accent)] px-10 py-1 text-[10px] font-semibold uppercase tracking-wider text-[var(--accent-foreground)] shadow"
+      className="pointer-events-none absolute right-[-32px] top-3 z-10 rotate-45 bg-emerald-500 px-10 py-1 text-[10px] font-semibold uppercase tracking-wider text-white shadow"
     >
-      Terminé
+      Terminée
     </span>
   )
 }
