@@ -5,6 +5,7 @@ import {
   Library,
   MessagesSquare,
   Newspaper,
+  Trophy,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -20,5 +21,6 @@ export const NAV_ITEMS: NavItem[] = [
   { to: '/app/communaute', label: 'Communauté', icon: MessagesSquare },
   { to: '/app/actualites', label: 'Actualités', icon: Newspaper },
   { to: '/app/ressources', label: 'Ressources', icon: Library },
+  { to: '/app/classement', label: 'Classement', icon: Trophy },
   { to: '/app/events', label: 'Événements', icon: Calendar },
 ]

@@ -16,6 +16,30 @@ import { ResumeFormationCard } from '@/components/formations/resume-formation-ca
 import { RecentPostsCard } from '@/components/community/recent-posts-card'
 import { MyPointsCard } from '@/components/community/my-points-card'
 import { NextEventCard } from '@/components/events/next-event-card'
+import { OnboardingGuide, type GuideStep } from '@/components/onboarding/onboarding-guide'
+
+const DASHBOARD_GUIDE: GuideStep[] = [
+  {
+    targetId: 'welcome-header',
+    title: 'Ton nouvel univers IA',
+    content: 'Bienvenue au Club ! Ici, tu as tout le nécessaire pour devenir un expert. Ce tableau de bord regroupe tes activités essentielles.'
+  },
+  {
+    targetId: 'next-event',
+    title: 'Les ateliers en direct',
+    content: 'Ne rate pas nos prochains coachings et ateliers live. Clique pour les ajouter à ton agenda !'
+  },
+  {
+    targetId: 'coach-section',
+    title: 'Ton Coach Claude',
+    content: 'Une question ? Un blocage ? Clique ici pour discuter avec ton assistant IA qui connaît tes cours par cœur.'
+  },
+  {
+    targetId: 'points-section',
+    title: 'Ta progression (La Force)',
+    content: 'Ici, tu vois tes points de Force. Gagne-les en finissant des cours ou en aidant la communauté pour monter dans le classement.'
+  }
+]
 
 export const Route = createFileRoute('/app/dashboard')({
   component: DashboardPage,
@@ -73,7 +97,7 @@ function DashboardPage() {
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
       {/* Hero Welcome */}
       <Reveal>
-        <section>
+        <section id="welcome-header">
           <div className="flex items-center gap-2">
             <h1 className="font-display text-2xl font-bold tracking-tight sm:text-3xl md:text-4xl">
               Bienvenue, {firstName} <span className="serif-accent italic">👋</span>
@@ -87,14 +111,14 @@ function DashboardPage() {
 
       {/* Prochain coaching live */}
       <Reveal delay={0.1} distance={10}>
-        <section className="mt-8">
+        <section id="next-event" className="mt-8">
           <NextEventCard />
         </section>
       </Reveal>
 
       {/* Carte vedette Coach IA */}
       <Reveal delay={0.2} distance={10}>
-        <section className="mt-8">
+        <section id="coach-section" className="mt-8">
           <button
             type="button"
             onClick={openCoach}
@@ -171,7 +195,7 @@ function DashboardPage() {
 
       {/* Mes points du mois */}
       <Reveal delay={0.8} distance={20}>
-        <section className="mt-16">
+        <section id="points-section" className="mt-16">
           <MyPointsCard />
         </section>
       </Reveal>
@@ -215,6 +239,8 @@ function DashboardPage() {
           <RecentPostsCard />
         </Reveal>
       </section>
+
+      <OnboardingGuide guideKey="dashboard-tour" steps={DASHBOARD_GUIDE} />
     </div>
   )
 }

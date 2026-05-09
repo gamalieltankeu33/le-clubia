@@ -58,6 +58,14 @@ create index if not exists idx_formation_chapters_formation_order
 --    consultées" — accès par user_id, filtré sur completed, trié par
 --    updated_at.
 -- ---------------------------------------------------------------------
+-- Sécurité : s'assure que updated_at existe (fix structure remote)
+DO $$ 
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='user_formation_progress' AND column_name='updated_at') THEN
+    ALTER TABLE public.user_formation_progress ADD COLUMN updated_at timestamptz DEFAULT now() NOT NULL;
+  END IF;
+END $$;
+
 create index if not exists idx_user_formation_progress_user_status
   on public.user_formation_progress(user_id, completed, updated_at desc);
 

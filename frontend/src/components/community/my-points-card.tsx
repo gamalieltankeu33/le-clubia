@@ -24,76 +24,38 @@ async function fetchMyPoints(): Promise<MyPoints | null> {
  * Affiche les points + rang du mois en cours + lien d'incitation.
  */
 export function MyPointsCard() {
-  const userId = useAuthStore((s) => s.user?.id ?? null)
-
-  const query = useQuery({
-    queryKey: ['my-monthly-points', userId],
-    queryFn: fetchMyPoints,
-    enabled: Boolean(userId),
-    staleTime: 60_000,
-  })
-
-  if (!userId) return null
-
-  const data = query.data
-  const monthLabel = new Date().toLocaleDateString('fr-FR', {
-    month: 'long',
-    year: 'numeric',
-  })
+  const profile = useAuthStore((s) => s.profile)
+  const points = profile?.points ?? 0
+  const level = Math.floor(points / 100) + 1
 
   return (
     <div className="rounded-2xl border border-[var(--border)] bg-gradient-to-br from-[var(--accent)]/5 via-[var(--card)] to-[var(--card)] p-5">
-      <div className="flex items-start gap-3">
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--accent)]/15 text-[var(--accent)]">
-          <Trophy className="h-5 w-5" />
-        </span>
+      <div className="flex items-start gap-4">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[var(--accent)]/15 text-[var(--accent)] shadow-inner">
+          <Trophy className="h-6 w-6" />
+        </div>
         <div className="min-w-0 flex-1">
-          <p className="text-xs font-semibold uppercase tracking-wider text-[var(--muted-foreground)]">
-            Mes points · {monthLabel}
-          </p>
+          <div className="flex items-center justify-between">
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--muted-foreground)] opacity-70">
+              Ma Force Actuelle
+            </p>
+            <span className="rounded-full bg-[var(--accent)]/10 px-2 py-0.5 text-[10px] font-bold text-[var(--accent)] border border-[var(--accent)]/20">
+              Niveau {level}
+            </span>
+          </div>
 
-          {query.isLoading ? (
-            <div className="mt-3 flex items-center gap-2 text-sm text-[var(--muted-foreground)]">
-              <Loader2 className="h-4 w-4 animate-spin" />
-              Chargement…
-            </div>
-          ) : !data || data.total_points === 0 ? (
-            <>
-              <p className="mt-1 font-display text-lg font-bold tracking-tight">
-                Pas encore de points
-              </p>
-              <p className="mt-2 max-w-md text-xs text-[var(--muted-foreground)]">
-                Publie un post (+10 pts), commente (+3 pts), reçois des likes
-                (+2 pts) ou termine un chapitre de formation (+5 pts) pour
-                grimper au classement et tenter de gagner la prime mensuelle
-                de{' '}
-                <span className="font-bold text-[var(--primary)]">
-                  50&nbsp;000&nbsp;FCFA
-                </span>
-                .
-              </p>
-            </>
-          ) : (
-            <>
-              <div className="mt-1 flex items-baseline gap-3">
-                <p className="font-display text-2xl font-bold tracking-tight tabular-nums">
-                  {data.total_points}
-                </p>
-                <p className="text-sm text-[var(--muted-foreground)]">
-                  point{data.total_points > 1 ? 's' : ''}
-                </p>
-              </div>
-              <p className="mt-1 text-sm text-[var(--muted-foreground)]">
-                Rang{' '}
-                <strong className="text-[var(--foreground)] tabular-nums">
-                  #{data.rank}
-                </strong>
-                {data.total_members > 0 && (
-                  <> sur {data.total_members} membres actifs ce mois</>
-                )}
-              </p>
-            </>
-          )}
+          <div className="mt-2 flex items-baseline gap-2">
+            <p className="font-display text-3xl font-bold tracking-tight text-[var(--foreground)] tabular-nums">
+              {points.toLocaleString()}
+            </p>
+            <p className="text-sm font-medium text-[var(--muted-foreground)]">
+              point{points > 1 ? 's' : ''}
+            </p>
+          </div>
+
+          <p className="mt-2 text-xs leading-relaxed text-[var(--muted-foreground)]">
+            Gagne des points en terminant des cours (+10), en publiant (+5) ou en recevant des likes (+2).
+          </p>
         </div>
       </div>
 
