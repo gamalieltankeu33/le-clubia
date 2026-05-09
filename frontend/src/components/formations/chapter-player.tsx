@@ -9,18 +9,18 @@ import {
   getVideoProvider,
 } from '@/lib/formation-helpers'
 
-const SAVE_INTERVAL_MS = 10_000
-const AUTO_COMPLETE_RATIO = 0.9
+const SAVE_INTERVAL_MS = 5_000
 
 interface PlayerProps {
   chapter: FormationChapter
   initialPositionSeconds: number
-  isCompleted: boolean
-  onPositionTick: (seconds: number) => void
-  onAutoComplete: () => void
+  /**
+   * Callback déclenché ~toutes les 5 s pendant la lecture.
+   * `durationSeconds` peut être 0 si pas encore connu (race au chargement).
+   */
+  onProgressTick: (currentSeconds: number, durationSeconds: number) => void
 }
 
-/** Dispatch sur le provider de la vidéo (YouTube ou Vimeo). */
 export function ChapterPlayer(props: PlayerProps) {
   const provider = props.chapter.video_url
     ? getVideoProvider(props.chapter.video_url)
@@ -53,23 +53,11 @@ function UnsupportedPlayer() {
 function YouTubeChapterPlayer({
   chapter,
   initialPositionSeconds,
-  isCompleted,
-  onPositionTick,
-  onAutoComplete,
+  onProgressTick,
 }: PlayerProps) {
   const playerRef = useRef<YouTubePlayer | null>(null)
-  const tickRef = useRef(onPositionTick)
-  tickRef.current = onPositionTick
-  const autoCompleteCbRef = useRef(onAutoComplete)
-  autoCompleteCbRef.current = onAutoComplete
-
-  const autoCompletedFiredRef = useRef(false)
-  useEffect(() => {
-    autoCompletedFiredRef.current = false
-  }, [chapter.id])
-
-  const isCompletedRef = useRef(isCompleted)
-  isCompletedRef.current = isCompleted
+  const tickRef = useRef(onProgressTick)
+  tickRef.current = onProgressTick
 
   const videoId = chapter.video_url ? extractYouTubeId(chapter.video_url) : null
 
@@ -82,18 +70,9 @@ function YouTubeChapterPlayer({
       const player = playerRef.current
       if (!player) return
       try {
-        const seconds = Math.floor(player.getCurrentTime?.() ?? 0)
+        const seconds = Number(player.getCurrentTime?.() ?? 0)
         const duration = Number(player.getDuration?.() ?? 0)
-        if (seconds > 0) tickRef.current(seconds)
-        if (
-          !isCompletedRef.current &&
-          !autoCompletedFiredRef.current &&
-          duration > 0 &&
-          seconds / duration >= AUTO_COMPLETE_RATIO
-        ) {
-          autoCompletedFiredRef.current = true
-          autoCompleteCbRef.current()
-        }
+        if (seconds > 0) tickRef.current(seconds, duration)
       } catch {
         // noop
       }
@@ -143,27 +122,14 @@ function YouTubeChapterPlayer({
 function VimeoChapterPlayer({
   chapter,
   initialPositionSeconds,
-  isCompleted,
-  onPositionTick,
-  onAutoComplete,
+  onProgressTick,
 }: PlayerProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const playerRef = useRef<VimeoPlayer | null>(null)
 
-  const tickRef = useRef(onPositionTick)
-  tickRef.current = onPositionTick
-  const autoCompleteCbRef = useRef(onAutoComplete)
-  autoCompleteCbRef.current = onAutoComplete
+  const tickRef = useRef(onProgressTick)
+  tickRef.current = onProgressTick
 
-  const autoCompletedFiredRef = useRef(false)
-  useEffect(() => {
-    autoCompletedFiredRef.current = false
-  }, [chapter.id])
-
-  const isCompletedRef = useRef(isCompleted)
-  isCompletedRef.current = isCompleted
-
-  // Mount / unmount du Vimeo Player quand le chapitre change.
   useEffect(() => {
     if (!containerRef.current || !chapter.video_url) return
     const ids = extractVimeoId(chapter.video_url)
@@ -179,7 +145,6 @@ function VimeoChapterPlayer({
     })
     playerRef.current = player
 
-    // Reprise au timecode après chargement
     if (initialPositionSeconds > 0) {
       player
         .ready()
@@ -196,7 +161,6 @@ function VimeoChapterPlayer({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chapter.id])
 
-  // Tick toutes les 10s : position + auto-mark 90%.
   useEffect(() => {
     const interval = window.setInterval(async () => {
       const player = playerRef.current
@@ -206,17 +170,7 @@ function VimeoChapterPlayer({
           player.getCurrentTime(),
           player.getDuration(),
         ])
-        const sec = Math.floor(seconds)
-        if (sec > 0) tickRef.current(sec)
-        if (
-          !isCompletedRef.current &&
-          !autoCompletedFiredRef.current &&
-          duration > 0 &&
-          sec / duration >= AUTO_COMPLETE_RATIO
-        ) {
-          autoCompletedFiredRef.current = true
-          autoCompleteCbRef.current()
-        }
+        if (seconds > 0) tickRef.current(Number(seconds), Number(duration))
       } catch {
         // noop : le player peut être en cours de chargement
       }

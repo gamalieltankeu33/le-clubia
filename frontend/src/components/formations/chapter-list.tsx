@@ -7,11 +7,14 @@ export function ChapterList({
   chapters,
   activeChapterId,
   completedChapterIds,
+  progressByChapterId,
   onSelect,
 }: {
   chapters: FormationChapter[]
   activeChapterId: string | null
   completedChapterIds: Set<string>
+  /** Map chapterId → progress_percent (0..100). Optionnel : si absent, 0. */
+  progressByChapterId?: Map<string, number>
   onSelect: (chapterId: string) => void
 }) {
   return (
@@ -19,6 +22,9 @@ export function ChapterList({
       {chapters.map((chapter, idx) => {
         const completed = completedChapterIds.has(chapter.id)
         const active = chapter.id === activeChapterId
+        const pct = progressByChapterId?.get(chapter.id) ?? 0
+        const showProgress = !completed && pct > 0
+
         return (
           <li key={chapter.id}>
             <button
@@ -33,7 +39,7 @@ export function ChapterList({
             >
               <span className="mt-0.5 shrink-0">
                 {completed ? (
-                  <CheckCircle2 className="h-5 w-5 text-[var(--accent)]" />
+                  <CheckCircle2 className="h-5 w-5 text-emerald-500" />
                 ) : (
                   <Circle className="h-5 w-5 text-[var(--muted-foreground)]" />
                 )}
@@ -48,6 +54,16 @@ export function ChapterList({
                   )}
                 >
                   Chapitre {idx + 1}
+                  {showProgress && (
+                    <span className="ml-2 normal-case tracking-normal text-[var(--primary)]">
+                      · {pct}% vu
+                    </span>
+                  )}
+                  {completed && (
+                    <span className="ml-2 normal-case tracking-normal text-emerald-600">
+                      · Terminé
+                    </span>
+                  )}
                 </span>
                 <span
                   className={cn(
@@ -60,6 +76,17 @@ export function ChapterList({
                 {chapter.duration_minutes > 0 && (
                   <span className="mt-1 block text-xs text-[var(--muted-foreground)]">
                     {formatDuration(chapter.duration_minutes)}
+                  </span>
+                )}
+                {showProgress && (
+                  <span
+                    className="mt-2 block h-1 w-full overflow-hidden rounded-full bg-[var(--secondary)]"
+                    aria-hidden="true"
+                  >
+                    <span
+                      className="block h-full rounded-full bg-[var(--primary)] transition-[width] duration-500"
+                      style={{ width: `${pct}%` }}
+                    />
                   </span>
                 )}
               </span>

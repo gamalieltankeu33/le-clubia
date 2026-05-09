@@ -341,6 +341,7 @@ export type Database = {
           completed: boolean
           completed_at: string | null
           last_position_seconds: number
+          progress_percent: number
           created_at: string
           updated_at: string
         }
@@ -352,6 +353,7 @@ export type Database = {
           completed?: boolean
           completed_at?: string | null
           last_position_seconds?: number
+          progress_percent?: number
           created_at?: string
           updated_at?: string
         }
@@ -363,6 +365,7 @@ export type Database = {
           completed?: boolean
           completed_at?: string | null
           last_position_seconds?: number
+          progress_percent?: number
           created_at?: string
           updated_at?: string
         }

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
 import {
   ArrowLeft,
@@ -35,6 +35,7 @@ import { ChapterList } from '@/components/formations/chapter-list'
 import { ChapterPlayer } from '@/components/formations/chapter-player'
 import { MarkdownRenderer } from '@/components/coach/markdown-renderer'
 import { saveProgressKeepalive } from '@/lib/save-progress-keepalive'
+import { useChapterProgressTracker } from '@/lib/use-chapter-progress-tracker'
 import { FormationReviewModal } from '@/components/formations/formation-review-modal'
 
 export const Route = createFileRoute('/app/formations/$slug')({
@@ -94,7 +95,6 @@ async function fetchUserReviews(userId: string, formationId: string) {
 function FormationDetailPage() {
   const { slug } = Route.useParams()
   const userId = useAuthStore((s) => s.user?.id)
-  const queryClient = useQueryClient()
   const refreshHistory = useCoachStore((s) => s.refreshHistory)
   const refreshQuota = useCoachStore((s) => s.refreshQuota)
   const setContext = useCoachStore((s) => s.setContext)
@@ -132,6 +132,14 @@ function FormationDetailPage() {
   const progressByChapter = useMemo(() => {
     const m = new Map<string, UserFormationProgress>()
     for (const p of progressQuery.data ?? []) m.set(p.chapter_id, p)
+    return m
+  }, [progressQuery.data])
+
+  const progressPercentByChapter = useMemo(() => {
+    const m = new Map<string, number>()
+    for (const p of progressQuery.data ?? []) {
+      m.set(p.chapter_id, p.progress_percent ?? 0)
+    }
     return m
   }, [progressQuery.data])
 
@@ -218,79 +226,58 @@ function FormationDetailPage() {
     : false
   const completedCount = completedChapterIds.size
   const totalChapters = chapters.length
-  const overallPct =
-    totalChapters > 0
-      ? Math.round((completedCount / totalChapters) * 100)
-      : 0
+  // Pourcentage global = moyenne des pct chapitre (chapitres sans
+  // progression comptent comme 0). Cohérent avec la RPC catalogue.
+  const overallPct = useMemo(() => {
+    if (totalChapters === 0) return 0
+    let sum = 0
+    for (const c of chapters) {
+      sum += progressByChapter.get(c.id)?.progress_percent ?? 0
+    }
+    return Math.round(sum / totalChapters)
+  }, [chapters, progressByChapter, totalChapters])
   const isFullyCompleted = totalChapters > 0 && completedCount === totalChapters
 
-  // Mutation : sauvegarde position vidéo
-  const positionMutation = useMutation({
-    mutationFn: async ({
-      chapterId,
-      seconds,
-    }: {
-      chapterId: string
-      seconds: number
-    }) => {
-      if (!userId || !formation) return
-      await supabase.from('user_formation_progress').upsert(
-        {
-          user_id: userId,
-          formation_id: formation.id,
-          chapter_id: chapterId,
-          last_position_seconds: seconds,
-        },
-        { onConflict: 'user_id,chapter_id' },
+  // Toast déclenché à la transition non-completed → completed (que ce
+  // soit auto à 90% ou via le bouton manuel).
+  const handleJustCompleted = useCallback(() => {
+    const remaining = totalChapters - completedCount - 1
+    if (remaining > 0) {
+      toast.success(
+        `Chapitre terminé ! Plus que ${remaining} chapitre${
+          remaining > 1 ? 's' : ''
+        }.`,
       )
-    },
+    } else {
+      toast.success('Bravo, tu as terminé la formation !')
+    }
+  }, [totalChapters, completedCount])
+
+  // Tracker : centralise update_chapter_progress() avec throttle 5 s,
+  // anti-régression et invalidation des queries (catalogue + détail).
+  const tracker = useChapterProgressTracker({
+    chapterId: activeChapterId,
+    formationId: formation?.id ?? null,
+    initialPercent:
+      progressByChapter.get(activeChapterId ?? '')?.progress_percent ?? 0,
+    isCompleted: activeChapterId
+      ? completedChapterIds.has(activeChapterId)
+      : false,
+    onJustCompleted: handleJustCompleted,
   })
 
-  // Mutation : toggle completed
-  const completeMutation = useMutation({
-    mutationFn: async ({
-      chapterId,
-      completed,
-    }: {
-      chapterId: string
-      completed: boolean
-    }) => {
-      if (!userId || !formation) throw new Error('not-ready')
-      const { error } = await supabase.from('user_formation_progress').upsert(
-        {
-          user_id: userId,
-          formation_id: formation.id,
-          chapter_id: chapterId,
-          completed,
-          completed_at: completed ? new Date().toISOString() : null,
-        },
-        { onConflict: 'user_id,chapter_id' },
-      )
-      if (error) throw error
-    },
-    onSuccess: (_data, vars) => {
-      queryClient.invalidateQueries({
-        queryKey: ['formation-progress', userId, formation?.id],
-      })
-      queryClient.invalidateQueries({
-        queryKey: ['user-progress', userId],
-      })
-      queryClient.invalidateQueries({ queryKey: ['resume-formation', userId] })
-      if (vars.completed) {
-        const remaining = totalChapters - completedCount - 1
-        if (remaining > 0) {
-          toast.success(
-            `Chapitre terminé ! Plus que ${remaining} chapitre${
-              remaining > 1 ? 's' : ''
-            }.`,
-          )
-        } else {
-          toast.success('Bravo, tu as terminé la formation !')
-        }
-      }
-    },
-    onError: () => toast.error('Impossible de sauvegarder. Réessaie.'),
-  })
+  const [markPending, setMarkPending] = useState(false)
+  const handleManualComplete = useCallback(async () => {
+    if (markPending) return
+    setMarkPending(true)
+    try {
+      await tracker.markComplete()
+    } catch {
+      toast.error('Impossible de sauvegarder. Réessaie.')
+    } finally {
+      setMarkPending(false)
+    }
+  }, [markPending, tracker])
 
   // Toast de félicitations la première fois qu'on atteint 100%
   const [celebratedFor, setCelebratedFor] = useState<string | null>(null)
@@ -351,14 +338,11 @@ function FormationDetailPage() {
     (chapterId: string) => {
       if (chapterId === activeChapterId) return
 
-      // Persiste la position courante avant de changer
+      // Flush une dernière fois la position avant de switcher.
       if (activeChapterId) {
         const lastSeconds = lastTickRef.current.get(activeChapterId) ?? 0
         if (lastSeconds > 0) {
-          positionMutation.mutate({
-            chapterId: activeChapterId,
-            seconds: lastSeconds,
-          })
+          tracker.flushFinal(lastSeconds)
         }
       }
 
@@ -374,7 +358,7 @@ function FormationDetailPage() {
 
       setActiveChapterId(chapterId)
     },
-    [activeChapterId, completedChapterIds, positionMutation],
+    [activeChapterId, completedChapterIds, tracker],
   )
 
   function navigateChapter(delta: 1 | -1) {
@@ -383,16 +367,6 @@ function FormationDetailPage() {
       selectChapter(chapters[next].id)
     }
   }
-
-  // Auto-complétion à 90% (tick player). Aucun effet si déjà complété.
-  const handleAutoComplete = useCallback(() => {
-    if (!activeChapter) return
-    if (completedChapterIds.has(activeChapter.id)) return
-    completeMutation.mutate({
-      chapterId: activeChapter.id,
-      completed: true,
-    })
-  }, [activeChapter, completedChapterIds, completeMutation])
 
   // Position de départ du player pour le chapitre actif :
   // - 0 si l'utilisateur a cliqué pour revisiter un chapitre terminé
@@ -560,6 +534,7 @@ function FormationDetailPage() {
                 chapters={chapters}
                 activeChapterId={activeChapterId}
                 completedChapterIds={completedChapterIds}
+                progressByChapterId={progressPercentByChapter}
                 onSelect={selectChapter}
               />
             </aside>
@@ -571,15 +546,10 @@ function FormationDetailPage() {
                   <ChapterPlayer
                     chapter={activeChapter}
                     initialPositionSeconds={playerStartSeconds}
-                    isCompleted={isCompleted}
-                    onPositionTick={(seconds) => {
+                    onProgressTick={(seconds, duration) => {
                       lastTickRef.current.set(activeChapter.id, seconds)
-                      positionMutation.mutate({
-                        chapterId: activeChapter.id,
-                        seconds,
-                      })
+                      tracker.reportProgress(seconds, duration)
                     }}
-                    onAutoComplete={handleAutoComplete}
                   />
 
                   <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6">
@@ -606,15 +576,10 @@ function FormationDetailPage() {
                     <div className="mt-6">
                       <Button
                         variant={isCompleted ? 'outline' : 'default'}
-                        onClick={() =>
-                          completeMutation.mutate({
-                            chapterId: activeChapter.id,
-                            completed: !isCompleted,
-                          })
-                        }
-                        disabled={completeMutation.isPending}
+                        onClick={handleManualComplete}
+                        disabled={markPending || isCompleted}
                       >
-                        {completeMutation.isPending ? (
+                        {markPending ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
                         ) : isCompleted ? (
                           <CheckCircle2 className="h-4 w-4" />
