@@ -4,31 +4,16 @@
 
 import { serve } from 'https://deno.land/std@0.224.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.4'
+import { getCorsHeaders, handleCorsPreflight } from '../_shared/cors.ts'
 
 // Conversion XOF → EUR pour l'affichage. ~656 XOF = 1 EUR (taux fixe
 // de la zone CFA Ouest). Approximatif, suffisant pour le dashboard MRR.
 const XOF_PER_EUR = 656
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': 'https://leclubia.com',
-  'Access-Control-Allow-Headers':
-    'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-}
-
-const getCorsHeaders = (req: Request) => {
-  const origin = req.headers.get('Origin')
-  if (origin && (origin === 'https://leclubia.com' || origin.startsWith('http://localhost:'))) {
-    return { ...corsHeaders, 'Access-Control-Allow-Origin': origin }
-  }
-  return corsHeaders
-}
-
 serve(async (req) => {
+  const preflight = handleCorsPreflight(req)
+  if (preflight) return preflight
   const headers = getCorsHeaders(req)
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers })
-  }
 
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
@@ -376,9 +361,9 @@ function ymd(d: Date): string {
   return `${y}-${m}-${day}`
 }
 
-function jsonResponse(status: number, body: unknown, headers?: Record<string, string>) {
+function jsonResponse(status: number, body: unknown, headers: Record<string, string>) {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { ...(headers || corsHeaders), 'Content-Type': 'application/json' },
+    headers: { ...headers, 'Content-Type': 'application/json' },
   })
 }

@@ -31,6 +31,7 @@
 import { serve } from 'https://deno.land/std@0.224.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.4'
 import { XMLParser } from 'https://esm.sh/fast-xml-parser@4.4.1'
+import { getCorsHeaders, handleCorsPreflight } from '../_shared/cors.ts'
 
 // -----------------------------------------------------------------------------
 // Config
@@ -62,12 +63,7 @@ const MIN_CANDIDATES = 5
 const ARTICLE_MAX_TOKENS = 2200
 const MODEL = 'gpt-4o-mini'
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers':
-    'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-}
+// CORS via helper partagé — voir _shared/cors.ts
 
 // -----------------------------------------------------------------------------
 // Types
@@ -114,9 +110,14 @@ class FatalOpenAIAuthError extends Error {
 // -----------------------------------------------------------------------------
 
 serve(async (req: Request) => {
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
-  }
+  const preflight = handleCorsPreflight(req)
+  if (preflight) return preflight
+  const corsHeaders = getCorsHeaders(req)
+  const jsonResponse = (status: number, body: unknown): Response =>
+    new Response(JSON.stringify(body), {
+      status,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
   if (req.method !== 'POST') {
     return jsonResponse(405, { ok: false, error: 'Méthode non autorisée.' })
   }
@@ -747,12 +748,6 @@ async function callOpenAI(
 // Helpers utilitaires
 // -----------------------------------------------------------------------------
 
-function jsonResponse(status: number, body: unknown) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-  })
-}
 
 function ensureArray<T>(v: T | T[] | undefined): T[] {
   if (v === undefined || v === null) return []

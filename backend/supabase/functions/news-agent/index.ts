@@ -20,6 +20,7 @@
 import { serve } from 'https://deno.land/std@0.224.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.4'
 import { XMLParser } from 'https://esm.sh/fast-xml-parser@4.4.1'
+import { getCorsHeaders, handleCorsPreflight } from '../_shared/cors.ts'
 
 // -----------------------------------------------------------------------------
 // Configuration
@@ -52,20 +53,7 @@ const MIN_SECTIONS = 3 // si on a moins de 3 articles, on ne publie pas
 const TARGET_SECTIONS = 5
 const MODEL = 'gpt-4o-mini'
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': 'https://leclubia.com',
-  'Access-Control-Allow-Headers':
-    'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-}
-
-const getCorsHeaders = (req: Request) => {
-  const origin = req.headers.get('Origin')
-  if (origin && (origin === 'https://leclubia.com' || origin.startsWith('http://localhost:'))) {
-    return { ...corsHeaders, 'Access-Control-Allow-Origin': origin }
-  }
-  return corsHeaders
-}
+// CORS via helper partagé — voir _shared/cors.ts
 
 // -----------------------------------------------------------------------------
 // Types
@@ -117,10 +105,9 @@ class FatalOpenAIAuthError extends Error {
 // -----------------------------------------------------------------------------
 
 serve(async (req: Request) => {
+  const preflight = handleCorsPreflight(req)
+  if (preflight) return preflight
   const headers = getCorsHeaders(req)
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers })
-  }
   if (req.method !== 'POST') {
     return jsonResponse(405, { error: 'Méthode non autorisée.' }, headers)
   }
@@ -739,10 +726,10 @@ async function callOpenAI(
 // Helpers
 // -----------------------------------------------------------------------------
 
-function jsonResponse(status: number, body: unknown, headers?: Record<string, string>) {
+function jsonResponse(status: number, body: unknown, headers: Record<string, string>) {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { ...(headers || corsHeaders), 'Content-Type': 'application/json' },
+    headers: { ...headers, 'Content-Type': 'application/json' },
   })
 }
 

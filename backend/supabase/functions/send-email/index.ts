@@ -19,6 +19,7 @@
 // Retourne : { ok: boolean, id?: string, error?: string }
 
 import { serve } from 'https://deno.land/std@0.224.0/http/server.ts'
+import { getCorsHeaders, handleCorsPreflight } from '../_shared/cors.ts'
 
 const RESEND_API_URL = 'https://api.resend.com/emails'
 const FROM_DEFAULT = 'Le Club IA <noreply@leclubia.com>'
@@ -27,12 +28,7 @@ const FROM_SANDBOX = 'Le Club IA <onboarding@resend.dev>'
 const REPLY_TO = 'betterzapp@gmail.com'
 const APP_URL = 'https://leclubia.com'
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers':
-    'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-}
+// CORS via helper partagé — voir _shared/cors.ts
 
 type EmailType =
   | 'weekly-recap'
@@ -62,9 +58,15 @@ interface SendResult {
 // ---------------------------------------------------------------------------
 
 serve(async (req: Request) => {
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
-  }
+  const preflight = handleCorsPreflight(req)
+  if (preflight) return preflight
+  const corsHeaders = getCorsHeaders(req)
+  const jsonResponse = (status: number, body: unknown): Response =>
+    new Response(JSON.stringify(body), {
+      status,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
+
   if (req.method !== 'POST') {
     return jsonResponse(405, { ok: false, error: 'Méthode non autorisée.' })
   }
@@ -779,12 +781,6 @@ function formatXofForEmail(amount: number): string {
 // Helpers
 // =============================================================================
 
-function jsonResponse(status: number, body: unknown): Response {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-  })
-}
 
 function escapeHtml(s: string): string {
   return String(s)
