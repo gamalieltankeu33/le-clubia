@@ -37,3 +37,4 @@ frontend/src/routeTree.gen.ts
 # Supabase
 .branches
 .temp
+.claude/
