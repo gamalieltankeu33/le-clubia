@@ -299,7 +299,7 @@ function AdminCommunityPage() {
                     Supprimer
                   </Button>
                   <Button
-                    variant={p.is_pinned ? 'secondary' : 'outline'}
+                    variant={p.is_pinned ? 'accent' : 'outline'}
                     size="sm"
                     onClick={() => pinMutation.mutate({ postId: p.id, pinned: !p.is_pinned })}
                     disabled={pinMutation.isPending}

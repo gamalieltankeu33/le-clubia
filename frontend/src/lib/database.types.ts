@@ -70,6 +70,8 @@ export type Database = {
           email_pref_event_announce: boolean
           email_pref_event_reminders: boolean
           desired_plan_id: string | null
+          points: number
+          guides_seen: string[]
           created_at: string
           updated_at: string
         }
@@ -89,6 +91,8 @@ export type Database = {
           email_pref_event_announce?: boolean
           email_pref_event_reminders?: boolean
           desired_plan_id?: string | null
+          points?: number
+          guides_seen?: string[]
           created_at?: string
           updated_at?: string
         }
@@ -108,6 +112,8 @@ export type Database = {
           email_pref_event_announce?: boolean
           email_pref_event_reminders?: boolean
           desired_plan_id?: string | null
+          points?: number
+          guides_seen?: string[]
           created_at?: string
           updated_at?: string
         }
@@ -335,6 +341,8 @@ export type Database = {
           completed: boolean
           completed_at: string | null
           last_position_seconds: number
+          created_at: string
+          updated_at: string
         }
         Insert: {
           id?: string
@@ -344,6 +352,8 @@ export type Database = {
           completed?: boolean
           completed_at?: string | null
           last_position_seconds?: number
+          created_at?: string
+          updated_at?: string
         }
         Update: {
           id?: string
@@ -353,6 +363,8 @@ export type Database = {
           completed?: boolean
           completed_at?: string | null
           last_position_seconds?: number
+          created_at?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -366,6 +378,7 @@ export type Database = {
           hashtags: string[]
           likes_count: number
           comments_count: number
+          is_pinned: boolean
           created_at: string
           updated_at: string
         }
@@ -378,6 +391,7 @@ export type Database = {
           hashtags?: string[]
           likes_count?: number
           comments_count?: number
+          is_pinned?: boolean
           created_at?: string
           updated_at?: string
         }
@@ -390,6 +404,7 @@ export type Database = {
           hashtags?: string[]
           likes_count?: number
           comments_count?: number
+          is_pinned?: boolean
           created_at?: string
           updated_at?: string
         }

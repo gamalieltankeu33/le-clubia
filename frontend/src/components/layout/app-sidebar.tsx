@@ -8,7 +8,6 @@ import {
   MessageSquare,
   Newspaper,
   Trophy,
-  User,
   Users,
   type LucideIcon,
 } from 'lucide-react'

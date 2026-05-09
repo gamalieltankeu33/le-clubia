@@ -61,11 +61,11 @@ function LeaderboardPage() {
           </div>
         ) : (
           <div className="space-y-3">
-            {members.map((member, index) => (
-              <LeaderboardRow 
-                key={member.id} 
-                member={member} 
-                rank={index + 1} 
+            {(members ?? []).map((member, index) => (
+              <LeaderboardRow
+                key={member.id}
+                member={member}
+                rank={index + 1}
               />
             ))}
           </div>

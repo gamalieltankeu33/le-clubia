@@ -4,7 +4,6 @@ import { Reveal } from './reveal'
 interface Tool {
   name: string
   slug: string
-  color: string
 }
 
 const TOOLS: Tool[] = [

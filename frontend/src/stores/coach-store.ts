@@ -26,6 +26,7 @@ interface CoachState {
   isLoadingConversation: boolean
   quotaUsed: number
   quotaLimit: number
+  currentContext: string | null
 
   openPanel: () => void
   closePanel: () => void
@@ -54,7 +55,7 @@ export const useCoachStore = create<CoachState>((set, get) => ({
   isLoadingConversation: false,
   quotaUsed: 0,
   quotaLimit: DAILY_LIMIT,
-  currentContext: null as string | null,
+  currentContext: null,
 
   openPanel: () => {
     set({ isOpen: true })
@@ -141,7 +142,7 @@ export const useCoachStore = create<CoachState>((set, get) => ({
             role: m.role,
             content: m.content,
           })),
-          context: (get() as any).currentContext || undefined,
+          context: get().currentContext || undefined,
         }),
       })
     } catch (err) {

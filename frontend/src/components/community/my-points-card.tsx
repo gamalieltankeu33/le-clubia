@@ -1,28 +1,6 @@
-import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
-import { ArrowRight, Loader2, Trophy } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
+import { ArrowRight, Trophy } from 'lucide-react'
 import { useAuthStore } from '@/stores/auth-store'
-
-interface MyPoints {
-  total_points: number
-  rank: number
-  total_members: number
-}
-
-async function fetchMyPoints(): Promise<MyPoints | null> {
-  // @ts-expect-error - RPC custom non typée dans Database['public']['Functions']
-  const { data, error } = await supabase.rpc('get_my_monthly_points')
-  if (error || !data) return null
-  // La RPC renvoie un set de 1 ligne — on prend la première
-  const row = (Array.isArray(data) ? data[0] : data) as MyPoints | undefined
-  return row ?? null
-}
-
-/**
- * Mini widget "Mes points ce mois-ci" pour le dashboard membre.
- * Affiche les points + rang du mois en cours + lien d'incitation.
- */
 export function MyPointsCard() {
   const profile = useAuthStore((s) => s.profile)
   const points = profile?.points ?? 0

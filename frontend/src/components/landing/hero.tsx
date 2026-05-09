@@ -68,7 +68,7 @@ export function Hero() {
 
           <Reveal delay={0.8} distance={20}>
             <div className="mt-12 flex flex-wrap items-center justify-center gap-3">
-              {STATS.map((s, i) => (
+              {STATS.map((s) => (
                 <div
                   key={s.label}
                   className="group inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-white/50 px-4 py-2 text-sm backdrop-blur-sm transition-all hover:border-[var(--primary)]/30 hover:bg-white"

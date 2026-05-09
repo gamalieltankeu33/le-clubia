@@ -126,16 +126,8 @@ function AdminDashboardPage() {
     staleTime: 60_000,
   })
 
-  const {
-    overview,
-    signups_30d,
-    interests_distribution,
-    top_formations_categories,
-    recent_signups,
-    recent_posts,
-    top_active_members,
-    inactive_members,
-  } = (query.data as AdminStatsPayload) || {}
+  const { overview, inactive_members } =
+    (query.data as AdminStatsPayload) || {}
 
   const today = useMemo(
     () =>

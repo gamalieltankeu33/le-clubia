@@ -1,7 +1,6 @@
 import { useMemo } from 'react'
 import { Link } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
-import { motion } from 'framer-motion'
 import { ArrowRight, Check, Lock, Sparkles } from 'lucide-react'
 import { Eyebrow } from './eyebrow'
 import { Reveal } from './reveal'

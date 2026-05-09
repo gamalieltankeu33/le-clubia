@@ -57,7 +57,7 @@ export function NewsAgentSection() {
           </p>
 
           <div className="mt-12 grid grid-cols-3 gap-3 sm:gap-6">
-            {STATS.map((s, i) => (
+            {STATS.map((s) => (
               <div
                 key={s.label}
                 className="group relative rounded-2xl border border-[var(--border)] bg-[var(--background)] p-4 transition-all duration-300 hover:border-[var(--primary)]/20 hover:bg-white hover:shadow-lg sm:p-6"
