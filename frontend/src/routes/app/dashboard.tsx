@@ -21,23 +21,23 @@ import { OnboardingGuide, type GuideStep } from '@/components/onboarding/onboard
 const DASHBOARD_GUIDE: GuideStep[] = [
   {
     targetId: 'welcome-header',
-    title: 'Ton nouvel univers IA',
-    content: 'Bienvenue au Club ! Ici, tu as tout le nécessaire pour devenir un expert. Ce tableau de bord regroupe tes activités essentielles.'
-  },
-  {
-    targetId: 'next-event',
-    title: 'Les ateliers en direct',
-    content: 'Ne rate pas nos prochains coachings et ateliers live. Clique pour les ajouter à ton agenda !'
+    title: 'Ton Accélérateur IA',
+    content: 'C’est ici que ton aventure commence. Nous avons centralisé tout ce dont tu as besoin pour maîtriser les outils IA et gagner un temps précieux chaque jour.'
   },
   {
     targetId: 'coach-section',
-    title: 'Ton Coach Claude',
-    content: 'Une question ? Un blocage ? Clique ici pour discuter avec ton assistant IA qui connaît tes cours par cœur.'
+    title: 'Ton Expert 24h/24',
+    content: 'Un blocage sur un prompt ? Besoin d’un résumé express ? Clique ici pour demander à ton Coach Claude. Il connaît tout le contenu de tes formations.'
+  },
+  {
+    targetId: 'next-event',
+    title: 'Ne reste pas seul',
+    content: 'Participe à nos prochains coachings en direct pour poser tes questions et voir des démonstrations live. Ajoute-les à ton calendrier pour ne rien rater.'
   },
   {
     targetId: 'points-section',
-    title: 'Ta progression (La Force)',
-    content: 'Ici, tu vois tes points de Force. Gagne-les en finissant des cours ou en aidant la communauté pour monter dans le classement.'
+    title: 'Mesure ton Impact',
+    content: 'Ta "Force" augmente à chaque action. Plus tu apprends et plus tu aides la communauté, plus ton niveau grimpe. Prêt à devenir le Major de promo ?'
   }
 ]
 

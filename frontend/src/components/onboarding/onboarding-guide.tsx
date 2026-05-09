@@ -110,61 +110,78 @@ export function OnboardingGuide({ guideKey, steps, onComplete }: OnboardingGuide
   const bubbleTop = coords.top + coords.height + 20
   const bubbleLeft = Math.max(20, Math.min(window.innerWidth - 340, coords.left + (coords.width / 2) - 160))
 
-  return (
-    <div className="pointer-events-none fixed inset-0 z-[9999]">
-      {/* Overlay de focus (troué sur l'élément cible) */}
+      {/* Overlay de focus (troué avec bords arrondis) */}
       <div 
-        className="absolute inset-0 bg-black/60 transition-opacity duration-500" 
+        className="absolute inset-0 bg-black/70 transition-opacity duration-500 backdrop-blur-[2px]" 
         style={{ 
-          clipPath: `polygon(0% 0%, 0% 100%, ${coords.left - 8}px 100%, ${coords.left - 8}px ${coords.top - 8}px, ${coords.left + coords.width + 8}px ${coords.top - 8}px, ${coords.left + coords.width + 8}px ${coords.top + coords.height + 8}px, ${coords.left - 8}px ${coords.top + coords.height + 8}px, ${coords.left - 8}px 100%, 100% 100%, 100% 0%)` 
+          maskImage: `radial-gradient(circle at ${coords.left + coords.width / 2}px ${coords.top + coords.height / 2}px, transparent ${Math.max(coords.width, coords.height) / 1.5}px, black ${Math.max(coords.width, coords.height) / 1.5 + 5}px)`,
+          WebkitMaskImage: `radial-gradient(circle at ${coords.left + coords.width / 2}px ${coords.top + coords.height / 2}px, transparent ${Math.max(coords.width, coords.height) / 1.5}px, black ${Math.max(coords.width, coords.height) / 1.5 + 5}px)`
         }}
       />
 
-      {/* Bulle d'aide */}
+      {/* Halo lumineux autour de la cible */}
       <motion.div
-        initial={{ opacity: 0, scale: 0.9, y: 10 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="pointer-events-auto absolute w-[320px] rounded-2xl bg-white p-6 shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-[var(--primary)]/10"
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: [0, 0.5, 0], scale: [1, 1.1, 1] }}
+        transition={{ duration: 2, repeat: Infinity }}
+        className="absolute z-[9998] rounded-full bg-[var(--primary)]/30 blur-xl pointer-events-none"
+        style={{
+          top: coords.top - 20,
+          left: coords.left - 20,
+          width: coords.width + 40,
+          height: coords.height + 40,
+        }}
+      />
+
+      {/* Bulle d'aide avec flèche */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="pointer-events-auto absolute w-[340px] rounded-3xl bg-white p-7 shadow-[0_25px_70px_rgba(0,0,0,0.5)] border border-[var(--primary)]/10"
         style={{
           top: bubbleTop,
           left: bubbleLeft
         }}
       >
-        <div className="flex items-center justify-between">
-          <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[var(--primary)]">
-            <Sparkles className="h-3.5 w-3.5" />
-            Guide Découverte
-          </span>
-          <button 
-            onClick={completeGuide}
-            className="text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </div>
+        {/* Petite flèche qui pointe vers l'élément */}
+        <div 
+          className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white rotate-45 border-l border-t border-[var(--primary)]/10"
+        />
 
-        <h4 className="mt-3 font-display text-lg font-semibold leading-tight">
-          {step.title}
-        </h4>
-        <p className="mt-2 text-sm text-[var(--muted-foreground)] leading-relaxed">
-          {step.content}
-        </p>
-
-        <div className="mt-6 flex items-center justify-between">
-          <div className="flex gap-1">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[var(--primary)]/10 text-[var(--primary)]">
+            <Sparkles className="h-4 w-4" />
+          </div>
+          <div className="flex gap-1.5">
             {steps.map((_, i) => (
               <div 
                 key={i} 
                 className={cn(
-                  "h-1 rounded-full transition-all",
-                  i === currentStep ? "w-4 bg-[var(--primary)]" : "w-1.5 bg-[var(--primary)]/20"
+                  "h-1.5 rounded-full transition-all duration-300",
+                  i === currentStep ? "w-6 bg-[var(--primary)]" : "w-1.5 bg-[var(--primary)]/10"
                 )} 
               />
             ))}
           </div>
-          <Button size="sm" onClick={handleNext} className="gap-1.5">
-            {currentStep === steps.length - 1 ? "J'ai compris" : "Suivant"}
-            {currentStep < steps.length - 1 && <ChevronRight className="h-4 w-4" />}
+        </div>
+
+        <h4 className="font-display text-xl font-bold leading-tight text-[var(--foreground)]">
+          {step.title}
+        </h4>
+        <p className="mt-3 text-sm text-[var(--muted-foreground)] font-medium leading-relaxed">
+          {step.content}
+        </p>
+
+        <div className="mt-8 flex items-center justify-between gap-4">
+          <button 
+            onClick={completeGuide}
+            className="text-xs font-bold uppercase tracking-widest text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
+          >
+            Passer
+          </button>
+          <Button onClick={handleNext} className="rounded-xl px-6 h-11 font-bold shadow-lg shadow-[var(--primary)]/20">
+            {currentStep === steps.length - 1 ? "C'est parti !" : "Suivant"}
+            {currentStep < steps.length - 1 && <ChevronRight className="ml-2 h-4 w-4" />}
           </Button>
         </div>
       </motion.div>
