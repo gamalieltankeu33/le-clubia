@@ -38,7 +38,7 @@ export function Hero() {
 
       <div className="mx-auto max-w-7xl px-6 text-center">
         <div className="mx-auto max-w-4xl">
-          <Reveal delay={0.1}>
+          <Reveal delay={0.05}>
             <Eyebrow className="mb-8">Communauté × IA francophone</Eyebrow>
           </Reveal>
 
@@ -49,8 +49,8 @@ export function Hero() {
                 initial={{ opacity: 0, y: 40 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{
-                  duration: 1.4,
-                  delay: 0.2 + i * 0.1,
+                  duration: 0.6,
+                  delay: 0.1 + i * 0.05,
                   ease: EASE_EXPO,
                 }}
                 className={i === words.length - 1 ? 'serif-accent inline-block' : 'inline-block mr-[0.2em]'}
@@ -60,13 +60,13 @@ export function Hero() {
             ))}
           </h1>
 
-          <Reveal delay={0.6}>
+          <Reveal delay={0.25}>
             <p className="mx-auto mt-8 max-w-2xl text-lg leading-relaxed text-[var(--muted-foreground)] sm:text-2xl">
               Rejoins l'élite francophone qui maîtrise les outils d'aujourd'hui pour dominer demain. Formations, Coach IA et Veille stratégique.
             </p>
           </Reveal>
 
-          <Reveal delay={0.8} distance={20}>
+          <Reveal delay={0.35} distance={20}>
             <div className="mt-12 flex flex-wrap items-center justify-center gap-3">
               {STATS.map((s) => (
                 <div
@@ -80,7 +80,7 @@ export function Hero() {
             </div>
           </Reveal>
 
-          <Reveal delay={1} distance={20}>
+          <Reveal delay={0.45} distance={20}>
             <div className="mt-12 flex flex-col items-center gap-4">
               <Link
                 to="/auth"
@@ -104,7 +104,7 @@ export function Hero() {
         </div>
 
         {/* VSL / Demo Video Area */}
-        <Reveal delay={1.2} distance={40}>
+        <Reveal delay={0.55} distance={40}>
           <div className="relative mx-auto mt-20 max-w-5xl lg:mt-32">
             <div
               aria-hidden="true"

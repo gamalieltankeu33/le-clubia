@@ -28,10 +28,10 @@ export function Reveal({
       initial={{ opacity: 0, x: initialX, y: initialY }}
       whileInView={{ opacity: 1, x: 0, y: 0 }}
       viewport={{ once: true, margin: '-50px' }}
-      transition={{ 
-        duration: 1.2, 
-        ease: EASE_EXPO, 
-        delay 
+      transition={{
+        duration: 0.6,
+        ease: EASE_EXPO,
+        delay,
       }}
     >
       {children}

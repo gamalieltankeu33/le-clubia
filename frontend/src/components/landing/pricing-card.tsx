@@ -117,7 +117,7 @@ export function PricingCard() {
               key={plan.id}
               plan={plan}
               isLoading={isLoading}
-              delay={0.1 + idx * 0.1}
+              delay={0.05 + idx * 0.04}
             />
           ))}
         </div>
