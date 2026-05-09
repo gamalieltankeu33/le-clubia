@@ -17,6 +17,30 @@ import { useAuthStore } from '@/stores/auth-store'
 import { AvatarDisplay } from '@/components/avatar-display'
 import { BrandLogo } from '@/components/brand-logo'
 import { NAV_ITEMS } from './nav-items'
+import { OnboardingGuide, type GuideStep } from '@/components/onboarding/onboarding-guide'
+
+const NAV_GUIDE_STEPS: GuideStep[] = [
+  {
+    targetId: 'nav-dashboard',
+    title: 'Tableau de Bord',
+    content: 'C’est ici que tu retrouves ton résumé quotidien, tes cours en cours et tes points de Force.'
+  },
+  {
+    targetId: 'nav-formations',
+    title: 'Catalogue de Formations',
+    content: 'Accède à tous nos programmes vidéo exclusifs sur l’IA, classés par niveaux et par thématiques.'
+  },
+  {
+    targetId: 'nav-communaute',
+    title: 'Espace Communautaire',
+    content: 'Partage tes résultats, pose tes questions techniques et échange avec les autres membres du Club.'
+  },
+  {
+    targetId: 'nav-classement',
+    title: 'Le Mur des Champions',
+    content: 'Découvre qui sont les membres les plus actifs et tente de décrocher la première place du classement.'
+  }
+]
 
 interface AdminNavItem {
   to: string
@@ -100,6 +124,7 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
             return (
               <li key={item.to}>
                 <Link
+                  id={`nav-${item.to.split('/').pop()}`}
                   to={item.to}
                   onClick={onNavigate}
                   className={cn(
@@ -201,6 +226,7 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
           Se déconnecter
         </button>
       </div>
+      <OnboardingGuide guideKey="sidebar-nav-tour" steps={NAV_GUIDE_STEPS} />
     </div>
   )
 }

@@ -45,30 +45,22 @@ export function OnboardingGuide({ guideKey, steps, onComplete }: OnboardingGuide
       const target = document.getElementById(steps[currentStep].targetId)
       if (target) {
         const rect = target.getBoundingClientRect()
-        // On utilise getBoundingClientRect().top + scrollY pour la position absolue
-        const top = rect.top + window.scrollY
-        const left = rect.left + window.scrollX
-        
+        // On utilise les coordonnées RELATIVES au viewport car l'overlay est FIXED
         setCoords({
-          top,
-          left,
+          top: rect.top,
+          left: rect.left,
           width: rect.width,
           height: rect.height
         })
 
-        // On fait défiler l'écran pour bien voir l'élément et la bulle
-        window.scrollTo({
-          top: Math.max(0, top - 100),
-          behavior: 'smooth'
-        })
+        // On fait défiler doucement pour centrer l'élément
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' })
       } else {
-        // Sécurité : si l'élément n'existe pas, on ne rend rien pour ne pas bloquer l'écran
         setCoords({ top: 0, left: 0, width: 0, height: 0 })
       }
     }
 
-    // Petit délai pour laisser les composants enfants (Reveal, etc.) se positionner
-    const timer = setTimeout(updatePosition, 100)
+    const timer = setTimeout(updatePosition, 300)
     window.addEventListener('resize', updatePosition)
     window.addEventListener('scroll', updatePosition)
     
@@ -103,45 +95,43 @@ export function OnboardingGuide({ guideKey, steps, onComplete }: OnboardingGuide
     }
   }
 
-  // Si on n'a pas de coordonnées valides, on n'affiche rien (évite l'overlay vide)
   if (!isVisible || coords.width === 0) return null
 
   const step = steps[currentStep]
   const bubbleTop = coords.top + coords.height + 20
-  const bubbleLeft = Math.max(20, Math.min(window.innerWidth - 340, coords.left + (coords.width / 2) - 160))
+  const bubbleLeft = Math.max(20, Math.min(window.innerWidth - 360, coords.left + (coords.width / 2) - 170))
 
   return (
-    <div className="pointer-events-none fixed inset-0 z-[9999]">
-      {/* Overlay de focus (troué avec bords arrondis) */}
+    <div className="pointer-events-auto fixed inset-0 z-[9999] overflow-hidden">
+      {/* Overlay de focus avec trou rectangulaire arrondi via clip-path */}
       <div 
-        className="absolute inset-0 bg-black/70 transition-opacity duration-500 backdrop-blur-[2px]" 
+        className="absolute inset-0 bg-black/70 transition-all duration-500 backdrop-blur-[1px]" 
         style={{ 
-          maskImage: `radial-gradient(circle at ${coords.left + coords.width / 2}px ${coords.top + coords.height / 2}px, transparent ${Math.max(coords.width, coords.height) / 1.5}px, black ${Math.max(coords.width, coords.height) / 1.5 + 5}px)`,
-          WebkitMaskImage: `radial-gradient(circle at ${coords.left + coords.width / 2}px ${coords.top + coords.height / 2}px, transparent ${Math.max(coords.width, coords.height) / 1.5}px, black ${Math.max(coords.width, coords.height) / 1.5 + 5}px)`
+          clipPath: `path('M 0 0 h ${window.innerWidth} v ${window.innerHeight} h -${window.innerWidth} Z M ${coords.left - 5} ${coords.top - 5} a 12 12 0 0 0 -12 12 v ${coords.height + 10 - 24} a 12 12 0 0 0 12 12 h ${coords.width + 10 - 24} a 12 12 0 0 0 12 -12 v -${coords.height + 10 - 24} a 12 12 0 0 0 -12 -12 h -${coords.width + 10 - 24} Z')`,
+          fillRule: 'evenodd'
         }}
       />
 
-      {/* Halo lumineux autour de la cible */}
+      {/* Cadre lumineux précis */}
       <motion.div
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: [0, 0.5, 0], scale: [1, 1.1, 1] }}
-        transition={{ duration: 2, repeat: Infinity }}
-        className="absolute z-[9998] rounded-full bg-[var(--primary)]/30 blur-xl pointer-events-none"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="absolute z-[9998] rounded-xl border-2 border-[var(--primary)] shadow-[0_0_20px_rgba(var(--primary-rgb),0.5)] pointer-events-none"
         style={{
-          top: coords.top - 20,
-          left: coords.left - 20,
-          width: coords.width + 40,
-          height: coords.height + 40,
+          top: coords.top - 8,
+          left: coords.left - 8,
+          width: coords.width + 16,
+          height: coords.height + 16,
         }}
       />
 
-      {/* Bulle d'aide avec flèche */}
+      {/* Bulle d'aide */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="pointer-events-auto absolute w-[340px] rounded-3xl bg-white p-7 shadow-[0_25px_70px_rgba(0,0,0,0.5)] border border-[var(--primary)]/10"
+        className="absolute w-[340px] rounded-2xl bg-white p-6 shadow-[0_30px_60px_rgba(0,0,0,0.6)] border border-[var(--primary)]/10"
         style={{
-          top: bubbleTop,
+          top: bubbleTop > window.innerHeight - 300 ? coords.top - 220 : bubbleTop,
           left: bubbleLeft
         }}
       >
