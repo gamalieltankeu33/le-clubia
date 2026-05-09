@@ -1,8 +1,8 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import {
   ExternalLink,
-  FileUp,
+  FileText,
   Image as ImageIcon,
   Loader2,
   Trash2,
@@ -16,14 +16,18 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { supabase } from '@/lib/supabase'
 import {
+  PDF_MAX_BYTES,
+  PDF_MIME,
   RESOURCE_CATEGORIES,
   RESOURCE_TYPES,
   RESOURCE_TYPE_LABELS,
+  deleteResourceFile,
   fileExt,
+  formatFileSize,
+  uploadResourcePdf,
 } from '@/lib/resource-helpers'
 import type { Resource, ResourceType } from '@/lib/database.types'
 import { cn } from '@/lib/utils'
-import { useConfirm } from '@/hooks/use-confirm'
 
 const baseSchema = z.object({
   title: z.string().trim().min(1, 'Le titre est requis').max(100),
@@ -35,10 +39,19 @@ const baseSchema = z.object({
   resource_type: z.enum(['prompt', 'template', 'guide_pdf', 'tool_link']),
   is_published: z.boolean(),
   thumbnail_url: z.string().url().nullable().optional(),
-  content: z.string().nullable().optional(),
-  download_url: z.string().nullable().optional(),
   external_url: z.string().url().optional().or(z.literal('')).nullable(),
 })
+
+const PDF_TYPES: ResourceType[] = ['prompt', 'template', 'guide_pdf']
+function isPdfType(t: ResourceType): boolean {
+  return PDF_TYPES.includes(t)
+}
+
+interface PendingPdf {
+  /** File local sélectionné, pas encore uploadé. */
+  file: File
+  sizeKb: number
+}
 
 export function ResourceForm({
   initial,
@@ -49,7 +62,6 @@ export function ResourceForm({
 }) {
   const navigate = useNavigate()
   const isEditing = Boolean(initial)
-  const { confirm, ConfirmDialog } = useConfirm()
 
   const [title, setTitle] = useState(initial?.title ?? '')
   const [description, setDescription] = useState(initial?.description ?? '')
@@ -59,10 +71,6 @@ export function ResourceForm({
   const [resourceType, setResourceType] = useState<ResourceType>(
     initial?.resource_type ?? 'prompt',
   )
-  const [content, setContent] = useState(initial?.content ?? '')
-  const [downloadUrl, setDownloadUrl] = useState<string | null>(
-    initial?.download_url ?? null,
-  )
   const [externalUrl, setExternalUrl] = useState(initial?.external_url ?? '')
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(
     initial?.thumbnail_url ?? null,
@@ -71,9 +79,26 @@ export function ResourceForm({
     initial?.is_published ?? false,
   )
 
+  // PDF state : on tracke (a) le fichier déjà sauvegardé en DB, (b) un
+  // nouveau fichier sélectionné mais pas encore uploadé. L'upload réel
+  // se fait au submit pour pouvoir cleanup en cas d'annulation.
+  const [existingFileUrl, setExistingFileUrl] = useState<string | null>(
+    initial?.file_url ?? null,
+  )
+  const [existingFileName, setExistingFileName] = useState<string | null>(
+    initial?.file_name ?? null,
+  )
+  const [existingFileSizeKb, setExistingFileSizeKb] = useState<number | null>(
+    initial?.file_size_kb ?? null,
+  )
+  const [pendingPdf, setPendingPdf] = useState<PendingPdf | null>(null)
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
+
   const [uploadingThumb, setUploadingThumb] = useState(false)
-  const [uploadingFile, setUploadingFile] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [isDragging, setIsDragging] = useState(false)
+
+  const hasFile = Boolean(pendingPdf || existingFileUrl)
 
   async function handleThumbUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -101,42 +126,44 @@ export function ResourceForm({
     toast.success('Miniature uploadée.')
   }
 
-  async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) return
-    if (file.size > 25 * 1024 * 1024) {
-      toast.error('Fichier trop lourd (25 Mo max).')
+  function selectPdf(file: File) {
+    if (file.type !== PDF_MIME) {
+      toast.error('Seuls les PDFs sont acceptés.')
       return
     }
-    setUploadingFile(true)
-    const ext = fileExt(file.name) || 'bin'
-    const path = `${crypto.randomUUID()}.${ext}`
-    const { error } = await supabase.storage
-      .from('resource-files')
-      .upload(path, file, { contentType: file.type, upsert: false })
-    if (error) {
-      toast.error('Upload du fichier impossible.')
-      setUploadingFile(false)
+    if (file.size > PDF_MAX_BYTES) {
+      toast.error('Fichier trop lourd (max 10 MB).')
       return
     }
-    // On stocke le chemin RELATIF dans la DB, pas l'URL signée (qui expire).
-    setDownloadUrl(path)
-    setUploadingFile(false)
-    toast.success('Fichier uploadé.')
+    setPendingPdf({
+      file,
+      sizeKb: Math.max(1, Math.round(file.size / 1024)),
+    })
   }
 
-  async function handleRemoveFile() {
-    if (!downloadUrl) return
-    const ok = await confirm({
-      title: 'Supprimer le fichier uploadé ?',
-      description:
-        'Le fichier sera retiré du stockage. Tu pourras en téléverser un nouveau ensuite.',
-      confirmLabel: 'Supprimer',
-      variant: 'destructive',
-    })
-    if (!ok) return
-    await supabase.storage.from('resource-files').remove([downloadUrl])
-    setDownloadUrl(null)
+  function handlePdfInputChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (file) selectPdf(file)
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
+
+  function handlePdfDrop(e: React.DragEvent<HTMLDivElement>) {
+    e.preventDefault()
+    setIsDragging(false)
+    const file = e.dataTransfer.files?.[0]
+    if (file) selectPdf(file)
+  }
+
+  function clearPdfSelection() {
+    setPendingPdf(null)
+  }
+
+  function clearExistingFile() {
+    // On ne supprime PAS du bucket maintenant — c'est fait au submit
+    // quand on est sûr que la sauvegarde réussit.
+    setExistingFileUrl(null)
+    setExistingFileName(null)
+    setExistingFileSizeKb(null)
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -150,8 +177,6 @@ export function ResourceForm({
       resource_type: resourceType,
       is_published: isPublished,
       thumbnail_url: thumbnailUrl,
-      content: resourceType === 'prompt' ? content : null,
-      download_url: downloadUrl,
       external_url: externalUrl || null,
     })
     if (!parsed.success) {
@@ -159,13 +184,8 @@ export function ResourceForm({
       return
     }
 
-    // Validations conditionnelles
-    if (resourceType === 'prompt' && !content.trim()) {
-      toast.error('Le contenu du prompt est requis.')
-      return
-    }
-    if ((resourceType === 'template' || resourceType === 'guide_pdf') && !downloadUrl) {
-      toast.error('Uploade un fichier pour ce type de ressource.')
+    if (isPdfType(resourceType) && !hasFile) {
+      toast.error('Uploade un PDF pour ce type de ressource.')
       return
     }
     if (resourceType === 'tool_link' && !externalUrl.trim()) {
@@ -174,20 +194,50 @@ export function ResourceForm({
     }
 
     setSaving(true)
+    let newlyUploadedPath: string | null = null
+
     try {
-      // On nettoie les champs non pertinents pour ce type
+      // Upload du nouveau PDF si l'admin en a sélectionné un.
+      let fileUrl = existingFileUrl
+      let fileName = existingFileName
+      let fileSizeKb = existingFileSizeKb
+
+      if (isPdfType(resourceType) && pendingPdf) {
+        const meta = await uploadResourcePdf(
+          pendingPdf.file,
+          category,
+          title,
+        )
+        newlyUploadedPath = meta.path
+        fileUrl = meta.path
+        fileName = meta.name
+        fileSizeKb = meta.sizeKb
+      }
+
+      // Pour les outils, on nettoie tous les champs PDF.
+      if (!isPdfType(resourceType)) {
+        fileUrl = null
+        fileName = null
+        fileSizeKb = null
+      }
+
       const payload = {
         title: title.trim(),
         description: description.trim() || null,
         category,
         thumbnail_url: thumbnailUrl,
         resource_type: resourceType,
-        download_url:
-          resourceType === 'template' || resourceType === 'guide_pdf'
-            ? downloadUrl
-            : null,
-        external_url: resourceType === 'tool_link' ? externalUrl.trim() : null,
-        content: resourceType === 'prompt' ? content : null,
+        external_url:
+          resourceType === 'tool_link' ? externalUrl.trim() : null,
+        // `content` (ancien texte de prompt) et `download_url` (ancien
+        // upload générique) sont conservés en DB pour les ressources
+        // legacy mais on n'en écrit plus de nouvelles : la nouvelle
+        // source de vérité est file_url.
+        content: null,
+        download_url: null,
+        file_url: fileUrl,
+        file_name: fileName,
+        file_size_kb: fileSizeKb,
         is_published: isPublished,
       }
 
@@ -209,11 +259,38 @@ export function ResourceForm({
         id = data.id
       }
 
+      // Cleanup : si on a remplacé un ancien PDF, on le supprime du bucket.
+      if (
+        initial?.file_url &&
+        initial.file_url !== fileUrl
+      ) {
+        await deleteResourceFile(initial.file_url).catch(() => {
+          // Erreur de suppression non bloquante : la ressource est sauvée.
+        })
+      }
+      // Pareil pour l'ancien `download_url` legacy si on bascule en file_url.
+      if (
+        initial?.download_url &&
+        initial.download_url !== fileUrl &&
+        !fileUrl
+      ) {
+        // On ne supprime pas le legacy file tant qu'on n'a pas migré la donnée.
+      }
+
       toast.success(isEditing ? 'Ressource mise à jour.' : 'Ressource créée.')
       onSaved(id)
     } catch (err) {
-      console.error(err)
-      toast.error(err instanceof Error ? err.message : 'Erreur de sauvegarde.')
+      console.error('[resource-form] save error', err)
+      // Si on a uploadé un nouveau PDF mais que le INSERT/UPDATE a foiré,
+      // on supprime le PDF orphelin pour ne pas polluer le bucket.
+      if (newlyUploadedPath) {
+        await deleteResourceFile(newlyUploadedPath).catch(() => {})
+      }
+      const supaMsg =
+        err && typeof err === 'object' && 'message' in err
+          ? String((err as { message?: unknown }).message ?? '')
+          : ''
+      toast.error(supaMsg || 'Erreur de sauvegarde.')
     } finally {
       setSaving(false)
     }
@@ -302,43 +379,26 @@ export function ResourceForm({
       {/* Champs conditionnels */}
       <section className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6">
         <h2 className="font-display text-lg font-semibold tracking-tight">
-          {resourceType === 'prompt' && 'Contenu du prompt'}
-          {resourceType === 'template' && 'Fichier template'}
-          {resourceType === 'guide_pdf' && 'Fichier PDF du guide'}
-          {resourceType === 'tool_link' && "Lien vers l'outil"}
+          {resourceType === 'tool_link' ? "Lien vers l'outil" : 'Fichier PDF'}
         </h2>
 
         <div className="mt-5">
-          {resourceType === 'prompt' && (
-            <div className="space-y-2">
-              <Label htmlFor="content">Texte du prompt *</Label>
-              <Textarea
-                id="content"
-                rows={10}
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                placeholder="Tu es un expert en…"
-                disabled={saving}
-                className="font-mono text-sm"
-              />
-              <p className="text-xs text-[var(--muted-foreground)]">
-                Les membres pourront copier ce texte en un clic.
-              </p>
-            </div>
-          )}
-
-          {(resourceType === 'template' || resourceType === 'guide_pdf') && (
-            <FileUploadField
-              currentPath={downloadUrl}
-              uploading={uploadingFile}
+          {isPdfType(resourceType) && (
+            <PdfUploadField
+              isDragging={isDragging}
+              setIsDragging={setIsDragging}
+              onDrop={handlePdfDrop}
+              fileInputRef={fileInputRef}
+              onInputChange={handlePdfInputChange}
               disabled={saving}
-              onUpload={handleFileUpload}
-              onRemove={handleRemoveFile}
-              accept={
-                resourceType === 'guide_pdf'
-                  ? 'application/pdf'
-                  : 'application/pdf,application/zip,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/plain,text/csv,application/json'
-              }
+              pending={pendingPdf}
+              onClearPending={clearPdfSelection}
+              existingFileName={existingFileName}
+              existingFileSizeKb={existingFileSizeKb}
+              hasExisting={Boolean(existingFileUrl)}
+              onClearExisting={clearExistingFile}
+              legacyContent={initial?.content ?? null}
+              legacyDownloadUrl={initial?.download_url ?? null}
             />
           )}
 
@@ -473,88 +533,152 @@ export function ResourceForm({
           )}
         </Button>
       </div>
-
-      <ConfirmDialog />
     </form>
   )
 }
 
-function FileUploadField({
-  currentPath,
-  uploading,
+function PdfUploadField({
+  isDragging,
+  setIsDragging,
+  onDrop,
+  fileInputRef,
+  onInputChange,
   disabled,
-  onUpload,
-  onRemove,
-  accept,
+  pending,
+  onClearPending,
+  existingFileName,
+  existingFileSizeKb,
+  hasExisting,
+  onClearExisting,
+  legacyContent,
+  legacyDownloadUrl,
 }: {
-  currentPath: string | null
-  uploading: boolean
+  isDragging: boolean
+  setIsDragging: (v: boolean) => void
+  onDrop: (e: React.DragEvent<HTMLDivElement>) => void
+  fileInputRef: React.MutableRefObject<HTMLInputElement | null>
+  onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void
   disabled?: boolean
-  onUpload: (e: React.ChangeEvent<HTMLInputElement>) => void
-  onRemove: () => void
-  accept: string
+  pending: PendingPdf | null
+  onClearPending: () => void
+  existingFileName: string | null
+  existingFileSizeKb: number | null
+  hasExisting: boolean
+  onClearExisting: () => void
+  legacyContent: string | null
+  legacyDownloadUrl: string | null
 }) {
+  const showExisting = hasExisting && !pending
+  const hasLegacy =
+    !pending &&
+    !hasExisting &&
+    (Boolean(legacyContent?.trim()) || Boolean(legacyDownloadUrl))
+
   return (
     <div className="space-y-3">
-      {currentPath ? (
+      {pending && (
         <div className="flex items-center gap-3 rounded-lg border border-[var(--border)] bg-[var(--background)] p-3">
           <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700">
-            <FileUp className="h-4 w-4" />
+            <FileText className="h-4 w-4" />
           </span>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-medium">{currentPath}</p>
+            <p className="truncate text-sm font-medium">{pending.file.name}</p>
             <p className="text-xs text-[var(--muted-foreground)]">
-              Stocké dans le bucket <code>resource-files</code>
+              {formatFileSize(pending.sizeKb)} · sera uploadé à
+              l'enregistrement
             </p>
           </div>
           <Button
             type="button"
             variant="ghost"
             size="icon"
-            onClick={onRemove}
-            aria-label="Retirer le fichier"
+            onClick={onClearPending}
+            aria-label="Retirer le fichier sélectionné"
             disabled={disabled}
           >
             <Trash2 className="h-4 w-4" />
           </Button>
         </div>
-      ) : (
-        <p className="text-sm text-[var(--muted-foreground)]">
-          Aucun fichier uploadé.
-        </p>
       )}
 
-      <label className="inline-flex">
-        <input
-          type="file"
-          accept={accept}
-          onChange={onUpload}
-          disabled={uploading || disabled}
-          className="hidden"
-        />
-        <span
-          className={cn(
-            'inline-flex h-10 cursor-pointer items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--card)] px-4 text-sm transition-colors hover:bg-[var(--secondary)]',
-            (uploading || disabled) && 'pointer-events-none opacity-50',
-          )}
-        >
-          {uploading ? (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin" />
-              Upload…
-            </>
-          ) : (
-            <>
-              <Upload className="h-4 w-4" />
-              {currentPath ? 'Remplacer le fichier' : 'Uploader un fichier'}
-            </>
-          )}
-        </span>
-      </label>
-      <p className="text-xs text-[var(--muted-foreground)]">
-        25 Mo max. Le fichier est stocké en privé, accessible aux membres via
-        un lien signé temporaire.
-      </p>
+      {showExisting && (
+        <div className="flex items-center gap-3 rounded-lg border border-[var(--border)] bg-[var(--background)] p-3">
+          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700">
+            <FileText className="h-4 w-4" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-medium">
+              {existingFileName ?? 'PDF actuel'}
+            </p>
+            <p className="text-xs text-[var(--muted-foreground)]">
+              {existingFileSizeKb
+                ? `${formatFileSize(existingFileSizeKb)} · stocké en privé`
+                : 'Stocké en privé'}
+            </p>
+          </div>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={onClearExisting}
+            aria-label="Retirer le PDF actuel"
+            disabled={disabled}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
+      )}
+
+      {hasLegacy && (
+        <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800">
+          ⚠️ Ressource legacy (texte ou ancien fichier) — les membres
+          continuent de la voir, mais uploade un PDF pour passer au nouveau
+          format.
+        </div>
+      )}
+
+      <div
+        onDragOver={(e) => {
+          e.preventDefault()
+          setIsDragging(true)
+        }}
+        onDragLeave={() => setIsDragging(false)}
+        onDrop={onDrop}
+        className={cn(
+          'flex flex-col items-center justify-center rounded-xl border-2 border-dashed p-8 text-center transition-colors',
+          isDragging
+            ? 'border-[var(--primary)] bg-[var(--primary)]/5'
+            : 'border-[var(--border)] bg-[var(--background)]',
+          disabled && 'pointer-events-none opacity-50',
+        )}
+      >
+        <Upload className="h-8 w-8 text-[var(--muted-foreground)]" />
+        <p className="mt-3 text-sm font-medium">
+          Glisse ton PDF ici ou clique pour parcourir
+        </p>
+        <p className="mt-1 text-xs text-[var(--muted-foreground)]">
+          PDF uniquement · 10 MB max
+        </p>
+        <label className="mt-4 inline-flex">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="application/pdf"
+            onChange={onInputChange}
+            disabled={disabled}
+            className="hidden"
+          />
+          <span
+            className={cn(
+              'inline-flex h-10 cursor-pointer items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--card)] px-4 text-sm transition-colors hover:bg-[var(--secondary)]',
+              disabled && 'pointer-events-none opacity-50',
+            )}
+          >
+            <Upload className="h-4 w-4" />
+            {pending || hasExisting ? 'Remplacer le PDF' : 'Choisir un PDF'}
+          </span>
+        </label>
+      </div>
     </div>
   )
 }

@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, Link, useNavigate, useRouter } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
 import { format } from 'date-fns'
@@ -54,7 +54,19 @@ async function fetchMemberPublic(
 function MemberPublicProfilePage() {
   const { userId } = Route.useParams()
   const navigate = useNavigate()
+  const router = useRouter()
   const queryClient = useQueryClient()
+
+  // Back contextuel : revient sur la page d'origine (feed, classement,
+  // mention, notification…). Fallback sur /app/communaute si l'utilisateur
+  // a ouvert le profil via un lien direct (pas d'historique).
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      router.history.back()
+    } else {
+      navigate({ to: '/app/communaute' })
+    }
+  }
   const currentUser = useAuthStore((s) => s.user)
   const isAdmin = useAuthStore((s) => s.isAdmin)()
   const isMe = currentUser?.id === userId
@@ -213,7 +225,7 @@ function MemberPublicProfilePage() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6 lg:py-14">
-      <Button variant="outline" size="sm" onClick={() => navigate({ to: '..' })}>
+      <Button variant="outline" size="sm" onClick={handleBack}>
         <ArrowLeft className="h-4 w-4" />
         Retour
       </Button>

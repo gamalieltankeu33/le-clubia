@@ -595,6 +595,9 @@ export type Database = {
           download_url: string | null
           external_url: string | null
           content: string | null
+          file_url: string | null
+          file_size_kb: number | null
+          file_name: string | null
           is_published: boolean
           created_at: string
           updated_at: string
@@ -609,6 +612,9 @@ export type Database = {
           download_url?: string | null
           external_url?: string | null
           content?: string | null
+          file_url?: string | null
+          file_size_kb?: number | null
+          file_name?: string | null
           is_published?: boolean
           created_at?: string
           updated_at?: string
@@ -623,6 +629,9 @@ export type Database = {
           download_url?: string | null
           external_url?: string | null
           content?: string | null
+          file_url?: string | null
+          file_size_kb?: number | null
+          file_name?: string | null
           is_published?: boolean
           created_at?: string
           updated_at?: string

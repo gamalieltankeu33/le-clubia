@@ -1,18 +1,15 @@
 import { useMemo, useState } from 'react'
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
 import {
+  ArrowRight,
   Check,
-  Copy,
-  Download,
   ExternalLink,
   Library,
-  Loader2,
   Search,
   X,
 } from 'lucide-react'
-import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { supabase } from '@/lib/supabase'
@@ -21,6 +18,7 @@ import {
   RESOURCE_TYPES,
   RESOURCE_TYPE_LABELS,
   RESOURCE_TYPE_VISUAL,
+  formatFileSize,
 } from '@/lib/resource-helpers'
 import type { Resource, ResourceType } from '@/lib/database.types'
 import { cn } from '@/lib/utils'
@@ -231,58 +229,37 @@ function ResourcesLibraryPage() {
 }
 
 function ResourceCard({ resource }: { resource: Resource }) {
+  const navigate = useNavigate()
   const visual = RESOURCE_TYPE_VISUAL[resource.resource_type]
   const TypeIcon = visual.icon
-  const [busy, setBusy] = useState(false)
+  const isTool = resource.resource_type === 'tool_link'
 
-  async function handleAction() {
-    if (busy) return
-    setBusy(true)
+  // Pour un outil, on indique le domaine ; pour un PDF, la taille.
+  let metaLine: string | null = null
+  if (isTool && resource.external_url) {
     try {
-      if (resource.resource_type === 'prompt') {
-        await navigator.clipboard.writeText(resource.content ?? '')
-        toast.success('Prompt copié dans le presse-papier.')
-      } else if (resource.resource_type === 'tool_link') {
-        if (resource.external_url) {
-          window.open(resource.external_url, '_blank', 'noopener,noreferrer')
-        }
-      } else if (resource.download_url) {
-        const { data, error } = await supabase.storage
-          .from('resource-files')
-          .createSignedUrl(resource.download_url, 24 * 60 * 60)
-        if (error || !data?.signedUrl) {
-          toast.error('Impossible de générer le lien de téléchargement.')
-          return
-        }
-        window.open(data.signedUrl, '_blank', 'noopener,noreferrer')
-      } else {
-        toast.error('Cette ressource est incomplète.')
-      }
-    } catch (err) {
-      console.error(err)
-      toast.error('Action impossible. Réessaie.')
-    } finally {
-      setBusy(false)
+      metaLine = new URL(resource.external_url).hostname.replace(/^www\./, '')
+    } catch {
+      metaLine = resource.external_url
     }
+  } else if (resource.file_size_kb) {
+    metaLine = `PDF · ${formatFileSize(resource.file_size_kb)}`
+  } else if (resource.file_url || resource.download_url) {
+    metaLine = 'PDF'
   }
 
-  const actionLabel =
-    resource.resource_type === 'prompt'
-      ? 'Copier'
-      : resource.resource_type === 'tool_link'
-        ? 'Visiter'
-        : 'Télécharger'
+  function handleOpen() {
+    navigate({ to: '/app/ressources/$id', params: { id: resource.id } })
+  }
 
-  const ActionIcon =
-    resource.resource_type === 'prompt'
-      ? Copy
-      : resource.resource_type === 'tool_link'
-        ? ExternalLink
-        : Download
+  const actionLabel = isTool ? 'Visiter' : 'Voir'
+  const ActionIcon = isTool ? ExternalLink : ArrowRight
 
   return (
-    <article className="flex flex-col overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)] transition-shadow hover:shadow-md">
-      {/* Visuel : thumbnail ou icône en gradient */}
+    <article
+      onClick={handleOpen}
+      className="flex cursor-pointer flex-col overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)] transition-shadow hover:shadow-md"
+    >
       {resource.thumbnail_url ? (
         <div className="aspect-video w-full overflow-hidden">
           <img
@@ -330,21 +307,23 @@ function ResourceCard({ resource }: { resource: Resource }) {
           </p>
         )}
 
+        {metaLine && (
+          <p className="mt-2 text-xs text-[var(--muted-foreground)]">
+            {metaLine}
+          </p>
+        )}
+
         <div className="mt-auto pt-5">
           <Button
             type="button"
-            variant={
-              resource.resource_type === 'prompt' ? 'outline' : 'default'
-            }
+            variant="default"
             className="w-full"
-            onClick={handleAction}
-            disabled={busy}
+            onClick={(e) => {
+              e.stopPropagation()
+              handleOpen()
+            }}
           >
-            {busy ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <ActionIcon className="h-4 w-4" />
-            )}
+            <ActionIcon className="h-4 w-4" />
             {actionLabel}
           </Button>
         </div>

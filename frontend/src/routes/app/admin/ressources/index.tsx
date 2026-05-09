@@ -59,11 +59,12 @@ function AdminResourcesListPage() {
 
   const deleteMutation = useMutation({
     mutationFn: async (resource: Resource) => {
-      // Supprime le fichier privé si applicable
-      if (resource.download_url) {
-        await supabase.storage
-          .from('resource-files')
-          .remove([resource.download_url])
+      // Supprime les fichiers privés associés (nouveau file_url + legacy download_url)
+      const paths = [resource.file_url, resource.download_url].filter(
+        (p): p is string => Boolean(p),
+      )
+      if (paths.length > 0) {
+        await supabase.storage.from('resource-files').remove(paths)
       }
       const { error } = await supabase
         .from('resources')
@@ -205,6 +206,8 @@ function AdminResourcesListPage() {
               {filtered.map((r) => {
                 const visual = RESOURCE_TYPE_VISUAL[r.resource_type]
                 const TypeIcon = visual.icon
+                const isPdfType = r.resource_type !== 'tool_link'
+                const needsMigration = isPdfType && !r.file_url
                 return (
                   <li
                     key={r.id}
@@ -231,6 +234,11 @@ function AdminResourcesListPage() {
                         >
                           {r.is_published ? 'Publiée' : 'Brouillon'}
                         </span>
+                        {needsMigration && (
+                          <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-amber-800">
+                            À migrer en PDF
+                          </span>
+                        )}
                         <span className="text-xs text-[var(--muted-foreground)]">
                           {RESOURCE_TYPE_LABELS[r.resource_type]} · {r.category}
                         </span>
