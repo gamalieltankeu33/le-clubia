@@ -110,6 +110,8 @@ export function OnboardingGuide({ guideKey, steps, onComplete }: OnboardingGuide
   const bubbleTop = coords.top + coords.height + 20
   const bubbleLeft = Math.max(20, Math.min(window.innerWidth - 340, coords.left + (coords.width / 2) - 160))
 
+  return (
+    <div className="pointer-events-none fixed inset-0 z-[9999]">
       {/* Overlay de focus (troué avec bords arrondis) */}
       <div 
         className="absolute inset-0 bg-black/70 transition-opacity duration-500 backdrop-blur-[2px]" 
