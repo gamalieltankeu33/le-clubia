@@ -88,6 +88,7 @@ interface ChatMessage {
 interface ChatRequest {
   conversation_id?: string
   messages: ChatMessage[]
+  context?: string
 }
 
 serve(async (req: Request) => {
@@ -161,7 +162,7 @@ serve(async (req: Request) => {
     return jsonResponse(400, { error: 'Corps de requête JSON invalide.' }, headers)
   }
 
-  const { conversation_id, messages } = body
+  const { conversation_id, messages, context } = body
   if (!Array.isArray(messages) || messages.length === 0) {
     return jsonResponse(400, { error: 'Messages manquants.' }, headers)
   }
@@ -233,10 +234,6 @@ serve(async (req: Request) => {
     convId = newConv.id
   }
 
-  console.log(
-    `[coach-chat] Conversation ${convId} — message reçu (${lastMessage.content.length} chars, ${messages.length} messages dans le contexte)`,
-  )
-
   // Insert message user AVANT le stream — comptabilise immédiatement le quota
   const { error: insertUserError } = await supabase
     .from('coach_messages')
@@ -250,10 +247,38 @@ serve(async (req: Request) => {
     return jsonResponse(500, { error: "Impossible d'enregistrer ton message." }, headers)
   }
 
+  // Récupération du profil pour personnalisation
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('first_name, last_name, bio, interests')
+    .eq('id', user.id)
+    .single()
+
+  const userName = profile?.first_name || 'Membre'
+  const userContext = `
+INFOS SUR L'APPRENANT :
+- Nom : ${userName} ${profile?.last_name || ''}
+- Bio : ${profile?.bio || 'Non renseignée'}
+- Centres d'intérêt : ${Array.isArray(profile?.interests) ? profile.interests.join(', ') : 'Non renseignés'}
+`.trim()
+
   // ============== Phase streaming ==========
   const usedAfter = used + 1
   const openaiMessages = [
-    { role: 'system' as const, content: SYSTEM_PROMPT },
+    {
+      role: 'system' as const,
+      content: `${SYSTEM_PROMPT}
+
+${userContext}
+
+CONTEXTE DE NAVIGATION :
+${context ? `L'utilisateur consulte actuellement la formation : "${context}".` : "L'utilisateur navigue sur la plateforme."}
+
+CONSIGNE DE PERSONNALISATION :
+- Appelle l'utilisateur par son prénom (${userName}) de temps en temps, mais naturellement.
+- Utilise ses centres d'intérêt pour illustrer tes explications avec des exemples concrets qui lui parlent.
+- Si sa bio indique un niveau (débutant/expert), adapte la complexité de tes réponses.`
+    },
     ...messages.map((m) => ({ role: m.role, content: m.content })),
   ]
 

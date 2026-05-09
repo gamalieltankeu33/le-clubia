@@ -94,6 +94,9 @@ function FormationDetailPage() {
   const { slug } = Route.useParams()
   const userId = useAuthStore((s) => s.user?.id)
   const queryClient = useQueryClient()
+  const refreshHistory = useCoachStore((s) => s.refreshHistory)
+  const refreshQuota = useCoachStore((s) => s.refreshQuota)
+  const setContext = useCoachStore((s) => s.setContext)
 
   const formationQuery = useQuery({
     queryKey: ['formation', slug],
@@ -110,6 +113,20 @@ function FormationDetailPage() {
     enabled: Boolean(userId && formation?.id),
     staleTime: 30_000,
   })
+
+  // Charge stats coach à l'arrivée sur la page + set context
+  useEffect(() => {
+    void refreshHistory()
+    void refreshQuota()
+    
+    if (formation?.title) {
+      setContext(`Formation : ${formation.title}`)
+    }
+    
+    return () => {
+      setContext(null)
+    }
+  }, [refreshHistory, refreshQuota, formation?.title, setContext])
 
   const progressByChapter = useMemo(() => {
     const m = new Map<string, UserFormationProgress>()
@@ -163,14 +180,34 @@ function FormationDetailPage() {
   // et à la sauvegarde lors d'un changement de chapitre.
   const lastTickRef = useRef<Map<string, number>>(new Map())
 
-  // Sélectionne le chapitre par défaut : premier non complété, sinon premier
+  // Sélectionne le chapitre par défaut :
+  // 1. Le dernier chapitre consulté (basé sur updated_at le plus récent)
+  // 2. Sinon le premier non complété
+  // 3. Sinon le tout premier chapitre
   useEffect(() => {
-    if (!chapters.length || activeChapterId) return
+    if (!chapters.length || activeChapterId || !progressQuery.isSuccess) return
+
+    const progressData = progressQuery.data ?? []
+    
+    // 1. Chercher le plus récent
+    if (progressData.length > 0) {
+      const sorted = [...progressData].sort(
+        (a, b) =>
+          new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime(),
+      )
+      const lastId = sorted[0].chapter_id
+      if (chapters.some((c) => c.id === lastId)) {
+        setActiveChapterId(lastId)
+        return
+      }
+    }
+
+    // 2. Fallback : premier incomplet
     const firstIncomplete = chapters.find(
       (c) => !completedChapterIds.has(c.id),
     )
     setActiveChapterId(firstIncomplete?.id ?? chapters[0].id)
-  }, [chapters, completedChapterIds, activeChapterId])
+  }, [chapters, completedChapterIds, activeChapterId, progressQuery.isSuccess, progressQuery.data])
 
   const activeChapter =
     chapters.find((c) => c.id === activeChapterId) ?? null
@@ -384,7 +421,7 @@ function FormationDetailPage() {
     return () => window.removeEventListener('beforeunload', handler)
   }, [userId, formation])
 
-  // Sauvegarde quand le composant unmount (changement de page interne)
+
   useEffect(() => {
     return () => {
       if (!userId || !formation) return

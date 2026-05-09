@@ -36,6 +36,7 @@ interface CoachState {
   sendMessage: (content: string) => Promise<{ error: string | null }>
   refreshHistory: () => Promise<void>
   refreshQuota: () => Promise<void>
+  setContext: (context: string | null) => void
   /** Reset complet (à appeler au logout) — empêche que les conversations
    *  Coach IA d'un user A restent visibles à un user B qui se reconnecte
    *  sur le même navigateur. Symétrique avec notifications-store.reset(). */
@@ -53,6 +54,7 @@ export const useCoachStore = create<CoachState>((set, get) => ({
   isLoadingConversation: false,
   quotaUsed: 0,
   quotaLimit: DAILY_LIMIT,
+  currentContext: null as string | null,
 
   openPanel: () => {
     set({ isOpen: true })
@@ -139,6 +141,7 @@ export const useCoachStore = create<CoachState>((set, get) => ({
             role: m.role,
             content: m.content,
           })),
+          context: (get() as any).currentContext || undefined,
         }),
       })
     } catch (err) {
@@ -278,6 +281,8 @@ export const useCoachStore = create<CoachState>((set, get) => ({
       .gte('created_at', todayStart.toISOString())
     set({ quotaUsed: count ?? 0, quotaLimit: DAILY_LIMIT })
   },
+
+  setContext: (context) => set({ currentContext: context }),
 
   reset: () => {
     set({
