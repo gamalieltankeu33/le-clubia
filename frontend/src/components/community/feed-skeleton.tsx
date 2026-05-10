@@ -1,4 +1,25 @@
+import { useLoadingTimeout } from '@/hooks/use-loading-timeout'
+
 export function FeedSkeleton({ count = 3 }: { count?: number }) {
+  const timedOut = useLoadingTimeout(12_000)
+
+  if (timedOut) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-[var(--border)] bg-[var(--card)] p-10 text-center">
+        <p className="text-sm text-[var(--muted-foreground)]">
+          Le chargement prend plus de temps que prévu…
+        </p>
+        <button
+          type="button"
+          onClick={() => window.location.reload()}
+          className="text-sm font-semibold text-[var(--primary)] underline-offset-4 hover:underline"
+        >
+          Recharger la page
+        </button>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-4">
       {Array.from({ length: count }).map((_, i) => (

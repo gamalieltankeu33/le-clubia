@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/shared/empty-state'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/auth-store'
+import { useLoadingTimeout } from '@/hooks/use-loading-timeout'
 import {
   FORMATION_CATEGORIES,
   LEVELS,
@@ -218,6 +219,25 @@ function FormationsCatalogPage() {
 }
 
 function CatalogSkeleton() {
+  const timedOut = useLoadingTimeout(12_000)
+
+  if (timedOut) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-[var(--border)] bg-[var(--card)] p-10 text-center">
+        <p className="text-sm text-[var(--muted-foreground)]">
+          Le chargement prend plus de temps que prévu…
+        </p>
+        <button
+          type="button"
+          onClick={() => window.location.reload()}
+          className="text-sm font-semibold text-[var(--primary)] underline-offset-4 hover:underline"
+        >
+          Recharger la page
+        </button>
+      </div>
+    )
+  }
+
   return (
     <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
       {Array.from({ length: 6 }).map((_, i) => (

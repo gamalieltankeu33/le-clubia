@@ -9,6 +9,7 @@ import { FloatingActionButton } from './floating-action-button'
 import { FloatingCoachButton } from '@/components/coach/floating-coach-button'
 import { ChatPanel } from '@/components/coach/chat-panel'
 import { NotificationPanel } from '@/components/notifications/notification-panel'
+import { PageErrorBoundary } from '@/components/shared/page-error-boundary'
 import { useNotifications } from '@/lib/use-notifications'
 
 export function AppShell({ children }: { children: React.ReactNode }) {
@@ -90,7 +91,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             scrollPaddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 80px)',
           }}
         >
-          {children}
+          <PageErrorBoundary>{children}</PageErrorBoundary>
         </main>
       </div>
 
