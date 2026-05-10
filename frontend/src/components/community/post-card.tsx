@@ -15,6 +15,7 @@ import { AvatarDisplay } from '@/components/avatar-display'
 import { VerifiedBadge } from '@/components/verified-badge'
 import { Button } from '@/components/ui/button'
 import { LinkPreviewCard } from './link-preview-card'
+import { PostLikersPreview } from './post-likers-preview'
 import { sanitizePostHtml } from '@/lib/sanitize-html'
 import { cn } from '@/lib/utils'
 import { useToggleLike } from '@/hooks/use-toggle-like'
@@ -267,7 +268,20 @@ export function PostCard({
         </div>
       )}
 
-      <footer className="mt-4 flex items-center gap-1 border-t border-[var(--border)] pt-3">
+      {/* Aperçu likeurs façon LinkedIn : 3 avatars + "X likes" cliquable.
+          Caché automatiquement si count === 0. */}
+      {count > 0 && (
+        <div className="mt-3 flex items-center">
+          <PostLikersPreview
+            postId={post.id}
+            count={count}
+            liked={liked}
+            onClick={() => setLikersOpen(true)}
+          />
+        </div>
+      )}
+
+      <footer className="mt-3 flex items-center gap-1 border-t border-[var(--border)] pt-3">
         {/* Bouton icône cœur : like / unlike — optimistic, jamais de
             loader visible. aria-pressed reflète l'état du cache. */}
         <button
@@ -305,30 +319,6 @@ export function PostCard({
               )}
             />
           </motion.span>
-        </button>
-
-        {/* Bouton compteur de likes : ouvre le modal des likers. */}
-        <button
-          type="button"
-          aria-label={`Voir qui a aimé (${count})`}
-          title="Voir qui a aimé"
-          data-no-navigate
-          onClick={(e) => {
-            if (count === 0) return
-            e.stopPropagation()
-            setLikersOpen(true)
-          }}
-          className={cn(
-            'inline-flex items-center rounded-lg px-2 py-1.5 text-sm tabular-nums transition-colors focus-visible:outline-none',
-            count > 0
-              ? cn(
-                  liked && 'font-medium',
-                  'text-[var(--muted-foreground)] hover:bg-[var(--primary)]/10 hover:text-[var(--primary)] hover:underline focus-visible:bg-[var(--primary)]/10 focus-visible:text-[var(--primary)]',
-                )
-              : 'text-[var(--muted-foreground)]/50 cursor-default',
-          )}
-        >
-          {count}
         </button>
 
         <ActionButton

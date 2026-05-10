@@ -160,6 +160,32 @@ function FormationDetailPage() {
     chapterTitle?: string
   } | null>(null)
 
+  // Garde anti-réouverture : si l'utilisateur ferme le modal (envoi OU
+  // "Passer pour l'instant"), on mémorise sa cible pour ne plus la
+  // redéclencher dans cette session. Le re-trigger ne peut venir que
+  // d'un nouveau chapitre complété.
+  const [dismissedReviewTargets, setDismissedReviewTargets] = useState<
+    Set<string>
+  >(new Set())
+
+  const closeReviewModal = useCallback(() => {
+    setReviewTarget((current) => {
+      if (current) {
+        const key =
+          current.type === 'chapter' && current.chapterId
+            ? `chapter:${current.chapterId}`
+            : `formation:${formation?.id ?? ''}`
+        setDismissedReviewTargets((prev) => {
+          if (prev.has(key)) return prev
+          const next = new Set(prev)
+          next.add(key)
+          return next
+        })
+      }
+      return null
+    })
+  }, [formation?.id])
+
   const reviewsQuery = useQuery({
     queryKey: ['formation-reviews', userId, formation?.id],
     queryFn: () => fetchUserReviews(userId!, formation!.id),
@@ -297,9 +323,11 @@ function FormationDetailPage() {
     if (!activeChapter || !reviewsQuery.isSuccess || reviewTarget) return
 
     // 1. Priorité : Avis du chapitre actuel
+    const chapterKey = `chapter:${activeChapter.id}`
     if (
       completedChapterIds.has(activeChapter.id) &&
-      !reviewedChapterIds.has(activeChapter.id)
+      !reviewedChapterIds.has(activeChapter.id) &&
+      !dismissedReviewTargets.has(chapterKey)
     ) {
       const timer = setTimeout(() => {
         setReviewTarget({
@@ -312,9 +340,11 @@ function FormationDetailPage() {
     }
 
     // 2. Secondaire : Avis global si 100%
+    const formationKey = `formation:${formation?.id ?? ''}`
     if (
       isFullyCompleted &&
-      !hasFormationReview
+      !hasFormationReview &&
+      !dismissedReviewTargets.has(formationKey)
     ) {
       const timer = setTimeout(() => {
         setReviewTarget({ type: 'formation' })
@@ -323,12 +353,15 @@ function FormationDetailPage() {
     }
   }, [
     activeChapter?.id,
+    activeChapter,
     completedChapterIds,
     reviewedChapterIds,
     isFullyCompleted,
     hasFormationReview,
     reviewsQuery.isSuccess,
     reviewTarget,
+    dismissedReviewTargets,
+    formation?.id,
   ])
 
   // Sauve la position courante, puis change de chapitre.
@@ -624,7 +657,7 @@ function FormationDetailPage() {
       {formation && userId && (
         <FormationReviewModal
           isOpen={!!reviewTarget}
-          onClose={() => setReviewTarget(null)}
+          onClose={closeReviewModal}
           formationId={formation.id}
           formationTitle={formation.title}
           chapterId={reviewTarget?.chapterId}

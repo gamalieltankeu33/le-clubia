@@ -56,12 +56,45 @@ export function FormationReviewModal({
       })
       if (error) throw error
     },
+    // Optimistic update : on ajoute l'avis dans le cache AVANT le retour
+    // serveur. Sans ça, le useEffect parent qui surveille `reviewedChapterIds`
+    // peut redéclencher le modal en boucle juste après fermeture car
+    // l'invalidate refetch est asynchrone (latence réseau).
+    onMutate: async () => {
+      const key = ['formation-reviews', userId, formationId]
+      await queryClient.cancelQueries({ queryKey: key })
+      const prev = queryClient.getQueryData(key)
+      queryClient.setQueryData(key, (data: unknown) => {
+        const list = Array.isArray(data) ? data : []
+        return [
+          ...list,
+          {
+            user_id: userId,
+            formation_id: formationId,
+            chapter_id: chapterId,
+            rating,
+            comment: comment.trim() || null,
+            created_at: new Date().toISOString(),
+          },
+        ]
+      })
+      return { prev }
+    },
     onSuccess: () => {
       toast.success('Merci pour ton avis !')
-      queryClient.invalidateQueries({ queryKey: ['formation-reviews', userId, formationId] })
+      queryClient.invalidateQueries({
+        queryKey: ['formation-reviews', userId, formationId],
+      })
       onClose()
     },
-    onError: (err: any) => {
+    onError: (err: any, _vars, ctx: unknown) => {
+      const c = ctx as { prev?: unknown } | undefined
+      if (c?.prev !== undefined) {
+        queryClient.setQueryData(
+          ['formation-reviews', userId, formationId],
+          c.prev,
+        )
+      }
       toast.error(err.message || 'Une erreur est survenue.')
     },
   })

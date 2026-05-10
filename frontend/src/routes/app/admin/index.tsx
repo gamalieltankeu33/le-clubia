@@ -558,6 +558,12 @@ function AdminDashboardPage() {
                 : 'Gestion du flux IA'
             }
           />
+          <Shortcut
+            to="/app/admin/insights"
+            icon={Activity}
+            title="Insights engagement"
+            description="Likes, avis & posts populaires"
+          />
           <ShortcutDisabled
             icon={Sparkles}
             title="Coach IA"
