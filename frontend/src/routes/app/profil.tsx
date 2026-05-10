@@ -160,7 +160,7 @@ function ProfilPage() {
       >
         <CardElite variant="bleu" className="px-6 py-10 sm:px-10 sm:py-14">
           <div className="relative z-10 flex flex-col items-start gap-6 sm:flex-row sm:items-center">
-            <div className="shrink-0 rounded-full p-[2px] ring-2 ring-[var(--or)]/60">
+            <div className="shrink-0">
               <AvatarDisplay
                 avatarUrl={profile?.avatar_url}
                 firstName={profile?.first_name}

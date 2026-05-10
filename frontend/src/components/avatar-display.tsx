@@ -73,7 +73,7 @@ export function AvatarDisplay({
       {isMonthlyWinner && (
         <span
           className={cn(
-            'absolute flex items-center justify-center rounded-full bg-[#FCD34D] text-[#7C2D12] shadow-sm ring-2 ring-white',
+            'absolute flex items-center justify-center rounded-full bg-[var(--or)] text-[var(--noir)] shadow-sm ring-2 ring-white',
             CROWN_SIZE[size],
           )}
           aria-label="Membre du mois"
