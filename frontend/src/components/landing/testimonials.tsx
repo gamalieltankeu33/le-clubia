@@ -28,7 +28,7 @@ const TESTIMONIALS: Testimonial[] = [
     quote:
       "La communauté est en or. Je trouve des réponses concrètes en quelques heures, pas du blabla. Les formations vont droit au but, exactement ce qu'il me faut.",
     initials: 'YB',
-    bg: '#F97316',
+    bg: '#2563EB',
   },
   {
     name: 'Sofia M.',

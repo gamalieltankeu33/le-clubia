@@ -38,11 +38,11 @@ export function SocialProof() {
                 className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-white text-[10px] font-semibold text-white shadow-sm"
                 style={{
                   backgroundColor: [
-                    '#1E40AF',
-                    '#F97316',
+                    '#0F1E4D',
+                    '#2563EB',
                     '#0A0A0A',
                     '#3858d8',
-                    '#fb923c',
+                    '#60A5FA',
                     '#1c3a9e',
                   ][i],
                 }}

@@ -34,7 +34,7 @@ const POSTS: PostItem[] = [
     role: 'Entrepreneur',
     body: 'Mon workflow Make qui me fait gagner 5h/semaine sur ma veille concurrentielle. Je le partage en exclusivité aux membres du Club.',
     avatar: '/landing/avatars/avatar-2.jpg',
-    bg: '#F97316',
+    bg: '#2563EB',
     likes: 41,
     comments: 12,
   },

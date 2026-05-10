@@ -68,7 +68,7 @@ export function DashboardMockup({ className }: { className?: string }) {
 
           {/* Featured coach card */}
           <div className="relative mt-5 flex items-center gap-3 overflow-hidden rounded-xl bg-gradient-to-br from-[#1E40AF] to-[#3858d8] p-4 text-white">
-            <span className="absolute -right-6 -top-6 h-20 w-20 rounded-full bg-[#F97316]/40 blur-2xl" />
+            <span className="absolute -right-6 -top-6 h-20 w-20 rounded-full bg-[#60A5FA]/40 blur-2xl" />
             <span className="relative flex h-9 w-9 items-center justify-center rounded-lg bg-white/15">
               <Sparkles className="h-4 w-4" />
             </span>
@@ -173,7 +173,7 @@ export function FeedMockup({ className }: { className?: string }) {
             className="rounded-xl border border-[var(--border)] bg-white p-4"
           >
             <div className="flex items-center gap-2">
-              <div className="h-7 w-7 rounded-full bg-gradient-to-br from-[#1E40AF] to-[#F97316]" />
+              <div className="h-7 w-7 rounded-full bg-gradient-to-br from-[#1E40AF] to-[#60A5FA]" />
               <div className="space-y-1">
                 <div className="h-2.5 w-24 rounded bg-[#0A0A0A]/85" />
                 <div className="h-1.5 w-12 rounded bg-[#E5E5E5]" />
@@ -202,7 +202,7 @@ export function CoachMockup({ className }: { className?: string }) {
       <div className="flex h-[460px] flex-col bg-[#FAFAF9]">
         {/* Header coach */}
         <div className="flex items-center gap-3 border-b border-[var(--border)] bg-white px-4 py-3">
-          <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#F97316]/15 text-[#F97316]">
+          <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#60A5FA]/15 text-[#60A5FA]">
             <Sparkles className="h-4 w-4" />
           </span>
           <div>
@@ -260,7 +260,7 @@ function CoachBubble({
   }
   return (
     <div className="flex gap-2">
-      <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#F97316]/15 text-[#F97316]">
+      <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#60A5FA]/15 text-[#60A5FA]">
         <Sparkles className="h-3 w-3" />
       </span>
       <div className="max-w-[75%] rounded-2xl rounded-tl-md bg-[#F4F4F5] px-3 py-2 text-[10px] leading-snug text-[#0A0A0A]">
@@ -292,7 +292,7 @@ export function NewsMockup({ className }: { className?: string }) {
                 'aspect-[16/9]',
                 i % 2 === 0
                   ? 'bg-gradient-to-br from-[#1E40AF] to-[#3858d8]'
-                  : 'bg-gradient-to-br from-[#F97316] to-[#fb923c]',
+                  : 'bg-gradient-to-br from-[#60A5FA] to-[#93C5FD]',
               )}
             >
               <Newspaper className="ml-auto mr-2 mt-2 h-5 w-5 text-white/40" />
@@ -303,7 +303,7 @@ export function NewsMockup({ className }: { className?: string }) {
                   'inline-flex rounded-full px-2 py-0.5 text-[9px] font-medium',
                   i % 2 === 0
                     ? 'bg-[#1E40AF]/10 text-[#1E40AF]'
-                    : 'bg-[#F97316]/15 text-[#F97316]',
+                    : 'bg-[#60A5FA]/15 text-[#60A5FA]',
                 )}
               >
                 {a.cat}

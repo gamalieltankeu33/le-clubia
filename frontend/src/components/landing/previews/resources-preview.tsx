@@ -28,15 +28,15 @@ const RESOURCES: ResourceItem[] = [
     title: 'Template Notion : Plan de contenu IA',
     type: 'Template',
     icon: Workflow,
-    bg: 'bg-[#F97316]/15',
-    fg: 'text-[#F97316]',
+    bg: 'bg-[var(--bleu-ciel)]/15',
+    fg: 'text-[var(--bleu-ciel-deep)]',
   },
   {
     title: 'Guide PDF : Automatisation 101',
     type: 'Guide',
     icon: FileText,
-    bg: 'bg-emerald-100',
-    fg: 'text-emerald-700',
+    bg: 'bg-[var(--or)]/15',
+    fg: 'text-[var(--or-deep)]',
   },
 ]
 

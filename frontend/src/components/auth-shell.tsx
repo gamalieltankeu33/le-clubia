@@ -38,7 +38,7 @@ export function AuthShell({
           aria-hidden="true"
           className="absolute inset-0"
         >
-          <div className="absolute -right-32 -top-20 h-[480px] w-[480px] rounded-full bg-[#F97316]/35 blur-[120px]" />
+          <div className="absolute -right-32 -top-20 h-[480px] w-[480px] rounded-full bg-[var(--bleu-ciel)]/30 blur-[120px]" />
           <div className="absolute -bottom-32 -left-20 h-[400px] w-[400px] rounded-full bg-white/10 blur-[120px]" />
         </div>
 
@@ -58,7 +58,7 @@ export function AuthShell({
           <ul className="mt-8 space-y-3">
             {HIGHLIGHTS.map((h) => (
               <li key={h} className="flex items-start gap-3">
-                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#F97316]/20 text-[#fb923c]">
+                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[var(--bleu-ciel)]/20 text-[var(--bleu-ciel)]">
                   <Check className="h-3 w-3" />
                 </span>
                 <span className="text-sm text-white/90">{h}</span>
@@ -68,7 +68,7 @@ export function AuthShell({
 
           {/* Mini témoignage social proof */}
           <figure className="mt-10 rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur">
-            <div className="flex items-center gap-1 text-[#F97316]">
+            <div className="flex items-center gap-1 text-[var(--or)]">
               {Array.from({ length: 5 }).map((_, i) => (
                 <Star key={i} className="h-3.5 w-3.5 fill-current" />
               ))}

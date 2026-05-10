@@ -45,8 +45,8 @@ export function GradientPlaceholder({
 }) {
   const styles: Record<string, string> = {
     blue: 'from-[#1E40AF] to-[#3858d8]',
-    orange: 'from-[#F97316] to-[#fb923c]',
-    green: 'from-emerald-500 to-emerald-700',
+    orange: 'from-[#2563EB] to-[#60A5FA]',
+    green: 'from-[#0F1E4D] to-[#60A5FA]',
     violet: 'from-violet-500 to-violet-700',
     rose: 'from-rose-400 to-rose-600',
   }

@@ -51,7 +51,7 @@ export function FormationCard({ formation }: { formation: FormationCardData }) {
       className={cn(
         'group relative flex h-full flex-col overflow-hidden rounded-2xl border bg-[var(--card)] transition-all duration-150 touch-manipulation hover:shadow-md active:scale-[0.98] active:bg-[var(--muted)]/30',
         status === 'completed'
-          ? 'border-emerald-300/60 hover:border-emerald-400'
+          ? 'border-[var(--bleu-ciel)]/50 hover:border-[var(--bleu-ciel)]'
           : 'border-[var(--border)] hover:border-[var(--primary)]/30',
       )}
     >
@@ -129,7 +129,7 @@ function StatusBadge({
   if (status === 'not_started') return null
   if (status === 'completed') {
     return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-700">
+      <span className="inline-flex items-center gap-1 rounded-full bg-[var(--bleu-ciel)]/15 px-2.5 py-0.5 text-xs font-medium text-[var(--bleu-ciel-deep)]">
         <CheckCircle2 className="h-3 w-3" />
         Terminée
       </span>
@@ -147,7 +147,7 @@ function CompletedRibbon() {
   return (
     <span
       aria-hidden="true"
-      className="pointer-events-none absolute right-[-32px] top-3 z-10 rotate-45 bg-emerald-500 px-10 py-1 text-[10px] font-semibold uppercase tracking-wider text-white shadow"
+      className="pointer-events-none absolute right-[-32px] top-3 z-10 rotate-45 bg-[var(--bleu-ciel-deep)] px-10 py-1 text-[10px] font-semibold uppercase tracking-wider text-white shadow"
     >
       Terminée
     </span>

@@ -53,8 +53,8 @@ const TYPE_META: Record<NotificationType, TypeMeta> = {
   },
   new_resource: {
     icon: Library,
-    iconBg: 'bg-emerald-500/15',
-    iconText: 'text-emerald-600',
+    iconBg: 'bg-[var(--bleu-ciel)]/15',
+    iconText: 'text-[var(--bleu-ciel-deep)]',
   },
   new_formation: {
     icon: GraduationCap,
@@ -63,8 +63,8 @@ const TYPE_META: Record<NotificationType, TypeMeta> = {
   },
   new_article: {
     icon: Newspaper,
-    iconBg: 'bg-orange-500/15',
-    iconText: 'text-orange-600',
+    iconBg: 'bg-[var(--primary)]/10',
+    iconText: 'text-[var(--primary)]',
   },
   comment_on_post: {
     icon: MessageCircle,

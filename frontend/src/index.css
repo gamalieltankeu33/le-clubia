@@ -16,7 +16,7 @@
 
   --color-brand: #0F1E4D;
   --color-brand-foreground: #FAFAF9;
-  --color-accent: #00D9A3;
+  --color-accent: #60A5FA;
   --color-accent-foreground: #0A0A0A;
 
   --radius-sm: 0.5rem;
@@ -42,34 +42,43 @@
   --noir-soft: #141414;
   --noir-warm: #1C1A18;
 
-  /* Brand — bleu Bloomberg profond */
-  --primary: #0F1E4D;
-  --primary-light: #1E3A8A;
+  /* Bleus — la famille harmonieuse de l'identité Club */
+  --primary: #0F1E4D;              /* Bleu Bloomberg profond — surfaces premium */
+  --primary-light: #1E3A8A;        /* Bleu intermédiaire — gradients, hover */
   --primary-foreground: #FAFAF9;
 
+  --bleu-primaire: #3B82F6;        /* Bleu vif standard — CTAs secondaires */
+
+  /* Bleu ciel — accent vivant, remplace l'émeraude et l'orange. Sur fond
+     foncé : utiliser --bleu-ciel directement (contraste OK sur bleu Bloomberg).
+     Sur fond clair : préférer --bleu-ciel-deep pour les textes (#2563EB,
+     contraste ~5:1 WCAG AA). */
+  --bleu-ciel: #60A5FA;
+  --bleu-ciel-soft: #93C5FD;
+  --bleu-ciel-deep: #2563EB;
+  --bleu-ciel-foreground: #0A0A0A;
+
   /* OR — couleur RARE (1-3× par écran max). Réservée aux moments d'élite :
-     numéro de membre, médailles du top 3, achievements. */
+     numéro de membre, médailles du top 3, achievements, Early Adopter. */
   --or: #D4AF37;
   --or-soft: #E8C97A;
   --or-deep: #B8941F;
   --or-foreground: #0A0A0A;
 
-  /* ÉMERAUDE — accent vivant "IA 2026" : CTAs, signaux actifs, FAB,
-     trait actif bottom nav, halos vivants. Contraste : noir sur émeraude
-     ≈ 8:1 → WCAG AA OK. Pour les textes émeraude sur fond clair (lisibilité),
-     utiliser --emerald-deep (≈ 3.7:1, OK pour titres et icônes ≥ 18 px). */
-  --emerald: #00D9A3;
-  --emerald-bright: #10E0AB;
-  --emerald-deep: #00B388;
-  --emerald-soft: #D1FAE5;
-  --emerald-foreground: #0A0A0A;
+  /* DEPRECATED — alias émeraude → bleu ciel. Conservé pour ne pas casser
+     les composants qui utilisent var(--emerald-*). À retirer progressivement. */
+  --emerald: var(--bleu-ciel);
+  --emerald-bright: var(--bleu-ciel-soft);
+  --emerald-deep: var(--bleu-ciel-deep);
+  --emerald-soft: var(--bleu-ciel-soft);
+  --emerald-foreground: var(--bleu-ciel-foreground);
 
-  /* Accent = alias d'ÉMERAUDE (l'accent vivant principal). Tous les
-     composants utilisant var(--accent) basculent en émeraude (FAB, trait
-     actif, boutons accent). Le foreground reste NOIR (WCAG AA sur émeraude). */
-  --accent: #00D9A3;
-  --accent-foreground: #0A0A0A;
-  --accent-hover: #10E0AB;
+  /* Accent = alias BLEU CIEL (l'accent vivant principal). Tous les
+     composants utilisant var(--accent) sont automatiquement en bleu ciel
+     (FAB, trait actif bottom nav, boutons accent, badges). */
+  --accent: var(--bleu-ciel);
+  --accent-foreground: var(--bleu-ciel-foreground);
+  --accent-hover: var(--bleu-ciel-soft);
 
   /* Neutres */
   --secondary: #F4F4F2;
@@ -180,12 +189,13 @@
     }
   }
 
-  /* Phrase-clé en rupture : Instrument Serif italique en bleu primary.
-     Usage : <span class="serif-accent">Pas demain.</span> */
+  /* Phrase-clé en rupture : Instrument Serif italique en BLEU CIEL DEEP.
+     Donne plus de relief sur fond clair que le bleu Bloomberg (qui reste
+     pour les titres principaux). Usage : <span class="serif-accent">Pas demain.</span> */
   .serif-accent {
     font-family: var(--font-serif);
     font-style: italic;
-    color: var(--primary);
+    color: var(--bleu-ciel-deep);
     letter-spacing: -0.01em;
     font-weight: 400;
   }
@@ -215,55 +225,62 @@
   .border-or { border-color: var(--or); }
   .ring-or { --tw-ring-color: var(--or); }
 
-  /* Émeraude — accent vivant, CTAs, signaux. */
-  .text-emerald { color: var(--emerald); }
-  .text-emerald-deep { color: var(--emerald-deep); }
-  .bg-emerald { background-color: var(--emerald); }
-  .border-emerald { border-color: var(--emerald); }
-  .ring-emerald { --tw-ring-color: var(--emerald); }
+  /* Bleu ciel — accent vivant principal (remplace l'orange et l'émeraude). */
+  .text-bleu-ciel { color: var(--bleu-ciel); }
+  .text-bleu-ciel-deep { color: var(--bleu-ciel-deep); }
+  .bg-bleu-ciel { background-color: var(--bleu-ciel); }
+  .border-bleu-ciel { border-color: var(--bleu-ciel); }
+  .ring-bleu-ciel { --tw-ring-color: var(--bleu-ciel); }
 
-  /* CTA émeraude — variante vivante du cta-black, pour les actions
-     principales sur fond bleu Bloomberg (welcome, profil, final CTA). */
-  .cta-emerald {
+  /* DEPRECATED — utilitaires émeraude maintenus comme alias (basculent en
+     bleu ciel automatiquement via les variables). Préfère .text-bleu-ciel. */
+  .text-emerald { color: var(--bleu-ciel); }
+  .text-emerald-deep { color: var(--bleu-ciel-deep); }
+  .bg-emerald { background-color: var(--bleu-ciel); }
+  .border-emerald { border-color: var(--bleu-ciel); }
+
+  /* CTA bleu ciel — bouton "Rejoindre" sur surface bleu Bloomberg. */
+  .cta-bleu-ciel {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    background-color: var(--emerald);
-    color: var(--emerald-foreground);
+    background-color: var(--bleu-ciel);
+    color: var(--bleu-ciel-foreground);
     border-radius: 9999px;
     padding: 1rem 2rem;
     font-weight: 600;
     font-size: 1rem;
     line-height: 1;
     transition: background-color 300ms ease, box-shadow 300ms ease, transform 300ms ease;
-    box-shadow: 0 4px 20px 0 rgba(0, 217, 163, 0.28);
+    box-shadow: 0 4px 20px 0 rgba(96, 165, 250, 0.32);
     cursor: pointer;
     border: none;
     white-space: nowrap;
   }
-  .cta-emerald:hover {
-    background-color: var(--emerald-bright);
-    box-shadow: 0 8px 32px 0 rgba(0, 217, 163, 0.38);
+  .cta-bleu-ciel:hover {
+    background-color: var(--bleu-ciel-soft);
+    box-shadow: 0 8px 32px 0 rgba(96, 165, 250, 0.42);
     transform: translateY(-1px);
   }
-  .cta-emerald:disabled,
-  .cta-emerald[aria-disabled="true"] {
+  .cta-bleu-ciel:disabled,
+  .cta-bleu-ciel[aria-disabled="true"] {
     opacity: 0.6;
     cursor: not-allowed;
     transform: none;
-    box-shadow: 0 4px 14px 0 rgba(0, 217, 163, 0.18);
+    box-shadow: 0 4px 14px 0 rgba(96, 165, 250, 0.2);
   }
-  .cta-emerald-xl {
+  .cta-bleu-ciel-xl {
     padding: 1.25rem 2.5rem;
     font-size: 1.0625rem;
   }
   @media (max-width: 480px) {
-    .cta-emerald-xl {
+    .cta-bleu-ciel-xl {
       padding: 1rem 1.5rem;
       font-size: 1rem;
     }
   }
+
 
   /* Grain texture overlay (pour CardElite et surfaces premium). */
   .grain-overlay::after {

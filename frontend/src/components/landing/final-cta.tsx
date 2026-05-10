@@ -2,7 +2,6 @@ import { Link } from '@tanstack/react-router'
 import { ArrowRight, Check } from 'lucide-react'
 import { Reveal } from './reveal'
 import { CardElite } from '@/components/shared/card-elite'
-import { CirclePulse } from '@/components/shared/circle-pulse'
 
 const REASSURANCE = [
   'Sans réabonnement auto',
@@ -15,28 +14,21 @@ export function FinalCTA() {
     <section className="relative overflow-hidden bg-[var(--background)] py-14 sm:py-20 lg:py-24">
       <div className="relative mx-auto max-w-4xl px-4 sm:px-6">
         <Reveal>
-          {/* Surface bleu Bloomberg + cercles émeraude vivants — l'or
-              n'apparaît pas ici (rare et précieux, gardé pour le numéro
-              de membre et le top 3 classement). */}
+          {/* Surface bleu Bloomberg en gradient subtil. Accent bleu ciel
+              (--bleu-ciel) sur les éléments vivants. L'or n'apparaît pas
+              ici — gardé pour le numéro de membre et le top 3 classement. */}
           <CardElite
             variant="gradient"
             className="px-6 py-14 text-center sm:px-12 sm:py-20 lg:py-24"
           >
-            <CirclePulse
-              color="var(--emerald)"
-              size={420}
-              duration={3.4}
-              count={3}
-            />
-
             <div className="relative z-10">
-              <span className="text-[11px] font-medium uppercase tracking-[0.22em] text-[var(--emerald)]">
+              <span className="text-[11px] font-medium uppercase tracking-[0.22em] text-[var(--bleu-ciel)]">
                 Dernière étape
               </span>
 
               <h2 className="mt-6 font-display text-4xl font-bold leading-[1.05] tracking-tight text-[#FAFAF9] sm:text-5xl lg:text-6xl">
                 Prêt à{' '}
-                <span className="font-serif-signature italic text-[var(--emerald)]">
+                <span className="font-serif-signature italic text-[var(--bleu-ciel)]">
                   passer le cap&nbsp;?
                 </span>
               </h2>
@@ -50,7 +42,7 @@ export function FinalCTA() {
               <div className="mt-10 flex flex-col items-stretch gap-5 sm:items-center">
                 <Link
                   to="/auth"
-                  className="cta-emerald cta-emerald-xl w-full sm:w-auto"
+                  className="cta-bleu-ciel cta-bleu-ciel-xl w-full sm:w-auto"
                 >
                   <span className="sm:hidden">
                     Rejoindre — 79&nbsp;000&nbsp;FCFA/an
@@ -64,7 +56,7 @@ export function FinalCTA() {
                 <ul className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-white/60">
                   {REASSURANCE.map((r) => (
                     <li key={r} className="inline-flex items-center gap-1.5">
-                      <Check className="h-3 w-3 text-[var(--emerald)]" />
+                      <Check className="h-3 w-3 text-[var(--bleu-ciel)]" />
                       {r}
                     </li>
                   ))}

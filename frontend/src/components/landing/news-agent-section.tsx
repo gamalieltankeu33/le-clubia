@@ -15,7 +15,7 @@ export function NewsAgentSection() {
     <section className="relative overflow-hidden bg-white py-16 sm:py-24 lg:py-28">
       {/* Dynamic Background */}
       <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute right-0 top-1/2 h-[600px] w-[600px] -translate-y-1/2 rounded-full bg-emerald-50/40 blur-[120px]" />
+        <div className="absolute right-0 top-1/2 h-[600px] w-[600px] -translate-y-1/2 rounded-full bg-[var(--bleu-ciel)]/10 blur-[120px]" />
       </div>
 
       <div className="mx-auto grid max-w-7xl items-center gap-16 px-6 lg:grid-cols-2 lg:gap-24">
@@ -23,7 +23,7 @@ export function NewsAgentSection() {
           <div className="relative group">
             <div
               aria-hidden="true"
-              className="absolute -inset-10 -z-10 rounded-[3rem] bg-gradient-to-br from-[var(--primary)]/10 to-emerald-100/50 blur-3xl transition-opacity duration-700 group-hover:opacity-80"
+              className="absolute -inset-10 -z-10 rounded-[3rem] bg-gradient-to-br from-[var(--primary)]/10 to-[var(--bleu-ciel)]/25 blur-3xl transition-opacity duration-700 group-hover:opacity-80"
             />
             <div className="relative overflow-hidden rounded-[2.5rem] border border-[var(--border)] bg-white shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] transition-transform duration-700 group-hover:scale-[1.01]">
               <NewsMockup />
@@ -37,8 +37,8 @@ export function NewsAgentSection() {
             >
               <div className="flex items-center gap-3">
                 <div className="relative flex h-3 w-3">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex h-3 w-3 rounded-full bg-emerald-500"></span>
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--bleu-ciel)] opacity-75"></span>
+                  <span className="relative inline-flex h-3 w-3 rounded-full bg-[var(--bleu-ciel-deep)]"></span>
                 </div>
                 <span className="text-sm font-bold text-[var(--foreground)]">Agent Actif</span>
               </div>

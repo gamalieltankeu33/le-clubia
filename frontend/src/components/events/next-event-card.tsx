@@ -101,15 +101,15 @@ function formatFullDate(starts_at: string, duration_minutes: number): string {
 
 const URGENCY_DOT: Record<Urgency, string> = {
   normal: 'bg-[var(--primary)]',
-  soon: 'bg-orange-400',
-  today: 'bg-emerald-500',
+  soon: 'bg-[var(--bleu-ciel)]',
+  today: 'bg-[var(--bleu-ciel-deep)]',
   live: 'bg-red-500',
 }
 
 const URGENCY_LABEL: Record<Urgency, string> = {
   normal: 'text-[var(--primary)]',
-  soon: 'text-orange-600',
-  today: 'text-emerald-600',
+  soon: 'text-[var(--bleu-ciel-deep)]',
+  today: 'text-[var(--bleu-ciel-deep)]',
   live: 'text-red-600',
 }
 

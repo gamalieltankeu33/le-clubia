@@ -32,8 +32,8 @@ const MEMBERS: Member[] = [
     expertise: 'Expert automatisation Make',
     initials: 'MD',
     image: '/landing/members/member-2.jpg',
-    bgFrom: '#F97316',
-    bgTo: '#fb923c',
+    bgFrom: '#2563EB',
+    bgTo: '#60A5FA',
   },
   {
     name: 'Léa M.',
@@ -56,16 +56,16 @@ const MEMBERS: Member[] = [
     expertise: 'Expert monétisation IA',
     initials: 'IK',
     image: '/landing/members/member-5.jpg',
-    bgFrom: '#e11d48',
-    bgTo: '#fb923c',
+    bgFrom: '#1E3A8A',
+    bgTo: '#93C5FD',
   },
   {
     name: 'Théo G.',
     expertise: 'Expert vidéo IA (Sora, Runway)',
     initials: 'TG',
     image: '/landing/members/member-6.jpg',
-    bgFrom: '#10b981',
-    bgTo: '#0ea5e9',
+    bgFrom: '#0F1E4D',
+    bgTo: '#60A5FA',
   },
 ]
 

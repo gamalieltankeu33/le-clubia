@@ -5,7 +5,6 @@ import { useNotificationsStore } from '@/stores/notifications-store'
 import { useAuthStore } from '@/stores/auth-store'
 import { cn } from '@/lib/utils'
 import { CardElite } from '@/components/shared/card-elite'
-import { CirclePulse } from '@/components/shared/circle-pulse'
 import { formatMemberNumber } from '@/lib/format-member-number'
 
 interface WelcomeBlockProps {
@@ -15,10 +14,10 @@ interface WelcomeBlockProps {
 
 /**
  * Bloc d'accueil élite — visible une fois par jour calendaire (clé
- * localStorage `last_visit_<userId>`). Surface noire signature avec :
- *  - greeting typewriter en serif italique (Instrument Serif)
- *  - "Membre #047" en gros chiffres serif or
- *  - CirclePulse en arrière-plan (signature visuelle Club)
+ * localStorage `last_visit_<userId>`). Surface bleu Bloomberg signature avec :
+ *  - greeting typewriter en serif italique bleu ciel
+ *  - "Membre #047" en gros chiffres serif or (rare et précieux)
+ *  - citation en blanc cassé italique opacity 70 %
  *
  * Le bloc n'est pas censé être visible plus d'une fois par jour : c'est
  * un moment "premium" pour démarrer la journée, pas un pavé permanent.
@@ -86,16 +85,8 @@ export function WelcomeBlock({ userId }: WelcomeBlockProps) {
       aria-label="Accueil personnalisé du jour"
     >
       <CardElite variant="gradient" className="px-6 py-8 sm:px-10 sm:py-12">
-        {/* Cercles émeraude : signal "IA vivante" */}
-        <CirclePulse
-          color="var(--emerald)"
-          size={360}
-          duration={3.2}
-          count={3}
-        />
-
         <div className="relative z-10">
-          <p className="font-serif-signature text-lg italic text-[var(--emerald)] sm:text-xl">
+          <p className="font-serif-signature text-lg italic text-[var(--bleu-ciel)] sm:text-xl">
             {greeting.serifLead}
           </p>
 
@@ -105,7 +96,7 @@ export function WelcomeBlock({ userId }: WelcomeBlockProps) {
           >
             {greetingText.slice(0, typedLength)}
             {typedLength < greetingText.length && (
-              <span className="ml-0.5 inline-block h-7 w-0.5 animate-pulse bg-[var(--emerald)] align-text-bottom sm:h-9" />
+              <span className="ml-0.5 inline-block h-7 w-0.5 animate-pulse bg-[var(--bleu-ciel)] align-text-bottom sm:h-9" />
             )}
           </h2>
 
@@ -146,7 +137,7 @@ function StatPill({ stat, delay }: { stat: Stat; delay: number }) {
         'inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-sm ring-1 ring-white/15 sm:text-sm',
       )}
     >
-      <stat.icon className="h-3.5 w-3.5 text-[var(--emerald)]" />
+      <stat.icon className="h-3.5 w-3.5 text-[var(--bleu-ciel)]" />
       {stat.label}
     </motion.li>
   )

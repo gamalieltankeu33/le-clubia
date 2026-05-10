@@ -39,7 +39,7 @@ export function ChapterList({
             >
               <span className="mt-0.5 shrink-0">
                 {completed ? (
-                  <CheckCircle2 className="h-5 w-5 text-emerald-500" />
+                  <CheckCircle2 className="h-5 w-5 text-[var(--bleu-ciel-deep)]" />
                 ) : (
                   <Circle className="h-5 w-5 text-[var(--muted-foreground)]" />
                 )}
@@ -60,7 +60,7 @@ export function ChapterList({
                     </span>
                   )}
                   {completed && (
-                    <span className="ml-2 normal-case tracking-normal text-emerald-600">
+                    <span className="ml-2 normal-case tracking-normal text-[var(--bleu-ciel-deep)]">
                       · Terminé
                     </span>
                   )}

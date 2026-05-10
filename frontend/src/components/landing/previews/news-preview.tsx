@@ -40,8 +40,8 @@ const ARTICLES: ArticleItem[] = [
 ]
 
 const CATEGORY_COLORS: Record<ArticleItem['category'], string> = {
-  'Modèles & recherche': 'bg-[#1E40AF]/10 text-[#1E40AF]',
-  'Outils & produits': 'bg-[#F97316]/15 text-[#F97316]',
+  'Modèles & recherche': 'bg-[var(--primary)]/10 text-[var(--primary)]',
+  'Outils & produits': 'bg-[var(--bleu-ciel)]/15 text-[var(--bleu-ciel-deep)]',
   Business: 'bg-violet-100 text-violet-700',
 }
 

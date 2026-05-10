@@ -51,7 +51,7 @@ export function ProgressTube({
       <div
         className={cn(
           'h-full rounded-full transition-[width] duration-700 ease-out',
-          isComplete ? 'bg-emerald-500' : 'bg-[var(--primary)]',
+          isComplete ? 'bg-[var(--bleu-ciel-deep)]' : 'bg-[var(--primary)]',
         )}
         style={{ width: `${pct}%` }}
       />

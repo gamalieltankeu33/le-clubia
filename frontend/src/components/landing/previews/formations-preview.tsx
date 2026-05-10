@@ -42,9 +42,9 @@ const FORMATIONS: FormationItem[] = [
 ]
 
 const LEVEL_COLORS: Record<FormationItem['level'], string> = {
-  Débutant: 'bg-emerald-100 text-emerald-700',
-  Intermédiaire: 'bg-[#1E40AF]/10 text-[#1E40AF]',
-  Avancé: 'bg-[#F97316]/15 text-[#F97316]',
+  Débutant: 'bg-[var(--bleu-ciel)]/15 text-[var(--bleu-ciel-deep)]',
+  Intermédiaire: 'bg-[var(--primary)]/10 text-[var(--primary)]',
+  Avancé: 'bg-[var(--or)]/15 text-[var(--or-deep)]',
 }
 
 export function FormationsPreview({ className }: { className?: string }) {

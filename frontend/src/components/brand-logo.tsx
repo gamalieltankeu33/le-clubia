@@ -35,7 +35,7 @@ const SIZE_STYLE: Record<BrandLogoSize, { width: number; height: number }> = {
 
 const BLEU = '#0F1E4D'
 const BLANC = '#FAFAF9'
-const EMERAUDE = '#00D9A3'
+const BLEU_CIEL = '#60A5FA'
 
 export function BrandLogo({
   size = 'md',
@@ -61,10 +61,10 @@ export function BrandLogo({
       className={cn('block', className)}
     >
       <defs>
-        {/* Halo émeraude vivant derrière le point — signature "IA 2026" */}
-        <radialGradient id="emeraldHalo" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor={EMERAUDE} stopOpacity="0.55" />
-          <stop offset="100%" stopColor={EMERAUDE} stopOpacity="0" />
+        {/* Halo bleu ciel derrière le point — signature harmonique bleue */}
+        <radialGradient id="bleuCielHalo" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor={BLEU_CIEL} stopOpacity="0.55" />
+          <stop offset="100%" stopColor={BLEU_CIEL} stopOpacity="0" />
         </radialGradient>
       </defs>
 
@@ -80,7 +80,8 @@ export function BrandLogo({
         strokeWidth={isInverse ? 2.5 : 0}
       />
 
-      {/* "leclub.ia" — point émeraude vivant (signature IA) */}
+      {/* "leclub.ia" — point bleu ciel (harmonie chromatique avec la
+          capsule bleu Bloomberg). */}
       <text
         x="100"
         y="48"
@@ -92,9 +93,7 @@ export function BrandLogo({
         letterSpacing="-0.02em"
       >
         leclub
-        {/* Le point émeraude — plus gros et plus vif. La couleur évoque
-            l'énergie de l'IA contemporaine (OpenAI/Anthropic/Perplexity). */}
-        <tspan fill={EMERAUDE} fontWeight={800} fontSize={36}>
+        <tspan fill={BLEU_CIEL} fontWeight={800} fontSize={36}>
           .
         </tspan>
         ia
