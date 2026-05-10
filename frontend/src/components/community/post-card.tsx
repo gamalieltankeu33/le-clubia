@@ -17,6 +17,7 @@ import { Button } from '@/components/ui/button'
 import { LinkPreviewCard } from './link-preview-card'
 import { sanitizePostHtml } from '@/lib/sanitize-html'
 import { cn } from '@/lib/utils'
+import { useToggleLike } from '@/hooks/use-toggle-like'
 
 // La PostCommentSection embarque Tiptap + extension mention (gros poids).
 // Lazy-loadée → on ne la charge que lorsque l'utilisateur clique pour
@@ -62,21 +63,21 @@ export function PostCard({
   currentUserId,
   isAdmin,
   expanded = false,
-  onLikeToggle,
   onDelete,
-  pendingLike,
   pendingDelete,
 }: {
   post: FeedPost
   currentUserId: string | null
   isAdmin: boolean
   expanded?: boolean
-  onLikeToggle: (post: FeedPost) => void
   onDelete: (post: FeedPost) => void
-  pendingLike?: boolean
   pendingDelete?: boolean
 }) {
   const navigate = useNavigate()
+  const { liked, count, toggle, isPending: pendingLike } = useToggleLike(
+    post,
+    currentUserId,
+  )
   const [menuOpen, setMenuOpen] = useState(false)
   // Accordéon inline : visible uniquement quand on n'est pas déjà sur la
   // page détail (où le bloc commentaires est rendu séparément).
@@ -267,65 +268,67 @@ export function PostCard({
       )}
 
       <footer className="mt-4 flex items-center gap-1 border-t border-[var(--border)] pt-3">
-        {/* Bouton icône cœur : like / unlike */}
+        {/* Bouton icône cœur : like / unlike — optimistic, jamais de
+            loader visible. aria-pressed reflète l'état du cache. */}
         <button
           type="button"
-          aria-label={post.liked_by_me ? 'Retirer mon like' : 'Liker'}
-          aria-pressed={post.liked_by_me}
+          aria-label={liked ? 'Retirer mon like' : 'Liker'}
+          aria-pressed={liked}
           data-no-navigate
-          disabled={pendingLike}
+          disabled={!currentUserId}
           onClick={(e) => {
             e.stopPropagation()
-            onLikeToggle(post)
+            toggle()
           }}
           className={cn(
-            'inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm transition-colors disabled:opacity-50',
-            post.liked_by_me
-              ? 'font-medium text-[var(--accent)]'
+            'inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm transition-all duration-150 disabled:cursor-not-allowed disabled:opacity-50',
+            liked
+              ? 'text-red-500'
               : 'text-[var(--muted-foreground)] hover:bg-[var(--secondary)] hover:text-[var(--foreground)]',
+            // Pas de visuel "loader" : pendant la mutation on garde
+            // l'apparence normale, juste un léger fade pour signaler
+            // l'état pending sans bloquer l'UI.
+            pendingLike && 'opacity-90',
           )}
         >
-          {pendingLike ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <motion.span
-              key={String(post.liked_by_me)}
-              initial={{ scale: 1 }}
-              animate={{ scale: [1, 1.25, 1] }}
-              transition={{ duration: 0.3, ease: 'easeOut' }}
-              className="inline-flex"
-            >
-              <Heart
-                className={cn(
-                  'h-4 w-4',
-                  post.liked_by_me && 'fill-[var(--accent)]',
-                )}
-              />
-            </motion.span>
-          )}
+          <motion.span
+            key={String(liked)}
+            initial={{ scale: 1 }}
+            animate={{ scale: liked ? [1, 1.3, 1] : [1, 0.9, 1] }}
+            transition={{ duration: 0.25, ease: 'easeOut' }}
+            className="inline-flex"
+          >
+            <Heart
+              className={cn(
+                'h-4 w-4 transition-colors',
+                liked && 'fill-red-500 text-red-500',
+              )}
+            />
+          </motion.span>
         </button>
 
-        {/* Bouton compteur de likes : ouvre le modal des likers.
-            Style hover bleu + soulignement pour signifier qu'il est
-            cliquable. Désactivé visuellement à 0 (pas de modal vide). */}
+        {/* Bouton compteur de likes : ouvre le modal des likers. */}
         <button
           type="button"
-          aria-label={`Voir qui a aimé (${post.likes_count})`}
+          aria-label={`Voir qui a aimé (${count})`}
           title="Voir qui a aimé"
           data-no-navigate
           onClick={(e) => {
-            if (post.likes_count === 0) return
+            if (count === 0) return
             e.stopPropagation()
             setLikersOpen(true)
           }}
           className={cn(
             'inline-flex items-center rounded-lg px-2 py-1.5 text-sm tabular-nums transition-colors focus-visible:outline-none',
-            post.likes_count > 0
-              ? 'text-[var(--muted-foreground)] hover:bg-[var(--primary)]/10 hover:text-[var(--primary)] hover:underline focus-visible:bg-[var(--primary)]/10 focus-visible:text-[var(--primary)]'
+            count > 0
+              ? cn(
+                  liked && 'font-medium',
+                  'text-[var(--muted-foreground)] hover:bg-[var(--primary)]/10 hover:text-[var(--primary)] hover:underline focus-visible:bg-[var(--primary)]/10 focus-visible:text-[var(--primary)]',
+                )
               : 'text-[var(--muted-foreground)]/50 cursor-default',
           )}
         >
-          {post.likes_count}
+          {count}
         </button>
 
         <ActionButton
@@ -387,7 +390,7 @@ export function PostCard({
             postId={post.id}
             isOpen={likersOpen}
             onClose={() => setLikersOpen(false)}
-            totalCount={post.likes_count}
+            totalCount={count}
           />
         </Suspense>
       )}

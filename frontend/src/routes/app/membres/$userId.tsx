@@ -17,7 +17,6 @@ import { PostCard, type FeedPost } from '@/components/community/post-card'
 import { FeedSkeleton } from '@/components/community/feed-skeleton'
 import { htmlToPlainText } from '@/lib/sanitize-html'
 import { useConfirm } from '@/hooks/use-confirm'
-import { checkRateLimit } from '@/lib/use-rate-limit'
 
 export const Route = createFileRoute('/app/membres/$userId')({
   component: MemberPublicProfilePage,
@@ -86,69 +85,6 @@ function MemberPublicProfilePage() {
     // Bloque tant que currentUser n'est pas hydraté (cf. fix migration 0021)
     // pour calculer correctement liked_by_me sur les posts du membre.
     enabled: !!currentUser,
-  })
-
-  const likeMutation = useMutation({
-    mutationFn: async ({
-      post,
-      like,
-    }: {
-      post: FeedPost
-      like: boolean
-    }) => {
-      if (!currentUser) throw new Error('not-auth')
-      const rl = await checkRateLimit('post_like')
-      if (!rl.allowed) {
-        const err = new Error('rate_limited')
-        err.name = 'RateLimitError'
-        throw err
-      }
-      if (like) {
-        const { error } = await supabase
-          .from('post_likes')
-          .insert({ post_id: post.id, user_id: currentUser.id })
-        if (error) throw error
-      } else {
-        const { error } = await supabase
-          .from('post_likes')
-          .delete()
-          .eq('post_id', post.id)
-          .eq('user_id', currentUser.id)
-        if (error) throw error
-      }
-    },
-    onMutate: async ({ post, like }) => {
-      const key = ['user-posts', userId, currentUser?.id ?? null]
-      await queryClient.cancelQueries({ queryKey: key })
-      const prev = queryClient.getQueryData<FeedPost[]>(key)
-      if (prev) {
-        queryClient.setQueryData<FeedPost[]>(
-          key,
-          prev.map((p) =>
-            p.id === post.id
-              ? {
-                  ...p,
-                  liked_by_me: like,
-                  likes_count: Math.max(0, p.likes_count + (like ? 1 : -1)),
-                }
-              : p,
-          ),
-        )
-      }
-      return { prev }
-    },
-    onError: (err, _vars, ctx) => {
-      const key = ['user-posts', userId, currentUser?.id ?? null]
-      if (ctx?.prev) queryClient.setQueryData(key, ctx.prev)
-      if (err instanceof Error && err.name === 'RateLimitError') {
-        toast.warning("Trop d'actions trop rapides. Détends-toi un peu 😊")
-      } else {
-        toast.error('Action impossible.')
-      }
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['community-feed'] })
-    },
   })
 
   const deleteMutation = useMutation({
@@ -325,14 +261,7 @@ function MemberPublicProfilePage() {
                 post={post}
                 currentUserId={currentUser?.id ?? null}
                 isAdmin={isAdmin}
-                onLikeToggle={(p) =>
-                  likeMutation.mutate({
-                    post: p,
-                    like: !p.liked_by_me,
-                  })
-                }
                 onDelete={handleDelete}
-                pendingLike={likeMutation.isPending}
                 pendingDelete={deleteMutation.isPending}
               />
             ))}

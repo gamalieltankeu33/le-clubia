@@ -22,7 +22,6 @@ import { PostCard, type FeedPost } from '@/components/community/post-card'
 import { FeedSkeleton } from '@/components/community/feed-skeleton'
 import { htmlToPlainText } from '@/lib/sanitize-html'
 import { useConfirm } from '@/hooks/use-confirm'
-import { checkRateLimit } from '@/lib/use-rate-limit'
 
 // PostComposerModal embarque Tiptap (~120 kB). On le lazy-load pour ne le
 // télécharger qu'au moment où l'utilisateur clique "Créer un post".
@@ -43,7 +42,6 @@ function CommunityFeedPage() {
   const isAdmin = useAuthStore((s) => s.isAdmin)()
 
   const [composerOpen, setComposerOpen] = useState(false)
-  const [pendingLikeId, setPendingLikeId] = useState<string | null>(null)
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
   const { confirm, ConfirmDialog } = useConfirm()
 
@@ -70,89 +68,6 @@ function CommunityFeedPage() {
     profile?.first_name?.trim() ||
     user?.email?.split('@')[0] ||
     'membre'
-
-  // Like / unlike : optimistic update du cache infini
-  const likeMutation = useMutation({
-    mutationFn: async ({
-      post,
-      like,
-    }: {
-      post: FeedPost
-      like: boolean
-    }) => {
-      if (!user) throw new Error('not-auth')
-      // Rate limit (100/min) : très large pour un humain, sert surtout
-      // à bloquer les bots qui spam des likes en boucle. Si bloqué, on
-      // throw une erreur typée que onError captera pour un toast soft.
-      const rl = await checkRateLimit('post_like')
-      if (!rl.allowed) {
-        const err = new Error('rate_limited')
-        err.name = 'RateLimitError'
-        throw err
-      }
-      if (like) {
-        const { error } = await supabase
-          .from('post_likes')
-          .insert({ post_id: post.id, user_id: user.id })
-        if (error) throw error
-      } else {
-        const { error } = await supabase
-          .from('post_likes')
-          .delete()
-          .eq('post_id', post.id)
-          .eq('user_id', user.id)
-        if (error) throw error
-      }
-    },
-    onMutate: async ({ post, like }) => {
-      setPendingLikeId(post.id)
-      const key = ['community-feed', user?.id ?? null]
-      await queryClient.cancelQueries({ queryKey: key })
-      const prev = queryClient.getQueryData(key)
-      // Optimistic : toggle + ajuste le compteur
-      queryClient.setQueryData<{
-        pages: { posts: FeedPost[]; nextCursor: number | null }[]
-        pageParams: number[]
-      }>(key, (data) => {
-        if (!data) return data
-        return {
-          ...data,
-          pages: data.pages.map((page) => ({
-            ...page,
-            posts: page.posts.map((p) =>
-              p.id === post.id
-                ? {
-                    ...p,
-                    liked_by_me: like,
-                    likes_count: Math.max(
-                      0,
-                      (Number(p.likes_count) || 0) + (like ? 1 : -1),
-                    ),
-                  }
-                : p,
-            ),
-          })),
-        }
-      })
-      // Mémorise pour rollback éventuel
-      return { prev }
-    },
-    onError: (err, _vars, ctx) => {
-      const key = ['community-feed', user?.id ?? null]
-      if (ctx?.prev) queryClient.setQueryData(key, ctx.prev)
-      if (err instanceof Error && err.name === 'RateLimitError') {
-        toast.warning("Trop d'actions trop rapides. Détends-toi un peu 😊")
-      } else {
-        toast.error('Action impossible. Réessaie.')
-      }
-    },
-    onSettled: () => {
-      setPendingLikeId(null)
-      // On invalide tout pour garantir la synchro (Feed + Détail)
-      queryClient.invalidateQueries({ queryKey: ['community-feed'] })
-      queryClient.invalidateQueries({ queryKey: ['community-post'] })
-    },
-  })
 
   const deleteMutation = useMutation({
     mutationFn: async (post: FeedPost) => {
@@ -281,14 +196,7 @@ function CommunityFeedPage() {
                 post={p}
                 currentUserId={user?.id ?? null}
                 isAdmin={isAdmin}
-                onLikeToggle={(post) =>
-                  likeMutation.mutate({
-                    post,
-                    like: !post.liked_by_me,
-                  })
-                }
                 onDelete={handleDelete}
-                pendingLike={pendingLikeId === p.id}
                 pendingDelete={pendingDeleteId === p.id}
               />
             ))}

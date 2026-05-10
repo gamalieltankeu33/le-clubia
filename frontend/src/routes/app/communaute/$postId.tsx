@@ -11,7 +11,6 @@ import { PostCommentSection } from '@/components/community/post-comment-section'
 import { FeedSkeleton } from '@/components/community/feed-skeleton'
 import { htmlToPlainText } from '@/lib/sanitize-html'
 import { useConfirm } from '@/hooks/use-confirm'
-import { checkRateLimit } from '@/lib/use-rate-limit'
 
 export const Route = createFileRoute('/app/communaute/$postId')({
   component: PostDetailPage,
@@ -32,64 +31,6 @@ function PostDetailPage() {
     // Bloque le fetch tant que user n'est pas hydraté pour garantir un
     // liked_by_me correct (cf. fix migration 0021).
     enabled: !!user,
-  })
-
-  const likeMutation = useMutation({
-    mutationFn: async ({
-      post,
-      like,
-    }: {
-      post: FeedPost
-      like: boolean
-    }) => {
-      if (!user) throw new Error('not-auth')
-      const rl = await checkRateLimit('post_like')
-      if (!rl.allowed) {
-        const err = new Error('rate_limited')
-        err.name = 'RateLimitError'
-        throw err
-      }
-      if (like) {
-        const { error } = await supabase
-          .from('post_likes')
-          .insert({ post_id: post.id, user_id: user.id })
-        if (error) throw error
-      } else {
-        const { error } = await supabase
-          .from('post_likes')
-          .delete()
-          .eq('post_id', post.id)
-          .eq('user_id', user.id)
-        if (error) throw error
-      }
-    },
-    onMutate: async ({ like }) => {
-      const key = ['community-post', postId, user?.id ?? null]
-      await queryClient.cancelQueries({ queryKey: key })
-      const prev = queryClient.getQueryData<FeedPost | null>(key)
-      if (prev) {
-        queryClient.setQueryData<FeedPost | null>(key, {
-          ...prev,
-          liked_by_me: like,
-          likes_count: Math.max(0, (Number(prev.likes_count) || 0) + (like ? 1 : -1)),
-        })
-      }
-      return { prev }
-    },
-    onError: (err, _vars, ctx) => {
-      const key = ['community-post', postId, user?.id ?? null]
-      if (ctx?.prev) queryClient.setQueryData(key, ctx.prev)
-      if (err instanceof Error && err.name === 'RateLimitError') {
-        toast.warning("Trop d'actions trop rapides. Détends-toi un peu 😊")
-      } else {
-        toast.error('Action impossible.')
-      }
-    },
-    onSettled: () => {
-      // On invalide tout pour garantir la synchro (Feed + Détail)
-      queryClient.invalidateQueries({ queryKey: ['community-feed'] })
-      queryClient.invalidateQueries({ queryKey: ['community-post', postId] })
-    },
   })
 
   const deleteMutation = useMutation({
@@ -162,14 +103,7 @@ function PostDetailPage() {
               currentUserId={user?.id ?? null}
               isAdmin={isAdmin}
               expanded
-              onLikeToggle={(post) =>
-                likeMutation.mutate({
-                  post,
-                  like: !post.liked_by_me,
-                })
-              }
               onDelete={handleDelete}
-              pendingLike={likeMutation.isPending}
               pendingDelete={deleteMutation.isPending}
             />
             <PostCommentSection postId={postQuery.data.id} />
