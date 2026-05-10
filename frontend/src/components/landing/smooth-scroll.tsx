@@ -7,8 +7,8 @@ interface SmoothScrollProps {
 
 /**
  * Wrapper Lenis — config "Linear / Notion" :
- *  - duration 0.8s + easeOutExpo : démarre vite, finit doux, pas de
- *    tail-off paresseux.
+ *  - duration 0.6s + cubic-out : plus réactif qu'expo-out, stop net en
+ *    fin de course, pas de tail-off paresseux.
  *  - Désactivé entièrement sur mobile : iOS / Android ont un scroll
  *    natif plus fluide que tout smooth scroll JS.
  *  - Désactivé si l'OS demande prefers-reduced-motion.
@@ -26,8 +26,8 @@ export function SmoothScroll({ children }: SmoothScrollProps) {
     <ReactLenis
       root
       options={{
-        duration: 0.8,
-        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        duration: 0.6,
+        easing: (t) => 1 - Math.pow(1 - t, 3),
         smoothWheel: true,
         wheelMultiplier: 1,
         touchMultiplier: 2,

@@ -2,16 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { motion } from 'framer-motion'
-import {
-  ArrowUpRight,
-  Calendar,
-  Clock,
-  ExternalLink,
-  Mic2,
-  Sparkles,
-  Video,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { ExternalLink } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { cn } from '@/lib/utils'
 import type { Database } from '@/lib/database.types'
@@ -49,19 +40,15 @@ function getCountdown(
   starts_at: string,
   live: boolean,
   now: number,
-): { label: string; sub: string; urgency: Urgency } {
-  if (live) return { label: 'EN COURS', sub: 'Rejoins en direct', urgency: 'live' }
+): { label: string; urgency: Urgency } {
+  if (live) return { label: 'EN DIRECT', urgency: 'live' }
 
   const start = new Date(starts_at)
   const diffMs = start.getTime() - now
   const diffMinutes = Math.floor(diffMs / 60_000)
 
   if (diffMinutes > 0 && diffMinutes <= 30) {
-    return {
-      label: `DANS ${diffMinutes} MIN`,
-      sub: 'Démarrage imminent',
-      urgency: 'live',
-    }
+    return { label: `DANS ${diffMinutes} MIN`, urgency: 'live' }
   }
 
   const startDay = new Date(start.getFullYear(), start.getMonth(), start.getDate())
@@ -71,66 +58,59 @@ function getCountdown(
     (startDay.getTime() - today.getTime()) / (1000 * 60 * 60 * 24),
   )
 
-  if (dayDiff <= 0) return { label: "AUJOURD'HUI", sub: 'À ne pas manquer', urgency: 'today' }
-  if (dayDiff === 1) return { label: 'DEMAIN', sub: 'Réserve ton créneau', urgency: 'soon' }
-  if (dayDiff <= 3) return { label: `J-${dayDiff}`, sub: 'Bientôt', urgency: 'soon' }
-  return { label: `J-${dayDiff}`, sub: 'À venir', urgency: 'normal' }
+  if (dayDiff <= 0) return { label: "AUJOURD'HUI", urgency: 'today' }
+  if (dayDiff === 1) return { label: 'DEMAIN', urgency: 'soon' }
+  if (dayDiff <= 3) return { label: `J-${dayDiff}`, urgency: 'soon' }
+  return { label: `J-${dayDiff}`, urgency: 'normal' }
 }
 
-function formatDateRange(starts_at: string, duration_minutes: number): string {
+function formatMeta(starts_at: string, duration_minutes: number, speaker_name: string | null): string {
+  const start = new Date(starts_at)
+  const datePart = start
+    .toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' })
+    .replace('.', '')
+  const cap = datePart.charAt(0).toUpperCase() + datePart.slice(1)
+  const timePart = start
+    .toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+    .replace(':', 'h')
+  const hours = Math.floor(duration_minutes / 60)
+  const minutes = duration_minutes % 60
+  const durationPart =
+    hours === 0 ? `${minutes} min` : minutes === 0 ? `${hours}h` : `${hours}h${String(minutes).padStart(2, '0')}`
+
+  const parts = [`${cap} · ${timePart}`, durationPart]
+  if (speaker_name) parts.push(speaker_name)
+  return parts.join(' · ')
+}
+
+function formatFullDate(starts_at: string, duration_minutes: number): string {
+  // Pour aria-label uniquement.
   const start = new Date(starts_at)
   const end = new Date(start.getTime() + duration_minutes * 60 * 1000)
-  const dayPart = start
-    .toLocaleDateString('fr-FR', {
-      weekday: 'long',
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-    })
-  const capitalized = dayPart.charAt(0).toUpperCase() + dayPart.slice(1)
-  const fmtTime = (d: Date) =>
+  const dayPart = start.toLocaleDateString('fr-FR', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  })
+  const cap = dayPart.charAt(0).toUpperCase() + dayPart.slice(1)
+  const fmt = (d: Date) =>
     d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }).replace(':', 'h')
-  return `${capitalized} · ${fmtTime(start)} - ${fmtTime(end)}`
+  return `${cap} · ${fmt(start)} - ${fmt(end)}`
 }
 
-const URGENCY_THEME: Record<
-  Urgency,
-  {
-    overlay: string
-    glow: string
-    badgeBg: string
-    badgeText: string
-    accentBar: string
-  }
-> = {
-  normal: {
-    overlay: 'from-[#0A1F44]/80 via-[#0A1F44]/55 to-[#0A1F44]/30',
-    glow: 'bg-[var(--primary)]/20',
-    badgeBg: 'bg-white/15 ring-1 ring-white/25',
-    badgeText: 'text-white',
-    accentBar: 'bg-[var(--primary)]',
-  },
-  soon: {
-    overlay: 'from-[#3a1d05]/85 via-[#7a3a08]/55 to-[#c2520a]/35',
-    glow: 'bg-orange-400/25',
-    badgeBg: 'bg-orange-400/25 ring-1 ring-orange-200/40',
-    badgeText: 'text-orange-50',
-    accentBar: 'bg-orange-400',
-  },
-  today: {
-    overlay: 'from-emerald-950/85 via-emerald-800/55 to-emerald-600/35',
-    glow: 'bg-emerald-400/25',
-    badgeBg: 'bg-emerald-400/25 ring-1 ring-emerald-200/40',
-    badgeText: 'text-emerald-50',
-    accentBar: 'bg-emerald-400',
-  },
-  live: {
-    overlay: 'from-rose-950/85 via-red-900/60 to-rose-700/35',
-    glow: 'bg-red-500/30',
-    badgeBg: 'bg-red-500/30 ring-1 ring-red-200/40',
-    badgeText: 'text-red-50',
-    accentBar: 'bg-red-500',
-  },
+const URGENCY_DOT: Record<Urgency, string> = {
+  normal: 'bg-[var(--primary)]',
+  soon: 'bg-orange-400',
+  today: 'bg-emerald-500',
+  live: 'bg-red-500',
+}
+
+const URGENCY_LABEL: Record<Urgency, string> = {
+  normal: 'text-[var(--primary)]',
+  soon: 'text-orange-600',
+  today: 'text-emerald-600',
+  live: 'text-red-600',
 }
 
 export function NextEventCard() {
@@ -141,7 +121,7 @@ export function NextEventCard() {
     refetchInterval: 60_000,
   })
 
-  // Tick local pour rafraîchir le décompte chaque 30s (sans refetch).
+  // Tick local toutes les 30s pour faire évoluer le décompte sans refetch.
   const [now, setNow] = useState<number>(() => Date.now())
   useEffect(() => {
     const id = setInterval(() => setNow(Date.now()), 30_000)
@@ -166,231 +146,90 @@ export function NextEventCard() {
   if (isLoading) return null
   if (!event || !countdown) return null
 
-  const theme = URGENCY_THEME[countdown.urgency]
-  const isPaid = false
-  const ctaJoinable = live || startingSoon
-  const ctaPulses = ctaJoinable
-  const dateLabel = formatDateRange(event.starts_at, event.duration_minutes)
-
-  const ariaCountdown =
-    countdown.urgency === 'live'
-      ? `${countdown.label}. ${event.title}.`
-      : `Prochain événement ${countdown.label}. ${event.title}, ${dateLabel}.`
+  const meta = formatMeta(event.starts_at, event.duration_minutes, event.speaker_name)
+  const fullDate = formatFullDate(event.starts_at, event.duration_minutes)
+  const ctaJoinable = (live || startingSoon) && Boolean(event.meet_url)
+  const animateGlow = startingSoon && !live // glow seulement quand imminent (pas pendant le live, qui a déjà sa pastille pulsante)
 
   return (
     <motion.section
-      initial={{ opacity: 0, y: 10 }}
+      initial={{ opacity: 0, y: -4 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-      aria-label={`Prochain coaching live : ${event.title}, ${countdown.label}, ${dateLabel}`}
-      className={cn(
-        'group relative overflow-hidden rounded-3xl border border-white/10 shadow-[0_24px_48px_-16px_rgba(10,31,68,0.25)] transition-shadow duration-500',
-        countdown.urgency === 'live' &&
-          'shadow-[0_0_0_1px_rgba(244,63,94,0.45),0_24px_48px_-16px_rgba(244,63,94,0.5)]',
-      )}
+      transition={{ duration: 0.3, ease: 'easeOut' }}
+      aria-label={`Prochain événement : ${event.title}, ${countdown.label}, ${fullDate}`}
+      className="group relative rounded-2xl border border-[var(--border)] bg-[var(--card)] px-5 py-4 shadow-sm transition-colors duration-200 hover:bg-[var(--muted)]/40 sm:px-6"
     >
-      <span aria-live="polite" className="sr-only">
-        {ariaCountdown}
-      </span>
-
-      {/* Image de fond / fallback */}
-      <div className="relative aspect-[4/5] w-full sm:aspect-[16/9] md:aspect-[16/8] lg:aspect-[16/7]">
-        {event.cover_image_url ? (
-          <img
-            src={event.cover_image_url}
-            alt=""
-            loading="lazy"
-            className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
-          />
-        ) : (
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,255,255,0.06),transparent_60%),radial-gradient(ellipse_at_bottom_right,rgba(255,255,255,0.04),transparent_60%)] bg-[var(--primary)]">
-            <div
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-5">
+        <div className="min-w-0 flex-1">
+          {/* Status row */}
+          <div className="flex items-center gap-2">
+            <span
               aria-hidden
-              className="absolute inset-0 opacity-[0.18]"
-              style={{
-                backgroundImage:
-                  'linear-gradient(to right, white 1px, transparent 1px), linear-gradient(to bottom, white 1px, transparent 1px)',
-                backgroundSize: '48px 48px',
-              }}
-            />
-          </div>
-        )}
-
-        {/* Overlay coloré selon urgence */}
-        <div
-          aria-hidden
-          className={cn(
-            'absolute inset-0 bg-gradient-to-tr',
-            theme.overlay,
-          )}
-        />
-        {/* Halo doux */}
-        <div
-          aria-hidden
-          className={cn(
-            'pointer-events-none absolute -bottom-24 -right-16 h-72 w-72 rounded-full blur-[80px]',
-            theme.glow,
-          )}
-        />
-
-        {/* Contenu posé sur l'image */}
-        <div className="relative flex h-full flex-col justify-between p-6 text-white sm:p-8 lg:p-10">
-          {/* Top row : eyebrow + badge accès */}
-          <div className="flex items-start justify-between gap-3">
-            <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/90 ring-1 ring-white/15 backdrop-blur">
-              <Sparkles className="h-3 w-3" />
-              Prochain coaching live
-            </div>
-            <div
               className={cn(
-                'inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.16em] backdrop-blur',
-                isPaid
-                  ? 'bg-white/15 text-white ring-1 ring-white/25'
-                  : 'bg-white/15 text-white ring-1 ring-white/25',
+                'h-2 w-2 shrink-0 rounded-full',
+                URGENCY_DOT[countdown.urgency],
+                (countdown.urgency === 'live' || countdown.urgency === 'soon') && 'animate-pulse',
               )}
-            >
-              {isPaid ? 'Exclusif membre' : 'Gratuit'}
-            </div>
-          </div>
-
-          {/* Décompte (centre / haut-gauche en desktop) */}
-          <div className="mt-4 flex items-center gap-3 sm:mt-6">
-            <CountdownBadge
-              label={countdown.label}
-              sub={countdown.sub}
-              urgency={countdown.urgency}
-              theme={theme}
             />
-          </div>
-
-          {/* Bottom : titre + meta + CTA */}
-          <div className="mt-6 space-y-4 sm:mt-10">
-            <h2
-              className="font-display text-2xl font-semibold leading-tight tracking-tight drop-shadow-sm sm:text-3xl lg:text-[2.25rem] lg:leading-[1.1]"
-              style={{ textShadow: '0 2px 16px rgba(0,0,0,0.35)' }}
+            <span
+              aria-live="polite"
+              className={cn(
+                'text-[11px] font-semibold uppercase tracking-wider',
+                URGENCY_LABEL[countdown.urgency],
+              )}
             >
-              {event.title}
-            </h2>
-
-            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-white/85">
-              <span className="inline-flex items-center gap-1.5">
-                <Calendar className="h-4 w-4" />
-                {dateLabel}
-              </span>
-              {event.speaker_name && (
-                <span className="inline-flex items-center gap-1.5">
-                  <Mic2 className="h-4 w-4" />
-                  {event.speaker_name}
-                </span>
-              )}
-              <span className="inline-flex items-center gap-1.5">
-                <Clock className="h-4 w-4" />
-                {event.duration_minutes} min
-              </span>
-            </div>
-
-            {event.description && (
-              <p className="line-clamp-2 max-w-2xl text-sm leading-relaxed text-white/75 sm:text-base">
-                {event.description}
-              </p>
-            )}
-
-            <div className="flex flex-wrap items-center gap-3 pt-2">
-              {ctaJoinable && event.meet_url ? (
-                <motion.a
-                  href={event.meet_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  animate={
-                    ctaPulses
-                      ? { boxShadow: ['0 0 0 0 rgba(255,255,255,0.45)', '0 0 0 14px rgba(255,255,255,0)'] }
-                      : undefined
-                  }
-                  transition={
-                    ctaPulses
-                      ? { duration: 1.6, repeat: Infinity, ease: 'easeOut' }
-                      : { duration: 0.2 }
-                  }
-                  className={cn(
-                    'inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-semibold text-[#0A0A0A] shadow-lg transition-colors hover:bg-white/95',
-                  )}
-                >
-                  <Video className="h-4 w-4" />
-                  Rejoindre maintenant
-                  <ExternalLink className="h-3.5 w-3.5 opacity-60" />
-                </motion.a>
-              ) : (
-                <Link
-                  to="/app/events"
-                  className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-semibold text-[#0A0A0A] shadow-lg transition-transform hover:scale-[1.02]"
-                >
-                  Réserver ma place
-                  <ArrowUpRight className="h-4 w-4" />
-                </Link>
-              )}
-
-              <Link
-                to="/app/events"
-                className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-4 py-3 text-sm font-medium text-white/90 ring-1 ring-white/20 backdrop-blur transition-colors hover:bg-white/15"
-              >
-                Voir tous les événements
-              </Link>
-            </div>
+              {countdown.label}
+            </span>
           </div>
+
+          {/* Titre */}
+          <h2 className="mt-1 truncate font-display text-base font-semibold leading-tight tracking-tight text-[var(--foreground)] sm:text-lg">
+            {event.title}
+          </h2>
+
+          {/* Meta inline */}
+          <p className="mt-0.5 truncate text-xs text-[var(--muted-foreground)] sm:text-sm">
+            {meta}
+          </p>
         </div>
 
-        {/* Barre d'accent en bas */}
-        <div
-          aria-hidden
-          className={cn(
-            'absolute bottom-0 left-0 right-0 h-[3px]',
-            theme.accentBar,
+        {/* CTA */}
+        <div className="shrink-0 sm:ml-auto">
+          {ctaJoinable ? (
+            <motion.a
+              href={event.meet_url ?? undefined}
+              target="_blank"
+              rel="noopener noreferrer"
+              animate={
+                animateGlow
+                  ? {
+                      boxShadow: [
+                        '0 0 0 0 rgba(249,115,22,0.45)',
+                        '0 0 0 8px rgba(249,115,22,0)',
+                      ],
+                    }
+                  : undefined
+              }
+              transition={
+                animateGlow
+                  ? { duration: 2, repeat: Infinity, ease: 'easeOut' }
+                  : { duration: 0.2 }
+              }
+              className="inline-flex w-full items-center justify-center gap-1 rounded-full bg-[var(--primary)] px-4 py-1.5 text-xs font-semibold text-[var(--primary-foreground)] transition-colors hover:bg-[var(--primary)]/90 sm:w-auto"
+            >
+              Rejoindre
+              <ExternalLink className="ml-0.5 h-3 w-3" />
+            </motion.a>
+          ) : (
+            <Link
+              to="/app/events"
+              className="inline-flex w-full items-center justify-center rounded-full bg-transparent px-4 py-1.5 text-xs font-medium text-[var(--foreground)] ring-1 ring-[var(--border)] transition-colors hover:bg-[var(--muted)] sm:w-auto"
+            >
+              Voir détails
+            </Link>
           )}
-        />
+        </div>
       </div>
     </motion.section>
-  )
-}
-
-function CountdownBadge({
-  label,
-  sub,
-  urgency,
-  theme,
-}: {
-  label: string
-  sub: string
-  urgency: Urgency
-  theme: (typeof URGENCY_THEME)[Urgency]
-}) {
-  return (
-    <div
-      className={cn(
-        'inline-flex items-center gap-3 rounded-2xl px-4 py-2.5 backdrop-blur',
-        theme.badgeBg,
-      )}
-    >
-      {urgency === 'live' && (
-        <span className="relative flex h-2.5 w-2.5">
-          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white/80 opacity-75" />
-          <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-white" />
-        </span>
-      )}
-      <div className="flex flex-col leading-tight">
-        <span
-          className={cn(
-            'font-mono text-2xl font-black tracking-tight tabular-nums sm:text-3xl',
-            theme.badgeText,
-          )}
-        >
-          {label}
-        </span>
-        <span className={cn('text-[10px] font-semibold uppercase tracking-[0.16em] opacity-80', theme.badgeText)}>
-          {sub}
-        </span>
-      </div>
-    </div>
   )
 }
