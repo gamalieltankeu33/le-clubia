@@ -5,6 +5,8 @@ import { motion } from 'framer-motion'
 import { Check, Newspaper, Search, Sparkles, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { EmptyState } from '@/components/shared/empty-state'
+import { PullToRefresh } from '@/components/shared/pull-to-refresh'
 import { fetchPublishedNews } from '@/lib/news-queries'
 import { NEWS_CATEGORIES, getCategoryLabel } from '@/lib/news-helpers'
 import { NewsCard } from '@/components/news/news-card'
@@ -120,7 +122,12 @@ function NewsFeedPage() {
         </div>
       </div>
 
-      <div className="mt-10">
+      <PullToRefresh
+        onRefresh={async () => {
+          await query.refetch()
+        }}
+        className="mt-10"
+      >
         {query.isLoading ? (
           <NewsSkeleton />
         ) : query.isError ? (
@@ -146,7 +153,7 @@ function NewsFeedPage() {
             ))}
           </div>
         )}
-      </div>
+      </PullToRefresh>
     </div>
   )
 }
@@ -174,17 +181,11 @@ function NewsSkeleton() {
 
 function EmptyAgent() {
   return (
-    <div className="rounded-2xl border border-dashed border-[var(--border)] bg-[var(--card)] p-12 text-center">
-      <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--accent)]/15 text-[var(--accent)]">
-        <Sparkles className="h-5 w-5" />
-      </span>
-      <h2 className="mt-4 font-display text-lg font-semibold">
-        Les premières actualités arrivent bientôt
-      </h2>
-      <p className="mx-auto mt-2 max-w-md text-sm text-[var(--muted-foreground)]">
-        L'agent IA est en train de les chercher. Reviens d'ici quelques heures.
-      </p>
-    </div>
+    <EmptyState
+      icon={<Sparkles className="h-7 w-7" />}
+      title="Les premières actualités arrivent"
+      description="L'agent IA est en train de les chercher. Reviens d'ici quelques heures."
+    />
   )
 }
 

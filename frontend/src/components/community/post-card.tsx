@@ -124,10 +124,10 @@ export function PostCard({
       ref={cardRef}
       onClick={handleCardClick}
       className={cn(
-        'group relative overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)] transition-all',
+        'group relative overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)] transition-all duration-150 touch-manipulation',
         !expanded &&
           !commentsOpen &&
-          'cursor-pointer hover:border-[var(--primary)]/30 hover:shadow-sm',
+          'cursor-pointer hover:border-[var(--primary)]/30 hover:shadow-sm active:scale-[0.99] active:bg-[var(--muted)]/30',
       )}
       data-card-surface="true"
     ><div className="p-5">

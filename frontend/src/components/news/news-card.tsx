@@ -21,7 +21,7 @@ export function NewsCard({ article }: { article: NewsArticle }) {
     <Link
       to="/app/actualites/$slug"
       params={{ slug: article.slug }}
-      className="group flex h-full flex-col overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)] transition-all hover:border-[var(--primary)]/30 hover:shadow-md"
+      className="group flex h-full flex-col overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)] transition-all duration-150 touch-manipulation hover:border-[var(--primary)]/30 hover:shadow-md active:scale-[0.98] active:bg-[var(--muted)]/30"
     >
       {/* Cover */}
       {article.cover_image_url ? (

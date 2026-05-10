@@ -126,15 +126,15 @@ export function NotificationPanel() {
 function EmptyState() {
   return (
     <div className="flex h-full flex-col items-center justify-center px-8 py-16 text-center">
-      <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--secondary)] text-[var(--muted-foreground)]">
-        <BellOff className="h-5 w-5" />
+      <span className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[var(--secondary)] text-[var(--muted-foreground)]">
+        <BellOff className="h-7 w-7" />
       </span>
-      <p className="mt-4 font-display text-base font-semibold tracking-tight">
-        Aucune notification pour le moment
-      </p>
-      <p className="mt-1 max-w-xs text-sm text-[var(--muted-foreground)]">
-        Tu seras prévenu·e dès qu'un membre publie, qu'une formation sort ou
-        qu'on like ton post.
+      <h3 className="mt-5 font-display text-lg font-semibold tracking-tight text-[var(--foreground)]">
+        Tout est calme par ici
+      </h3>
+      <p className="mt-2 max-w-xs text-sm leading-relaxed text-[var(--muted-foreground)] sm:text-base">
+        Aucune notification pour le moment. Profite-en pour publier dans la
+        communauté.
       </p>
     </div>
   )

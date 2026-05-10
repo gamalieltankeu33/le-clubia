@@ -4,6 +4,8 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { X } from 'lucide-react'
 import { AppSidebar } from './app-sidebar'
 import { AppHeader } from './app-header'
+import { MobileBottomNav } from './mobile-bottom-nav'
+import { FloatingActionButton } from './floating-action-button'
 import { FloatingCoachButton } from '@/components/coach/floating-coach-button'
 import { ChatPanel } from '@/components/coach/chat-panel'
 import { NotificationPanel } from '@/components/notifications/notification-panel'
@@ -82,7 +84,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {/* Contenu */}
       <div className="flex min-w-0 flex-1 flex-col">
         <AppHeader onOpenSidebar={() => setMobileOpen(true)} />
-        <main className="flex-1">{children}</main>
+        <main
+          className="flex-1 pb-[80px] lg:pb-0"
+          style={{
+            scrollPaddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 80px)',
+          }}
+        >
+          {children}
+        </main>
       </div>
 
       {/* Coach IA — bouton flottant + panneau latéral */}
@@ -91,6 +100,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       {/* Notifications — panneau latéral droit */}
       <NotificationPanel />
+
+      {/* Mobile : bottom nav + FAB contextuel (cachés sur lg) */}
+      <MobileBottomNav />
+      <FloatingActionButton />
     </div>
   )
 }

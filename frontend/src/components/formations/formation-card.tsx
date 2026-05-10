@@ -49,7 +49,7 @@ export function FormationCard({ formation }: { formation: FormationCardData }) {
       to="/app/formations/$slug"
       params={{ slug: formation.slug }}
       className={cn(
-        'group relative flex h-full flex-col overflow-hidden rounded-2xl border bg-[var(--card)] transition-all hover:shadow-md',
+        'group relative flex h-full flex-col overflow-hidden rounded-2xl border bg-[var(--card)] transition-all duration-150 touch-manipulation hover:shadow-md active:scale-[0.98] active:bg-[var(--muted)]/30',
         status === 'completed'
           ? 'border-emerald-300/60 hover:border-emerald-400'
           : 'border-[var(--border)] hover:border-[var(--primary)]/30',

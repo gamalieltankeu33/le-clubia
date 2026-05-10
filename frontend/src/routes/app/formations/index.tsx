@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import { Check, GraduationCap, Search, X } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { EmptyState } from '@/components/shared/empty-state'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/auth-store'
 import {
@@ -239,18 +240,11 @@ function CatalogSkeleton() {
 
 function EmptyCatalog() {
   return (
-    <div className="rounded-2xl border border-dashed border-[var(--border)] bg-[var(--card)] p-12 text-center">
-      <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--secondary)] text-[var(--muted-foreground)]">
-        <GraduationCap className="h-5 w-5" />
-      </span>
-      <h2 className="mt-4 font-display text-xl font-semibold">
-        Les premières formations arrivent bientôt
-      </h2>
-      <p className="mx-auto mt-2 max-w-md text-sm text-[var(--muted-foreground)]">
-        On termine la production des premiers contenus. Reviens vite, ça va
-        être bon.
-      </p>
-    </div>
+    <EmptyState
+      icon={<GraduationCap className="h-7 w-7" />}
+      title="Bientôt disponibles"
+      description="Le catalogue se prépare. Reviens dans quelques jours."
+    />
   )
 }
 

@@ -12,6 +12,7 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { EmptyState } from '@/components/shared/empty-state'
 import { supabase } from '@/lib/supabase'
 import {
   RESOURCE_CATEGORIES,
@@ -195,15 +196,11 @@ function ResourcesLibraryPage() {
             </p>
           </div>
         ) : (query.data ?? []).length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-[var(--border)] bg-[var(--card)] p-12 text-center">
-            <Library className="mx-auto h-8 w-8 text-[var(--muted-foreground)]" />
-            <h2 className="mt-4 font-display text-lg font-semibold">
-              Pas encore de ressource
-            </h2>
-            <p className="mt-2 text-sm text-[var(--muted-foreground)]">
-              Les premières ressources seront ajoutées par l'équipe très vite.
-            </p>
-          </div>
+          <EmptyState
+            icon={<Library className="h-7 w-7" />}
+            title="Bibliothèque en construction"
+            description="Les premières ressources arrivent bientôt."
+          />
         ) : filtered.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-[var(--border)] bg-[var(--card)] p-12 text-center">
             <h2 className="font-display text-lg font-semibold">
@@ -258,7 +255,7 @@ function ResourceCard({ resource }: { resource: Resource }) {
   return (
     <article
       onClick={handleOpen}
-      className="flex cursor-pointer flex-col overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)] transition-shadow hover:shadow-md"
+      className="flex cursor-pointer flex-col overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)] transition-all duration-150 touch-manipulation hover:shadow-md active:scale-[0.98] active:bg-[var(--muted)]/30"
     >
       {resource.thumbnail_url ? (
         <div className="aspect-video w-full overflow-hidden">

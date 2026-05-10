@@ -16,6 +16,7 @@ import { RecentPostsCard } from '@/components/community/recent-posts-card'
 import { MyPointsCard } from '@/components/community/my-points-card'
 import { NextEventCard } from '@/components/events/next-event-card'
 import { OnboardingGuide } from '@/components/onboarding/onboarding-guide'
+import { WelcomeBlock } from '@/components/dashboard/welcome-block'
 
 export const Route = createFileRoute('/app/dashboard')({
   component: DashboardPage,
@@ -84,6 +85,13 @@ function DashboardPage() {
           </p>
         </section>
       </Reveal>
+
+      {/* Welcome moment — visible 1× par jour calendaire */}
+      {user?.id && (
+        <div className="mt-6">
+          <WelcomeBlock userId={user.id} />
+        </div>
+      )}
 
       {/* Prochain coaching live */}
       <Reveal delay={0.1} distance={10}>

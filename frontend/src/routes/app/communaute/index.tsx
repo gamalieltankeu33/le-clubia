@@ -20,6 +20,8 @@ import { supabase } from '@/lib/supabase'
 import { fetchFeedPage } from '@/lib/community-queries'
 import { PostCard, type FeedPost } from '@/components/community/post-card'
 import { FeedSkeleton } from '@/components/community/feed-skeleton'
+import { EmptyState } from '@/components/shared/empty-state'
+import { PullToRefresh } from '@/components/shared/pull-to-refresh'
 import { htmlToPlainText } from '@/lib/sanitize-html'
 import { useConfirm } from '@/hooks/use-confirm'
 
@@ -181,7 +183,12 @@ function CommunityFeedPage() {
         </span>
       </button>
 
-      <div className="mt-8">
+      <PullToRefresh
+        onRefresh={async () => {
+          await feed.refetch()
+        }}
+        className="mt-8"
+      >
         {feed.isLoading ? (
           <FeedSkeleton count={3} />
         ) : feed.isError ? (
@@ -222,7 +229,7 @@ function CommunityFeedPage() {
             )}
           </div>
         )}
-      </div>
+      </PullToRefresh>
 
       {/* Suspense fallback rendu via null : le modal n'a pas besoin de
           fallback visible — il s'ouvre quand l'utilisateur clique le bouton.
@@ -245,22 +252,12 @@ function CommunityFeedPage() {
 
 function EmptyFeed({ onOpen }: { onOpen: () => void }) {
   return (
-    <div className="rounded-2xl border border-dashed border-[var(--border)] bg-[var(--card)] p-12 text-center">
-      <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--accent)]/15 text-[var(--accent)]">
-        <Sparkles className="h-5 w-5" />
-      </span>
-      <h2 className="mt-4 font-display text-lg font-semibold">
-        Sois le premier à publier dans Le Club IA&nbsp;!
-      </h2>
-      <p className="mx-auto mt-2 max-w-sm text-sm text-[var(--muted-foreground)]">
-        Une découverte, une question, un projet — partage tout ce qui peut
-        servir à la communauté.
-      </p>
-      <Button className="mt-5" onClick={onOpen}>
-        <Pencil className="h-4 w-4" />
-        Créer un post
-      </Button>
-    </div>
+    <EmptyState
+      icon={<Sparkles className="h-7 w-7" />}
+      title="La communauté t'attend"
+      description="Sois la première personne à briser la glace. Publie ton premier post."
+      cta={{ label: 'Publier maintenant', onClick: onOpen }}
+    />
   )
 }
 

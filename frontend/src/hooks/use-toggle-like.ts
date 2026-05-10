@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { supabase } from '@/lib/supabase'
 import { checkRateLimit } from '@/lib/use-rate-limit'
+import { haptic } from '@/lib/haptic'
 import type { FeedPost } from '@/components/community/post-card'
 
 type Action = 'like' | 'unlike'
@@ -62,10 +63,14 @@ export function useToggleLike(post: FeedPost, currentUserId: string | null) {
       // Snapshots pour rollback en onError.
       const snapshots = takeSnapshots(queryClient, post.id)
       applyOptimistic(queryClient, post.id, action === 'like')
+      // Feedback tactile : medium pour le like (action confirmée),
+      // light pour l'unlike (action moins engageante).
+      haptic(action === 'like' ? 'medium' : 'light')
       return { snapshots }
     },
     onError: (err, _vars, ctx) => {
       if (ctx?.snapshots) restoreSnapshots(queryClient, ctx.snapshots)
+      haptic('error')
       if (err instanceof Error && err.name === 'RateLimitError') {
         toast.warning("Trop d'actions trop rapides. Détends-toi un peu 😊")
       } else if (err instanceof Error && err.message === 'not-auth') {
