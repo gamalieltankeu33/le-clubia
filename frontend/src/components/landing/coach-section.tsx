@@ -13,7 +13,7 @@ const POINTS = [
 
 export function CoachSection() {
   return (
-    <section className="relative overflow-hidden bg-[var(--background)] py-24 sm:py-32 lg:py-40">
+    <section className="relative overflow-hidden bg-[var(--background)] py-16 sm:py-24 lg:py-28">
       {/* Immersive Background Gradients */}
       <div
         aria-hidden="true"

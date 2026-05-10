@@ -25,7 +25,7 @@ export function Hero() {
   const words = headline.split(' ')
 
   return (
-    <section className="relative overflow-hidden pt-32 pb-16 sm:pt-40 sm:pb-24 lg:pt-52 lg:pb-32">
+    <section className="relative overflow-hidden pt-24 pb-12 sm:pt-28 sm:pb-16 lg:pt-36 lg:pb-24">
       {/* Cinematic Background Halos */}
       <div
         aria-hidden="true"
@@ -105,7 +105,7 @@ export function Hero() {
 
         {/* VSL / Demo Video Area */}
         <Reveal delay={0.55} distance={40}>
-          <div className="relative mx-auto mt-20 max-w-5xl lg:mt-32">
+          <div className="relative mx-auto mt-14 max-w-5xl lg:mt-24">
             <div
               aria-hidden="true"
               className="absolute -inset-10 -z-10 rounded-[3rem] bg-gradient-to-br from-[var(--primary)]/20 via-transparent to-[var(--accent)]/10 blur-[80px]"

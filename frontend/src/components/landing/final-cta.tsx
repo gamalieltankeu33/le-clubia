@@ -11,7 +11,7 @@ const REASSURANCE = [
 
 export function FinalCTA() {
   return (
-    <section className="relative overflow-hidden bg-[var(--background)] py-20 sm:py-28 lg:py-36">
+    <section className="relative overflow-hidden bg-[var(--background)] py-14 sm:py-20 lg:py-24">
       {/* Halo bleu très subtil — la signature izi.club lumineuse, pas envahissante */}
       <div
         aria-hidden="true"

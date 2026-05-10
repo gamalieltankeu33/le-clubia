@@ -42,7 +42,7 @@ const FAQS = [
 
 export function FAQ() {
   return (
-    <section className="bg-white py-16 sm:py-24 lg:py-32">
+    <section className="bg-white py-12 sm:py-16 lg:py-24">
       <div className="mx-auto max-w-3xl px-6">
         <div className="text-center">
           <Reveal>
@@ -54,7 +54,7 @@ export function FAQ() {
           </Reveal>
         </div>
 
-        <div className="mt-14 divide-y divide-[var(--border)]">
+        <div className="mt-10 divide-y divide-[var(--border)]">
           {FAQS.map((f, i) => (
             <Reveal key={f.q} delay={i * 0.03}>
               <details className="group">

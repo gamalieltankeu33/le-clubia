@@ -52,7 +52,7 @@ const TESTIMONIALS: Testimonial[] = [
 
 export function Testimonials() {
   return (
-    <section className="bg-[var(--background)] py-16 sm:py-24 lg:py-32">
+    <section className="bg-[var(--background)] py-12 sm:py-16 lg:py-24">
       <div className="mx-auto max-w-6xl px-6">
         <div className="mx-auto max-w-3xl text-center">
           <Reveal>
@@ -67,7 +67,7 @@ export function Testimonials() {
           </Reveal>
         </div>
 
-        <div className="mt-16 grid gap-6 sm:grid-cols-2">
+        <div className="mt-12 grid gap-6 sm:grid-cols-2">
           {TESTIMONIALS.map((t, i) => (
             <Reveal key={t.name} delay={(i % 2) * 0.08}>
               <figure className="flex h-full flex-col rounded-2xl border border-[var(--border)] bg-white p-8 shadow-sm transition-shadow hover:shadow-md">

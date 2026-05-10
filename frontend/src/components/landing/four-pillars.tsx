@@ -58,7 +58,7 @@ const PILLARS: Pillar[] = [
 
 export function FourPillars() {
   return (
-    <section id="piliers" className="relative bg-white py-24 sm:py-32 lg:py-40">
+    <section id="piliers" className="relative bg-white py-16 sm:py-24 lg:py-28">
       {/* Background depth halo */}
       <div className="pointer-events-none absolute left-0 top-1/2 h-[500px] w-[500px] -translate-y-1/2 rounded-full bg-[var(--primary)]/[0.03] blur-[100px]" />
 
@@ -77,7 +77,7 @@ export function FourPillars() {
           </Reveal>
         </div>
 
-        <div className="mt-16 grid gap-6 sm:mt-24 sm:gap-8 md:grid-cols-2">
+        <div className="mt-12 grid gap-6 sm:mt-16 sm:gap-8 md:grid-cols-2">
           {PILLARS.map((p, i) => (
             <Reveal key={p.title} delay={i * 0.1} direction={i % 2 === 0 ? 'right' : 'left'}>
               <a

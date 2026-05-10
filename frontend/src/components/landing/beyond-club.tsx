@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils'
 
 export function BeyondClub() {
   return (
-    <section className="relative overflow-hidden bg-white py-24 sm:py-32 lg:py-40">
+    <section className="relative overflow-hidden bg-white py-16 sm:py-24 lg:py-28">
       <div className="mx-auto max-w-7xl px-6">
         <div className="mx-auto max-w-3xl text-center">
           <Reveal>
@@ -20,7 +20,7 @@ export function BeyondClub() {
           </Reveal>
         </div>
 
-        <div className="mt-16 grid gap-8 lg:grid-cols-2 lg:mt-24">
+        <div className="mt-12 grid gap-8 lg:grid-cols-2 lg:mt-16">
           <Reveal direction="right">
             <BenefitCard
               icon={Calendar}

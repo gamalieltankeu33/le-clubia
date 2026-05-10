@@ -92,7 +92,7 @@ export function PricingCard() {
   }, [plans])
 
   return (
-    <section id="tarif" className="relative overflow-hidden bg-white py-24 sm:py-32 lg:py-40">
+    <section id="tarif" className="relative overflow-hidden bg-white py-16 sm:py-24 lg:py-28">
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute left-1/2 top-1/2 h-[800px] w-[800px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--primary)]/[0.03] blur-[120px]" />
       </div>
@@ -111,7 +111,7 @@ export function PricingCard() {
           </Reveal>
         </div>
 
-        <div className="mt-20 grid gap-8 lg:grid-cols-2 lg:items-center max-w-5xl mx-auto">
+        <div className="mt-14 grid gap-8 lg:grid-cols-2 lg:items-center max-w-5xl mx-auto">
           {plans.slice(0, 2).map((plan, idx) => (
             <PricingPlanCard
               key={plan.id}
@@ -122,7 +122,7 @@ export function PricingCard() {
           ))}
         </div>
 
-        <div className="mt-16 text-center">
+        <div className="mt-12 text-center">
           <div className="inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--background)] px-4 py-2 text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-widest">
             <Lock className="h-3.5 w-3.5" />
             Paiement 100% Sécurisé

@@ -47,7 +47,7 @@ const PERSONAS: Persona[] = [
 
 export function Personas() {
   return (
-    <section className="bg-[var(--background)] py-16 sm:py-24 lg:py-32">
+    <section className="bg-[var(--background)] py-12 sm:py-16 lg:py-24">
       <div className="mx-auto max-w-6xl px-6">
         <div className="mx-auto max-w-3xl text-center">
           <Reveal>
@@ -63,7 +63,7 @@ export function Personas() {
           </Reveal>
         </div>
 
-        <div className="mt-16 grid gap-6 md:grid-cols-3">
+        <div className="mt-12 grid gap-6 md:grid-cols-3">
           {PERSONAS.map((p, i) => (
             <Reveal key={p.title} delay={i * 0.08}>
               <div className="flex h-full flex-col rounded-2xl border border-[var(--border)] bg-white p-7 transition-all duration-300 hover:-translate-y-0.5 hover:border-[var(--foreground)]/15 hover:shadow-xl hover:shadow-black/5">

@@ -73,7 +73,7 @@ const EASE = [0.22, 1, 0.36, 1] as const
 
 export function FeaturedMembers() {
   return (
-    <section className="bg-white py-16 sm:py-24 lg:py-32">
+    <section className="bg-white py-12 sm:py-16 lg:py-24">
       <div className="mx-auto max-w-6xl px-6">
         <div className="mx-auto max-w-3xl text-center">
           <Reveal>
@@ -90,7 +90,7 @@ export function FeaturedMembers() {
         </div>
 
         {/* Desktop / tablette : grille statique */}
-        <div className="mt-14 hidden grid-cols-2 gap-6 md:grid lg:grid-cols-3">
+        <div className="mt-10 hidden grid-cols-2 gap-6 md:grid lg:grid-cols-3">
           {MEMBERS.map((m, i) => (
             <motion.div
               key={m.name}

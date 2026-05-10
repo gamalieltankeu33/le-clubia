@@ -27,7 +27,7 @@ export function ToolsMarquee() {
   return (
     <section
       aria-label="Outils IA couverts par Le Club IA"
-      className="bg-white py-20 sm:py-24 lg:py-32 overflow-hidden"
+      className="bg-white py-14 sm:py-16 lg:py-24 overflow-hidden"
     >
       <div className="mx-auto max-w-7xl px-6">
         <div className="mx-auto max-w-3xl text-center">
@@ -45,7 +45,7 @@ export function ToolsMarquee() {
         </div>
 
         <div
-          className="relative mt-16 overflow-hidden sm:mt-24"
+          className="relative mt-12 overflow-hidden sm:mt-16"
           style={{
             maskImage:
               'linear-gradient(to right, transparent, black 15%, black 85%, transparent)',

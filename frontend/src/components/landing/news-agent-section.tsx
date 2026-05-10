@@ -12,7 +12,7 @@ const STATS = [
 
 export function NewsAgentSection() {
   return (
-    <section className="relative overflow-hidden bg-white py-24 sm:py-32 lg:py-40">
+    <section className="relative overflow-hidden bg-white py-16 sm:py-24 lg:py-28">
       {/* Dynamic Background */}
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute right-0 top-1/2 h-[600px] w-[600px] -translate-y-1/2 rounded-full bg-emerald-50/40 blur-[120px]" />

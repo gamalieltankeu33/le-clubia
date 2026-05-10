@@ -1,7 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { LandingHeader } from '@/components/landing/landing-header'
 import { Hero } from '@/components/landing/hero'
-import { NextEventBanner } from '@/components/landing/next-event-banner'
 import { ToolsMarquee } from '@/components/landing/tools-marquee'
 import { FourPillars } from '@/components/landing/four-pillars'
 import { CoachSection } from '@/components/landing/coach-section'
@@ -27,7 +26,6 @@ function LandingPage() {
         <LandingHeader />
         <main>
           <Hero />
-          <NextEventBanner />
           <ToolsMarquee />
           <FourPillars />
           <CoachSection />
