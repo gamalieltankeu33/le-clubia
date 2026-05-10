@@ -133,8 +133,8 @@ export function PostCard({
       data-card-surface="true"
     ><div className="p-5">
       {post.is_pinned && (
-        <div className="mb-4 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[var(--accent)]">
-          <Pin className="h-3.5 w-3.5 fill-[var(--accent)]/10" />
+        <div className="mb-4 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[var(--emerald-deep)]">
+          <Pin className="h-3.5 w-3.5 fill-[var(--emerald)]/15" />
           Épinglé par Le Club
         </div>
       )}

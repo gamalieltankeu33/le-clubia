@@ -1,7 +1,8 @@
 import { Link } from '@tanstack/react-router'
 import { ArrowRight, Check } from 'lucide-react'
 import { Reveal } from './reveal'
-import { Eyebrow } from './eyebrow'
+import { CardElite } from '@/components/shared/card-elite'
+import { CirclePulse } from '@/components/shared/circle-pulse'
 
 const REASSURANCE = [
   'Sans réabonnement auto',
@@ -12,53 +13,65 @@ const REASSURANCE = [
 export function FinalCTA() {
   return (
     <section className="relative overflow-hidden bg-[var(--background)] py-14 sm:py-20 lg:py-24">
-      {/* Halo bleu très subtil — la signature izi.club lumineuse, pas envahissante */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0"
-      >
-        <div className="absolute left-1/2 top-1/2 h-[600px] w-[800px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--primary)]/[0.07] blur-[120px]" />
-        <div className="absolute right-1/4 bottom-0 h-[400px] w-[400px] rounded-full bg-[var(--accent)]/[0.05] blur-[120px]" />
-      </div>
-
-      <div className="relative mx-auto max-w-3xl px-6 text-center">
+      <div className="relative mx-auto max-w-4xl px-4 sm:px-6">
         <Reveal>
-          <Eyebrow>Dernière étape</Eyebrow>
+          {/* Surface bleu Bloomberg + cercles émeraude vivants — l'or
+              n'apparaît pas ici (rare et précieux, gardé pour le numéro
+              de membre et le top 3 classement). */}
+          <CardElite
+            variant="gradient"
+            className="px-6 py-14 text-center sm:px-12 sm:py-20 lg:py-24"
+          >
+            <CirclePulse
+              color="var(--emerald)"
+              size={420}
+              duration={3.4}
+              count={3}
+            />
 
-          <h2 className="mt-6 font-display text-5xl font-bold leading-[1] tracking-tight text-[var(--foreground)] sm:text-6xl lg:text-7xl">
-            Prêt à{' '}
-            <span className="serif-accent">passer le cap&nbsp;?</span>
-          </h2>
-
-          <p className="mx-auto mt-6 max-w-xl text-lg text-[var(--muted-foreground)] sm:text-xl">
-            Rejoins une communauté qui t'aide à avancer chaque jour.
-            <br className="hidden sm:block" />
-            Pas demain. Aujourd'hui.
-          </p>
-
-          <div className="mt-12 flex flex-col items-stretch gap-5 sm:items-center">
-            <Link
-              to="/auth"
-              className="cta-black cta-black-xl w-full sm:w-auto"
-            >
-              <span className="sm:hidden">
-                Rejoindre — 79&nbsp;000&nbsp;FCFA/an
+            <div className="relative z-10">
+              <span className="text-[11px] font-medium uppercase tracking-[0.22em] text-[var(--emerald)]">
+                Dernière étape
               </span>
-              <span className="hidden sm:inline">
-                Rejoindre Le Club — 79&nbsp;000&nbsp;FCFA/an
-              </span>
-              <ArrowRight className="h-4 w-4" />
-            </Link>
 
-            <ul className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-[var(--muted-foreground)]">
-              {REASSURANCE.map((r) => (
-                <li key={r} className="inline-flex items-center gap-1.5">
-                  <Check className="h-3 w-3 text-[var(--primary)]" />
-                  {r}
-                </li>
-              ))}
-            </ul>
-          </div>
+              <h2 className="mt-6 font-display text-4xl font-bold leading-[1.05] tracking-tight text-[#FAFAF9] sm:text-5xl lg:text-6xl">
+                Prêt à{' '}
+                <span className="font-serif-signature italic text-[var(--emerald)]">
+                  passer le cap&nbsp;?
+                </span>
+              </h2>
+
+              <p className="mx-auto mt-6 max-w-xl text-base text-white/75 sm:text-lg">
+                Rejoins une communauté qui t'aide à avancer chaque jour.
+                <br className="hidden sm:block" />
+                Pas demain. Aujourd'hui.
+              </p>
+
+              <div className="mt-10 flex flex-col items-stretch gap-5 sm:items-center">
+                <Link
+                  to="/auth"
+                  className="cta-emerald cta-emerald-xl w-full sm:w-auto"
+                >
+                  <span className="sm:hidden">
+                    Rejoindre — 79&nbsp;000&nbsp;FCFA/an
+                  </span>
+                  <span className="hidden sm:inline">
+                    Rejoindre Le Club — 79&nbsp;000&nbsp;FCFA/an
+                  </span>
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+
+                <ul className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-white/60">
+                  {REASSURANCE.map((r) => (
+                    <li key={r} className="inline-flex items-center gap-1.5">
+                      <Check className="h-3 w-3 text-[var(--emerald)]" />
+                      {r}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </CardElite>
         </Reveal>
       </div>
     </section>

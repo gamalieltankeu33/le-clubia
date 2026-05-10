@@ -86,10 +86,16 @@ export function WelcomeBlock({ userId }: WelcomeBlockProps) {
       aria-label="Accueil personnalisé du jour"
     >
       <CardElite variant="gradient" className="px-6 py-8 sm:px-10 sm:py-12">
-        <CirclePulse size={360} duration={3.2} count={3} />
+        {/* Cercles émeraude : signal "IA vivante" */}
+        <CirclePulse
+          color="var(--emerald)"
+          size={360}
+          duration={3.2}
+          count={3}
+        />
 
         <div className="relative z-10">
-          <p className="font-serif-signature text-lg italic text-[var(--or)] sm:text-xl">
+          <p className="font-serif-signature text-lg italic text-[var(--emerald)] sm:text-xl">
             {greeting.serifLead}
           </p>
 
@@ -99,7 +105,7 @@ export function WelcomeBlock({ userId }: WelcomeBlockProps) {
           >
             {greetingText.slice(0, typedLength)}
             {typedLength < greetingText.length && (
-              <span className="ml-0.5 inline-block h-7 w-0.5 animate-pulse bg-[var(--or)] align-text-bottom sm:h-9" />
+              <span className="ml-0.5 inline-block h-7 w-0.5 animate-pulse bg-[var(--emerald)] align-text-bottom sm:h-9" />
             )}
           </h2>
 
@@ -140,7 +146,7 @@ function StatPill({ stat, delay }: { stat: Stat; delay: number }) {
         'inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-sm ring-1 ring-white/15 sm:text-sm',
       )}
     >
-      <stat.icon className="h-3.5 w-3.5 text-[var(--or)]" />
+      <stat.icon className="h-3.5 w-3.5 text-[var(--emerald)]" />
       {stat.label}
     </motion.li>
   )

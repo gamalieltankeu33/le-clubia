@@ -89,7 +89,7 @@ export function LevelUpModal({ level, isOpen, onClose }: LevelUpModalProps) {
                 transition={{ delay: 0.4 }}
                 className="mt-8"
               >
-                <div className="inline-flex items-center gap-1.5 rounded-full bg-[var(--accent)]/15 px-3 py-1 text-xs font-bold uppercase tracking-widest text-[var(--accent)]">
+                <div className="inline-flex items-center gap-1.5 rounded-full bg-[var(--emerald)]/15 px-3 py-1 text-xs font-bold uppercase tracking-widest text-[var(--emerald-deep)] ring-1 ring-[var(--emerald)]/25">
                   <Sparkles className="h-3 w-3" />
                   Nouveau Palier Atteint
                 </div>

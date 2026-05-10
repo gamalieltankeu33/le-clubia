@@ -491,7 +491,7 @@ function LeaderboardRowItem({
         <div className="flex flex-wrap items-center gap-2">
           <p className="font-medium">{fullName}</p>
           {isWinner && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-[var(--accent)]/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--accent)]">
+            <span className="inline-flex items-center gap-1 rounded-full bg-[var(--or)]/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--or-deep)] ring-1 ring-[var(--or)]/30">
               <Crown className="h-3 w-3" />
               Gagnant
             </span>

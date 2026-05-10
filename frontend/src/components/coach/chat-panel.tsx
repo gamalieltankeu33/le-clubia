@@ -290,7 +290,7 @@ function ComposerBar() {
         className={cn(
           'mt-2 text-center text-xs',
           quotaReached
-            ? 'text-[var(--accent)]'
+            ? 'text-[var(--destructive)]'
             : 'text-[var(--muted-foreground)]',
         )}
       >

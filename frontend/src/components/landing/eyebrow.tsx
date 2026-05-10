@@ -17,7 +17,11 @@ export function Eyebrow({
     <span
       className={cn(
         'eyebrow',
-        variant === 'accent' && 'text-[var(--accent)]',
+        // Sur fond clair, l'émeraude vive (--accent) tombe sous le seuil
+        // de lisibilité pour du texte uppercase petit. On utilise sa
+        // déclinaison plus profonde (--emerald-deep) pour la variante
+        // accent — gardé "accent" pour ne pas casser les call sites.
+        variant === 'accent' && 'text-[var(--emerald-deep)]',
         variant === 'primary' && 'text-[var(--primary)]',
         className,
       )}

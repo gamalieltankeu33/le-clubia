@@ -413,8 +413,8 @@ function AdminInsightsPage() {
                           {p.preview || '(post sans texte)'}
                         </p>
                       </div>
-                      <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[var(--accent)]/10 px-2 py-0.5 text-xs font-semibold text-[var(--accent)] tabular-nums">
-                        <Heart className="h-3 w-3 fill-[var(--accent)]" />
+                      <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[var(--emerald)]/12 px-2 py-0.5 text-xs font-semibold text-[var(--emerald-deep)] tabular-nums">
+                        <Heart className="h-3 w-3 fill-[var(--emerald)]" />
                         {p.likes}
                       </span>
                     </li>

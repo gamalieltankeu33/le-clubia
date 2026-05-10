@@ -5,35 +5,45 @@ interface CardEliteProps {
   children: ReactNode
   className?: string
   /**
-   * - `noir` : fond noir pur, texte blanc cassé. Pour le profil, les
-   *   moments de prestige sobres.
-   * - `or` : gradient or sur or-deep, texte noir. À RÉSERVER aux
-   *   moments rarissimes (achievement unlocked, palier).
-   * - `gradient` : gradient noir → noir-warm → noir, texture cuir.
-   *   Le défaut pour le welcome card et les blocs élite récurrents.
+   * Variante visuelle de la surface "élite" du Club.
+   *
+   * - `bleu` (défaut) : fond bleu Bloomberg profond, texte blanc cassé.
+   *   La surface premium par défaut — vivante mais noble. À privilégier
+   *   pour le welcome dashboard, le header profil, les CTAs landing.
+   * - `gradient` : gradient bleu Bloomberg → noir warm → bleu. Variante
+   *   plus cinématographique, sensation de profondeur. À utiliser quand
+   *   on veut accentuer le moment (achievement, palier).
+   * - `noir` : fond noir pur (legacy). Réservé aux modals très rares où
+   *   on veut maximiser le contraste — déprécié au profit de `bleu`.
+   * - `or` : gradient or → or-deep, texte noir. À RÉSERVER aux moments
+   *   rarissimes (achievement unlocked, palier atteint).
    */
-  variant?: 'noir' | 'or' | 'gradient'
+  variant?: 'bleu' | 'gradient' | 'noir' | 'or'
 }
 
 /**
- * Surface "élite" du Club. Coin arrondi 3xl, padding généreux, grain
- * texture en overlay (~4% opacity) pour la matière. À utiliser avec
- * parcimonie — pour les moments forts uniquement.
+ * Surface "élite" du Club. Coin arrondi 3xl, grain texture en overlay
+ * (~4 % opacity) pour la matière. À utiliser avec parcimonie — pour les
+ * moments forts uniquement.
+ *
+ * Le défaut est `bleu` (bleu Bloomberg) depuis la refonte palette :
+ * remplace le `noir` historique, jugé trop austère.
  */
 export function CardElite({
   children,
   className,
-  variant = 'gradient',
+  variant = 'bleu',
 }: CardEliteProps) {
   return (
     <div
       className={cn(
         'grain-overlay relative overflow-hidden rounded-3xl',
+        variant === 'bleu' && 'bg-[var(--primary)] text-[#FAFAF9]',
+        variant === 'gradient' &&
+          'bg-gradient-to-br from-[var(--primary)] via-[#0A1530] to-[var(--primary)] text-[#FAFAF9]',
         variant === 'noir' && 'bg-[var(--noir)] text-[#FAFAF9]',
         variant === 'or' &&
           'bg-gradient-to-br from-[var(--or-soft)] via-[var(--or)] to-[var(--or-deep)] text-[var(--noir)]',
-        variant === 'gradient' &&
-          'bg-gradient-to-br from-[var(--noir)] via-[var(--noir-warm)] to-[var(--noir)] text-[#FAFAF9]',
         className,
       )}
     >

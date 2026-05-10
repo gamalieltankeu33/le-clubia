@@ -451,7 +451,7 @@ function AdminDashboardPage() {
                     {m.comments_count > 1 ? 's' : ''}
                   </p>
                 </div>
-                <span className="text-xs font-semibold text-[var(--accent)]">
+                <span className="text-xs font-semibold text-[var(--emerald-deep)]">
                   {m.total_activity}
                 </span>
               </li>

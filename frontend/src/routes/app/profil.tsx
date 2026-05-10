@@ -159,8 +159,15 @@ function ProfilPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
       >
-        <CardElite variant="gradient" className="px-6 py-10 sm:px-10 sm:py-14">
-          <CirclePulse size={320} duration={3.6} count={3} />
+        <CardElite variant="bleu" className="px-6 py-10 sm:px-10 sm:py-14">
+          {/* Cercles émeraude vivants en background, l'or reste sur le
+              numéro de membre (moment unique de fierté). */}
+          <CirclePulse
+            color="var(--emerald)"
+            size={320}
+            duration={3.6}
+            count={3}
+          />
           <div className="relative z-10 flex flex-col items-start gap-6 sm:flex-row sm:items-center">
             <div className="shrink-0 rounded-full p-[2px] ring-2 ring-[var(--or)]/60">
               <AvatarDisplay
@@ -173,7 +180,7 @@ function ProfilPage() {
               />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="font-serif-signature text-base italic text-[var(--or)] sm:text-lg">
+              <p className="font-serif-signature text-base italic text-[var(--emerald)] sm:text-lg">
                 Mon profil
               </p>
               <h1 className="mt-2 font-display text-3xl font-bold leading-[1.05] tracking-tight text-[#FAFAF9] sm:text-4xl md:text-5xl">
@@ -209,7 +216,11 @@ function ProfilPage() {
         transition={{ duration: 0.4, delay: 0.15, ease: 'easeOut' }}
         className="mt-6 grid grid-cols-3 gap-3 sm:gap-5"
       >
-        <StatTile label="Points" value={points.toLocaleString('fr-FR')} />
+        <StatTile
+          label="Points"
+          value={points.toLocaleString('fr-FR')}
+          tone="emerald"
+        />
         <StatTile
           label="Centres d'intérêt"
           value={interestsCount.toString()}
@@ -532,7 +543,7 @@ function SubscriptionCard() {
           )}
         </div>
         {isLegacy && (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--accent)]/15 px-3 py-1 text-xs font-medium text-[var(--accent)]">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--or)]/15 px-3 py-1 text-xs font-medium text-[var(--or-deep)] ring-1 ring-[var(--or)]/30">
             🏆 Early Adopter — Tarif historique conservé
           </span>
         )}
@@ -582,18 +593,25 @@ function StatTile({
   label,
   value,
   serifSmall,
+  tone = 'neutral',
 }: {
   label: string
   value: string
   /** Variante avec une police plus petite (pour les libellés non-numériques). */
   serifSmall?: boolean
+  /** `emerald` : chiffre en émeraude vivant (pour les valeurs qui croissent
+   *  — points, niveaux). `neutral` : noir sobre (défaut, pour le reste). */
+  tone?: 'neutral' | 'emerald'
 }) {
   return (
     <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-4 sm:p-5">
       <p
         className={cn(
-          'font-serif-number text-[var(--foreground)]',
+          'font-serif-number',
           serifSmall ? 'text-2xl sm:text-3xl' : 'text-3xl sm:text-4xl',
+          tone === 'emerald'
+            ? 'text-[var(--emerald-deep)]'
+            : 'text-[var(--foreground)]',
         )}
       >
         {value}

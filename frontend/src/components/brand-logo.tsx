@@ -7,9 +7,11 @@ export type BrandLogoVariant = 'primary' | 'inverse'
 interface BrandLogoProps {
   size?: BrandLogoSize
   /**
-   * - `primary` : capsule noire + texte blanc cassé + point or (par défaut).
-   * - `inverse` : capsule blanche + bordure noire + texte noir + point or.
-   *   À utiliser sur fond très foncé où la capsule noire serait invisible.
+   * - `primary` : capsule bleu Bloomberg + texte blanc cassé + point
+   *   émeraude (par défaut).
+   * - `inverse` : capsule blanche + bordure bleue + texte bleu + point
+   *   émeraude. À utiliser sur fond très foncé/coloré où la capsule
+   *   bleue serait peu lisible.
    */
   variant?: BrandLogoVariant
   className?: string
@@ -17,7 +19,7 @@ interface BrandLogoProps {
   asLink?: boolean
   /**
    * Si true, affiche l'eyebrow signature "L'INTÉRIEUR DU CERCLE" sous le
-   * logo (uppercase, tracking large, très petit). Réservé au header
+   * logo (uppercase, tracking large, très petit). Réservé au footer
    * landing pour poser l'identité — pas dans la sidebar app. Défaut: false.
    */
   showSignature?: boolean
@@ -31,9 +33,9 @@ const SIZE_STYLE: Record<BrandLogoSize, { width: number; height: number }> = {
   xl: { width: 240, height: 86 },
 }
 
-const NOIR = '#0A0A0A'
+const BLEU = '#0F1E4D'
 const BLANC = '#FAFAF9'
-const OR = '#D4AF37'
+const EMERAUDE = '#00D9A3'
 
 export function BrandLogo({
   size = 'md',
@@ -43,9 +45,9 @@ export function BrandLogo({
   showSignature = false,
 }: BrandLogoProps) {
   const isInverse = variant === 'inverse'
-  const fillBg = isInverse ? BLANC : NOIR
-  const textColor = isInverse ? NOIR : BLANC
-  const strokeColor = isInverse ? NOIR : 'none'
+  const fillBg = isInverse ? BLANC : BLEU
+  const textColor = isInverse ? BLEU : BLANC
+  const strokeColor = isInverse ? BLEU : 'none'
   const dimensions = SIZE_STYLE[size]
 
   const svg = (
@@ -59,10 +61,10 @@ export function BrandLogo({
       className={cn('block', className)}
     >
       <defs>
-        {/* Halo doré subtil derrière le point — donne la "matière" or */}
-        <radialGradient id="goldHalo" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor={OR} stopOpacity="0.55" />
-          <stop offset="100%" stopColor={OR} stopOpacity="0" />
+        {/* Halo émeraude vivant derrière le point — signature "IA 2026" */}
+        <radialGradient id="emeraldHalo" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor={EMERAUDE} stopOpacity="0.55" />
+          <stop offset="100%" stopColor={EMERAUDE} stopOpacity="0" />
         </radialGradient>
       </defs>
 
@@ -78,7 +80,7 @@ export function BrandLogo({
         strokeWidth={isInverse ? 2.5 : 0}
       />
 
-      {/* "leclub.ia" — point or */}
+      {/* "leclub.ia" — point émeraude vivant (signature IA) */}
       <text
         x="100"
         y="48"
@@ -90,8 +92,9 @@ export function BrandLogo({
         letterSpacing="-0.02em"
       >
         leclub
-        {/* Le point or, légèrement plus gros que la V1 (font-size 36 vs 32). */}
-        <tspan fill={OR} fontWeight={800} fontSize={36}>
+        {/* Le point émeraude — plus gros et plus vif. La couleur évoque
+            l'énergie de l'IA contemporaine (OpenAI/Anthropic/Perplexity). */}
+        <tspan fill={EMERAUDE} fontWeight={800} fontSize={36}>
           .
         </tspan>
         ia

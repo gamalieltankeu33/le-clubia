@@ -32,7 +32,7 @@ export function BlocPlaceholder({
         </p>
 
         <div className="mt-10 rounded-2xl border border-dashed border-[var(--border)] bg-[var(--card)] p-12 text-center">
-          <p className="text-xs font-semibold uppercase tracking-wider text-[var(--accent)]">
+          <p className="text-xs font-semibold uppercase tracking-wider text-[var(--emerald-deep)]">
             {comingSoon}
           </p>
           <p className="mt-3 text-[var(--muted-foreground)]">
