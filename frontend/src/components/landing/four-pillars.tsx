@@ -58,7 +58,7 @@ const PILLARS: Pillar[] = [
 
 export function FourPillars() {
   return (
-    <section id="piliers" className="relative bg-white py-16 sm:py-24 lg:py-28">
+    <section id="piliers" className="relative overflow-hidden bg-white py-16 sm:py-24 lg:py-28">
       {/* Background depth halo */}
       <div className="pointer-events-none absolute left-0 top-1/2 h-[500px] w-[500px] -translate-y-1/2 rounded-full bg-[var(--primary)]/[0.03] blur-[100px]" />
 

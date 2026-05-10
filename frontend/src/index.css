@@ -77,16 +77,23 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+    max-width: 100%;
   }
   body {
     background-color: var(--background);
     color: var(--foreground);
     min-height: 100vh;
     margin: 0;
-    /* Garde-fou contre les débordements horizontaux sur mobile (halos,
-       carrousels, etc.). Aucun composant ne devrait dépendre du scroll
-       horizontal global. */
     overflow-x: hidden;
+    max-width: 100%;
+    width: 100%;
+    position: relative;
+  }
+  #root {
+    overflow-x: hidden;
+    max-width: 100%;
+    width: 100%;
   }
   h1, h2, h3, h4 {
     font-family: var(--font-display);
@@ -94,15 +101,18 @@
     color: var(--foreground);
     line-height: 1.1;
   }
+  p, li, span, h1, h2, h3, h4, h5, h6, a {
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+  }
+  img, video, iframe {
+    max-width: 100%;
+  }
 
-  /* Cinematic Noise Overlay */
   body::before {
     content: "";
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
+    inset: 0;
     opacity: 0.03;
     pointer-events: none;
     z-index: 9999;
