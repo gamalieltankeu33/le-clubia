@@ -61,7 +61,7 @@ export function FloatingActionButton() {
               action.onClick()
             }}
             aria-label={action.ariaLabel}
-            className="fixed right-5 z-[41] flex h-14 w-14 items-center justify-center rounded-full bg-[var(--accent)] text-white shadow-xl shadow-[var(--accent)]/30 ring-0 transition-shadow active:ring-4 active:ring-[var(--accent)]/20 lg:hidden touch-manipulation"
+            className="fixed right-5 z-[41] flex h-14 w-14 items-center justify-center rounded-full bg-[var(--or)] text-[var(--noir)] shadow-xl shadow-[var(--or-deep)]/40 ring-0 transition-shadow active:ring-4 active:ring-[var(--or)]/30 lg:hidden touch-manipulation"
             style={{
               bottom: 'calc(env(safe-area-inset-bottom, 0px) + 80px)',
             }}

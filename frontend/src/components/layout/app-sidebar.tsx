@@ -84,7 +84,7 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
           <BrandLogo size="sm" variant="primary" asLink={false} />
         </Link>
         {isAdmin && (
-          <span className="ml-auto rounded-full bg-[var(--accent)]/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[var(--accent)] border border-[var(--accent)]/20">
+          <span className="ml-auto rounded-full bg-[var(--noir)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[var(--or)] ring-1 ring-[var(--or)]/40">
             Admin
           </span>
         )}
@@ -129,7 +129,7 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
         {/* Section Admin (visible uniquement si admin) */}
         {isAdmin && (
           <>
-            <p className="mt-8 px-3 pb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--accent)] opacity-60">
+            <p className="mt-8 px-3 pb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--or-deep)] opacity-80">
               Administration
             </p>
             <ul className="space-y-1.5">
@@ -145,16 +145,16 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
                       className={cn(
                         'group relative flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-300',
                         active
-                          ? 'bg-[var(--accent)] text-white shadow-lg shadow-[var(--accent)]/20'
-                          : 'text-[var(--foreground)] hover:bg-[var(--accent)]/5 hover:text-[var(--accent)]',
+                          ? 'bg-[var(--or)] text-[var(--noir)] shadow-lg shadow-[var(--or-deep)]/30'
+                          : 'text-[var(--foreground)] hover:bg-[var(--or)]/10 hover:text-[var(--or-deep)]',
                       )}
                     >
                       <item.icon
                         className={cn(
                           'h-[18px] w-[18px] shrink-0 transition-colors',
                           active
-                            ? 'text-white'
-                            : 'text-[var(--muted-foreground)] group-hover:text-[var(--accent)]',
+                            ? 'text-[var(--noir)]'
+                            : 'text-[var(--muted-foreground)] group-hover:text-[var(--or-deep)]',
                         )}
                       />
                       {item.label}

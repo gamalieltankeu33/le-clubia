@@ -17,6 +17,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { AvatarDisplay } from '@/components/avatar-display'
+import { CardElite } from '@/components/shared/card-elite'
+import { CirclePulse } from '@/components/shared/circle-pulse'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/auth-store'
 import { useCoachStore } from '@/stores/coach-store'
@@ -24,6 +26,7 @@ import { INTERESTS } from '@/lib/interests'
 import { compressImage } from '@/lib/compress-image'
 import { cn } from '@/lib/utils'
 import { useConfirm } from '@/hooks/use-confirm'
+import { formatMemberNumber } from '@/lib/format-member-number'
 
 export const Route = createFileRoute('/app/profil')({
   component: ProfilPage,
@@ -139,24 +142,87 @@ function ProfilPage() {
     setSaving(false)
   }
 
+  const memberLabel = formatMemberNumber(profile?.member_number)
+  const points = profile?.points ?? 0
+  const joinedAt = profile?.created_at ?? null
+  const interestsCount = profile?.interests?.length ?? 0
+  const displayName = [profile?.first_name, profile?.last_name]
+    .filter(Boolean)
+    .join(' ')
+    .trim() || (user?.email?.split('@')[0] ?? 'Membre')
+
   return (
     <div className="mx-auto max-w-3xl px-6 py-10 lg:py-14">
+      {/* Header élite : surface noire, numéro de membre or, signature */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <CardElite variant="gradient" className="px-6 py-10 sm:px-10 sm:py-14">
+          <CirclePulse size={320} duration={3.6} count={3} />
+          <div className="relative z-10 flex flex-col items-start gap-6 sm:flex-row sm:items-center">
+            <div className="shrink-0 rounded-full p-[2px] ring-2 ring-[var(--or)]/60">
+              <AvatarDisplay
+                avatarUrl={profile?.avatar_url}
+                firstName={profile?.first_name}
+                lastName={profile?.last_name}
+                email={user?.email}
+                size="xl"
+                isVerified={profile?.is_verified ?? false}
+              />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="font-serif-signature text-base italic text-[var(--or)] sm:text-lg">
+                Mon profil
+              </p>
+              <h1 className="mt-2 font-display text-3xl font-bold leading-[1.05] tracking-tight text-[#FAFAF9] sm:text-4xl md:text-5xl">
+                {displayName}
+              </h1>
+              {memberLabel ? (
+                <p className="mt-4 text-sm text-white/60">
+                  Membre{' '}
+                  <span className="font-serif-number text-3xl text-[var(--or)] sm:text-4xl">
+                    {memberLabel}
+                  </span>{' '}
+                  du Club
+                </p>
+              ) : (
+                <p className="mt-4 text-sm italic text-white/50">
+                  Numéro de membre en cours d'attribution…
+                </p>
+              )}
+              {joinedAt && (
+                <p className="mt-2 font-serif-signature text-sm italic text-white/55">
+                  Rejoint en {formatJoinedDate(joinedAt)}
+                </p>
+              )}
+            </div>
+          </div>
+        </CardElite>
+      </motion.div>
+
+      {/* Stats en serif — vitrine du membre */}
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, ease: 'easeOut' }}
+        transition={{ duration: 0.4, delay: 0.15, ease: 'easeOut' }}
+        className="mt-6 grid grid-cols-3 gap-3 sm:gap-5"
       >
-        <h1 className="font-display text-3xl font-semibold tracking-tight md:text-4xl">
-          Mon profil
-        </h1>
-        <p className="mt-2 text-[var(--muted-foreground)]">
-          Tes infos publiques apparaîtront sur tes posts et ton profil
-          communautaire.
-        </p>
+        <StatTile label="Points" value={points.toLocaleString('fr-FR')} />
+        <StatTile
+          label="Centres d'intérêt"
+          value={interestsCount.toString()}
+        />
+        <StatTile
+          label="Statut"
+          value={isMember ? 'Actif' : '—'}
+          serifSmall
+        />
       </motion.div>
 
       {/* Carte profil */}
-      <form onSubmit={handleSave} className="mt-10 space-y-10">
+      <form onSubmit={handleSave} className="mt-12 space-y-10">
         <Section title="Informations personnelles">
           <AvatarUploader />
 
@@ -510,6 +576,44 @@ function SubscriptionCard() {
       </p>
     </div>
   )
+}
+
+function StatTile({
+  label,
+  value,
+  serifSmall,
+}: {
+  label: string
+  value: string
+  /** Variante avec une police plus petite (pour les libellés non-numériques). */
+  serifSmall?: boolean
+}) {
+  return (
+    <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-4 sm:p-5">
+      <p
+        className={cn(
+          'font-serif-number text-[var(--foreground)]',
+          serifSmall ? 'text-2xl sm:text-3xl' : 'text-3xl sm:text-4xl',
+        )}
+      >
+        {value}
+      </p>
+      <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--muted-foreground)] sm:text-xs">
+        {label}
+      </p>
+    </div>
+  )
+}
+
+function formatJoinedDate(iso: string): string {
+  try {
+    return new Date(iso).toLocaleDateString('fr-FR', {
+      month: 'long',
+      year: 'numeric',
+    })
+  } catch {
+    return ''
+  }
 }
 
 function Section({

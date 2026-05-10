@@ -4,6 +4,9 @@ import { Bell, MessagesSquare, type LucideIcon } from 'lucide-react'
 import { useNotificationsStore } from '@/stores/notifications-store'
 import { useAuthStore } from '@/stores/auth-store'
 import { cn } from '@/lib/utils'
+import { CardElite } from '@/components/shared/card-elite'
+import { CirclePulse } from '@/components/shared/circle-pulse'
+import { formatMemberNumber } from '@/lib/format-member-number'
 
 interface WelcomeBlockProps {
   /** id du membre courant — sert de clé localStorage. */
@@ -11,9 +14,14 @@ interface WelcomeBlockProps {
 }
 
 /**
- * Bloc d'accueil personnalisé — visible une fois par jour calendaire
- * (clé localStorage `last_visit_<userId>`). Greeting selon l'heure,
- * effet typewriter sur le greeting, stats du jour en stagger.
+ * Bloc d'accueil élite — visible une fois par jour calendaire (clé
+ * localStorage `last_visit_<userId>`). Surface noire signature avec :
+ *  - greeting typewriter en serif italique (Instrument Serif)
+ *  - "Membre #047" en gros chiffres serif or
+ *  - CirclePulse en arrière-plan (signature visuelle Club)
+ *
+ * Le bloc n'est pas censé être visible plus d'une fois par jour : c'est
+ * un moment "premium" pour démarrer la journée, pas un pavé permanent.
  */
 export function WelcomeBlock({ userId }: WelcomeBlockProps) {
   const profile = useAuthStore((s) => s.profile)
@@ -50,6 +58,7 @@ export function WelcomeBlock({ userId }: WelcomeBlockProps) {
 
   const greeting = useMemo(() => buildGreeting(firstName), [firstName])
   const greetingText = greeting.text
+  const memberLabel = formatMemberNumber(profile?.member_number)
 
   // Typewriter sur le greeting (1× au mount).
   const [typedLength, setTypedLength] = useState(0)
@@ -71,67 +80,89 @@ export function WelcomeBlock({ userId }: WelcomeBlockProps) {
 
   return (
     <motion.section
-      initial={{ opacity: 0, y: 8 }}
+      initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
       aria-label="Accueil personnalisé du jour"
-      className="rounded-2xl bg-[var(--card)] p-5 ring-1 ring-[var(--border)] sm:p-6"
     >
-      <div className="flex items-start gap-3">
-        <span className="text-2xl sm:text-3xl" aria-hidden>
-          {greeting.emoji}
-        </span>
-        <div className="flex-1 min-w-0">
+      <CardElite variant="gradient" className="px-6 py-8 sm:px-10 sm:py-12">
+        <CirclePulse size={360} duration={3.2} count={3} />
+
+        <div className="relative z-10">
+          <p className="font-serif-signature text-lg italic text-[var(--or)] sm:text-xl">
+            {greeting.serifLead}
+          </p>
+
           <h2
-            className="font-display text-lg font-semibold tracking-tight text-[var(--foreground)] sm:text-xl"
+            className="mt-3 font-display text-3xl font-bold leading-[1.1] tracking-tight text-[#FAFAF9] sm:text-4xl md:text-5xl"
             aria-live="polite"
           >
             {greetingText.slice(0, typedLength)}
             {typedLength < greetingText.length && (
-              <span className="ml-0.5 inline-block h-5 w-0.5 animate-pulse bg-[var(--foreground)] align-text-bottom" />
+              <span className="ml-0.5 inline-block h-7 w-0.5 animate-pulse bg-[var(--or)] align-text-bottom sm:h-9" />
             )}
           </h2>
+
+          {memberLabel && (
+            <p className="mt-4 text-sm text-white/60">
+              Membre{' '}
+              <span className="font-serif-number text-2xl text-[var(--or)] sm:text-3xl">
+                {memberLabel}
+              </span>{' '}
+              du Club
+            </p>
+          )}
+
           {stats.length > 0 && (
-            <ul className="mt-3 flex flex-wrap gap-2">
+            <ul className="mt-6 flex flex-wrap gap-2">
               {stats.map((s, i) => (
-                <StatPill key={s.label} stat={s} delay={0.2 + i * 0.1} />
+                <StatPill key={s.label} stat={s} delay={0.4 + i * 0.1} />
               ))}
             </ul>
           )}
+
+          <p className="mt-6 font-serif-signature text-sm italic text-white/55 sm:text-base">
+            « Le savoir n'est puissance que partagé. »
+          </p>
         </div>
-      </div>
+      </CardElite>
     </motion.section>
   )
 }
 
-function StatPill({
-  stat,
-  delay,
-}: {
-  stat: Stat
-  delay: number
-}) {
+function StatPill({ stat, delay }: { stat: Stat; delay: number }) {
   return (
     <motion.li
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay, ease: 'easeOut' }}
       className={cn(
-        'inline-flex items-center gap-1.5 rounded-full bg-[var(--secondary)] px-3 py-1.5 text-xs font-medium text-[var(--foreground)] sm:text-sm',
+        'inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-sm ring-1 ring-white/15 sm:text-sm',
       )}
     >
-      <stat.icon className="h-3.5 w-3.5 text-[var(--muted-foreground)]" />
+      <stat.icon className="h-3.5 w-3.5 text-[var(--or)]" />
       {stat.label}
     </motion.li>
   )
 }
 
-function buildGreeting(firstName: string): { text: string; emoji: string } {
+function buildGreeting(firstName: string): {
+  text: string
+  emoji: string
+  serifLead: string
+} {
   const hour = new Date().getHours()
-  if (hour >= 4 && hour < 12) return { text: `Bonjour ${firstName}`, emoji: '👋' }
-  if (hour >= 12 && hour < 18) return { text: `Bon après-midi ${firstName}`, emoji: '☀️' }
-  if (hour >= 18 && hour < 23) return { text: `Bonsoir ${firstName}`, emoji: '🌙' }
-  return { text: `Bonne nuit ${firstName}`, emoji: '✨' }
+  if (hour >= 4 && hour < 12)
+    return { text: `Bonjour ${firstName}`, emoji: '☀️', serifLead: 'Bonne matinée,' }
+  if (hour >= 12 && hour < 18)
+    return {
+      text: `Bon après-midi ${firstName}`,
+      emoji: '☀️',
+      serifLead: 'Bon après-midi,',
+    }
+  if (hour >= 18 && hour < 23)
+    return { text: `Bonsoir ${firstName}`, emoji: '🌙', serifLead: 'Bonne soirée,' }
+  return { text: `Bonne nuit ${firstName}`, emoji: '✨', serifLead: 'Au cœur de la nuit,' }
 }
 
 interface Stat {
@@ -147,12 +178,9 @@ function buildStats({ unreadCount }: { unreadCount: number }): Stat[] {
       icon: Bell,
     })
   }
-  // Stats supplémentaires (membres / posts) : laissées pour évolution
-  // future quand une RPC dashboard_stats sera disponible. Pour l'instant
-  // on s'appuie uniquement sur l'unreadCount qui est déjà en cache.
   if (stats.length === 0) {
     stats.push({
-      label: 'Bonne journée dans Le Club IA',
+      label: 'Belle journée au Club',
       icon: MessagesSquare,
     })
   }

@@ -86,7 +86,7 @@ function BenefitCard({
           'flex h-14 w-14 items-center justify-center rounded-2xl transition-transform duration-500 group-hover:scale-110 shadow-lg',
           accent === 'primary'
             ? 'bg-[var(--primary)] text-white shadow-[var(--primary)]/20'
-            : 'bg-[var(--accent)] text-white shadow-[var(--accent)]/20',
+            : 'bg-[var(--accent)] text-[var(--accent-foreground)] shadow-[var(--accent)]/20',
         )}
       >
         <Icon className="h-6 w-6" />

@@ -72,6 +72,7 @@ export type Database = {
           desired_plan_id: string | null
           points: number
           guides_seen: string[]
+          member_number: number
           created_at: string
           updated_at: string
         }
@@ -93,6 +94,7 @@ export type Database = {
           desired_plan_id?: string | null
           points?: number
           guides_seen?: string[]
+          member_number?: number
           created_at?: string
           updated_at?: string
         }
@@ -114,6 +116,7 @@ export type Database = {
           desired_plan_id?: string | null
           points?: number
           guides_seen?: string[]
+          member_number?: number
           created_at?: string
           updated_at?: string
         }

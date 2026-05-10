@@ -20,6 +20,9 @@ export interface PublicProfile {
   role: UserRole
   created_at: string
   last_active_at: string | null
+  /** Numéro de membre — exposé par la RPC public_profiles_in (cf.
+   *  migration 0039). Null tant que la migration n'est pas appliquée. */
+  member_number?: number | null
 }
 
 export async function fetchPublicProfilesIn(

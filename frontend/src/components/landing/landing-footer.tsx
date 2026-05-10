@@ -9,7 +9,7 @@ export function LandingFooter() {
         <div className="grid gap-12 md:grid-cols-4 md:gap-8">
           {/* Brand */}
           <div className="md:col-span-1">
-            <BrandLogo size="md" variant="primary" />
+            <BrandLogo size="md" variant="primary" showSignature />
             <p className="mt-4 max-w-xs text-sm text-[var(--muted-foreground)]">
               La communauté francophone des passionnés d'IA. Formations,
               coach, actualités, ressources.

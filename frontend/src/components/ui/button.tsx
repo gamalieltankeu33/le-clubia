@@ -11,7 +11,7 @@ const buttonVariants = cva(
         default:
           'bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[#1c3a9e]',
         accent:
-          'bg-[var(--accent)] text-[var(--accent-foreground)] hover:bg-[#ea6a0a]',
+          'bg-[var(--accent)] text-[var(--accent-foreground)] hover:bg-[var(--or-deep)]',
         outline:
           'border border-[var(--border)] bg-[var(--card)] text-[var(--foreground)] hover:bg-[var(--secondary)]',
         ghost:

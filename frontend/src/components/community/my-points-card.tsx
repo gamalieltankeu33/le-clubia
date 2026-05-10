@@ -23,8 +23,8 @@ export function MyPointsCard() {
           </div>
 
           <div className="mt-2 flex items-baseline gap-2">
-            <p className="font-display text-3xl font-bold tracking-tight text-[var(--foreground)] tabular-nums">
-              {points.toLocaleString()}
+            <p className="font-serif-number text-4xl text-[var(--foreground)] sm:text-5xl">
+              {points.toLocaleString('fr-FR')}
             </p>
             <p className="text-sm font-medium text-[var(--muted-foreground)]">
               point{points > 1 ? 's' : ''}
