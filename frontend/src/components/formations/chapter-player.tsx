@@ -38,7 +38,7 @@ export function ChapterPlayer(props: PlayerProps) {
 
 function UnsupportedPlayer() {
   return (
-    <div className="flex aspect-video w-full items-center justify-center rounded-2xl border border-dashed border-[var(--border)] bg-[var(--card)] text-[var(--muted-foreground)]">
+    <div className="flex aspect-[16/9] w-full items-center justify-center rounded-2xl border border-dashed border-[var(--border)] bg-[var(--card)] text-[var(--muted-foreground)]">
       <div className="text-center">
         <PlayCircle className="mx-auto h-8 w-8" />
         <p className="mt-3 text-sm">Vidéo non disponible pour ce chapitre.</p>
@@ -83,12 +83,12 @@ function YouTubeChapterPlayer({
   if (!videoId) return <UnsupportedPlayer />
 
   return (
-    <div className="relative aspect-video w-full overflow-hidden rounded-2xl bg-black">
+    <div className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl bg-black">
       <YouTube
         key={chapter.id}
         videoId={videoId}
         className="absolute inset-0 h-full w-full"
-        iframeClassName="h-full w-full"
+        iframeClassName="absolute inset-0 block h-full w-full border-0"
         opts={{
           width: '100%',
           height: '100%',
@@ -137,7 +137,12 @@ function VimeoChapterPlayer({
     const player = new VimeoPlayer(containerRef.current, {
       id: Number(ids.id),
       ...(ids.hash ? { h: ids.hash } : {}),
-      responsive: true,
+      // responsive: false → on laisse notre wrapper aspect-[16/9] gouverner
+      // la taille. Avec `responsive: true`, Vimeo injecte son propre
+      // wrapper `padding-bottom: ratio%` qui se superpose à notre
+      // aspect-ratio CSS et coupe parfois le bas de l'image.
+      responsive: false,
+      width: 1280,
       autoplay: false,
       title: false,
       byline: false,
@@ -179,11 +184,11 @@ function VimeoChapterPlayer({
   }, [chapter.id])
 
   return (
-    <div className="relative aspect-video w-full overflow-hidden rounded-2xl bg-black">
+    <div className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl bg-black">
       <div
         key={chapter.id}
         ref={containerRef}
-        className="absolute inset-0 h-full w-full [&_iframe]:h-full [&_iframe]:w-full"
+        className="absolute inset-0 h-full w-full [&_iframe]:absolute [&_iframe]:inset-0 [&_iframe]:block [&_iframe]:h-full [&_iframe]:w-full [&_iframe]:border-0"
       />
     </div>
   )
