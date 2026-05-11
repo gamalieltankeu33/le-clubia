@@ -14,6 +14,7 @@ import {
   GraduationCap,
   Loader2,
   PlayCircle,
+  Star,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -152,39 +153,20 @@ function FormationDetailPage() {
   }, [progressQuery.data])
 
   const [activeChapterId, setActiveChapterId] = useState<string | null>(null)
-  
-  // Gestion des avis (modale)
-  const [reviewTarget, setReviewTarget] = useState<{
-    type: 'chapter' | 'formation'
-    chapterId?: string
-    chapterTitle?: string
-  } | null>(null)
 
-  // Garde anti-réouverture : si l'utilisateur ferme le modal (envoi OU
-  // "Passer pour l'instant"), on mémorise sa cible pour ne plus la
-  // redéclencher dans cette session. Le re-trigger ne peut venir que
-  // d'un nouveau chapitre complété.
-  const [dismissedReviewTargets, setDismissedReviewTargets] = useState<
-    Set<string>
-  >(new Set())
+  // Gestion de l'avis formation. Une seule modale, déclenchée uniquement
+  // quand la formation atteint 100 % ET que le membre n'a pas encore
+  // donné d'avis. Plus de modale par chapitre — jugée trop intrusive.
+  const [reviewModalOpen, setReviewModalOpen] = useState(false)
+  // Une seule auto-ouverture par session, même si l'utilisateur ferme et
+  // qu'il revient sur la page. Pour redonner son avis, il doit utiliser
+  // le bouton manuel "Donner mon avis".
+  const [autoTriggeredThisSession, setAutoTriggeredThisSession] =
+    useState(false)
 
   const closeReviewModal = useCallback(() => {
-    setReviewTarget((current) => {
-      if (current) {
-        const key =
-          current.type === 'chapter' && current.chapterId
-            ? `chapter:${current.chapterId}`
-            : `formation:${formation?.id ?? ''}`
-        setDismissedReviewTargets((prev) => {
-          if (prev.has(key)) return prev
-          const next = new Set(prev)
-          next.add(key)
-          return next
-        })
-      }
-      return null
-    })
-  }, [formation?.id])
+    setReviewModalOpen(false)
+  }, [])
 
   const reviewsQuery = useQuery({
     queryKey: ['formation-reviews', userId, formation?.id],
@@ -193,14 +175,7 @@ function FormationDetailPage() {
     staleTime: 60_000,
   })
 
-  const reviewedChapterIds = useMemo(() => {
-    const s = new Set<string>()
-    for (const r of reviewsQuery.data ?? []) {
-      if (r.chapter_id) s.add(r.chapter_id)
-    }
-    return s
-  }, [reviewsQuery.data])
-
+  // Le membre a-t-il déjà laissé un avis formation (chapter_id null) ?
   const hasFormationReview = useMemo(() => {
     return (reviewsQuery.data ?? []).some((r) => !r.chapter_id)
   }, [reviewsQuery.data])
@@ -318,50 +293,34 @@ function FormationDetailPage() {
     }
   }, [isFullyCompleted, formation?.id, celebratedFor])
 
-  // Fenêtre d'avis : trigger si un chapitre vient d'être complété ET pas encore d'avis
+  // Auto-déclenchement du modal d'avis — uniquement à 100 % formation,
+  // jamais à la fin d'un chapitre individuel. Garde-fous :
+  //  - reviewsQuery.isSuccess : on attend d'avoir la réponse serveur sur
+  //    l'éventuel avis existant avant de potentiellement ouvrir le modal
+  //    (sinon flash d'ouverture suivi de fermeture si un avis existe déjà).
+  //  - hasFormationReview : pas de réouverture si le membre a déjà donné
+  //    son avis (à la place on affiche la pill "Avis donné").
+  //  - autoTriggeredThisSession : 1× max par session, même si la session
+  //    re-navigue et revient sur la page. Pour redonner son avis, le
+  //    membre utilise le bouton manuel "Donner mon avis".
   useEffect(() => {
-    if (!activeChapter || !reviewsQuery.isSuccess || reviewTarget) return
+    if (!isFullyCompleted) return
+    if (!reviewsQuery.isSuccess) return
+    if (hasFormationReview) return
+    if (autoTriggeredThisSession) return
+    if (reviewModalOpen) return
 
-    // 1. Priorité : Avis du chapitre actuel
-    const chapterKey = `chapter:${activeChapter.id}`
-    if (
-      completedChapterIds.has(activeChapter.id) &&
-      !reviewedChapterIds.has(activeChapter.id) &&
-      !dismissedReviewTargets.has(chapterKey)
-    ) {
-      const timer = setTimeout(() => {
-        setReviewTarget({
-          type: 'chapter',
-          chapterId: activeChapter.id,
-          chapterTitle: activeChapter.title,
-        })
-      }, 1500)
-      return () => clearTimeout(timer)
-    }
-
-    // 2. Secondaire : Avis global si 100%
-    const formationKey = `formation:${formation?.id ?? ''}`
-    if (
-      isFullyCompleted &&
-      !hasFormationReview &&
-      !dismissedReviewTargets.has(formationKey)
-    ) {
-      const timer = setTimeout(() => {
-        setReviewTarget({ type: 'formation' })
-      }, 1500)
-      return () => clearTimeout(timer)
-    }
+    const timer = setTimeout(() => {
+      setReviewModalOpen(true)
+      setAutoTriggeredThisSession(true)
+    }, 1500)
+    return () => clearTimeout(timer)
   }, [
-    activeChapter?.id,
-    activeChapter,
-    completedChapterIds,
-    reviewedChapterIds,
     isFullyCompleted,
-    hasFormationReview,
     reviewsQuery.isSuccess,
-    reviewTarget,
-    dismissedReviewTargets,
-    formation?.id,
+    hasFormationReview,
+    autoTriggeredThisSession,
+    reviewModalOpen,
   ])
 
   // Sauve la position courante, puis change de chapitre.
@@ -548,6 +507,29 @@ function FormationDetailPage() {
               <ProgressBar value={overallPct} />
             </div>
           )}
+
+          {/* CTA avis — visible uniquement quand la formation est 100 %
+              terminée. Bouton si pas encore d'avis, pill "Avis donné"
+              sinon. Reste de l'écran inchangé. */}
+          {isFullyCompleted && (
+            <div className="mt-5 flex flex-wrap items-center gap-3">
+              {hasFormationReview ? (
+                <span className="inline-flex items-center gap-2 rounded-full bg-[var(--bleu-ciel)]/15 px-4 py-2 text-sm font-medium text-[var(--bleu-ciel-deep)] ring-1 ring-[var(--bleu-ciel)]/25">
+                  <CheckCircle2 className="h-4 w-4" />
+                  Avis donné
+                </span>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setReviewModalOpen(true)}
+                  className="inline-flex items-center gap-2 rounded-full bg-[var(--bleu-ciel)] px-5 py-2.5 text-sm font-semibold text-[var(--bleu-ciel-foreground)] shadow-sm transition-all hover:bg-[var(--bleu-ciel-soft)] active:scale-95"
+                >
+                  <Star className="h-4 w-4" />
+                  Donner mon avis
+                </button>
+              )}
+            </div>
+          )}
         </motion.div>
 
         {totalChapters === 0 ? (
@@ -656,12 +638,10 @@ function FormationDetailPage() {
 
       {formation && userId && (
         <FormationReviewModal
-          isOpen={!!reviewTarget}
+          isOpen={reviewModalOpen}
           onClose={closeReviewModal}
           formationId={formation.id}
           formationTitle={formation.title}
-          chapterId={reviewTarget?.chapterId}
-          chapterTitle={reviewTarget?.chapterTitle}
           userId={userId}
         />
       )}
