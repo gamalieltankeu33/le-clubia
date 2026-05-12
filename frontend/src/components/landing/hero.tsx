@@ -1,4 +1,3 @@
-import { Link } from '@tanstack/react-router'
 import { motion } from 'framer-motion'
 import {
   ArrowRight,
@@ -82,20 +81,20 @@ export function Hero() {
 
           <Reveal delay={0.45} distance={20}>
             <div className="mt-12 flex flex-col items-center gap-4">
-              <Link
-                to="/auth"
+              <a
+                href="#tarif"
                 className="cta-black cta-black-xl group relative overflow-hidden px-10 py-5"
               >
                 <span className="relative z-10 flex items-center gap-2">
                   <span className="hidden sm:inline">Rejoindre Le Club</span>
                   <span className="sm:hidden">Rejoindre</span>
                   <span className="mx-2 h-4 w-px bg-white/20" />
-                  <span className="font-bold">99&nbsp;000&nbsp;FCFA/an</span>
+                  <span className="font-bold">À partir de 69&nbsp;000&nbsp;FCFA</span>
                   <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
                 </span>
                 {/* Shine effect */}
                 <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent transition-transform duration-1000 group-hover:translate-x-full" />
-              </Link>
+              </a>
               <p className="text-xs font-medium tracking-wide text-[var(--muted-foreground)] uppercase">
                 Sans réabonnement auto · Paiement mobile money sécurisé
               </p>

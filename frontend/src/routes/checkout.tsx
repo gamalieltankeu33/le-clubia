@@ -1,12 +1,3 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
-import { ArrowLeft, Lock } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { BrandLogo } from '@/components/brand-logo'
-
-export const Route = createFileRoute('/checkout')({
-  component: CheckoutPage,
-})
-
 import { useEffect, useState } from 'react'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { ArrowLeft, Loader2, Lock, ShieldCheck } from 'lucide-react'
@@ -37,13 +28,16 @@ function CheckoutPage() {
 
     setLoading(true)
     try {
+      // On passe une redirectURL "template" — l'edge function y injecte
+      // `&cart=<cartId>` à la volée pour qu'au retour le handler puisse
+      // vérifier le bon panier côté Maketou.
       const { url } = await createMakEtoUCheckout({
         planId,
         email: user.email!,
         firstName: profile?.first_name || '',
         lastName: profile?.last_name || '',
         redirectURL: `${window.location.origin}/app/dashboard?payment=success`,
-        meta: { userId: user.id }
+        meta: { userId: user.id, planId }
       })
 
       // Redirection vers MakEtoU

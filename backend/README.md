@@ -84,15 +84,58 @@ renvoie un **503** explicite ("Coach IA temporairement indisponible").
 
 ---
 
-## Edge Functions à venir (paiement mobile money — 69 000 FCFA/an)
+## Paiement Maketou (Mobile Money Afrique)
 
-Le projet a pivoté de Stripe vers du **mobile money africain**
-(Orange Money, Wave, MTN Money, Moov Money). Les fonctions à brancher :
+Le paiement est branché via [Maketou](https://api.maketou.net) — passerelle
+Mobile Money africaine (Orange Money, Wave, MTN Money, Moov Money).
+**Deux plans** sont gérés :
 
-- `create-mobile-money-charge` — initie un paiement annuel (69 000 FCFA)
-- `mobile-money-webhook` — confirme le paiement et active la `subscription`
-- `cancel-membership` — désactive l'abonnement (pas de reconduction auto,
-  juste désactivation à la demande de l'utilisateur)
+- `annual` — 99 000 FCFA / 12 mois (recommandé)
+- `semestrial` — 69 000 FCFA / 6 mois
 
-Les variables d'env Stripe restent dans `.env.example` à titre de placeholder
-pour quand on choisira définitivement le partenaire de paiement.
+L'API Maketou ne supporte **qu'un produit par panier**, donc on crée
+**deux produits dans le dashboard Maketou** (un par plan) et on les
+mappe en variables d'env (`MAKETOU_PRODUCT_ID_ANNUAL` /
+`MAKETOU_PRODUCT_ID_SEMESTRIAL`).
+
+### Edge Functions
+
+| Fonction | Rôle |
+| --- | --- |
+| `maketou-checkout` | Crée le panier Maketou + insère une `subscription` en `incomplete` avec le `cart_id`. Renvoie l'URL de paiement. |
+| `maketou-verify`   | Au retour `?payment=success`, vérifie le panier Maketou et active la `subscription` si `status='completed'`. |
+
+> Maketou **ne fournit pas de webhook** : la vérification se fait à la
+> main via `GET /api/v1/stores/cart/{cartId}` au retour de paiement.
+
+### Secrets à configurer
+
+| Clé | Valeur |
+| --- | --- |
+| `MAKETOU_API_KEY` | Dashboard Maketou → boutique → Autres → Clés API |
+| `MAKETOU_PRODUCT_ID_ANNUAL` | Produit "Plan Master Annuel" → Partager → Identifiant public |
+| `MAKETOU_PRODUCT_ID_SEMESTRIAL` | Produit "Plan Progress 6 mois" → Partager → Identifiant public |
+
+Configuration via CLI :
+
+```bash
+supabase secrets set MAKETOU_API_KEY=mkt_...
+supabase secrets set MAKETOU_PRODUCT_ID_ANNUAL=...
+supabase secrets set MAKETOU_PRODUCT_ID_SEMESTRIAL=...
+```
+
+Ou via le dashboard : Project Settings → Edge Functions → Manage secrets.
+
+### Déploiement
+
+```bash
+cd backend
+supabase functions deploy maketou-checkout
+supabase functions deploy maketou-verify
+```
+
+### Migration DB associée
+
+`0040_maketou_payment.sql` ajoute la colonne `subscriptions.maketou_cart_id`.
+À appliquer **avant** de tester le paiement (sinon `maketou-checkout`
+échouera à l'insert).

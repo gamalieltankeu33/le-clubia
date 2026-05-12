@@ -55,8 +55,8 @@ export function LandingHeader() {
             >
               Se connecter
             </Link>
-            <Link
-              to="/auth"
+            <a
+              href="#tarif"
               className="cta-black group relative overflow-hidden px-6 py-2.5 text-sm"
             >
               <span className="relative z-10 flex items-center gap-2">
@@ -64,7 +64,7 @@ export function LandingHeader() {
                 <div className="h-1.5 w-1.5 rounded-full bg-[var(--accent)]" />
               </span>
               <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
-            </Link>
+            </a>
           </nav>
         </div>
       </motion.header>
