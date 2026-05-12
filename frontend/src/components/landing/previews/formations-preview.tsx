@@ -65,8 +65,3 @@ export function FormationsPreview({ className }: { className?: string }) {
     </BrowserCard>
   )
 }
-
-      </div>
-    </BrowserCard>
-  )
-}
