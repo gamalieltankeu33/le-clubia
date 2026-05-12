@@ -178,8 +178,8 @@ const POSTS: PostItem[] = [
 
 export function CommunityPreview({ className }: { className?: string }) {
   return (
-    <BrowserCard className={cn("flex flex-col max-h-[600px]", className)}>
-      <div className="flex-1 overflow-y-auto space-y-4 p-4 sm:p-6 scrollbar-hide">
+    <BrowserCard className={cn("flex flex-col", className)}>
+      <div className="space-y-4 p-4 sm:p-6">
         {POSTS.map((p) => (
           <article
             key={p.name}
