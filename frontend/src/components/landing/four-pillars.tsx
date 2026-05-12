@@ -86,29 +86,31 @@ export function FourPillars() {
           {PILLARS.map((p, i) => (
             <Reveal key={p.title} delay={i * 0.1} direction={i % 2 === 0 ? 'right' : 'left'}>
               <div className="group relative flex h-full flex-col overflow-hidden rounded-[2.5rem] border border-[var(--border)] bg-white transition-all duration-700 hover:border-[var(--primary)]/20 hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.08)]">
-                <div className="relative z-10 flex flex-col p-8 sm:p-10 h-full">
+                <div className="relative z-10 flex flex-col p-8 sm:p-10">
                   <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#0A0A0A] text-white shadow-xl shadow-black/10 transition-transform duration-500 group-hover:scale-110 group-hover:bg-[var(--primary)]">
                     <p.icon className="h-6 w-6" />
                   </div>
                   <h3 className="mt-8 font-display text-3xl font-black tracking-tight text-[#0A0A0A] sm:text-4xl">
                     {p.title}
                   </h3>
-                  <p className="mt-4 text-lg font-medium leading-relaxed text-[#4A4A4A] opacity-70 flex-1">
+                  <p className="mt-4 text-lg font-medium leading-relaxed text-[#4A4A4A] opacity-70">
                     {p.description}
                   </p>
                   
                   {p.link && (
                     <Link
                       to={p.link as any}
-                      className="mt-8 inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest text-[#0A0A0A] transition-all duration-300 group-hover:gap-3 group-hover:text-[var(--primary)]"
+                      className="mt-6 inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest text-[#0A0A0A] transition-all duration-300 group-hover:gap-3 group-hover:text-[var(--primary)]"
                     >
                       Voir tout le catalogue
                       <ArrowRight className="h-4 w-4" />
                     </Link>
                   )}
                 </div>
-                <div className="mt-auto bg-[#F8F9FA] p-4 sm:p-6">
-                  <div className="mx-auto w-full transition-transform duration-700 group-hover:scale-[1.01]">
+                
+                {/* Mockup section - No longer forced to bottom with mt-auto */}
+                <div className="px-6 pb-8 sm:px-8 sm:pb-10">
+                  <div className="relative overflow-hidden rounded-2xl bg-[#F8F9FA] p-4 transition-transform duration-700 group-hover:scale-[1.01]">
                     {p.mockup}
                   </div>
                 </div>

@@ -58,12 +58,32 @@ const POSTS: PostItem[] = [
     likes: 12,
     comments: 3,
   },
+  {
+    name: 'Marie E.',
+    initials: 'ME',
+    role: 'Product Manager',
+    body: "Je cherche des retours sur l'intégration de Perplexity API dans un produit SaaS. Quelqu'un a déjà mis ça en prod ?",
+    avatar: '/landing/avatars/avatar-5.jpg',
+    bg: '#db2777',
+    likes: 15,
+    comments: 7,
+  },
+  {
+    name: 'Thomas D.',
+    initials: 'TD',
+    role: 'Freelance IA',
+    body: "Nouveau record : j'ai réussi à automatiser 90% de mon reporting client avec n8n. Voici le schéma du workflow...",
+    avatar: '/landing/avatars/avatar-6.jpg',
+    bg: '#d97706',
+    likes: 38,
+    comments: 9,
+  },
 ]
 
 export function CommunityPreview({ className }: { className?: string }) {
   return (
-    <BrowserCard className={cn("flex flex-col h-[500px]", className)}>
-      <div className="flex-1 overflow-y-auto space-y-3 p-4 sm:p-5 scrollbar-hide">
+    <BrowserCard className={cn("flex flex-col", className)}>
+      <div className="space-y-3 p-4 sm:p-5">
         {POSTS.map((p) => (
           <article
             key={p.name}
