@@ -1,33 +1,37 @@
 import type { Profile, Subscription } from './database.types'
 
-export type AuthRedirectTarget = '/onboarding' | '/app/dashboard' | '/checkout'
-
 /**
- * Cible de redirection après signup/login ou navigation vers une route protégée.
+ * Calcule la destination après une authentification réussie.
  *
- * @param requireMember Active la vérification d'abonnement (renvoie vers /checkout
- *   si pas membre actif). À mettre à `true` une fois Stripe branché.
- *   Pour l'instant on laisse `false` afin de ne pas bloquer l'accès à l'app.
+ * Retourne `null` si l'utilisateur **ne doit pas pouvoir entrer** sur la
+ * plateforme (cas d'un membre sans abonnement actif qui n'a pas non plus
+ * de plan en attente — typiquement un ancien compte non renouvelé qui
+ * tente de se reconnecter via /auth). Le caller est responsable d'agir
+ * sur ce `null` (signOut + toast + redirect vers la landing).
+ *
+ * Règles :
+ *   1. Onboarding pas fini   → /onboarding
+ *   2. Membre actif OU admin → /app/dashboard
+ *   3. Plan en attente       → /checkout?plan=<desired_plan_id>
+ *   4. Aucun des cas ci-dessus → null (bloquer l'accès)
  */
 export function nextRouteAfterAuth(
   profile: Profile | null,
   subscription: Subscription | null,
-  requireMember = false,
-): string {
+): string | null {
   if (!profile?.onboarding_completed) return '/onboarding'
 
-  // Si l'utilisateur a un plan en attente (choisi sur la landing)
-  // et qu'il n'est pas encore actif, on l'envoie vers le checkout.
+  const isAdmin = profile.role === 'admin'
   const isActive =
-    subscription?.status === 'active' || subscription?.status === 'trialing'
+    (subscription?.status === 'active' || subscription?.status === 'trialing') &&
+    (!subscription?.current_period_end ||
+      new Date(subscription.current_period_end) > new Date())
 
-  if (profile?.desired_plan_id && !isActive) {
+  if (isActive || isAdmin) return '/app/dashboard'
+
+  if (profile.desired_plan_id) {
     return `/checkout?plan=${profile.desired_plan_id}`
   }
 
-  if (requireMember && !isActive) {
-    return '/checkout'
-  }
-
-  return '/app/dashboard'
+  return null
 }

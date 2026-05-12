@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { ArrowRight, Eye, EyeOff, Loader2, Sparkles } from 'lucide-react'
+import { ArrowRight, Eye, EyeOff, Loader2, Lock, Sparkles } from 'lucide-react'
 import { toast } from 'sonner'
 import { GoogleButton } from '@/components/google-button'
 import { Input } from '@/components/ui/input'
@@ -13,6 +13,9 @@ import { validatePassword } from '@/lib/password-validator'
 import { supabase } from '@/lib/supabase'
 import { cn } from '@/lib/utils'
 import { Reveal } from '@/components/landing/reveal'
+
+const MEMBERSHIP_BLOCKED_MSG =
+  "L'accès au Club est réservé aux membres ayant un abonnement actif. Rejoins le Club pour pouvoir te connecter."
 
 export const Route = createFileRoute('/auth')({
   component: AuthPage,
@@ -46,12 +49,28 @@ function AuthPage() {
     return null
   }, [])
 
+  // Route l'utilisateur authentifié vers /onboarding, /app, /checkout
+  // ou le bloque s'il n'a ni abonnement actif ni plan en attente.
+  const routeAuthenticatedUser = useCallback(async () => {
+    const state = useAuthStore.getState()
+    const target = nextRouteAfterAuth(state.profile, state.subscription)
+    if (target === null) {
+      // Aucun abonnement actif + aucun plan en attente → blocage strict.
+      // On déconnecte pour ne pas laisser une session "fantôme" qui
+      // ferait croire à l'utilisateur qu'il est connecté.
+      await state.signOut()
+      toast.error(MEMBERSHIP_BLOCKED_MSG, { duration: 7000 })
+      navigate({ to: '/' })
+      return
+    }
+    navigate({ to: target })
+  }, [navigate])
+
   // Auto-redirect post-OAuth (Google) ou si déjà authentifié
   useEffect(() => {
     if (!isInitialized || !user) return
-    const { profile, subscription } = useAuthStore.getState()
-    navigate({ to: nextRouteAfterAuth(profile, subscription) })
-  }, [isInitialized, user, navigate])
+    void routeAuthenticatedUser()
+  }, [isInitialized, user, routeAuthenticatedUser])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -104,13 +123,14 @@ function AuthPage() {
               .from('profiles')
               .update({ desired_plan_id: desiredPlanId })
               .eq('id', newUser.id)
+            // Recharge le store pour que le useEffect lise le bon
+            // desired_plan_id et redirige vers /checkout après l'onboarding.
+            await useAuthStore.getState().refreshUserData()
           }
         }
       }
-      // Redirection : nextRouteAfterAuth envoie le nouveau compte vers
-      // /onboarding s'il n'a pas terminé son setup, sinon vers /app/dashboard.
-      const { profile, subscription } = useAuthStore.getState()
-      navigate({ to: nextRouteAfterAuth(profile, subscription) })
+      // Routage centralisé (bloque les non-membres sans plan en attente).
+      await routeAuthenticatedUser()
     } catch (err) {
       console.error(err)
       toast.error('Une erreur est survenue. Réessaie.')
@@ -190,6 +210,20 @@ function AuthPage() {
               {desiredPlanId === 'annual'
                 ? 'Plan choisi : Annuel — 99 000 FCFA'
                 : 'Plan choisi : 6 mois — 69 000 FCFA'}
+            </div>
+          )}
+
+          {/* Mention d'accès réservé en mode login — rappelle que la
+              connexion est gated derrière un abonnement actif. */}
+          {!isSignup && (
+            <div className="mt-4 flex items-start gap-2 rounded-2xl border border-[var(--border)] bg-[var(--background)]/60 px-3 py-2.5 text-xs text-[var(--muted-foreground)]">
+              <Lock className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--primary)]" />
+              <span>
+                Connexion réservée aux membres ayant un abonnement actif.{' '}
+                <Link to="/" hash="tarif" className="font-semibold text-[var(--foreground)] underline">
+                  Rejoindre le Club
+                </Link>
+              </span>
             </div>
           )}
 

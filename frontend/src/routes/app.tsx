@@ -9,7 +9,10 @@ export const Route = createFileRoute('/app')({
 })
 
 function AppLayout() {
-  const allowed = useRequireAuth({ requireOnboarded: true })
+  // requireMember:true verrouille toute la zone /app/* derrière un
+  // abonnement actif (Maketou). Les admins et le retour de paiement
+  // (?payment=success) sont gérés en bypass dans useRequireAuth.
+  const allowed = useRequireAuth({ requireOnboarded: true, requireMember: true })
   if (!allowed) return null
 
   return (
