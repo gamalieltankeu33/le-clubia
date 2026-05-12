@@ -18,25 +18,46 @@ interface ResourceItem {
 
 const RESOURCES: ResourceItem[] = [
   {
-    title: 'Prompts ChatGPT Business',
-    type: 'Prompt',
-    icon: Sparkles,
+    title: 'Guide pratique : Maîtriser Claude 3.5',
+    type: 'Guide',
+    icon: FileText,
     bg: 'bg-[#1E40AF]/10',
     fg: 'text-[#1E40AF]',
   },
   {
-    title: 'Template Notion : Plan de contenu IA',
+    title: "Plan d'action : Lancement de SaaS IA",
     type: 'Template',
     icon: Workflow,
     bg: 'bg-[var(--bleu-ciel)]/15',
     fg: 'text-[var(--bleu-ciel-deep)]',
   },
   {
-    title: 'Guide PDF : Automatisation 101',
-    type: 'Guide',
+    title: 'Calendrier éditorial : 30 jours de contenu',
+    type: 'Template',
     icon: FileText,
     bg: 'bg-[var(--or)]/15',
     fg: 'text-[var(--or-deep)]',
+  },
+  {
+    title: 'Prompt Business : Rédaction de contrats',
+    type: 'Prompt',
+    icon: Sparkles,
+    bg: 'bg-emerald-500/10',
+    fg: 'text-emerald-600',
+  },
+  {
+    title: 'Template Notion : Gestion de projets IA',
+    type: 'Template',
+    icon: Workflow,
+    bg: 'bg-violet-500/10',
+    fg: 'text-violet-600',
+  },
+  {
+    title: 'Guide : Automatisation avec n8n',
+    type: 'Guide',
+    icon: FileText,
+    bg: 'bg-orange-500/10',
+    fg: 'text-orange-600',
   },
 ]
 
