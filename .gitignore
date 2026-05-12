@@ -31,7 +31,6 @@ Thumbs.db
 *.tsbuildinfo
 
 # Fichiers générés par TanStack Router
-frontend/src/routeTree.gen.ts
 .tanstack/
 
 # Supabase
