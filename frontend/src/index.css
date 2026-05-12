@@ -115,7 +115,11 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
-    overflow-x: hidden;
+    /* iOS Safari : overflow-x:hidden seul ne suffit pas quand un enfant
+       a un transform animé (ex: marquee). overflow-x:clip est mieux
+       supporté et n'introduit pas de scroll container. */
+    overflow-x: clip;
+    overscroll-behavior-x: none;
     max-width: 100%;
   }
   body {
@@ -123,13 +127,14 @@
     color: var(--foreground);
     min-height: 100vh;
     margin: 0;
-    overflow-x: hidden;
+    overflow-x: clip;
+    overscroll-behavior-x: none;
     max-width: 100%;
     width: 100%;
     position: relative;
   }
   #root {
-    overflow-x: hidden;
+    overflow-x: clip;
     max-width: 100%;
     width: 100%;
   }
@@ -174,6 +179,11 @@
     width: max-content;
     animation: tools-marquee-scroll 50s linear infinite;
     will-change: transform;
+    /* iOS Safari : `contain: paint` empêche le layer composé du marquee
+       de "déborder" sur la page entière quand WebKit promeut l'élément
+       en compositing layer (visible cause du décalage horizontal sur
+       iPhone, alors que Chrome devtools simulation render correctement). */
+    contain: paint;
   }
   @media (min-width: 640px) {
     .tools-marquee-track {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 
 const EASE_EXPO = [0.16, 1, 0.3, 1] as const
@@ -6,11 +6,12 @@ const EASE_EXPO = [0.16, 1, 0.3, 1] as const
 /**
  * Wrapper Framer Motion : fade + translate au scroll.
  *
- * Mobile-first : sur écrans <768px, les animations horizontales
- * (direction='left' / 'right') sont automatiquement converties en
- * 'up'. Sinon le translate horizontal initial décale le contenu hors
- * viewport et donne l'impression que la page est mal alignée tant
- * que l'animation n'a pas tourné (cas typique iOS Safari).
+ * iOS Safari fix : la détection mobile est faite DANS l'initialiseur
+ * de useState (donc avant le premier render), pas dans un useEffect.
+ * Pourquoi : framer-motion capture `initial` au mount. Si on détecte
+ * mobile après le mount, le translateX(-30) initial reste appliqué
+ * jusqu'à ce que `whileInView` se déclenche, ce qui crée un décalage
+ * visible sur iOS (~30px à droite) sur tout ce qui est en bas de fold.
  */
 export function Reveal({
   children,
@@ -25,17 +26,12 @@ export function Reveal({
   distance?: number
   className?: string
 }) {
-  const [isMobile, setIsMobile] = useState(false)
-
-  // Détection mobile une seule fois au mount + écoute resize.
-  // Pas de SSR ici donc pas de mismatch.
-  useEffect(() => {
-    const mql = window.matchMedia('(max-width: 767px)')
-    setIsMobile(mql.matches)
-    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches)
-    mql.addEventListener('change', handler)
-    return () => mql.removeEventListener('change', handler)
-  }, [])
+  // ⚠️ initialiseur synchrone — exécuté au tout premier render, AVANT
+  // que motion fige le state initial. Pas de SSR donc window est dispo.
+  const [isMobile] = useState(() =>
+    typeof window !== 'undefined' &&
+    window.matchMedia('(max-width: 767px)').matches,
+  )
 
   const effectiveDirection =
     isMobile && (direction === 'left' || direction === 'right') ? 'up' : direction
