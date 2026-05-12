@@ -211,60 +211,39 @@ function FormationDetailPage() {
 
       {/* Final CTA Section */}
       <motion.section 
-        initial={{ opacity: 0, y: 40 }}
+        initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        className="relative mt-32 overflow-hidden rounded-[3rem] bg-[#0A0A0A] p-12 text-center text-white md:p-24"
+        className="mt-24 overflow-hidden rounded-[2rem] border border-[#0A0A0A]/5 bg-[#F8F9FA] p-10 text-center md:p-16"
       >
-        {/* Background Decorative Elements */}
-        <div className="absolute -left-20 -top-20 h-96 w-96 rounded-full bg-[var(--primary)] opacity-20 blur-[120px]" />
-        <div className="absolute -bottom-20 -right-20 h-96 w-96 rounded-full bg-blue-600 opacity-20 blur-[120px]" />
-        
         <div className="relative z-10">
-          <motion.span 
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            className="mb-8 inline-block rounded-full border border-white/10 bg-white/5 px-6 py-2 text-[11px] font-black uppercase tracking-[0.4em] text-[var(--primary)] backdrop-blur-md"
-          >
-            Accès Illimité au Club
-          </motion.span>
+          <span className="mb-4 inline-block rounded-full bg-[var(--primary)]/10 px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] text-[var(--primary)]">
+            Accès Illimité
+          </span>
           
-          <h2 className="mx-auto max-w-3xl font-display text-4xl font-black leading-[1.1] tracking-tight md:text-6xl lg:text-7xl">
-            Prêt à transformer ton <br className="hidden md:block" /> 
-            quotidien avec <span className="relative inline-block text-[var(--primary)]">
-              l'IA ?
-              <motion.div 
-                initial={{ width: 0 }}
-                whileInView={{ width: '100%' }}
-                className="absolute -bottom-2 left-0 h-2 bg-[var(--primary)]/30 blur-sm"
-              />
-            </span>
+          <h2 className="mx-auto max-w-2xl font-display text-3xl font-black leading-tight tracking-tight text-[#0A0A0A] md:text-4xl">
+            Prêt à transformer ton quotidien avec <span className="text-[var(--primary)]">l'IA ?</span>
           </h2>
           
-          <p className="mx-auto mt-10 max-w-2xl text-lg font-medium leading-relaxed text-white/70 md:text-xl">
-            Rejoins plus de 500 passionnés et accède immédiatement à toutes nos formations, notre communauté d'élite et nos outils exclusifs.
+          <p className="mx-auto mt-6 max-w-lg text-base font-medium leading-relaxed text-[#4A4A4A] opacity-70">
+            Rejoins plus de 500 passionnés et accède immédiatement à toutes nos formations et notre communauté.
           </p>
           
-          <div className="mt-14 flex flex-col items-center justify-center gap-8">
+          <div className="mt-10 flex flex-col items-center justify-center gap-6 sm:flex-row">
             <Link to="/auth">
-              <Button size="lg" className="group relative h-20 rounded-[2rem] bg-white px-12 text-sm font-black uppercase tracking-widest text-[#0A0A0A] transition-all hover:scale-[1.05] hover:shadow-[0_0_50px_-12px_rgba(255,255,255,0.5)] active:scale-95">
-                Rejoindre Le Club IA
-                <div className="ml-4 flex h-8 w-8 items-center justify-center rounded-full bg-[#0A0A0A] text-white transition-transform group-hover:rotate-12">
-                  <Zap className="h-4 w-4" />
-                </div>
+              <Button size="lg" className="h-14 rounded-xl bg-[var(--primary)] px-8 text-xs font-black uppercase tracking-widest text-white transition-all hover:scale-[1.02] shadow-lg shadow-[var(--primary)]/20">
+                Rejoindre Le Club
+                <Zap className="ml-2 h-4 w-4" />
               </Button>
             </Link>
-            
-            <div className="flex flex-wrap justify-center gap-x-8 gap-y-4 text-[10px] font-black uppercase tracking-[0.2em] text-white/40">
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-[var(--primary)]" /> Sans engagement
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-[var(--primary)]" /> Accès immédiat
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-[var(--primary)]" /> Support 7j/7
-              </div>
+          </div>
+          
+          <div className="mt-8 flex justify-center gap-6 text-[9px] font-black uppercase tracking-widest text-[#4A4A4A] opacity-40">
+            <div className="flex items-center gap-1.5">
+              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" /> Sans engagement
+            </div>
+            <div className="flex items-center gap-1.5">
+              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" /> Accès immédiat
             </div>
           </div>
         </div>
