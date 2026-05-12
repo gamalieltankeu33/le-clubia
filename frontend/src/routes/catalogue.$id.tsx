@@ -52,13 +52,23 @@ function FormationDetailPage() {
             transition={{ duration: 0.5 }}
           >
             {/* Hero Thumbnail */}
-            <div className="relative mb-12 aspect-video w-full overflow-hidden rounded-[2.5rem] border border-[#0A0A0A]/5 shadow-2xl shadow-[var(--primary)]/5">
-              <div className={cn("absolute inset-0 opacity-20 bg-gradient-to-br", formation.color)} />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="flex h-24 w-24 items-center justify-center rounded-full bg-white/20 backdrop-blur-md">
-                  <div className="h-0 w-0 border-b-[15px] border-l-[25px] border-t-[15px] border-b-transparent border-l-white border-t-transparent ml-2" />
-                </div>
-              </div>
+            <div className="relative mb-12 aspect-video w-full overflow-hidden rounded-[2.5rem] border border-[#0A0A0A]/5 shadow-2xl shadow-[var(--primary)]/5 bg-[#F8F9FA]">
+              {formation.image ? (
+                <img 
+                  src={formation.image} 
+                  alt={formation.title}
+                  className="h-full w-full object-cover transition-transform duration-700 hover:scale-105"
+                />
+              ) : (
+                <>
+                  <div className={cn("absolute inset-0 opacity-20 bg-gradient-to-br", formation.color)} />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="flex h-24 w-24 items-center justify-center rounded-full bg-white/20 backdrop-blur-md">
+                      <div className="h-0 w-0 border-b-[15px] border-l-[25px] border-t-[15px] border-b-transparent border-l-white border-t-transparent ml-2" />
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
 
             <div className="mb-6 flex items-center gap-3">

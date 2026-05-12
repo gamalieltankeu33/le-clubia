@@ -104,13 +104,23 @@ function FormationCard({ formation, index }: { formation: typeof FORMATIONS[0]; 
       <Link to="/catalogue/$id" params={{ id: formation.id }}>
         <div className="flex flex-col overflow-hidden rounded-[2.5rem] border border-[#0A0A0A]/5 bg-[#F8F9FA] transition-all duration-500 hover:border-[var(--primary)]/30 hover:bg-white hover:shadow-2xl hover:shadow-[var(--primary)]/5 md:flex-row">
           {/* Left: Thumbnail (YouTube Style) */}
-          <div className="relative aspect-video w-full shrink-0 overflow-hidden md:w-80 lg:w-96">
-            <div className={cn("absolute inset-0 opacity-20 transition-opacity group-hover:opacity-30 bg-gradient-to-br", formation.color)} />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/20 backdrop-blur-md transition-transform duration-500 group-hover:scale-110">
-                <div className="h-0 w-0 border-b-[10px] border-l-[18px] border-t-[10px] border-b-transparent border-l-white border-t-transparent ml-1" />
-              </div>
-            </div>
+          <div className="relative aspect-video w-full shrink-0 overflow-hidden bg-[#F8F9FA] md:w-80 lg:w-96">
+            {formation.image ? (
+              <img 
+                src={formation.image} 
+                alt={formation.title}
+                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+              />
+            ) : (
+              <>
+                <div className={cn("absolute inset-0 opacity-20 transition-opacity group-hover:opacity-30 bg-gradient-to-br", formation.color)} />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/20 backdrop-blur-md transition-transform duration-500 group-hover:scale-110">
+                    <div className="h-0 w-0 border-b-[10px] border-l-[18px] border-t-[10px] border-b-transparent border-l-white border-t-transparent ml-1" />
+                  </div>
+                </div>
+              </>
+            )}
             <div className="absolute bottom-4 right-4 rounded-md bg-[#0A0A0A]/80 px-2 py-1 text-[10px] font-black text-white backdrop-blur-sm">
               {formation.duration}
             </div>
