@@ -1,3 +1,4 @@
+import { Link } from '@tanstack/react-router'
 import { ArrowRight, Check } from 'lucide-react'
 import { Reveal } from './reveal'
 import { CardElite } from '@/components/shared/card-elite'
@@ -39,8 +40,8 @@ export function FinalCTA() {
               </p>
 
               <div className="mt-10 flex flex-col items-stretch gap-5 sm:items-center">
-                <a
-                  href="#tarif"
+                <Link
+                  to="/auth"
                   className="cta-bleu-ciel cta-bleu-ciel-xl w-full sm:w-auto"
                 >
                   <span className="sm:hidden">
@@ -50,7 +51,7 @@ export function FinalCTA() {
                     Rejoindre Le Club — à partir de 69&nbsp;000&nbsp;FCFA
                   </span>
                   <ArrowRight className="h-4 w-4" />
-                </a>
+                </Link>
 
                 <ul className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-white/60">
                   {REASSURANCE.map((r) => (

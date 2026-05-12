@@ -1,10 +1,12 @@
 import { useEffect, useRef } from 'react'
+import { useNavigate } from '@tanstack/react-router'
 import { toast } from 'sonner'
 import { useAuthStore } from '@/stores/auth-store'
 import { supabase } from '@/lib/supabase'
 import confetti from 'canvas-confetti'
 
 export function PaymentSuccessHandler() {
+  const navigate = useNavigate()
   const user = useAuthStore((s) => s.user)
   const refreshUserData = useAuthStore((s) => s.refreshUserData)
   const handled = useRef(false)
@@ -41,6 +43,14 @@ export function PaymentSuccessHandler() {
           })
 
           await refreshUserData()
+
+          // Onboarding pas encore fait → on l'envoie tout de suite remplir
+          // son profil avant d'accéder au dashboard. Sinon il reste sur la
+          // page courante (typiquement /app/dashboard).
+          const profile = useAuthStore.getState().profile
+          if (profile && !profile.onboarding_completed) {
+            navigate({ to: '/onboarding' })
+          }
         } else if (data?.status === 'pending') {
           toast.info(
             "Paiement en cours de traitement. Ton accès sera activé d'ici quelques instants.",
@@ -71,7 +81,7 @@ export function PaymentSuccessHandler() {
     }
 
     verifyPayment()
-  }, [user, refreshUserData])
+  }, [user, refreshUserData, navigate])
 
   return null
 }

@@ -3,6 +3,7 @@ import { createRootRoute, Outlet } from '@tanstack/react-router'
 import { Toaster } from 'sonner'
 import { Sparkles } from 'lucide-react'
 import { useAuthStore } from '@/stores/auth-store'
+import { PaymentSuccessHandler } from '@/components/payment/payment-success-handler'
 
 export const Route = createRootRoute({
   component: RootComponent,
@@ -23,6 +24,10 @@ function RootComponent() {
   return (
     <>
       <Outlet />
+      {/* Monté à la racine pour survivre aux redirections de gardes
+          (typiquement ?payment=success → /onboarding) et garantir que
+          la vérification Maketou tourne quoi qu'il arrive. */}
+      <PaymentSuccessHandler />
       <Toaster
         position="top-center"
         toastOptions={{
