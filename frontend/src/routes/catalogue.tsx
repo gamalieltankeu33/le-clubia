@@ -19,13 +19,22 @@ function CataloguePage() {
     <div className="min-h-screen bg-white text-[#0A0A0A]">
       <LandingHeader />
       
-      <main className="relative z-10 mx-auto max-w-7xl px-6 py-24 md:py-32">
+      <main className="relative z-10 mx-auto max-w-5xl px-6 py-24 md:py-32">
         <header className="mb-20">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
+            <div className="mb-10">
+              <Link to="/">
+                <Button variant="ghost" className="h-10 rounded-full border border-[#0A0A0A]/5 px-4 text-[10px] font-black uppercase tracking-widest text-[#4A4A4A] transition-all hover:bg-[#0A0A0A] hover:text-white">
+                  <ArrowLeft className="mr-2 h-3.5 w-3.5" />
+                  Retour à l'accueil
+                </Button>
+              </Link>
+            </div>
+
             <span className="mb-4 inline-block rounded-full bg-[var(--primary)]/10 px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.3em] text-[var(--primary)]">
               Catalogue Officiel
             </span>
@@ -38,63 +47,57 @@ function CataloguePage() {
           </motion.div>
         </header>
 
-        {/* Bloc 1: Foundations */}
-        <section className="mb-24">
-          <div className="mb-10 flex items-center gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-500/10">
-              <GraduationCap className="h-6 w-6 text-blue-500" />
-            </div>
-            <div>
-              <h2 className="font-display text-2xl font-black text-[#0A0A0A]">Bloc 1 — Fondations</h2>
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#4A4A4A] opacity-40">Pour bien débuter</p>
-            </div>
-          </div>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {FORMATIONS.filter(f => f.category === "Outils IA" || f.category === "Automatisation").map((formation, i) => (
-              <FormationCard key={formation.id} formation={formation} index={i} />
-            ))}
-          </div>
-        </section>
+        {/* Categories Section */}
+        <div className="space-y-24">
+          <CategorySection 
+            title="Bloc 1 — Fondations" 
+            subtitle="Pour bien débuter" 
+            icon={<GraduationCap className="h-6 w-6 text-blue-500" />}
+            bgColor="bg-blue-500/10"
+            formations={FORMATIONS.filter(f => f.category === "Outils IA" || f.category === "Automatisation")}
+          />
 
-        {/* Bloc 2: Créer ton business */}
-        <section className="mb-24">
-          <div className="mb-10 flex items-center gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--primary)]/10">
-              <Zap className="h-6 w-6 text-[var(--primary)]" />
-            </div>
-            <div>
-              <h2 className="font-display text-2xl font-black text-[#0A0A0A]">Bloc 2 — Créer ton business</h2>
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#4A4A4A] opacity-40">Le cœur de cible</p>
-            </div>
-          </div>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {FORMATIONS.filter(f => f.category === "Création de contenu IA" || f.category === "Business IA").map((formation, i) => (
-              <FormationCard key={formation.id} formation={formation} index={i} />
-            ))}
-          </div>
-        </section>
+          <CategorySection 
+            title="Bloc 2 — Créer ton business" 
+            subtitle="Le cœur de cible" 
+            icon={<Zap className="h-6 w-6 text-[var(--primary)]" />}
+            bgColor="bg-[var(--primary)]/10"
+            formations={FORMATIONS.filter(f => f.category === "Création de contenu IA" || f.category === "Business IA")}
+          />
 
-        {/* Bloc 3: Tech & Avancé */}
-        <section className="mb-24">
-          <div className="mb-10 flex items-center gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-purple-500/10">
-              <Brain className="h-6 w-6 text-purple-500" />
-            </div>
-            <div>
-              <h2 className="font-display text-2xl font-black text-[#0A0A0A]">Bloc 3 — Tech & Avancé</h2>
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#4A4A4A] opacity-40">Pour aller plus loin</p>
-            </div>
-          </div>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {FORMATIONS.filter(f => f.category === "Développement IA").map((formation, i) => (
-              <FormationCard key={formation.id} formation={formation} index={i} />
-            ))}
-          </div>
-        </section>
+          <CategorySection 
+            title="Bloc 3 — Tech & Avancé" 
+            subtitle="Pour aller plus loin" 
+            icon={<Brain className="h-6 w-6 text-purple-500" />}
+            bgColor="bg-purple-500/10"
+            formations={FORMATIONS.filter(f => f.category === "Développement IA")}
+          />
+        </div>
       </main>
 
       <LandingFooter />
     </div>
+  )
+}
+
+function CategorySection({ title, subtitle, icon, bgColor, formations }: any) {
+  return (
+    <section>
+      <div className="mb-10 flex items-center gap-4">
+        <div className={cn("flex h-12 w-12 items-center justify-center rounded-2xl", bgColor)}>
+          {icon}
+        </div>
+        <div>
+          <h2 className="font-display text-2xl font-black text-[#0A0A0A]">{title}</h2>
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#4A4A4A] opacity-40">{subtitle}</p>
+        </div>
+      </div>
+      <div className="grid gap-8">
+        {formations.map((formation: any, i: number) => (
+          <FormationCard key={formation.id} formation={formation} index={i} />
+        ))}
+      </div>
+    </section>
   )
 }
 
@@ -107,11 +110,24 @@ function FormationCard({ formation, index }: { formation: typeof FORMATIONS[0]; 
       className="group relative"
     >
       <Link to="/catalogue/$id" params={{ id: formation.id }}>
-        <div className="flex h-full flex-col overflow-hidden rounded-3xl border border-[#0A0A0A]/5 bg-[#F8F9FA] p-8 transition-all duration-500 hover:border-[var(--primary)]/30 hover:bg-white hover:shadow-xl hover:shadow-[var(--primary)]/5">
-          <div className={cn("absolute -right-10 -top-10 h-32 w-32 blur-3xl opacity-5 transition-opacity group-hover:opacity-10 bg-gradient-to-br", formation.color)} />
-          
-          <div className="relative z-10 flex-1">
-            <div className="mb-6 flex items-center justify-between">
+        <div className="flex flex-col overflow-hidden rounded-[2.5rem] border border-[#0A0A0A]/5 bg-[#F8F9FA] transition-all duration-500 hover:border-[var(--primary)]/30 hover:bg-white hover:shadow-2xl hover:shadow-[var(--primary)]/5 md:flex-row">
+          {/* Left: Thumbnail (YouTube Style) */}
+          <div className="relative aspect-video w-full shrink-0 overflow-hidden md:w-80 lg:w-96">
+            <div className={cn("absolute inset-0 opacity-20 transition-opacity group-hover:opacity-30 bg-gradient-to-br", formation.color)} />
+            <div className="absolute inset-0 flex items-center justify-center">
+              {/* This would be an Image component in real life */}
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/20 backdrop-blur-md transition-transform duration-500 group-hover:scale-110">
+                <div className="h-0 w-0 border-b-[10px] border-l-[18px] border-t-[10px] border-b-transparent border-l-white border-t-transparent ml-1" />
+              </div>
+            </div>
+            <div className="absolute bottom-4 right-4 rounded-md bg-[#0A0A0A]/80 px-2 py-1 text-[10px] font-black text-white backdrop-blur-sm">
+              {formation.duration}
+            </div>
+          </div>
+
+          {/* Right: Content */}
+          <div className="flex flex-1 flex-col justify-center p-8 md:p-10">
+            <div className="mb-4 flex items-center gap-3">
               <span className={cn(
                 "rounded-full px-2.5 py-1 text-[9px] font-black uppercase tracking-widest",
                 formation.level === "debutant" ? "bg-emerald-500/10 text-emerald-600" :
@@ -120,22 +136,18 @@ function FormationCard({ formation, index }: { formation: typeof FORMATIONS[0]; 
               )}>
                 {formation.level === "debutant" ? "Débutant" : formation.level === "intermediaire" ? "Intermédiaire" : "Avancé"}
               </span>
-              <div className="flex items-center gap-1.5 text-[#4A4A4A]">
-                <Clock className="h-3 w-3" />
-                <span className="text-[10px] font-bold">{formation.duration}</span>
-              </div>
+              <span className="text-[9px] font-black uppercase tracking-widest text-[#4A4A4A] opacity-40">{formation.category}</span>
             </div>
 
-            <h3 className="font-display text-xl font-black text-[#0A0A0A] transition-colors group-hover:text-[var(--primary)]">{formation.title}</h3>
-            <p className="mt-3 text-sm font-medium leading-relaxed text-[#4A4A4A] opacity-60 transition-opacity group-hover:opacity-80">
+            <h3 className="font-display text-2xl font-black leading-tight text-[#0A0A0A] transition-colors group-hover:text-[var(--primary)] md:text-3xl">
+              {formation.title}
+            </h3>
+            <p className="mt-4 max-w-xl text-sm font-medium leading-relaxed text-[#4A4A4A] opacity-70 transition-opacity group-hover:opacity-90">
               {formation.shortDescription}
             </p>
-          </div>
 
-          <div className="relative z-10 mt-8 flex items-center justify-between border-t border-[#0A0A0A]/5 pt-6 transition-colors group-hover:border-[var(--primary)]/20">
-            <span className="text-[9px] font-black uppercase tracking-widest text-[#4A4A4A] opacity-40">{formation.category}</span>
-            <div className="flex items-center gap-1 text-xs font-black uppercase tracking-widest text-[var(--primary)]">
-              Explorer <ChevronRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+            <div className="mt-8 flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-[var(--primary)]">
+              Découvrir le programme <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </div>
           </div>
         </div>

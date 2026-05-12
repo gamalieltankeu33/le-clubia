@@ -97,16 +97,16 @@ export function FourPillars() {
                     <h3 className="mt-8 font-display text-3xl font-bold tracking-tight text-[var(--foreground)] sm:text-4xl">
                       {p.title}
                     </h3>
-                    <p className="mt-4 text-lg leading-relaxed text-[var(--muted-foreground)]">
+                    <p className="mt-4 text-lg leading-relaxed text-[var(--muted-foreground)] flex-1">
                       {p.description}
                     </p>
-                    <div className="mt-6 inline-flex items-center gap-2 text-sm font-bold tracking-tight text-[var(--foreground)] transition-all duration-300 group-hover:gap-3 group-hover:text-[var(--primary)]">
-                      Explorer la feature
+                    <div className="mt-8 inline-flex items-center gap-2 text-sm font-bold tracking-tight text-[var(--foreground)] transition-all duration-300 group-hover:gap-3 group-hover:text-[var(--primary)]">
+                      {p.link ? "Voir tout le catalogue de formations" : "Explorer la feature"}
                       <ArrowRight className="h-4 w-4" />
                     </div>
                   </div>
-                  <div className="mt-auto border-t border-[var(--border)] bg-[var(--background)] p-6 sm:p-10">
-                    <div className="mx-auto max-w-md transition-transform duration-700 group-hover:scale-[1.03]">
+                  <div className="mt-auto border-t border-[var(--border)] bg-[var(--background)] p-4 sm:p-6">
+                    <div className="mx-auto w-full transition-transform duration-700 group-hover:scale-[1.01]">
                       {p.mockup}
                     </div>
                   </div>
@@ -116,23 +116,23 @@ export function FourPillars() {
                   href={p.anchor}
                   className="group relative flex h-full flex-col overflow-hidden rounded-[2rem] border border-[var(--border)] bg-white transition-all duration-700 hover:scale-[1.01] hover:border-[var(--primary)]/20 hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.08)]"
                 >
-                  <div className="relative z-10 flex flex-col p-8 sm:p-10">
+                  <div className="relative z-10 flex flex-col p-8 sm:p-10 h-full">
                     <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--foreground)] text-white shadow-xl shadow-black/10 transition-transform duration-500 group-hover:scale-110 group-hover:bg-[var(--primary)]">
                       <p.icon className="h-6 w-6" />
                     </div>
                     <h3 className="mt-8 font-display text-3xl font-bold tracking-tight text-[var(--foreground)] sm:text-4xl">
                       {p.title}
                     </h3>
-                    <p className="mt-4 text-lg leading-relaxed text-[var(--muted-foreground)]">
+                    <p className="mt-4 text-lg leading-relaxed text-[var(--muted-foreground)] flex-1">
                       {p.description}
                     </p>
-                    <div className="mt-6 inline-flex items-center gap-2 text-sm font-bold tracking-tight text-[var(--foreground)] transition-all duration-300 group-hover:gap-3 group-hover:text-[var(--primary)]">
+                    <div className="mt-8 inline-flex items-center gap-2 text-sm font-bold tracking-tight text-[var(--foreground)] transition-all duration-300 group-hover:gap-3 group-hover:text-[var(--primary)]">
                       Explorer la feature
                       <ArrowRight className="h-4 w-4" />
                     </div>
                   </div>
-                  <div className="mt-auto border-t border-[var(--border)] bg-[var(--background)] p-6 sm:p-10">
-                    <div className="mx-auto max-w-md transition-transform duration-700 group-hover:scale-[1.03]">
+                  <div className="mt-auto border-t border-[var(--border)] bg-[var(--background)] p-4 sm:p-6">
+                    <div className="mx-auto w-full transition-transform duration-700 group-hover:scale-[1.01]">
                       {p.mockup}
                     </div>
                   </div>
@@ -142,11 +142,11 @@ export function FourPillars() {
           ))}
         </div>
 
-        <Reveal delay={0.5} className="mt-16 flex justify-center">
+        <Reveal delay={0.5} className="mt-20 flex justify-center">
           <Link to="/catalogue">
-            <Button size="lg" className="rounded-full bg-[var(--foreground)] px-8 font-bold text-white transition-all hover:scale-[1.02] active:scale-95">
-              Voir plus de formations
-              <ArrowRight className="ml-2 h-4 w-4" />
+            <Button size="lg" className="h-14 rounded-full bg-[#0A0A0A] px-10 text-sm font-black uppercase tracking-widest text-white transition-all hover:scale-[1.05] active:scale-95 shadow-xl shadow-black/10">
+              Voir tout le catalogue de formations
+              <ArrowRight className="ml-3 h-5 w-5" />
             </Button>
           </Link>
         </Reveal>

@@ -23,45 +23,47 @@ export function FormationsPreview({ className }: { className?: string }) {
   const previewFormations = FORMATIONS.slice(0, 3)
   
   return (
-    <BrowserCard className={className}>
-      <div className="space-y-3 p-4 sm:p-5">
-        {previewFormations.map((f, i) => (
-          <div
-            key={f.id}
-            className="flex items-center gap-3 rounded-xl border border-[#E5E5E5] bg-white p-2.5 transition-shadow hover:shadow-sm"
-          >
-            <div className="h-12 w-16 shrink-0 overflow-hidden rounded-lg">
-              <ImageWithFallback
-                src={f.image ?? ''}
-                alt={f.title}
-                fallback={<GradientPlaceholder variant={i === 0 ? 'blue' : i === 1 ? 'orange' : 'green'} />}
-              />
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-xs font-semibold text-[#0A0A0A] sm:text-sm">
-                {f.title}
-              </p>
-              <div className="mt-1 flex flex-wrap items-center gap-1.5">
-                <span
-                  className={cn(
-                    'rounded-full px-1.5 py-0.5 text-[9px] font-medium',
-                    LEVEL_COLORS[f.level],
-                  )}
-                >
-                  {LEVEL_LABELS[f.level]}
-                </span>
-                <span className="inline-flex items-center gap-0.5 text-[10px] text-[#737373]">
-                  <Clock className="h-2.5 w-2.5" />
-                  {f.duration}
-                </span>
-              </div>
-            </div>
-            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-[#1E40AF]/10 text-[#1E40AF]">
-              <GraduationCap className="h-3.5 w-3.5" />
-            </span>
+    <div className={cn("grid gap-4 p-2", className)}>
+      {previewFormations.map((f, i) => (
+        <div
+          key={f.id}
+          className="group/item relative flex flex-col gap-3 rounded-2xl border border-[#0A0A0A]/5 bg-white p-3 shadow-sm transition-all hover:border-[var(--primary)]/20 hover:shadow-md"
+        >
+          {/* Thumbnail - YouTube style */}
+          <div className="aspect-video w-full overflow-hidden rounded-xl bg-gray-100">
+            <ImageWithFallback
+              src={f.image ?? ''}
+              alt={f.title}
+              className="h-full w-full object-cover transition-transform duration-500 group-hover/item:scale-105"
+              fallback={<GradientPlaceholder variant={i === 0 ? 'blue' : i === 1 ? 'orange' : 'green'} />}
+            />
           </div>
-        ))}
-      </div>
-    </BrowserCard>
+          
+          <div className="flex flex-col gap-1.5 px-1">
+            <div className="flex items-center justify-between">
+              <span
+                className={cn(
+                  'rounded-full px-2 py-0.5 text-[8px] font-black uppercase tracking-widest',
+                  LEVEL_COLORS[f.level],
+                )}
+              >
+                {LEVEL_LABELS[f.level]}
+              </span>
+              <span className="inline-flex items-center gap-1 text-[9px] font-bold text-[#737373]">
+                <Clock className="h-3 w-3" />
+                {f.duration}
+              </span>
+            </div>
+            
+            <h4 className="line-clamp-1 font-display text-sm font-black text-[#0A0A0A] group-hover/item:text-[var(--primary)] transition-colors">
+              {f.title}
+            </h4>
+            <p className="line-clamp-2 text-[10px] font-medium leading-relaxed text-[#4A4A4A] opacity-60">
+              {f.shortDescription}
+            </p>
+          </div>
+        </div>
+      ))}
+    </div>
   )
 }

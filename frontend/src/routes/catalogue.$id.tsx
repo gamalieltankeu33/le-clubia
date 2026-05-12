@@ -38,7 +38,16 @@ function FormationDetailPage() {
     <div className="min-h-screen bg-white text-[#0A0A0A]">
       <LandingHeader />
 
-      <main className="mx-auto max-w-7xl px-6 py-24 md:py-32">
+      <main className="mx-auto max-w-5xl px-6 py-24 md:py-32">
+        <div className="mb-10">
+          <Link to="/catalogue">
+            <Button variant="ghost" className="h-10 rounded-full border border-[#0A0A0A]/5 px-4 text-[10px] font-black uppercase tracking-widest text-[#4A4A4A] transition-all hover:bg-[#0A0A0A] hover:text-white">
+              <ArrowLeft className="mr-2 h-3.5 w-3.5" />
+              Retour au catalogue
+            </Button>
+          </Link>
+        </div>
+
         <div className="grid grid-cols-1 gap-16 lg:grid-cols-3">
           {/* Main Content */}
           <div className="lg:col-span-2">
@@ -47,6 +56,16 @@ function FormationDetailPage() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5 }}
             >
+              {/* Hero Thumbnail */}
+              <div className="relative mb-12 aspect-video w-full overflow-hidden rounded-[2.5rem] border border-[#0A0A0A]/5 shadow-2xl shadow-[var(--primary)]/5">
+                <div className={cn("absolute inset-0 opacity-20 bg-gradient-to-br", formation.color)} />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="flex h-24 w-24 items-center justify-center rounded-full bg-white/20 backdrop-blur-md">
+                    <div className="h-0 w-0 border-b-[15px] border-l-[25px] border-t-[15px] border-b-transparent border-l-white border-t-transparent ml-2" />
+                  </div>
+                </div>
+              </div>
+
               <div className="mb-6 flex items-center gap-3">
                 <span className={cn(
                   "rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-widest",
