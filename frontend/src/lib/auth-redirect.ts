@@ -13,13 +13,20 @@ export function nextRouteAfterAuth(
   profile: Profile | null,
   subscription: Subscription | null,
   requireMember = false,
-): AuthRedirectTarget {
+): string {
   if (!profile?.onboarding_completed) return '/onboarding'
 
-  if (requireMember) {
-    const isActive =
-      subscription?.status === 'active' || subscription?.status === 'trialing'
-    if (!isActive) return '/checkout'
+  // Si l'utilisateur a un plan en attente (choisi sur la landing)
+  // et qu'il n'est pas encore actif, on l'envoie vers le checkout.
+  const isActive =
+    subscription?.status === 'active' || subscription?.status === 'trialing'
+
+  if (profile?.desired_plan_id && !isActive) {
+    return `/checkout?plan=${profile.desired_plan_id}`
+  }
+
+  if (requireMember && !isActive) {
+    return '/checkout'
   }
 
   return '/app/dashboard'
