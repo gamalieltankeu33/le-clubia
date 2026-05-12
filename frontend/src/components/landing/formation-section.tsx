@@ -48,15 +48,15 @@ export function FormationSection() {
                     <Clock className="h-3 w-3" /> {f.duration}
                   </div>
                 </div>
-                <h3 className="font-display text-lg font-black text-[#0A0A0A] transition-colors group-hover:text-[var(--primary)]">
+                <h3 className="font-display text-xl font-black text-[#0A0A0A] transition-colors group-hover:text-[var(--primary)] md:text-2xl">
                   {f.title}
                 </h3>
-                <p className="mt-3 text-xs font-medium leading-relaxed text-[#4A4A4A] opacity-60 line-clamp-3">
+                <p className="mt-4 text-sm font-medium leading-relaxed text-[#4A4A4A] opacity-70 line-clamp-3">
                   {f.shortDescription}
                 </p>
               </div>
 
-              <div className="mt-8">
+              <div className="mt-10">
                 <Link to="/catalogue/$id" params={{ id: f.id }}>
                   <Button variant="ghost" className="h-11 w-full justify-between rounded-xl border border-[#0A0A0A]/5 px-4 transition-all group-hover:border-[var(--primary)] group-hover:bg-[var(--primary)] group-hover:text-white">
                     <span className="text-[10px] font-black uppercase tracking-widest">Voir le programme</span>

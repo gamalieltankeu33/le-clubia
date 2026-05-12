@@ -55,10 +55,10 @@ export function FormationsPreview({ className }: { className?: string }) {
               </span>
             </div>
             
-            <h4 className="line-clamp-1 font-display text-sm font-black text-[#0A0A0A] group-hover/item:text-[var(--primary)] transition-colors">
+            <h4 className="line-clamp-1 font-display text-base font-black text-[#0A0A0A] group-hover/item:text-[var(--primary)] transition-colors">
               {f.title}
             </h4>
-            <p className="line-clamp-2 text-[10px] font-medium leading-relaxed text-[#4A4A4A] opacity-60">
+            <p className="line-clamp-2 text-xs font-medium leading-relaxed text-[#4A4A4A] opacity-70">
               {f.shortDescription}
             </p>
           </div>

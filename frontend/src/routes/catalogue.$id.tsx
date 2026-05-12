@@ -189,14 +189,14 @@ function FormationDetailPage() {
                     </div>
                   </div>
 
-                  <Link to="/signup">
+                  <Link to="/auth">
                     <Button className="h-14 w-full rounded-2xl bg-[var(--primary)] text-sm font-black uppercase tracking-widest text-white shadow-xl shadow-[var(--primary)]/20 transition-all hover:scale-[1.02] active:scale-95">
-                      Rejoindre la formation
+                      Rejoindre Le Club IA
                     </Button>
                   </Link>
                   
                   <p className="mt-5 text-center text-[9px] font-black uppercase tracking-widest text-[#4A4A4A] opacity-30">
-                    Satisfait ou remboursé sous 14 jours
+                    Accès immédiat • 100% sécurisé
                   </p>
                 </div>
               </div>
@@ -204,15 +204,45 @@ function FormationDetailPage() {
               <div className="mt-6 rounded-2xl border border-[var(--primary)]/10 bg-[var(--primary)]/[0.02] p-6 backdrop-blur-xl">
                 <div className="mb-2 flex items-center gap-3">
                   <Users className="h-5 w-5 text-[var(--primary)]" />
-                  <h4 className="text-sm font-black text-[#0A0A0A]">Le Club IA — Community</h4>
+                  <h4 className="text-sm font-black text-[#0A0A0A]">Communauté Privée</h4>
                 </div>
                 <p className="text-xs font-medium leading-relaxed text-[#4A4A4A] opacity-70">
-                  Inclus avec chaque formation : l'accès à notre communauté privée pour échanger et poser tes questions.
+                  Pose tes questions, partage tes projets et avance avec les meilleurs.
                 </p>
               </div>
             </motion.div>
           </aside>
         </div>
+
+        {/* Final CTA Section */}
+        <motion.section 
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="mt-32 rounded-[3rem] bg-[#0A0A0A] p-12 text-center text-white md:p-20"
+        >
+          <span className="mb-6 inline-block rounded-full bg-[var(--primary)]/20 px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.3em] text-[var(--primary)]">
+            Accès Illimité
+          </span>
+          <h2 className="font-display text-3xl font-black tracking-tight md:text-5xl lg:text-6xl">
+            Prêt à transformer ton <br className="hidden md:block" /> 
+            quotidien avec <span className="italic text-[var(--primary)]">l'IA ?</span>
+          </h2>
+          <p className="mx-auto mt-8 max-w-xl text-lg font-medium text-white/60">
+            Rejoins plus de 500 passionnés et accède à toutes nos formations, notre communauté et nos outils exclusifs.
+          </p>
+          <div className="mt-12 flex flex-col items-center justify-center gap-6 sm:flex-row">
+            <Link to="/auth">
+              <Button size="lg" className="h-16 rounded-2xl bg-[var(--primary)] px-10 text-xs font-black uppercase tracking-widest text-white transition-all hover:scale-[1.05] shadow-2xl shadow-[var(--primary)]/20">
+                Rejoindre Le Club
+                <Zap className="ml-3 h-5 w-5" />
+              </Button>
+            </Link>
+          </div>
+          <p className="mt-8 text-[10px] font-black uppercase tracking-[0.2em] text-white/30">
+            Sans engagement • Annulation en un clic
+          </p>
+        </motion.section>
       </main>
 
       <LandingFooter />
