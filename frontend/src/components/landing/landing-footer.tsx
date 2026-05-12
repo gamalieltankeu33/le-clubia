@@ -5,7 +5,7 @@ import { BrandLogo } from '@/components/brand-logo'
 export function LandingFooter() {
   return (
     <footer className="border-t border-[var(--border)] bg-white">
-      <div className="mx-auto max-w-6xl px-6 py-16">
+      <div className="mx-auto max-w-6xl px-5 sm:px-6 lg:px-8 py-16">
         <div className="grid gap-12 md:grid-cols-4 md:gap-8">
           {/* Brand */}
           <div className="md:col-span-1">

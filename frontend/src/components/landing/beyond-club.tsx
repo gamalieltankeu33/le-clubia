@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils'
 export function BeyondClub() {
   return (
     <section className="relative overflow-hidden bg-white py-16 sm:py-24 lg:py-28">
-      <div className="mx-auto max-w-7xl px-6">
+      <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
           <Reveal>
             <Eyebrow className="mb-6">Bénéfices exclusifs</Eyebrow>

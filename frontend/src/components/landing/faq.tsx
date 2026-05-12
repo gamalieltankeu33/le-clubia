@@ -47,7 +47,7 @@ const FAQS = [
 export function FAQ() {
   return (
     <section className="overflow-hidden bg-white py-12 sm:py-16 lg:py-24">
-      <div className="mx-auto max-w-3xl px-6">
+      <div className="mx-auto max-w-3xl px-5 sm:px-6">
         <div className="text-center">
           <Reveal>
             <Eyebrow>Questions</Eyebrow>

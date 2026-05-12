@@ -36,7 +36,7 @@ export function Hero() {
         <div className="absolute left-[15%] top-1/3 h-[400px] w-[400px] rounded-full bg-[var(--primary)]/[0.06] blur-[90px]" />
       </div>
 
-      <div className="mx-auto max-w-7xl px-6 text-center">
+      <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8 text-center">
         <div className="mx-auto max-w-4xl">
           <Reveal delay={0.05}>
             <Eyebrow className="mb-8">Communauté × IA francophone</Eyebrow>

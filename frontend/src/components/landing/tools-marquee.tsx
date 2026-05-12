@@ -29,7 +29,7 @@ export function ToolsMarquee() {
       aria-label="Outils IA couverts par Le Club IA"
       className="bg-white py-14 sm:py-16 lg:py-24 overflow-hidden"
     >
-      <div className="mx-auto max-w-7xl px-6">
+      <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
           <Reveal>
             <Eyebrow className="mb-4">Outils couverts dans le club</Eyebrow>

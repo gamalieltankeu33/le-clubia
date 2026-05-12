@@ -23,7 +23,7 @@ export function CoachSection() {
         <div className="absolute right-[5%] bottom-[10%] h-[500px] w-[500px] rounded-full bg-[var(--primary)]/[0.04] blur-[120px]" />
       </div>
 
-      <div className="mx-auto grid max-w-7xl items-center gap-16 px-6 lg:grid-cols-2 lg:gap-24">
+      <div className="mx-auto grid max-w-7xl items-center gap-16 px-5 sm:px-6 lg:grid-cols-2 lg:gap-24 lg:px-8">
         <Reveal direction="right">
           <Eyebrow variant="accent" className="mb-6">Feature exclusive</Eyebrow>
           <h2 className="font-display text-4xl font-bold tracking-tight text-[var(--foreground)] sm:text-5xl lg:text-6xl">

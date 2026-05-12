@@ -53,7 +53,7 @@ const TESTIMONIALS: Testimonial[] = [
 export function Testimonials() {
   return (
     <section className="overflow-hidden bg-[var(--background)] py-12 sm:py-16 lg:py-24">
-      <div className="mx-auto max-w-6xl px-6">
+      <div className="mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
           <Reveal>
             <Eyebrow>Ils racontent</Eyebrow>

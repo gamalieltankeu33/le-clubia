@@ -74,7 +74,7 @@ const EASE = [0.22, 1, 0.36, 1] as const
 export function FeaturedMembers() {
   return (
     <section className="overflow-hidden bg-white py-12 sm:py-16 lg:py-24">
-      <div className="mx-auto max-w-6xl px-6">
+      <div className="mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
           <Reveal>
             <Eyebrow>Ils sont déjà membres</Eyebrow>

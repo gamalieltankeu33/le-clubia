@@ -97,7 +97,7 @@ export function PricingCard() {
         <div className="absolute left-1/2 top-1/2 h-[800px] w-[800px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--primary)]/[0.03] blur-[120px]" />
       </div>
 
-      <div className="mx-auto max-w-7xl px-6">
+      <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
         <div className="text-center">
           <Reveal>
             <Eyebrow className="mb-6">Investis sur toi</Eyebrow>
