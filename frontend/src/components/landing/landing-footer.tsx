@@ -24,7 +24,14 @@ export function LandingFooter() {
 
           {/* Produit */}
           <FooterColumn title="Produit">
-            <FooterLink href="#piliers">Formations</FooterLink>
+            <li>
+              <Link
+                to="/catalogue"
+                className="text-sm text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
+              >
+                Formations
+              </Link>
+            </li>
             <FooterLink href="#piliers">Communauté</FooterLink>
             <FooterLink href="#piliers">Coach IA</FooterLink>
             <FooterLink href="#piliers">Actualités</FooterLink>

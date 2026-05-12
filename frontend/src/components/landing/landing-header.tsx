@@ -43,6 +43,12 @@ export function LandingHeader() {
           <BrandLogo size="md" variant="primary" className="transition-transform hover:scale-[1.02]" />
 
           <nav className="flex items-center gap-6 sm:gap-8">
+            <a
+              href="#formations"
+              className="hidden text-sm font-medium text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)] sm:inline-block"
+            >
+              Formations
+            </a>
             <Link
               to="/auth"
               className="hidden text-sm font-medium text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)] sm:inline-block"
