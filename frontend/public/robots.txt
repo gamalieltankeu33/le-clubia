@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /app/
+Disallow: /auth
+Disallow: /onboarding
+Disallow: /checkout
+Disallow: /abonnement
+Disallow: /reset-password
+Disallow: /forgot-password
+
+Sitemap: https://leclubia.com/sitemap.xml

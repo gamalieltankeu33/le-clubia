@@ -19,8 +19,12 @@ const FAQS = [
     a: "Tu peux payer par mobile money africain : Orange Money, Wave, MTN Money ou Moov Money. Le paiement est sécurisé et géré par notre partenaire de paiement. Ça prend 30 secondes.",
   },
   {
+    q: 'Quels sont les plans disponibles ?',
+    a: "Deux formules sans reconduction automatique : le Plan Master annuel à 99 000 FCFA (la plus avantageuse, ~8 250 FCFA/mois) et le Plan Progress semestriel à 69 000 FCFA (~11 500 FCFA/mois). Tu choisis au moment de t'inscrire.",
+  },
+  {
     q: "L'abonnement se reconduit-il automatiquement ?",
-    a: "Non. L'abonnement est annuel et ne se reconduit pas automatiquement. Tu n'es pas re-débité à la fin de l'année — tu choisis librement de reconduire ou non au moment voulu.",
+    a: "Non. Aucune des deux formules (annuelle ou semestrielle) ne se reconduit automatiquement. Tu ne seras jamais re-débité sans ton accord — tu choisis librement de reconduire au moment voulu.",
   },
   {
     q: 'Les formations sont-elles à jour ?',
@@ -28,7 +32,7 @@ const FAQS = [
   },
   {
     q: 'Y a-t-il un essai gratuit ?',
-    a: "Pas de période d'essai gratuite. L'abonnement est annuel à 99 000 FCFA, sans reconduction automatique : tu testes le Club pendant un an, et tu décides librement si tu reconduis ensuite.",
+    a: "Pas de période d'essai gratuite. Tu choisis entre la formule semestrielle (69 000 FCFA pour 6 mois) ou annuelle (99 000 FCFA pour 12 mois), sans reconduction automatique. Tu testes le Club et tu décides librement de reconduire au terme.",
   },
   {
     q: 'Quelle différence avec une simple newsletter IA ?',

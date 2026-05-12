@@ -16,6 +16,7 @@ import { BrandLogo } from '@/components/brand-logo'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/auth-store'
 import { nextRouteAfterAuth } from '@/lib/auth-redirect'
+import { sanitizeName } from '@/lib/sanitize-profile'
 import { cn } from '@/lib/utils'
 import confetti from 'canvas-confetti'
 
@@ -140,11 +141,19 @@ function OnboardingPage() {
     if (!user || saving) return
     setSaving(true)
 
+    const cleanFirst = sanitizeName(firstName)
+    const cleanLast = sanitizeName(lastName)
+    if (!cleanFirst || !cleanLast) {
+      toast.error('Prénom et nom doivent contenir au moins une lettre valide.')
+      setSaving(false)
+      return
+    }
+
     const { error } = await supabase
       .from('profiles')
       .update({
-        first_name: firstName.trim(),
-        last_name: lastName.trim(),
+        first_name: cleanFirst,
+        last_name: cleanLast,
         interests,
         onboarding_completed: true,
       })

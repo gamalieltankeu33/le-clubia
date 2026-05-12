@@ -37,6 +37,7 @@ type EmailType =
   | 'event-reminder-1day'
   | 'event-reminder-today'
   | 'welcome'
+  | 'subscription-expiring'
 
 interface BaseRequest {
   type: EmailType
@@ -217,6 +218,8 @@ function renderTemplate(
       return tplEventReminderToday(data)
     case 'welcome':
       return tplWelcome(data)
+    case 'subscription-expiring':
+      return tplSubscriptionExpiring(data)
     default:
       throw new Error(`Type inconnu : ${type}`)
   }
@@ -716,16 +719,23 @@ function tplEventReminderToday(raw: Record<string, unknown>) {
 }
 
 // =============================================================================
-// Template 5 — Bienvenue (placeholder pour usage futur)
+// Template 5 — Bienvenue + reçu de paiement (envoyé après activation Maketou)
 // =============================================================================
 
 interface WelcomeData {
   member_first_name?: string
-  /** Nom lisible du plan (ex : "Annuel", "6 mois", "Annuel (ancien tarif)").
-   *  Optionnel — si absent, l'email reste générique. */
+  /** Nom lisible du plan (ex : "Plan Master", "Plan Progress"). */
   plan_display_name?: string
   /** Prix mensuel calculé en FCFA (ex : 8250 → "8 250 FCFA / mois"). */
   monthly_price_xof?: number
+  /** Montant TOTAL effectivement payé pour cette période (ex : 99000). */
+  amount_paid_xof?: number
+  /** Durée souscrite en mois (6 ou 12). */
+  duration_months?: number
+  /** Date de fin d'accès au format ISO (current_period_end). */
+  period_end_iso?: string
+  /** Référence Maketou (cart_id) — utile en cas de litige. */
+  reference?: string
 }
 
 function tplWelcome(raw: Record<string, unknown>) {
@@ -733,42 +743,181 @@ function tplWelcome(raw: Record<string, unknown>) {
   const firstName = (d.member_first_name ?? '').trim() || ''
   const greeting = firstName ? `Bienvenue ${escapeHtml(firstName)} !` : 'Bienvenue !'
 
-  // Bloc plan optionnel — si l'admin a activé le membre avec un plan
-  // précis, on le mentionne pour confirmer ce que le membre a souscrit.
-  const planBlock =
-    d.plan_display_name && d.monthly_price_xof
-      ? `<p style="margin:0 0 12px;font-size:14px;color:#525252;">Ton plan : <strong>${escapeHtml(d.plan_display_name)}</strong> — ${formatXofForEmail(d.monthly_price_xof)}/mois.</p>`
-      : ''
+  // ── Récap du paiement (affiché uniquement si on a les infos) ───────
+  const periodEndLabel = d.period_end_iso ? formatFrenchDate(d.period_end_iso) : ''
+  const recapRows: string[] = []
+  if (d.plan_display_name) {
+    recapRows.push(
+      `<tr><td style="padding:6px 0;color:#737373;font-size:13px;">Plan</td><td align="right" style="padding:6px 0;color:#0A0A0A;font-size:13px;font-weight:600;">${escapeHtml(d.plan_display_name)}</td></tr>`,
+    )
+  }
+  if (d.duration_months) {
+    recapRows.push(
+      `<tr><td style="padding:6px 0;color:#737373;font-size:13px;">Durée d'accès</td><td align="right" style="padding:6px 0;color:#0A0A0A;font-size:13px;font-weight:600;">${d.duration_months} mois</td></tr>`,
+    )
+  }
+  if (periodEndLabel) {
+    recapRows.push(
+      `<tr><td style="padding:6px 0;color:#737373;font-size:13px;">Accès valable jusqu'au</td><td align="right" style="padding:6px 0;color:#0A0A0A;font-size:13px;font-weight:600;">${escapeHtml(periodEndLabel)}</td></tr>`,
+    )
+  }
+  if (d.amount_paid_xof) {
+    recapRows.push(
+      `<tr><td style="padding:10px 0 6px;color:#0A0A0A;font-size:14px;font-weight:600;border-top:1px solid #E5E5E5;">Montant payé</td><td align="right" style="padding:10px 0 6px;color:#1E40AF;font-size:16px;font-weight:700;border-top:1px solid #E5E5E5;">${formatXofForEmail(d.amount_paid_xof)}</td></tr>`,
+    )
+  }
+  if (d.reference) {
+    recapRows.push(
+      `<tr><td style="padding:6px 0;color:#737373;font-size:11px;">Réf. paiement</td><td align="right" style="padding:6px 0;color:#737373;font-size:11px;font-family:monospace;">${escapeHtml(d.reference)}</td></tr>`,
+    )
+  }
+  const recapBlock = recapRows.length
+    ? `
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:20px 0;background:#FAFAF9;border:1px solid #E5E5E5;border-radius:12px;padding:16px;">
+        ${recapRows.join('\n')}
+      </table>
+    `
+    : ''
 
   const body = `
     <p style="margin:0 0 12px;">${greeting}</p>
-    ${planBlock}
-    <p style="margin:0 0 16px;">Tu fais maintenant partie du Club IA. On a hâte de te voir progresser avec nous.</p>
-    <p style="margin:16px 0 0;font-size:14px;color:#525252;">Premier réflexe : explore le catalogue de formations et passe dire bonjour dans la communauté.</p>
+    <p style="margin:0 0 16px;">Ton paiement a bien été reçu et ton accès au Club IA est <strong>activé</strong>.</p>
+    ${recapBlock}
+    <p style="margin:16px 0 8px;font-weight:600;">Tes premiers pas dans le Club :</p>
+    <ul style="margin:0 0 16px;padding-left:18px;color:#525252;font-size:14px;line-height:1.7;">
+      <li>Présente-toi dans la communauté pour dire bonjour</li>
+      <li>Pose une première question au Coach IA pour tester</li>
+      <li>Lance la formation qui correspond le mieux à ton objectif</li>
+    </ul>
+    <p style="margin:16px 0 0;font-size:13px;color:#737373;">Une question, un souci ? Réponds simplement à cet email — quelqu'un te répondra rapidement.</p>
   `
 
-  const planText = d.plan_display_name && d.monthly_price_xof
-    ? `\n\nTon plan : ${d.plan_display_name} — ${formatXofForEmail(d.monthly_price_xof)}/mois.`
-    : ''
+  const textLines: string[] = [greeting, '', 'Ton paiement a bien été reçu et ton accès au Club IA est activé.']
+  if (d.plan_display_name) textLines.push(`Plan : ${d.plan_display_name}`)
+  if (d.duration_months) textLines.push(`Durée d'accès : ${d.duration_months} mois`)
+  if (periodEndLabel) textLines.push(`Accès valable jusqu'au ${periodEndLabel}`)
+  if (d.amount_paid_xof) textLines.push(`Montant payé : ${formatXofForEmail(d.amount_paid_xof)}`)
+  if (d.reference) textLines.push(`Réf. paiement : ${d.reference}`)
+  textLines.push('', "Premiers pas : présente-toi dans la communauté, teste le Coach IA, lance ta première formation.")
 
   return {
-    subject: '🎉 Bienvenue dans Le Club IA',
+    subject: '✅ Paiement confirmé — Bienvenue dans Le Club IA',
     html: layoutHtml({
-      preheader: 'Bienvenue dans la communauté francophone IA',
-      heroEmoji: '🎉',
-      heroTitle: 'Bienvenue dans Le Club IA',
-      heroSubtitle: 'Ravi de te compter parmi nous',
+      preheader: 'Ton accès au Club IA est activé. Voici le récap de ton paiement.',
+      heroEmoji: '✅',
+      heroTitle: 'Paiement confirmé',
+      heroSubtitle: 'Ton accès au Club IA est activé',
       body,
       ctaUrl: `${APP_URL}/app/dashboard`,
-      ctaLabel: 'Aller au dashboard',
+      ctaLabel: 'Accéder au Club',
     }),
     text: plainText({
-      title: 'Bienvenue dans Le Club IA',
-      subtitle: 'Ravi de te compter parmi nous',
-      body: `${greeting}${planText}\n\nTu fais maintenant partie du Club IA. On a hâte de te voir progresser avec nous.`,
+      title: 'Paiement confirmé',
+      subtitle: 'Ton accès au Club IA est activé',
+      body: textLines.join('\n'),
       ctaUrl: `${APP_URL}/app/dashboard`,
-      ctaLabel: 'Aller au dashboard',
+      ctaLabel: 'Accéder au Club',
     }),
+  }
+}
+
+// =============================================================================
+// Template 6 — Rappel d'expiration d'abonnement (J-7 / J-1)
+// =============================================================================
+
+interface SubscriptionExpiringData {
+  member_first_name?: string
+  /** "j7" ou "j1" — détermine l'urgence du wording. */
+  stage: 'j7' | 'j1'
+  /** Nom lisible du plan en cours. */
+  plan_display_name?: string
+  /** Date de fin d'accès au format ISO. */
+  period_end_iso: string
+  /** ID du plan recommandé pour la reconduction (annual par défaut). */
+  renewal_plan_id?: 'annual' | 'semestrial'
+}
+
+function tplSubscriptionExpiring(raw: Record<string, unknown>) {
+  const d = raw as unknown as SubscriptionExpiringData
+  const firstName = (d.member_first_name ?? '').trim() || ''
+  const stage = d.stage === 'j1' ? 'j1' : 'j7'
+  const endLabel = formatFrenchDate(d.period_end_iso)
+  const renewalPlan = d.renewal_plan_id === 'semestrial' ? 'semestrial' : 'annual'
+  const renewalUrl = `${APP_URL}/checkout?plan=${renewalPlan}`
+
+  const isUrgent = stage === 'j1'
+
+  const greeting = firstName ? `Salut ${escapeHtml(firstName)},` : 'Salut,'
+  const intro = isUrgent
+    ? `<strong>Demain, ton accès au Club s'arrête.</strong>`
+    : `Ton accès au Club expire dans <strong>7 jours</strong>.`
+
+  const body = `
+    <p style="margin:0 0 12px;">${greeting}</p>
+    <p style="margin:0 0 16px;">${intro} Ton abonnement <strong>${escapeHtml(d.plan_display_name ?? 'Le Club IA')}</strong> est valable jusqu'au <strong>${escapeHtml(endLabel)}</strong>.</p>
+    <p style="margin:0 0 16px;">Pas de reconduction automatique : si tu veux continuer à profiter des formations, du Coach IA et de la communauté, il faut reconduire manuellement. Ça prend 30 secondes.</p>
+    <p style="margin:16px 0 8px;font-weight:600;">Ce que tu perdras si tu ne reconduis pas :</p>
+    <ul style="margin:0 0 16px;padding-left:18px;color:#525252;font-size:14px;line-height:1.7;">
+      <li>L'accès à toutes les formations IA en français</li>
+      <li>Ton Coach IA personnel (30 messages/jour)</li>
+      <li>La communauté privée des membres</li>
+      <li>La veille IA hebdomadaire et les ressources téléchargeables</li>
+    </ul>
+    <p style="margin:16px 0 0;font-size:13px;color:#737373;">Une question, un souci ? Réponds simplement à cet email — on regarde ça rapidement.</p>
+  `
+
+  const textBody = [
+    greeting,
+    '',
+    isUrgent
+      ? `Demain, ton accès au Club s'arrête.`
+      : `Ton accès au Club expire dans 7 jours.`,
+    `Ton abonnement (${d.plan_display_name ?? 'Le Club IA'}) est valable jusqu'au ${endLabel}.`,
+    '',
+    "Pas de reconduction automatique : reconduis manuellement en 30 secondes pour ne rien perdre.",
+    '',
+    `Reconduire : ${renewalUrl}`,
+  ].join('\n')
+
+  const subject = isUrgent
+    ? '⏰ Demain, tu perds ton accès au Club IA'
+    : '⏰ Plus que 7 jours d\'accès au Club IA'
+
+  return {
+    subject,
+    html: layoutHtml({
+      preheader: isUrgent
+        ? 'Demain, ton accès au Club s\'arrête. Reconduis maintenant.'
+        : 'Ton abonnement expire dans 7 jours. Reconduis sans interruption.',
+      heroEmoji: '⏰',
+      heroTitle: isUrgent ? 'Demain, c\'est terminé' : 'Plus que 7 jours',
+      heroSubtitle: `Accès valable jusqu'au ${endLabel}`,
+      body,
+      ctaUrl: renewalUrl,
+      ctaLabel: isUrgent ? 'Reconduire maintenant' : 'Reconduire mon abonnement',
+      ctaColor: isUrgent ? '#F97316' : '#1E40AF',
+    }),
+    text: plainText({
+      title: isUrgent ? 'Demain, c\'est terminé' : 'Plus que 7 jours',
+      subtitle: `Accès valable jusqu'au ${endLabel}`,
+      body: textBody,
+      ctaUrl: renewalUrl,
+      ctaLabel: isUrgent ? 'Reconduire maintenant' : 'Reconduire mon abonnement',
+    }),
+  }
+}
+
+/** Format date FR sans l'heure, pour affichage "valable jusqu'au …" */
+function formatFrenchDate(iso: string): string {
+  try {
+    const d = new Date(iso)
+    return d.toLocaleDateString('fr-FR', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    })
+  } catch {
+    return iso
   }
 }
 

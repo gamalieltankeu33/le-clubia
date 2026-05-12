@@ -23,6 +23,7 @@ import { useAuthStore } from '@/stores/auth-store'
 import { useCoachStore } from '@/stores/coach-store'
 import { INTERESTS } from '@/lib/interests'
 import { compressImage } from '@/lib/compress-image'
+import { sanitizeBio, sanitizeName } from '@/lib/sanitize-profile'
 import { cn } from '@/lib/utils'
 import { useConfirm } from '@/hooks/use-confirm'
 import { formatMemberNumber } from '@/lib/format-member-number'
@@ -116,17 +117,20 @@ function ProfilPage() {
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
     if (!user || saving) return
-    if (!firstName.trim() || !lastName.trim()) {
-      toast.error('Renseigne ton prénom et ton nom.')
+    const cleanFirst = sanitizeName(firstName)
+    const cleanLast = sanitizeName(lastName)
+    if (!cleanFirst || !cleanLast) {
+      toast.error('Prénom et nom doivent contenir au moins une lettre valide.')
       return
     }
+    const cleanBio = sanitizeBio(bio)
     setSaving(true)
     const { error } = await supabase
       .from('profiles')
       .update({
-        first_name: firstName.trim(),
-        last_name: lastName.trim(),
-        bio: bio.trim() || null,
+        first_name: cleanFirst,
+        last_name: cleanLast,
+        bio: cleanBio || null,
         interests,
       })
       .eq('id', user.id)

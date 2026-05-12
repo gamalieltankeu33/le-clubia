@@ -1,0 +1,25 @@
+{
+  "name": "Le Club IA",
+  "short_name": "Le Club IA",
+  "description": "Communauté francophone premium pour les passionnés d'IA.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#FAFAF9",
+  "theme_color": "#1E40AF",
+  "lang": "fr",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

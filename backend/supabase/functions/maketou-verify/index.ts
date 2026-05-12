@@ -164,11 +164,11 @@ serve(async (req: Request) => {
 
   // -------- 6. Branchement selon status ---------------------------------
   if (cart.status === 'completed') {
-    // Récupère la durée du plan
+    // Récupère la durée + prix + display_name du plan
     const planId = metaPlanId || 'annual'
     const { data: plan } = await adminClient
       .from('pricing_plans')
-      .select('duration_months')
+      .select('display_name, price_xof, duration_months')
       .eq('id', planId)
       .maybeSingle()
 
@@ -221,6 +221,45 @@ serve(async (req: Request) => {
         console.error('[maketou-verify] insert subscription KO', insErr)
         return json({ error: "Impossible d'activer ton abonnement." }, 500)
       }
+    }
+
+    // -------- 7. Email de confirmation + bienvenue ----------------------
+    // Best-effort : un échec d'envoi NE doit PAS faire planter le verify.
+    // Le user a déjà payé et son abo est activé, c'est ça qui compte.
+    try {
+      const { data: profile } = await adminClient
+        .from('profiles')
+        .select('first_name')
+        .eq('id', user.id)
+        .maybeSingle()
+
+      const monthlyPrice =
+        plan?.price_xof && plan?.duration_months
+          ? Math.round(plan.price_xof / plan.duration_months)
+          : undefined
+
+      await fetch(`${supabaseUrl}/functions/v1/send-email`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${supabaseServiceKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type: 'welcome',
+          to: user.email,
+          data: {
+            member_first_name: profile?.first_name ?? '',
+            plan_display_name: plan?.display_name ?? '',
+            monthly_price_xof: monthlyPrice,
+            amount_paid_xof: plan?.price_xof,
+            duration_months: durationMonths,
+            period_end_iso: periodEnd.toISOString(),
+            reference: cartId,
+          },
+        }),
+      })
+    } catch (e) {
+      console.error('[maketou-verify] welcome email KO (non-bloquant)', e)
     }
 
     return json({ status: 'activated', cartId, planId })

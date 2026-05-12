@@ -90,7 +90,8 @@ export function Hero() {
                   <span className="hidden sm:inline">Rejoindre Le Club</span>
                   <span className="sm:hidden">Rejoindre</span>
                   <span className="mx-2 h-4 w-px bg-white/20" />
-                  <span className="font-bold">À partir de 69&nbsp;000&nbsp;FCFA</span>
+                  <span className="hidden sm:inline font-bold">69&nbsp;000&nbsp;FCFA/6&nbsp;mois&nbsp;·&nbsp;99&nbsp;000&nbsp;FCFA/an</span>
+                  <span className="sm:hidden font-bold">dès 69&nbsp;000&nbsp;FCFA/6&nbsp;mois</span>
                   <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
                 </span>
                 {/* Shine effect */}

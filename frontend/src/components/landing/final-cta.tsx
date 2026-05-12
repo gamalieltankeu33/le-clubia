@@ -45,10 +45,10 @@ export function FinalCTA() {
                   className="cta-bleu-ciel cta-bleu-ciel-xl w-full sm:w-auto"
                 >
                   <span className="sm:hidden">
-                    Rejoindre — dès 69&nbsp;000&nbsp;FCFA
+                    Rejoindre — dès 69&nbsp;000&nbsp;FCFA/6&nbsp;mois
                   </span>
                   <span className="hidden sm:inline">
-                    Rejoindre Le Club — à partir de 69&nbsp;000&nbsp;FCFA
+                    Rejoindre — 69&nbsp;000&nbsp;FCFA/6&nbsp;mois ou 99&nbsp;000&nbsp;FCFA/an
                   </span>
                   <ArrowRight className="h-4 w-4" />
                 </Link>
