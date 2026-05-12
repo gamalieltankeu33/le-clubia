@@ -14,7 +14,6 @@ import { NewsPreview } from './previews/news-preview'
 import { ResourcesPreview } from './previews/resources-preview'
 
 import { Link } from '@tanstack/react-router'
-import { Button } from '@/components/ui/button'
 
 interface Pillar {
   icon: LucideIcon
@@ -67,7 +66,7 @@ export function FourPillars() {
       {/* Background depth halo */}
       <div className="pointer-events-none absolute left-0 top-1/2 h-[500px] w-[500px] -translate-y-1/2 rounded-full bg-[var(--primary)]/[0.03] blur-[100px]" />
 
-      <div className="mx-auto max-w-7xl px-6">
+      <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
           <Reveal>
             <Eyebrow className="mb-4">Tout en un</Eyebrow>
@@ -119,13 +118,19 @@ export function FourPillars() {
           ))}
         </div>
 
-        <Reveal delay={0.5} className="mt-20 flex justify-center">
-          <Link to="/catalogue">
-            <Button size="lg" className="h-14 rounded-full bg-[#0A0A0A] px-10 text-sm font-black uppercase tracking-widest text-white transition-all hover:scale-[1.05] active:scale-95 shadow-xl shadow-black/10">
-              Voir tout le catalogue de formations
-              <ArrowRight className="ml-3 h-5 w-5" />
-            </Button>
-          </Link>
+        {/* CTA bottom — full-width sur mobile pour booster la conversion,
+            pill centré sur desktop pour rester aéré. */}
+        <Reveal delay={0.5} className="mt-16 sm:mt-20">
+          <div className="flex justify-center">
+            <Link
+              to="/auth"
+              className="group relative inline-flex w-full items-center justify-center gap-3 overflow-hidden rounded-full bg-[#0A0A0A] px-8 py-5 text-base font-black uppercase tracking-widest text-white shadow-xl shadow-black/10 transition-all hover:scale-[1.02] active:scale-[0.98] sm:w-auto sm:px-12 sm:text-sm"
+            >
+              <span className="relative z-10">Rejoindre Le Club IA</span>
+              <ArrowRight className="relative z-10 h-5 w-5 transition-transform group-hover:translate-x-1" />
+              <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
+            </Link>
+          </div>
         </Reveal>
       </div>
     </section>
