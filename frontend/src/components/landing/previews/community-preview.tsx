@@ -33,7 +33,7 @@ const POSTS: PostItem[] = [
     initials: 'MD',
     role: 'Automation Architect',
     body: "J'ai branché GPT-4o sur mon CRM pour qualifier les leads en temps réel. Ça change tout pour la réactivité commerciale.",
-    avatar: '/landing/avatars/ak.png',
+    avatar: '/landing/avatars/md.png',
     bg: '#1e293b',
     likes: 67,
     comments: 19,

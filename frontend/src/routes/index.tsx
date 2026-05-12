@@ -6,7 +6,6 @@ import { FourPillars } from '@/components/landing/four-pillars'
 import { CoachSection } from '@/components/landing/coach-section'
 import { BeyondClub } from '@/components/landing/beyond-club'
 import { NewsAgentSection } from '@/components/landing/news-agent-section'
-import { FormationSection } from '@/components/landing/formation-section'
 import { Personas } from '@/components/landing/personas'
 import { FeaturedMembers } from '@/components/landing/featured-members'
 import { PricingCard } from '@/components/landing/pricing-card'
@@ -32,7 +31,6 @@ function LandingPage() {
           <CoachSection />
           <BeyondClub />
           <NewsAgentSection />
-          <FormationSection />
           <Personas />
           <FeaturedMembers />
           <PricingCard />

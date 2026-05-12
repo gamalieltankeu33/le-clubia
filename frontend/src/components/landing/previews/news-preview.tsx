@@ -1,83 +1,74 @@
-import { BrowserCard } from './browser-card'
 import {
-  GradientPlaceholder,
   ImageWithFallback,
 } from './image-with-fallback'
 import { cn } from '@/lib/utils'
 
-interface ArticleItem {
-  title: string
-  category: 'Modèles & recherche' | 'Outils & produits' | 'Business'
-  ago: string
-  image: string
-  variant: 'blue' | 'orange' | 'violet'
-}
-
-// Édite ces articles pour customiser le rendu. Drop tes images dans
-// /public/landing/articles/ avec ces noms exacts pour les utiliser.
-const ARTICLES: ArticleItem[] = [
+const articles = [
   {
-    title: 'OpenAI dévoile GPT-5 : ce qui change vraiment',
-    category: 'Modèles & recherche',
-    ago: 'il y a 2h',
-    image: '/landing/articles/article-1.jpg',
-    variant: 'blue',
+    title: 'GPT-X dépasse Claude sur les benchmarks de code',
+    source: 'openai.com',
+    tag: 'Modèles',
+    image: '/landing/previews/article-benchmarks.png',
+    color: 'bg-blue-600',
   },
   {
-    title: 'Anthropic lance Claude Code : la révolution dev',
-    category: 'Outils & produits',
-    ago: 'il y a 5h',
-    image: '/landing/articles/article-2.jpg',
-    variant: 'orange',
+    title: 'Mistral publie son nouveau modèle open source',
+    source: 'huggingface.co',
+    tag: 'Lancements',
+    image: '/landing/previews/article-mistral.png',
+    color: 'bg-indigo-500',
   },
   {
-    title: 'Mistral AI lève 600 M€ pour accélérer en Europe',
-    category: 'Business',
-    ago: 'il y a 1j',
-    image: '/landing/articles/article-3.jpg',
-    variant: 'violet',
+    title: 'Claude lance les agents autonomes en production',
+    source: 'anthropic.com',
+    tag: 'Outils',
+    image: '/landing/previews/article-agents.png',
+    color: 'bg-slate-800',
+  },
+  {
+    title: 'Les levées de fonds IA atteignent un nouveau record',
+    source: 'techcrunch.com',
+    tag: 'Business',
+    image: '/landing/previews/article-funding.png',
+    color: 'bg-emerald-600',
   },
 ]
 
-const CATEGORY_COLORS: Record<ArticleItem['category'], string> = {
-  'Modèles & recherche': 'bg-[var(--primary)]/10 text-[var(--primary)]',
-  'Outils & produits': 'bg-[var(--bleu-ciel)]/15 text-[var(--bleu-ciel-deep)]',
-  Business: 'bg-violet-100 text-violet-700',
-}
-
 export function NewsPreview({ className }: { className?: string }) {
   return (
-    <BrowserCard className={className}>
-      <div className="space-y-3 p-4 sm:p-5">
-        {ARTICLES.map((a) => (
-          <article
-            key={a.title}
-            className="flex gap-3 overflow-hidden rounded-xl border border-[#E5E5E5] bg-white p-2.5"
+    <div className={cn('relative rounded-3xl border border-[#0A0A0A]/5 bg-white p-4 shadow-2xl shadow-black/5', className)}>
+      <div className="grid grid-cols-2 gap-3 sm:gap-4">
+        {articles.map((article, i) => (
+          <div
+            key={i}
+            className="group/article overflow-hidden rounded-xl border border-[#0A0A0A]/5 bg-white transition-all hover:border-[var(--primary)]/20 hover:shadow-lg"
           >
-            <div className="h-14 w-20 shrink-0 overflow-hidden rounded-lg">
+            <div className="aspect-[16/10] w-full overflow-hidden bg-gray-100 relative">
               <ImageWithFallback
-                src={a.image}
-                alt={a.title}
-                fallback={<GradientPlaceholder variant={a.variant} />}
+                src={article.image}
+                alt={article.title}
+                className="h-full w-full object-cover transition-transform duration-500 group-hover/article:scale-110"
+                fallback={
+                  <div className={cn("absolute inset-0", article.color)} />
+                }
               />
+              <div className="absolute top-2 left-2">
+                <span className="rounded-full bg-white/90 backdrop-blur-sm px-2 py-0.5 text-[8px] font-black uppercase tracking-wider text-[#0A0A0A] shadow-sm">
+                  {article.tag}
+                </span>
+              </div>
             </div>
-            <div className="min-w-0 flex-1">
-              <span
-                className={cn(
-                  'inline-flex rounded-full px-1.5 py-0.5 text-[9px] font-medium',
-                  CATEGORY_COLORS[a.category],
-                )}
-              >
-                {a.category}
-              </span>
-              <p className="mt-1 line-clamp-2 text-xs font-semibold leading-snug text-[#0A0A0A]">
-                {a.title}
+            <div className="p-3">
+              <h4 className="line-clamp-2 text-[10px] font-black leading-tight text-[#0A0A0A] sm:text-[11px]">
+                {article.title}
+              </h4>
+              <p className="mt-1.5 text-[8px] font-bold text-[#737373] uppercase tracking-widest">
+                {article.source}
               </p>
-              <p className="mt-1 text-[10px] text-[#737373]">{a.ago}</p>
             </div>
-          </article>
+          </div>
         ))}
       </div>
-    </BrowserCard>
+    </div>
   )
 }
