@@ -6,12 +6,13 @@ const EASE_EXPO = [0.16, 1, 0.3, 1] as const
 /**
  * Wrapper Framer Motion : fade + translate au scroll.
  *
- * iOS Safari fix : la détection mobile est faite DANS l'initialiseur
- * de useState (donc avant le premier render), pas dans un useEffect.
- * Pourquoi : framer-motion capture `initial` au mount. Si on détecte
- * mobile après le mount, le translateX(-30) initial reste appliqué
- * jusqu'à ce que `whileInView` se déclenche, ce qui crée un décalage
- * visible sur iOS (~30px à droite) sur tout ce qui est en bas de fold.
+ * iOS Safari fix : sur mobile (<768px) on rend un `<div>` plain sans
+ * aucun motion ni transform. Le souci sur iOS Safari WebKit : les
+ * `<motion.div>` posent un compositing layer GPU avec un transform
+ * initial (translateX/translateY), et même quand whileInView snape à
+ * 0, des résidus subpixel persistent et donnent l'impression que tout
+ * est décalé à droite. Désactiver motion entièrement sur mobile élimine
+ * définitivement le bug. Animation visuelle conservée sur desktop.
  */
 export function Reveal({
   children,
@@ -26,28 +27,21 @@ export function Reveal({
   distance?: number
   className?: string
 }) {
-  // ⚠️ initialiseur synchrone — exécuté au tout premier render, AVANT
-  // que motion fige le state initial. Pas de SSR donc window est dispo.
+  // ⚠️ initialiseur synchrone (avant 1er render). Pas de SSR ici.
   const [isMobile] = useState(() =>
     typeof window !== 'undefined' &&
     window.matchMedia('(max-width: 767px)').matches,
   )
 
-  const effectiveDirection =
-    isMobile && (direction === 'left' || direction === 'right') ? 'up' : direction
+  if (isMobile) {
+    // Passthrough total — aucun transform, aucun layer GPU.
+    return <div className={className}>{children}</div>
+  }
 
   const initialX =
-    effectiveDirection === 'left'
-      ? distance
-      : effectiveDirection === 'right'
-        ? -distance
-        : 0
+    direction === 'left' ? distance : direction === 'right' ? -distance : 0
   const initialY =
-    effectiveDirection === 'up'
-      ? distance
-      : effectiveDirection === 'down'
-        ? -distance
-        : 0
+    direction === 'up' ? distance : direction === 'down' ? -distance : 0
 
   return (
     <motion.div

@@ -1,5 +1,4 @@
 import { ArrowRight, Check } from 'lucide-react'
-import { motion } from 'framer-motion'
 import { Eyebrow } from './eyebrow'
 import { Reveal } from './reveal'
 import { CoachMockup } from './mockups'
@@ -37,20 +36,13 @@ export function CoachSection() {
           </p>
 
           <ul className="mt-10 space-y-4">
-            {POINTS.map((p, i) => (
-              <motion.li 
-                key={p} 
-                initial={{ opacity: 0, x: -10 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.3 + i * 0.1 }}
-                className="flex items-start gap-4"
-              >
+            {POINTS.map((p) => (
+              <li key={p} className="flex items-start gap-4">
                 <div className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--accent)]/10 text-[var(--accent)]">
                   <Check className="h-3.5 w-3.5" />
                 </div>
                 <span className="text-lg font-medium text-[var(--foreground)]/80">{p}</span>
-              </motion.li>
+              </li>
             ))}
           </ul>
 
