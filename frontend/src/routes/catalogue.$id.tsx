@@ -239,3 +239,5 @@ function FormationDetailPage() {
         </p>
       </motion.section>
     </main>
+  )
+}
