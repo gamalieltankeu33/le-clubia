@@ -29,8 +29,8 @@ export function FormationsPreview({ className }: { className?: string }) {
           key={f.id}
           className="group/item relative flex flex-col gap-3 rounded-2xl border border-[#0A0A0A]/5 bg-white p-3 shadow-sm transition-all hover:border-[var(--primary)]/20 hover:shadow-md"
         >
-          {/* Thumbnail - YouTube style */}
-          <div className="aspect-video w-full overflow-hidden rounded-xl bg-gray-100">
+          {/* Thumbnail - YouTube style - Reduced size */}
+          <div className="aspect-video w-full overflow-hidden rounded-xl bg-gray-100 md:aspect-[21/9]">
             <ImageWithFallback
               src={f.image ?? ''}
               alt={f.title}
@@ -39,26 +39,26 @@ export function FormationsPreview({ className }: { className?: string }) {
             />
           </div>
           
-          <div className="flex flex-col gap-1.5 px-1">
+          <div className="flex flex-col gap-2 px-1 py-1">
             <div className="flex items-center justify-between">
               <span
                 className={cn(
-                  'rounded-full px-2 py-0.5 text-[8px] font-black uppercase tracking-widest',
+                  'rounded-full px-2 py-0.5 text-[9px] font-black uppercase tracking-widest',
                   LEVEL_COLORS[f.level],
                 )}
               >
                 {LEVEL_LABELS[f.level]}
               </span>
-              <span className="inline-flex items-center gap-1 text-[9px] font-bold text-[#737373]">
+              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-[#737373]">
                 <Clock className="h-3 w-3" />
                 {f.duration}
               </span>
             </div>
             
-            <h4 className="line-clamp-1 font-display text-base font-black text-[#0A0A0A] group-hover/item:text-[var(--primary)] transition-colors">
+            <h4 className="line-clamp-1 font-display text-xl font-black tracking-tight text-[#0A0A0A] group-hover/item:text-[var(--primary)] transition-colors">
               {f.title}
             </h4>
-            <p className="line-clamp-2 text-xs font-medium leading-relaxed text-[#4A4A4A] opacity-70">
+            <p className="line-clamp-2 text-sm font-medium leading-relaxed text-[#4A4A4A] opacity-80">
               {f.shortDescription}
             </p>
           </div>

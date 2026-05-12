@@ -48,16 +48,26 @@ const POSTS: PostItem[] = [
     likes: 18,
     comments: 4,
   },
+  {
+    name: 'Lucas T.',
+    initials: 'LT',
+    role: 'Dev Fullstack',
+    body: "Qui a testé le nouveau SDK de Mistral ? Les performances sur l'extraction de données sont bluffantes.",
+    avatar: '/landing/avatars/avatar-4.jpg',
+    bg: '#059669',
+    likes: 12,
+    comments: 3,
+  },
 ]
 
 export function CommunityPreview({ className }: { className?: string }) {
   return (
-    <BrowserCard className={className}>
-      <div className="space-y-3 p-4 sm:p-5">
+    <BrowserCard className={cn("flex flex-col h-[500px]", className)}>
+      <div className="flex-1 overflow-y-auto space-y-3 p-4 sm:p-5 scrollbar-hide">
         {POSTS.map((p) => (
           <article
             key={p.name}
-            className="rounded-xl border border-[#E5E5E5] bg-white p-3"
+            className="rounded-xl border border-[#0A0A0A]/5 bg-white p-3 shadow-sm transition-transform hover:scale-[1.01]"
           >
             <header className="flex items-center gap-2">
               <span className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full">
@@ -77,27 +87,46 @@ export function CommunityPreview({ className }: { className?: string }) {
                 />
               </span>
               <div className="min-w-0 leading-tight">
-                <p className="truncate text-xs font-semibold text-[#0A0A0A]">
+                <p className="truncate text-xs font-bold text-[#0A0A0A]">
                   {p.name}
                 </p>
-                <p className="truncate text-[10px] text-[#737373]">{p.role}</p>
+                <p className="truncate text-[9px] font-medium text-[#737373] uppercase tracking-wider">{p.role}</p>
               </div>
             </header>
-            <p className="mt-2 line-clamp-2 text-[11px] leading-snug text-[#0A0A0A]/85">
+            <p className="mt-2 line-clamp-2 text-[11px] leading-snug text-[#4A4A4A]">
               {p.body}
             </p>
-            <footer className="mt-2.5 flex items-center gap-3 text-[10px] text-[#737373]">
-              <span className="inline-flex items-center gap-0.5">
+            <footer className="mt-2 flex items-center gap-3 text-[9px] font-bold text-[#737373]">
+              <span className="inline-flex items-center gap-1 transition-colors hover:text-red-500 cursor-pointer">
                 <Heart className="h-2.5 w-2.5" />
                 {p.likes}
               </span>
-              <span className="inline-flex items-center gap-0.5">
+              <span className="inline-flex items-center gap-1 transition-colors hover:text-[var(--primary)] cursor-pointer">
                 <MessageCircle className="h-2.5 w-2.5" />
                 {p.comments}
               </span>
             </footer>
           </article>
         ))}
+      </div>
+      
+      {/* "Active Conversation" Footer Section to fill the void and look like a group chat */}
+      <div className="border-t border-[#0A0A0A]/5 bg-white/50 p-4 backdrop-blur-sm">
+        <div className="mb-3 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="flex -space-x-2">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="h-6 w-6 rounded-full border-2 border-white bg-gray-200" />
+              ))}
+            </div>
+            <span className="text-[10px] font-bold text-[#4A4A4A]">+12 connectés</span>
+          </div>
+          <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+        </div>
+        <div className="flex items-center gap-2 rounded-full border border-[#0A0A0A]/5 bg-white px-4 py-2">
+          <div className="h-1.5 w-1.5 rounded-full bg-gray-300" />
+          <span className="text-[10px] font-medium text-[#A3A3A3]">Taper un message...</span>
+        </div>
       </div>
     </BrowserCard>
   )
