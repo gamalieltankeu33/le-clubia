@@ -12,92 +12,74 @@ interface PostItem {
   bg: string
   likes: number
   comments: number
+  isVerified?: boolean
+  postImage?: string
 }
 
-// Édite ces posts pour customiser le rendu. Drop tes images dans
-// /public/landing/avatars/ avec ces noms exacts pour qu'elles
-// remplacent les avatars colorés.
 const POSTS: PostItem[] = [
   {
-    name: 'Camille R.',
-    initials: 'CR',
-    role: 'Créatrice de contenu',
-    body: 'Je viens de tester GPT-5 sur la rédaction de scripts vidéo : le ton est bien plus naturel, on sent moins le "ChatGPT". Mes premiers retours…',
-    avatar: '/landing/avatars/avatar-1.jpg',
+    name: 'Abdoulaye K.',
+    initials: 'AK',
+    role: 'Growth Hacker IA',
+    body: "Incroyable ! J'ai automatisé toute ma prospection LinkedIn avec Claude et Phantombuster. +30% de taux de réponse cette semaine.",
+    avatar: '/landing/avatars/ak.jpg',
     bg: '#1E40AF',
-    likes: 24,
-    comments: 6,
+    likes: 56,
+    comments: 14,
+    isVerified: true,
   },
   {
-    name: 'Yanis B.',
-    initials: 'YB',
-    role: 'Entrepreneur',
-    body: 'Mon workflow Make qui me fait gagner 5h/semaine sur ma veille concurrentielle. Je le partage en exclusivité aux membres du Club.',
-    avatar: '/landing/avatars/avatar-2.jpg',
-    bg: '#2563EB',
-    likes: 41,
-    comments: 12,
-  },
-  {
-    name: 'Sofia M.',
-    initials: 'SM',
-    role: 'Designeuse IA',
-    body: "Astuce ChatGPT que personne ne mentionne : utilise le mode \"projet\" pour garder le contexte sur plusieurs sessions. Game changer.",
-    avatar: '/landing/avatars/avatar-3.jpg',
-    bg: '#7c3aed',
-    likes: 18,
-    comments: 4,
-  },
-  {
-    name: 'Lucas T.',
-    initials: 'LT',
-    role: 'Dev Fullstack',
-    body: "Qui a testé le nouveau SDK de Mistral ? Les performances sur l'extraction de données sont bluffantes.",
-    avatar: '/landing/avatars/avatar-4.jpg',
-    bg: '#059669',
-    likes: 12,
-    comments: 3,
-  },
-  {
-    name: 'Marie E.',
-    initials: 'ME',
-    role: 'Product Manager',
-    body: "Je cherche des retours sur l'intégration de Perplexity API dans un produit SaaS. Quelqu'un a déjà mis ça en prod ?",
-    avatar: '/landing/avatars/avatar-5.jpg',
-    bg: '#db2777',
-    likes: 15,
-    comments: 7,
-  },
-  {
-    name: 'Thomas D.',
-    initials: 'TD',
+    name: 'Zainab S.',
+    initials: 'ZS',
     role: 'Freelance IA',
-    body: "Nouveau record : j'ai réussi à automatiser 90% de mon reporting client avec n8n. Voici le schéma du workflow...",
-    avatar: '/landing/avatars/avatar-6.jpg',
-    bg: '#d97706',
-    likes: 38,
-    comments: 9,
+    body: "Résultat de mon dernier test sur Midjourney v6 pour un client e-commerce. La cohérence des personnages est maintenant folle.",
+    avatar: '/landing/avatars/zs.jpg',
+    bg: '#db2777',
+    likes: 89,
+    comments: 24,
+    postImage: '/landing/previews/ai-generation.jpg',
+  },
+  {
+    name: 'Koffi M.',
+    initials: 'KM',
+    role: 'Entrepreneur No-Code',
+    body: "Le Club est vraiment une mine d'or. La formation sur les Micro-SaaS m'a permis de lancer ma V1 en 4 jours.",
+    avatar: '/landing/avatars/km.jpg',
+    bg: '#059669',
+    likes: 42,
+    comments: 8,
+    isVerified: true,
+  },
+  {
+    name: 'Fatou N.',
+    initials: 'FN',
+    role: 'Content Manager',
+    body: "Ma méthode pour recycler 1 vidéo YouTube en 10 Shorts avec l'IA en moins de 15 minutes. Qui veut le guide ?",
+    avatar: '/landing/avatars/fn.jpg',
+    bg: '#7c3aed',
+    likes: 112,
+    comments: 45,
   },
 ]
 
 export function CommunityPreview({ className }: { className?: string }) {
   return (
-    <BrowserCard className={cn("flex flex-col", className)}>
-      <div className="space-y-3 p-4 sm:p-5">
+    <BrowserCard className={cn("flex flex-col max-h-[600px]", className)}>
+      <div className="flex-1 overflow-y-auto space-y-4 p-4 sm:p-6 scrollbar-hide">
         {POSTS.map((p) => (
           <article
             key={p.name}
-            className="rounded-xl border border-[#0A0A0A]/5 bg-white p-3 shadow-sm transition-transform hover:scale-[1.01]"
+            className="group/post rounded-2xl border border-[#0A0A0A]/5 bg-white p-4 shadow-sm transition-all hover:border-[var(--primary)]/20"
           >
-            <header className="flex items-center gap-2">
-              <span className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full">
+            <header className="flex items-center gap-3">
+              <span className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full ring-2 ring-white shadow-sm">
                 <ImageWithFallback
                   src={p.avatar}
                   alt={p.name}
                   fallback={
                     <span
                       className={cn(
-                        'flex h-full w-full items-center justify-center text-[10px] font-semibold text-white',
+                        'flex h-full w-full items-center justify-center text-xs font-black text-white',
                       )}
                       style={{ backgroundColor: p.bg }}
                     >
@@ -107,22 +89,48 @@ export function CommunityPreview({ className }: { className?: string }) {
                 />
               </span>
               <div className="min-w-0 leading-tight">
-                <p className="truncate text-xs font-bold text-[#0A0A0A]">
-                  {p.name}
-                </p>
-                <p className="truncate text-[9px] font-medium text-[#737373] uppercase tracking-wider">{p.role}</p>
+                <div className="flex items-center gap-1.5">
+                  <p className="truncate text-[13px] font-black text-[#0A0A0A]">
+                    {p.name}
+                  </p>
+                  {p.isVerified && (
+                    <div className="flex h-3.5 w-3.5 items-center justify-center rounded-full bg-blue-500 text-white">
+                      <svg viewBox="0 0 24 24" fill="none" className="h-2 w-2" stroke="currentColor" strokeWidth="4">
+                        <path d="M20 6L9 17L4 12" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </div>
+                  )}
+                </div>
+                <p className="truncate text-[10px] font-bold text-[#737373] uppercase tracking-widest">{p.role}</p>
               </div>
             </header>
-            <p className="mt-2 line-clamp-2 text-[11px] leading-snug text-[#4A4A4A]">
+            
+            <p className="mt-3 text-[12px] leading-relaxed text-[#4A4A4A]">
               {p.body}
             </p>
-            <footer className="mt-2 flex items-center gap-3 text-[9px] font-bold text-[#737373]">
-              <span className="inline-flex items-center gap-1 transition-colors hover:text-red-500 cursor-pointer">
-                <Heart className="h-2.5 w-2.5" />
+
+            {p.postImage && (
+              <div className="mt-4 overflow-hidden rounded-xl border border-[#0A0A0A]/5 bg-gray-50 aspect-video relative">
+                <ImageWithFallback
+                  src={p.postImage}
+                  alt="Post content"
+                  className="h-full w-full object-cover"
+                  fallback={
+                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-blue-500/10 flex items-center justify-center">
+                      <span className="text-[10px] font-black uppercase tracking-widest text-[#0A0A0A]/20">Visualisation IA</span>
+                    </div>
+                  }
+                />
+              </div>
+            )}
+
+            <footer className="mt-4 flex items-center gap-4 text-[10px] font-black text-[#737373] uppercase tracking-wider">
+              <span className="inline-flex items-center gap-1.5 transition-colors hover:text-red-500 cursor-pointer">
+                <Heart className="h-3 w-3" />
                 {p.likes}
               </span>
-              <span className="inline-flex items-center gap-1 transition-colors hover:text-[var(--primary)] cursor-pointer">
-                <MessageCircle className="h-2.5 w-2.5" />
+              <span className="inline-flex items-center gap-1.5 transition-colors hover:text-[var(--primary)] cursor-pointer">
+                <MessageCircle className="h-3 w-3" />
                 {p.comments}
               </span>
             </footer>
@@ -130,22 +138,25 @@ export function CommunityPreview({ className }: { className?: string }) {
         ))}
       </div>
       
-      {/* "Active Conversation" Footer Section to fill the void and look like a group chat */}
-      <div className="border-t border-[#0A0A0A]/5 bg-white/50 p-4 backdrop-blur-sm">
-        <div className="mb-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="flex -space-x-2">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="h-6 w-6 rounded-full border-2 border-white bg-gray-200" />
+      {/* "Active Conversation" Footer Section */}
+      <div className="border-t border-[#0A0A0A]/5 bg-white/50 p-5 backdrop-blur-sm">
+        <div className="mb-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex -space-x-3">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="h-8 w-8 rounded-full border-2 border-white bg-gray-200 shadow-sm" />
               ))}
             </div>
-            <span className="text-[10px] font-bold text-[#4A4A4A]">+12 connectés</span>
+            <span className="text-[11px] font-black text-[#4A4A4A] uppercase tracking-widest">+24 membres actifs</span>
           </div>
-          <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+          <span className="flex h-3 w-3 relative">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+          </span>
         </div>
-        <div className="flex items-center gap-2 rounded-full border border-[#0A0A0A]/5 bg-white px-4 py-2">
-          <div className="h-1.5 w-1.5 rounded-full bg-gray-300" />
-          <span className="text-[10px] font-medium text-[#A3A3A3]">Taper un message...</span>
+        <div className="flex items-center gap-3 rounded-2xl border border-[#0A0A0A]/5 bg-white px-5 py-3 shadow-inner">
+          <div className="h-2 w-2 rounded-full bg-[var(--primary)]/20" />
+          <span className="text-xs font-medium text-[#A3A3A3]">Échanger avec la communauté...</span>
         </div>
       </div>
     </BrowserCard>
