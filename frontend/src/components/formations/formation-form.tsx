@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { supabase } from '@/lib/supabase'
+import { ensureFreshSession, supabase } from '@/lib/supabase'
 import {
   FORMATION_CATEGORIES,
   LEVELS,
@@ -192,6 +192,13 @@ export function FormationForm({
     setSaving(true)
 
     try {
+      // Garde-fou : si l'admin a laissé l'onglet idle pendant qu'il
+      // remplissait le formulaire, l'access_token Supabase peut être
+      // périmé. ensureFreshSession() force un refresh si nécessaire
+      // avant qu'on parte sur la chaîne d'updates — évite le "rien ne
+      // se passe quand je clique Enregistrer après une pause".
+      await ensureFreshSession()
+
       // 1. Upsert formation
       let formationId: string
       if (initial) {

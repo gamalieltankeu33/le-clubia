@@ -102,9 +102,20 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     // un token expiré ou un logout dans un autre onglet laisserait les
     // caches React Query + notifications + coach en mémoire.
     supabase.auth.onAuthStateChange(async (event, newSession) => {
-      if (event === 'SIGNED_OUT' || !newSession) {
+      if (event === 'SIGNED_OUT') {
         clearAuthSideEffects()
         set({ user: null, profile: null, subscription: null })
+        return
+      }
+      // INITIAL_SESSION sans session = utilisateur non connecté au boot.
+      // Un event sans session sur un user déjà hydraté peut aussi être
+      // transient (refresh raté sur network blip) : on ne flush PAS les
+      // caches dans ce cas, un TOKEN_REFRESHED suivra. Sinon on déclenchait
+      // un faux logout qui forçait l'utilisateur à F5.
+      if (!newSession) {
+        if (!get().user) {
+          set({ user: null, profile: null, subscription: null })
+        }
         return
       }
       if (
