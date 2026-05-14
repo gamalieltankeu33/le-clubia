@@ -4,6 +4,8 @@ import VimeoPlayer from '@vimeo/player'
 import { PlayCircle } from 'lucide-react'
 import type { FormationChapter } from '@/lib/database.types'
 import {
+  driveEmbedUrl,
+  extractDriveId,
   extractVimeoId,
   extractYouTubeId,
   getVideoProvider,
@@ -32,6 +34,9 @@ export function ChapterPlayer(props: PlayerProps) {
 
   if (provider === 'youtube') {
     return <YouTubeChapterPlayer {...props} />
+  }
+  if (provider === 'drive') {
+    return <DriveChapterPlayer {...props} />
   }
   return <VimeoChapterPlayer {...props} />
 }
@@ -111,6 +116,36 @@ function YouTubeChapterPlayer({
             // noop
           }
         }}
+      />
+    </div>
+  )
+}
+
+// =============================================================================
+// Google Drive
+// =============================================================================
+// Drive ne fournit pas d'API JS cross-origin pour lire la position de
+// lecture. On embed via iframe `/preview` et c'est tout : pas d'envoi
+// de ticks. La progression auto à 90 % ne se déclenche donc pas — les
+// membres doivent cliquer "Marquer comme terminé" manuellement (bouton
+// déjà présent sur la page chapitre).
+//
+// Pré-requis admin : la vidéo Drive doit être partagée en "Tous ceux
+// qui ont le lien", sinon le navigateur du membre verra une page
+// Google d'erreur d'accès dans l'iframe.
+function DriveChapterPlayer({ chapter }: PlayerProps) {
+  const driveId = chapter.video_url ? extractDriveId(chapter.video_url) : null
+  if (!driveId) return <UnsupportedPlayer />
+
+  return (
+    <div className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl bg-black">
+      <iframe
+        key={chapter.id}
+        src={driveEmbedUrl(driveId)}
+        title={chapter.title}
+        allow="autoplay"
+        allowFullScreen
+        className="absolute inset-0 block h-full w-full border-0"
       />
     </div>
   )

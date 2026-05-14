@@ -92,17 +92,56 @@ export function isValidVimeoUrl(url: string): boolean {
   return extractVimeoId(url) !== null
 }
 
+// =================== Google Drive ===================
+// Formats supportés (le partage doit être "Tous ceux qui ont le lien"
+// pour que l'iframe `/preview` fonctionne) :
+//   https://drive.google.com/file/d/{ID}/view?usp=sharing
+//   https://drive.google.com/file/d/{ID}/view
+//   https://drive.google.com/file/d/{ID}/preview
+//   https://drive.google.com/open?id={ID}
+//   https://drive.google.com/uc?id={ID}
+//
+// Limitation connue : Google Drive ne fournit PAS d'API JS pour lire
+// la position de lecture cross-origin. La progression auto-tracking ne
+// marche donc pas — les membres devront cliquer "Marquer comme terminé"
+// manuellement. On accepte ce compromis pour gagner la flexibilité de
+// pouvoir héberger une vidéo sur Drive sans la republier ailleurs.
+const DRIVE_PATTERNS = [
+  /drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]{20,})/,
+  /drive\.google\.com\/open\?id=([a-zA-Z0-9_-]{20,})/,
+  /drive\.google\.com\/uc\?(?:[^&]*&)*id=([a-zA-Z0-9_-]{20,})/,
+]
+
+export function extractDriveId(url: string): string | null {
+  if (!url) return null
+  for (const pattern of DRIVE_PATTERNS) {
+    const match = url.match(pattern)
+    if (match) return match[1]
+  }
+  return null
+}
+
+export function isValidDriveUrl(url: string): boolean {
+  return extractDriveId(url) !== null
+}
+
+/** URL d'embed iframe pour un fichier Drive. */
+export function driveEmbedUrl(fileId: string): string {
+  return `https://drive.google.com/file/d/${fileId}/preview`
+}
+
 // =================== Provider générique ===================
-export type VideoProvider = 'youtube' | 'vimeo'
+export type VideoProvider = 'youtube' | 'vimeo' | 'drive'
 
 export function getVideoProvider(url: string): VideoProvider | null {
   if (!url) return null
   if (extractYouTubeId(url)) return 'youtube'
   if (extractVimeoId(url)) return 'vimeo'
+  if (extractDriveId(url)) return 'drive'
   return null
 }
 
-/** Accepte les URLs YouTube ET Vimeo. À utiliser pour la validation des chapitres. */
+/** Accepte YouTube, Vimeo et Google Drive. À utiliser pour la validation des chapitres. */
 export function isValidVideoUrl(url: string): boolean {
   return getVideoProvider(url) !== null
 }

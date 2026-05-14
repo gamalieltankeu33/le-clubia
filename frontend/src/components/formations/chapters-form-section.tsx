@@ -139,7 +139,7 @@ export function ChaptersFormSection({
 
                     <div className="space-y-1.5">
                       <Label htmlFor={`chapter-url-${i}`}>
-                        URL YouTube ou Vimeo
+                        URL vidéo (YouTube, Vimeo ou Google Drive)
                       </Label>
                       <div className="relative">
                         <Input
@@ -149,7 +149,7 @@ export function ChaptersFormSection({
                           onChange={(e) =>
                             updateAt(i, { video_url: e.target.value })
                           }
-                          placeholder="https://www.youtube.com/watch?v=… ou https://vimeo.com/…"
+                          placeholder="https://www.youtube.com/… · https://vimeo.com/… · https://drive.google.com/file/d/…"
                           disabled={disabled}
                           className={provider ? 'pr-24' : undefined}
                         />
@@ -157,9 +157,12 @@ export function ChaptersFormSection({
                           <span
                             className={cn(
                               'absolute right-2 top-1/2 -translate-y-1/2 rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider',
-                              provider === 'youtube'
-                                ? 'bg-[#FF0000]/10 text-[#CC0000]'
-                                : 'bg-[#1AB7EA]/10 text-[#0E91C6]',
+                              provider === 'youtube' &&
+                                'bg-[#FF0000]/10 text-[#CC0000]',
+                              provider === 'vimeo' &&
+                                'bg-[#1AB7EA]/10 text-[#0E91C6]',
+                              provider === 'drive' &&
+                                'bg-[#1A73E8]/10 text-[#1A73E8]',
                             )}
                           >
                             {provider}
@@ -168,12 +171,20 @@ export function ChaptersFormSection({
                       </div>
                       {!validUrl && (
                         <p className="text-xs text-red-600">
-                          URL YouTube ou Vimeo invalide.
+                          URL YouTube, Vimeo ou Google Drive invalide.
                         </p>
                       )}
                       <p className="text-xs text-[var(--muted-foreground)]">
-                        YouTube non répertorié recommandé · Vimeo accepte les vidéos privées (avec hash).
+                        YouTube non répertorié recommandé · Vimeo accepte les
+                        vidéos privées (avec hash) · Drive : partage doit être
+                        "Tous ceux qui ont le lien".
                       </p>
+                      {provider === 'drive' && (
+                        <p className="text-xs text-amber-700">
+                          ⚠️ Sur Drive, la progression n'est pas auto-trackée —
+                          les membres devront cliquer "Marquer comme terminé".
+                        </p>
+                      )}
                     </div>
 
                     <div className="space-y-1.5">

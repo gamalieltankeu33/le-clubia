@@ -104,7 +104,7 @@ const chapterSchema = z.object({
     .string()
     .trim()
     .refine((v) => v === '' || isValidVideoUrl(v), {
-      message: 'URL YouTube ou Vimeo invalide',
+      message: 'URL YouTube, Vimeo ou Google Drive invalide',
     }),
   duration_minutes: z.number().int().min(0),
 })
