@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
-import { Image as ImageIcon, Loader2, Upload } from 'lucide-react'
+import { Image as ImageIcon, Loader2, Save, Upload } from 'lucide-react'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import { Button } from '@/components/ui/button'
@@ -20,11 +20,68 @@ import type {
   FormationChapter,
   FormationLevel,
 } from '@/lib/database.types'
+import { useAuthStore } from '@/stores/auth-store'
 import {
   ChaptersFormSection,
   type ChapterFormState,
 } from './chapters-form-section'
 import { CoverImage } from './cover-image'
+
+// =========================================================================
+// Auto-save brouillon
+// =========================================================================
+// Pourquoi : l'admin peut perdre 30 min de saisie + uploads si la page se
+// ferme (crash, fermeture accidentelle, F5 reflexe). On persiste tout
+// l'état du formulaire en localStorage, debounce 1.5 s, key scopée par
+// user + formation pour éviter qu'un autre compte sur le même navigateur
+// récupère le brouillon. Les fichiers déjà uploadés vivent côté Supabase
+// (resource-files bucket), seul le path est dans le draft → la reprise
+// retrouve les fichiers même après reboot.
+
+interface FormationDraft {
+  v: 1
+  savedAt: number
+  title: string
+  slug: string
+  slugTouched: boolean
+  description: string
+  category: string
+  level: FormationLevel
+  durationManual: number | null
+  coverUrl: string | null
+  isPublished: boolean
+  chapters: ChapterFormState[]
+}
+
+const DRAFT_DEBOUNCE_MS = 1500
+
+function draftKey(userId: string, formationId: string | null): string {
+  return `formation-draft:${userId}:${formationId ?? 'new'}`
+}
+
+function readDraft(key: string): FormationDraft | null {
+  try {
+    const raw = window.localStorage.getItem(key)
+    if (!raw) return null
+    const parsed = JSON.parse(raw) as FormationDraft
+    if (parsed.v !== 1) return null
+    return parsed
+  } catch {
+    return null
+  }
+}
+
+function formatRelativeAgo(timestamp: number): string {
+  const diffMs = Date.now() - timestamp
+  const sec = Math.floor(diffMs / 1000)
+  if (sec < 60) return "à l'instant"
+  const min = Math.floor(sec / 60)
+  if (min < 60) return `il y a ${min} min`
+  const h = Math.floor(min / 60)
+  if (h < 24) return `il y a ${h} h`
+  const d = Math.floor(h / 24)
+  return `il y a ${d} j`
+}
 
 const baseSchema = z.object({
   title: z.string().trim().min(1, 'Le titre est requis').max(100),
@@ -103,6 +160,162 @@ export function FormationForm({
 
   const [uploadingCover, setUploadingCover] = useState(false)
   const [saving, setSaving] = useState(false)
+
+  // -------------------------------------------------------------------
+  // Auto-save brouillon (localStorage, debounced 1.5s)
+  // -------------------------------------------------------------------
+  const userId = useAuthStore((s) => s.user?.id ?? null)
+  const formationId = initial?.formation.id ?? null
+  const storageKey = userId ? draftKey(userId, formationId) : null
+
+  // État du draft : null = pas encore chargé / pas de draft
+  // `availableDraft` = draft en localStorage proposé à la restauration,
+  // null après que l'admin a cliqué [Restaurer] OU [Ignorer].
+  const [availableDraft, setAvailableDraft] = useState<FormationDraft | null>(
+    null,
+  )
+  const [draftCheckDone, setDraftCheckDone] = useState(false)
+  const [lastDraftSavedAt, setLastDraftSavedAt] = useState<number | null>(null)
+  const draftTimerRef = useRef<number | null>(null)
+
+  // Au mount : check s'il existe un draft local. Pour les EDITS, on ne
+  // propose la restauration QUE si le draft est plus récent que
+  // l'updated_at de la formation en DB — sinon l'admin verrait son
+  // propre brouillon obsolète après que quelqu'un d'autre ait sauvé.
+  useEffect(() => {
+    if (!storageKey || draftCheckDone) return
+    const found = readDraft(storageKey)
+    if (!found) {
+      setDraftCheckDone(true)
+      return
+    }
+    const dbUpdated = initial
+      ? new Date(initial.formation.updated_at).getTime()
+      : 0
+    if (found.savedAt > dbUpdated) {
+      setAvailableDraft(found)
+    } else {
+      // Draft obsolète → on le nettoie pour pas qu'il revienne.
+      try {
+        window.localStorage.removeItem(storageKey)
+      } catch {
+        // ignore
+      }
+    }
+    setDraftCheckDone(true)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [storageKey])
+
+  function restoreDraft() {
+    if (!availableDraft) return
+    setTitle(availableDraft.title)
+    setSlug(availableDraft.slug)
+    setSlugTouched(availableDraft.slugTouched)
+    setDescription(availableDraft.description)
+    setCategory(availableDraft.category)
+    setLevel(availableDraft.level)
+    setDurationManual(availableDraft.durationManual)
+    setCoverUrl(availableDraft.coverUrl)
+    setIsPublished(availableDraft.isPublished)
+    setChapters(availableDraft.chapters)
+    setAvailableDraft(null)
+    toast.success('Brouillon restauré.')
+  }
+
+  function dismissDraft() {
+    if (!storageKey) return
+    try {
+      window.localStorage.removeItem(storageKey)
+    } catch {
+      // ignore
+    }
+    setAvailableDraft(null)
+    setLastDraftSavedAt(null)
+  }
+
+  // Sauvegarde debounced sur chaque changement. On bypass tant que le
+  // check initial n'est pas fait (sinon on écraserait le draft trouvé
+  // avec l'état initial du form). On bypass aussi tant qu'un draft est
+  // en attente de restauration — sinon dès que l'admin tape une touche,
+  // on écraserait le draft proposé.
+  useEffect(() => {
+    if (!storageKey || !draftCheckDone || availableDraft || saving) return
+    if (draftTimerRef.current !== null) {
+      window.clearTimeout(draftTimerRef.current)
+    }
+    draftTimerRef.current = window.setTimeout(() => {
+      const draft: FormationDraft = {
+        v: 1,
+        savedAt: Date.now(),
+        title,
+        slug,
+        slugTouched,
+        description,
+        category,
+        level,
+        durationManual,
+        coverUrl,
+        isPublished,
+        chapters,
+      }
+      try {
+        window.localStorage.setItem(storageKey, JSON.stringify(draft))
+        setLastDraftSavedAt(draft.savedAt)
+      } catch {
+        // localStorage plein ou mode privé : on ignore silencieusement.
+      }
+    }, DRAFT_DEBOUNCE_MS)
+    return () => {
+      if (draftTimerRef.current !== null) {
+        window.clearTimeout(draftTimerRef.current)
+      }
+    }
+  }, [
+    storageKey,
+    draftCheckDone,
+    availableDraft,
+    saving,
+    title,
+    slug,
+    slugTouched,
+    description,
+    category,
+    level,
+    durationManual,
+    coverUrl,
+    isPublished,
+    chapters,
+  ])
+
+  // Sauvegarde immédiate du brouillon (bouton manuel). Bypass le debounce.
+  function saveDraftNow() {
+    if (!storageKey) return
+    if (draftTimerRef.current !== null) {
+      window.clearTimeout(draftTimerRef.current)
+      draftTimerRef.current = null
+    }
+    const draft: FormationDraft = {
+      v: 1,
+      savedAt: Date.now(),
+      title,
+      slug,
+      slugTouched,
+      description,
+      category,
+      level,
+      durationManual,
+      coverUrl,
+      isPublished,
+      chapters,
+    }
+    try {
+      window.localStorage.setItem(storageKey, JSON.stringify(draft))
+      setLastDraftSavedAt(draft.savedAt)
+      toast.success('Brouillon sauvegardé.')
+    } catch {
+      toast.error('Impossible de sauvegarder le brouillon localement.')
+    }
+  }
 
   // Auto-slug tant que l'utilisateur ne l'a pas touché
   useEffect(() => {
@@ -277,6 +490,16 @@ export function FormationForm({
         }
       }
 
+      // Save réussi → on nettoie le brouillon local (il devient obsolète).
+      if (storageKey) {
+        try {
+          window.localStorage.removeItem(storageKey)
+        } catch {
+          // ignore
+        }
+        setLastDraftSavedAt(null)
+      }
+
       toast.success(isEditing ? 'Formation mise à jour.' : 'Formation créée.')
       onSaved(formationId)
     } catch (err) {
@@ -293,6 +516,49 @@ export function FormationForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-10">
+      {/* Bannière restauration brouillon — visible seulement si un draft
+          plus récent que la version DB a été détecté au mount. */}
+      {availableDraft && (
+        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 sm:p-5">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm font-semibold text-amber-900">
+                Tu as un brouillon non enregistré
+              </p>
+              <p className="mt-0.5 text-xs text-amber-800">
+                Dernière modif {formatRelativeAgo(availableDraft.savedAt)} ·{' '}
+                {availableDraft.chapters.length} chapitre
+                {availableDraft.chapters.length > 1 ? 's' : ''} ·{' '}
+                {availableDraft.chapters.reduce(
+                  (n, c) => n + c.resources.length,
+                  0,
+                )}{' '}
+                ressource(s)
+              </p>
+            </div>
+            <div className="flex shrink-0 gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={dismissDraft}
+                className="border-amber-300 bg-white text-amber-900 hover:bg-amber-100"
+              >
+                Ignorer
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                onClick={restoreDraft}
+                className="bg-amber-600 text-white hover:bg-amber-700"
+              >
+                Restaurer
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Informations générales */}
       <section className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6">
         <h2 className="font-display text-lg font-semibold tracking-tight">
@@ -491,27 +757,49 @@ export function FormationForm({
       />
 
       {/* Actions */}
-      <div className="flex items-center justify-end gap-3 border-t border-[var(--border)] pt-6">
-        <Button
-          type="button"
-          variant="ghost"
-          onClick={() => navigate({ to: '/app/admin/formations' })}
-          disabled={saving}
-        >
-          Annuler
-        </Button>
-        <Button type="submit" size="lg" disabled={saving}>
-          {saving ? (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin" />
-              Enregistrement…
-            </>
-          ) : isEditing ? (
-            'Enregistrer'
-          ) : (
-            'Créer la formation'
-          )}
-        </Button>
+      <div className="flex flex-col gap-3 border-t border-[var(--border)] pt-6 sm:flex-row sm:items-center sm:justify-between">
+        {/* Indicateur d'auto-save brouillon (gauche) */}
+        <p className="text-xs text-[var(--muted-foreground)]">
+          {lastDraftSavedAt
+            ? `Brouillon sauvegardé ${formatRelativeAgo(lastDraftSavedAt)}`
+            : storageKey
+              ? 'Brouillon auto-sauvegardé en local pendant la saisie.'
+              : ''}
+        </p>
+
+        {/* Boutons (droite) */}
+        <div className="flex items-center gap-3 sm:justify-end">
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => navigate({ to: '/app/admin/formations' })}
+            disabled={saving}
+          >
+            Annuler
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={saveDraftNow}
+            disabled={saving || !storageKey}
+            title="Sauvegarde le brouillon en local (pas en base)"
+          >
+            <Save className="h-4 w-4" />
+            Brouillon
+          </Button>
+          <Button type="submit" size="lg" disabled={saving}>
+            {saving ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Enregistrement…
+              </>
+            ) : isEditing ? (
+              'Enregistrer'
+            ) : (
+              'Créer la formation'
+            )}
+          </Button>
+        </div>
       </div>
     </form>
   )

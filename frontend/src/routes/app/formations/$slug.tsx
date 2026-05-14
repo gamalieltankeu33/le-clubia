@@ -25,6 +25,7 @@ import {
   formatDuration,
   LEVEL_LABELS,
 } from '@/lib/formation-helpers'
+import { getResourceSignedUrl } from '@/lib/resource-helpers'
 import type {
   ChapterResource,
   Formation,
@@ -657,35 +658,88 @@ function ResourcesSection({ resources }: { resources: ChapterResource[] }) {
         Ressources de ce chapitre
       </h3>
       <ul className="mt-4 space-y-2">
-        {resources.map((r, i) => {
-          const isExternal = !/\.(pdf|zip|csv|docx?|xlsx?|txt)(\?|$)/i.test(r.url)
-          return (
-            <li key={i}>
-              <a
-                href={r.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group flex items-center gap-3 rounded-lg border border-[var(--border)] p-3 transition-colors hover:border-[var(--primary)]/30 hover:bg-[var(--secondary)]"
-              >
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[var(--primary)]/10 text-[var(--primary)]">
-                  {isExternal ? (
-                    <ExternalLink className="h-4 w-4" />
-                  ) : (
-                    <Download className="h-4 w-4" />
-                  )}
-                </span>
-                <span className="flex-1 truncate text-sm font-medium">
-                  {r.label}
-                </span>
-                <span className="text-xs text-[var(--muted-foreground)] group-hover:text-[var(--foreground)]">
-                  {isExternal ? 'Ouvrir' : 'Télécharger'}
-                </span>
-              </a>
-            </li>
-          )
-        })}
+        {resources.map((r, i) => (
+          <ResourceLink key={i} resource={r} />
+        ))}
       </ul>
     </div>
+  )
+}
+
+function ResourceLink({ resource }: { resource: ChapterResource }) {
+  const isFile = Boolean(resource.path)
+  // Pour les ressources uploadées : on régénère une signed URL à
+  // l'arrivée du composant pour ne pas tomber sur une URL expirée
+  // stockée en JSONB (les signed URLs sont valides 24h max).
+  // getResourceSignedUrl() a son propre cache localStorage 1h, donc on
+  // ne refait pas un round-trip à chaque navigation entre chapitres.
+  const [resolvedUrl, setResolvedUrl] = useState<string | null>(
+    isFile ? null : resource.url,
+  )
+  const [resolving, setResolving] = useState(isFile)
+
+  useEffect(() => {
+    if (!isFile || !resource.path) {
+      setResolvedUrl(resource.url)
+      setResolving(false)
+      return
+    }
+    let cancelled = false
+    setResolving(true)
+    getResourceSignedUrl(resource.path)
+      .then((url) => {
+        if (!cancelled) {
+          setResolvedUrl(url)
+          setResolving(false)
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          // Fallback sur l'URL stockée — peut être expirée mais c'est
+          // mieux que rien.
+          setResolvedUrl(resource.url || null)
+          setResolving(false)
+        }
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [isFile, resource.path, resource.url])
+
+  const isExternal =
+    !isFile &&
+    !/\.(pdf|zip|csv|docx?|xlsx?|txt)(\?|$)/i.test(resource.url)
+
+  const Icon = isFile || !isExternal ? Download : ExternalLink
+  const actionLabel = isFile || !isExternal ? 'Télécharger' : 'Ouvrir'
+
+  return (
+    <li>
+      <a
+        href={resolvedUrl ?? '#'}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-disabled={resolving || !resolvedUrl}
+        onClick={(e) => {
+          if (resolving || !resolvedUrl) e.preventDefault()
+        }}
+        className="group flex items-center gap-3 rounded-lg border border-[var(--border)] p-3 transition-colors hover:border-[var(--primary)]/30 hover:bg-[var(--secondary)] aria-disabled:cursor-not-allowed aria-disabled:opacity-60"
+      >
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[var(--primary)]/10 text-[var(--primary)]">
+          {resolving ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Icon className="h-4 w-4" />
+          )}
+        </span>
+        <span className="flex-1 truncate text-sm font-medium">
+          {resource.label}
+        </span>
+        <span className="text-xs text-[var(--muted-foreground)] group-hover:text-[var(--foreground)]">
+          {resolving ? '…' : actionLabel}
+        </span>
+      </a>
+    </li>
   )
 }
 

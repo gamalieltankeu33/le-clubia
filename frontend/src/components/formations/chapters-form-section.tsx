@@ -196,6 +196,7 @@ export function ChaptersFormSection({
                       resources={c.resources}
                       onChange={(next) => updateAt(i, { resources: next })}
                       disabled={disabled}
+                      chapterTitleHint={c.title || `chapitre-${i + 1}`}
                     />
                   </div>
 

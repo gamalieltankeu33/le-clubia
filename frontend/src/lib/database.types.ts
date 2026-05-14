@@ -47,7 +47,18 @@ export interface Notification {
 /** Format JSONB stocké dans formation_chapters.resources */
 export interface ChapterResource {
   label: string
+  /**
+   * Lien d'accès. Pour une ressource uploadée (path présent), c'est une URL
+   * signée valide 24h qu'on régénère côté lecture ; on la stocke quand même
+   * pour ne pas casser les anciennes lignes qui n'ont pas de path.
+   */
   url: string
+  /**
+   * Path dans le bucket `resource-files` si le fichier a été uploadé via
+   * le formulaire. Absent pour les ressources qui sont juste une URL externe
+   * (Google Doc, Notion, Figma, etc.).
+   */
+  path?: string
 }
 
 export type Database = {

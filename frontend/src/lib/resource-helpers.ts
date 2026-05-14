@@ -174,6 +174,96 @@ export async function getResourceSignedUrl(path: string): Promise<string> {
   return data.signedUrl
 }
 
+/**
+ * MIME types acceptés pour les ressources de chapitre. Aligné sur
+ * `allowed_mime_types` du bucket `resource-files` côté Supabase Storage.
+ * Plus large que le module standalone "Ressources" qui ne gère que des
+ * PDFs, parce qu'un chapitre peut joindre un template (.zip/.json), un
+ * gabarit Word/Excel, ou un dataset CSV.
+ */
+export const CHAPTER_RESOURCE_ACCEPT =
+  'application/pdf,' +
+  'application/zip,application/x-zip-compressed,' +
+  'application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,' +
+  'application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,' +
+  'text/plain,text/csv,application/json'
+
+const CHAPTER_RESOURCE_ALLOWED_MIME = new Set(
+  CHAPTER_RESOURCE_ACCEPT.split(','),
+)
+
+/** Cap dur côté bucket : 25 MB. */
+export const CHAPTER_RESOURCE_MAX_BYTES = 25 * 1024 * 1024
+
+export interface UploadedChapterResource {
+  /** Path dans le bucket — à stocker dans `ChapterResource.path`. */
+  path: string
+  /** Signed URL 24h — à stocker dans `ChapterResource.url`. */
+  signedUrl: string
+  /** Nom original du fichier — sert de label par défaut. */
+  name: string
+  /** Taille en KB pour affichage UI. */
+  sizeKb: number
+}
+
+/**
+ * Upload un fichier de ressource pour un chapitre. Multi-format
+ * (PDF/ZIP/Word/Excel/CSV/JSON), 25 MB max.
+ *
+ * À appeler depuis le formulaire admin formation. Le bucket est privé,
+ * d'où la signed URL retournée (régénérée côté lecture via
+ * `getResourceSignedUrl(path)`).
+ */
+export async function uploadChapterResource(
+  file: File,
+  chapterTitleHint: string,
+): Promise<UploadedChapterResource> {
+  if (file.size > CHAPTER_RESOURCE_MAX_BYTES) {
+    throw new Error(
+      `Fichier trop lourd (max ${Math.round(CHAPTER_RESOURCE_MAX_BYTES / 1024 / 1024)} MB).`,
+    )
+  }
+  // Sur Safari/Firefox, certains fichiers .doc/.xls n'ont pas de MIME défini :
+  // on tolère les types vides mais on bloque les MIME explicitement non
+  // listés (image/, video/, etc.) pour pas polluer le bucket.
+  if (file.type && !CHAPTER_RESOURCE_ALLOWED_MIME.has(file.type)) {
+    throw new Error(
+      `Type non supporté (${file.type}). PDF, ZIP, Word, Excel, CSV, TXT, JSON acceptés.`,
+    )
+  }
+
+  const folderSlug =
+    slugify(chapterTitleHint || 'chapitre').slice(0, 40) || 'chapitre'
+  const ext = fileExt(file.name) || 'bin'
+  const baseName =
+    slugify(file.name.replace(/\.[^.]+$/, '')).slice(0, 60) || 'fichier'
+  const path = `chapitre/${folderSlug}/${baseName}-${Date.now()}.${ext}`
+
+  const { error } = await supabase.storage
+    .from(RESOURCE_BUCKET)
+    .upload(path, file, {
+      contentType: file.type || 'application/octet-stream',
+      upsert: false,
+    })
+  if (error) throw error
+
+  const { data, error: signErr } = await supabase.storage
+    .from(RESOURCE_BUCKET)
+    .createSignedUrl(path, SIGNED_URL_TTL_SECONDS)
+  if (signErr || !data?.signedUrl) {
+    // Le fichier est uploadé mais on ne peut pas générer le lien : on
+    // remonte l'erreur — l'appelant peut décider de supprimer le path.
+    throw signErr ?? new Error('Lien signé indisponible.')
+  }
+
+  return {
+    path,
+    signedUrl: data.signedUrl,
+    name: file.name,
+    sizeKb: Math.max(1, Math.round(file.size / 1024)),
+  }
+}
+
 /** Supprime un fichier du bucket. À appeler quand on remplace ou supprime une ressource. */
 export async function deleteResourceFile(path: string): Promise<void> {
   if (!path) return
