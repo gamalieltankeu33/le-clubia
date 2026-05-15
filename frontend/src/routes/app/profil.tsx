@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
 import {
+  AlertTriangle,
   ArrowRight,
   Camera,
   Check,
@@ -33,9 +34,11 @@ export const Route = createFileRoute('/app/profil')({
 })
 
 function ProfilPage() {
+  const navigate = useNavigate()
   const user = useAuthStore((s) => s.user)
   const profile = useAuthStore((s) => s.profile)
   const refreshUserData = useAuthStore((s) => s.refreshUserData)
+  const signOut = useAuthStore((s) => s.signOut)
   const isMember = useAuthStore((s) => s.isMember)()
   const conversations = useCoachStore((s) => s.conversations)
   const quotaUsed = useCoachStore((s) => s.quotaUsed)
@@ -62,6 +65,58 @@ function ProfilPage() {
   })
   const [savingPrefs, setSavingPrefs] = useState(false)
   const [saving, setSaving] = useState(false)
+
+  // RGPD article 17 : suppression de compte. Le panneau s'expand
+  // inline plutôt qu'en modal pour donner toute la visibilité aux
+  // conséquences (liste explicite de ce qui sera supprimé). L'input
+  // de confirmation "SUPPRIMER" en plus protège contre les clics
+  // accidentels et les CSRF (le payload est explicite).
+  const [deleteOpen, setDeleteOpen] = useState(false)
+  const [deleteConfirmation, setDeleteConfirmation] = useState('')
+  const [deleting, setDeleting] = useState(false)
+
+  async function handleDeleteAccount() {
+    if (deleteConfirmation !== 'SUPPRIMER' || deleting) return
+    setDeleting(true)
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
+      if (!session?.access_token) {
+        toast.error('Session expirée. Reconnecte-toi puis réessaie.')
+        setDeleting(false)
+        return
+      }
+
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/delete-my-account`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({ confirmation: 'SUPPRIMER' }),
+        },
+      )
+      const data = (await res.json()) as { ok: boolean; error?: string }
+      if (!res.ok || !data.ok) {
+        toast.error(data.error ?? 'La suppression a échoué.')
+        setDeleting(false)
+        return
+      }
+
+      // Sign out purge caches React Query + notifications + coach stores.
+      // Navigate vers landing — le user n'est plus connecté.
+      toast.success('Compte supprimé. Au revoir !')
+      await signOut()
+      navigate({ to: '/' })
+    } catch (err) {
+      console.error('[profil] delete account error', err)
+      toast.error('Erreur réseau pendant la suppression.')
+      setDeleting(false)
+    }
+  }
 
   // Hydrate les champs depuis le store
   useEffect(() => {
@@ -467,6 +522,121 @@ function ProfilPage() {
             </div>
           )}
         </Section>
+      </div>
+
+      {/* Zone dangereuse — RGPD article 17 (droit à l'effacement).
+          Le panneau s'expand inline plutôt qu'en modal pour montrer
+          explicitement à l'utilisateur tout ce qui sera supprimé,
+          réduire les chances de clic accidentel, et matcher les
+          patterns UX de GitHub / Vercel / Stripe (qui font pareil
+          sur leur danger zone). */}
+      <div className="mt-12">
+        <div className="flex items-center gap-2">
+          <AlertTriangle className="h-4 w-4 text-red-600" />
+          <h2 className="font-display text-base font-semibold tracking-tight text-red-700">
+            Zone dangereuse
+          </h2>
+        </div>
+        <p className="mt-1 text-sm text-[var(--muted-foreground)]">
+          Les actions ci-dessous sont définitives. Pas de retour en arrière
+          possible.
+        </p>
+
+        <div className="mt-4 rounded-2xl border border-red-200 bg-red-50/50 p-5">
+          {!deleteOpen ? (
+            <>
+              <h3 className="font-medium text-[var(--foreground)]">
+                Supprimer mon compte
+              </h3>
+              <p className="mt-1 text-sm text-[var(--muted-foreground)]">
+                Toutes tes données personnelles seront définitivement
+                effacées : profil, abonnement, publications, commentaires,
+                progression formations, conversations Coach IA. Conforme à
+                l'article 17 du RGPD (droit à l'effacement).
+              </p>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setDeleteOpen(true)}
+                className="mt-4 border-red-300 bg-white text-red-700 hover:bg-red-100 hover:text-red-900"
+              >
+                <Trash2 className="h-4 w-4" />
+                Supprimer mon compte…
+              </Button>
+            </>
+          ) : (
+            <>
+              <h3 className="font-semibold text-red-900">
+                Confirmer la suppression définitive
+              </h3>
+              <p className="mt-2 text-sm text-red-800">
+                Cette action est <strong>irréversible</strong>. Voici ce qui
+                sera supprimé :
+              </p>
+              <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-red-800">
+                <li>Ton profil (nom, photo, bio, centres d'intérêt)</li>
+                <li>Ton abonnement Le Club et son historique</li>
+                <li>Tous tes posts, commentaires et likes de la communauté</li>
+                <li>Ta progression dans les formations et tes points membre</li>
+                <li>Tes conversations Coach IA</li>
+                <li>Toutes tes notifications</li>
+              </ul>
+              <div className="mt-4 space-y-2">
+                <Label
+                  htmlFor="delete-confirm"
+                  className="text-sm font-medium text-red-900"
+                >
+                  Tape{' '}
+                  <span className="rounded bg-red-100 px-1.5 py-0.5 font-mono text-xs font-bold text-red-900">
+                    SUPPRIMER
+                  </span>{' '}
+                  pour confirmer :
+                </Label>
+                <Input
+                  id="delete-confirm"
+                  value={deleteConfirmation}
+                  onChange={(e) => setDeleteConfirmation(e.target.value)}
+                  placeholder="SUPPRIMER"
+                  disabled={deleting}
+                  autoComplete="off"
+                  spellCheck={false}
+                  className="bg-white"
+                />
+              </div>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => {
+                    setDeleteOpen(false)
+                    setDeleteConfirmation('')
+                  }}
+                  disabled={deleting}
+                >
+                  Annuler
+                </Button>
+                <Button
+                  type="button"
+                  onClick={handleDeleteAccount}
+                  disabled={deleting || deleteConfirmation !== 'SUPPRIMER'}
+                  className="bg-red-600 text-white hover:bg-red-700 disabled:opacity-50"
+                >
+                  {deleting ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Suppression…
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="h-4 w-4" />
+                      Supprimer définitivement
+                    </>
+                  )}
+                </Button>
+              </div>
+            </>
+          )}
+        </div>
       </div>
     </div>
   )
