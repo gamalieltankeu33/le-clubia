@@ -184,6 +184,10 @@ function VimeoChapterPlayer({
       // playsinline: sur iOS sans cette option, Vimeo bascule en plein
       // écran natif au play et peut afficher du noir avant ce switch.
       playsinline: true,
+      // dnt: désactive les cookies tracking Vimeo. Sans ça, Safari iOS
+      // (ITP) bloque les cookies tiers du player, ce qui produit un
+      // écran noir au lieu de la vidéo.
+      dnt: true,
       title: false,
       byline: false,
       portrait: false,
