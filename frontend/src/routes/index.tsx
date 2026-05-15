@@ -13,6 +13,7 @@ import { FAQ } from '@/components/landing/faq'
 import { FinalCTA } from '@/components/landing/final-cta'
 import { LandingFooter } from '@/components/landing/landing-footer'
 import { SmoothScroll } from '@/components/landing/smooth-scroll'
+import { WhatsAppFloat } from '@/components/landing/whatsapp-float'
 
 export const Route = createFileRoute('/')({
   component: LandingPage,
@@ -37,6 +38,7 @@ function LandingPage() {
           <FinalCTA />
         </main>
         <LandingFooter />
+        <WhatsAppFloat />
       </div>
     </SmoothScroll>
   )
