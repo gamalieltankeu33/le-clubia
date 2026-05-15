@@ -62,9 +62,16 @@ const PILLARS: Pillar[] = [
 
 export function FourPillars() {
   return (
-    <section id="piliers" className="relative overflow-hidden bg-white py-16 sm:py-24 lg:py-28">
-      {/* Background depth halo */}
-      <div className="pointer-events-none absolute left-0 top-1/2 h-[500px] w-[500px] -translate-y-1/2 rounded-full bg-[var(--primary)]/[0.03] blur-[100px]" />
+    <section
+      id="piliers"
+      className="relative overflow-clip bg-white py-16 sm:py-24 lg:py-28"
+    >
+      {/* Background depth halo — masqué sur mobile : sur iOS Safari, un
+          élément absolute avec filter: blur() + overflow-hidden parent
+          fuit hors du clipping (bug WebKit compositing layer), ce qui
+          déportait toute la section vers la droite. Sur ≥768px ça
+          fonctionne correctement, on garde la profondeur visuelle. */}
+      <div className="pointer-events-none absolute left-0 top-1/2 hidden h-[500px] w-[500px] -translate-y-1/2 rounded-full bg-[var(--primary)]/[0.03] blur-[100px] md:block" />
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
@@ -83,8 +90,13 @@ export function FourPillars() {
 
         <div className="mt-12 grid gap-8 sm:mt-16 md:grid-cols-2">
           {PILLARS.map((p, i) => (
-            <Reveal key={p.title} delay={i * 0.1} direction={i % 2 === 0 ? 'right' : 'left'}>
-              <div className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-[var(--border)] bg-white transition-all duration-700 hover:border-[var(--primary)]/20 hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.08)] sm:rounded-[2.5rem]">
+            <Reveal
+              key={p.title}
+              delay={i * 0.1}
+              direction={i % 2 === 0 ? 'right' : 'left'}
+              className="min-w-0"
+            >
+              <div className="group relative flex h-full max-w-full min-w-0 flex-col overflow-hidden rounded-3xl border border-[var(--border)] bg-white transition-all duration-700 hover:border-[var(--primary)]/20 hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.08)] sm:rounded-[2.5rem]">
                 <div className="relative z-10 flex flex-col p-6 sm:p-10">
                   <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#0A0A0A] text-white shadow-xl shadow-black/10 transition-transform duration-500 group-hover:scale-110 group-hover:bg-[var(--primary)]">
                     <p.icon className="h-6 w-6" />
