@@ -38,10 +38,10 @@ const MEMBERS: Member[] = [
     bgTo: '#3858d8',
   },
   {
-    name: 'Dorian Mouchan',
+    name: 'Dorian Motia',
     expertise: 'Créateur tech & entrepreneur IA',
     initials: 'DM',
-    image: '/landing/members/dorian-mouchan.jpg',
+    image: '/landing/members/dorian-motia.jpg',
     bgFrom: '#0F1E4D',
     bgTo: '#60A5FA',
   },
