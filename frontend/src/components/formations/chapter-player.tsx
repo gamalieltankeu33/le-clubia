@@ -171,51 +171,61 @@ function VimeoChapterPlayer({
   useEffect(() => {
     if (!containerRef.current || !chapter.video_url) return
     const ids = extractVimeoId(chapter.video_url)
-    if (!ids) return
+    if (!ids) {
+      setErrorMessage('URL Vimeo non reconnue')
+      return
+    }
     setErrorMessage(null)
+    console.log('[Vimeo] init', { videoId: ids.id, url: chapter.video_url })
 
-    // Mesure la largeur réelle du conteneur pour créer une iframe à la
-    // bonne dimension dès le départ. Avec une largeur fixe trop grande
-    // (ex: 1280) sur un téléphone (~375px), Safari iOS doit rescaler
-    // une iframe massive en CSS et rend parfois un écran noir.
     const containerWidth =
       containerRef.current.getBoundingClientRect().width || 640
 
-    const player = new VimeoPlayer(containerRef.current, {
-      id: Number(ids.id),
-      ...(ids.hash ? { h: ids.hash } : {}),
-      responsive: false,
-      width: Math.round(containerWidth),
-      autoplay: false,
-      // playsinline: sur iOS sans cette option, Vimeo bascule en plein
-      // écran natif au play et peut afficher du noir avant ce switch.
-      playsinline: true,
-      // dnt: désactive les cookies tracking Vimeo. Sans ça, Safari iOS
-      // (ITP) bloque les cookies tiers du player, ce qui produit un
-      // écran noir au lieu de la vidéo.
-      dnt: true,
-      title: false,
-      byline: false,
-      portrait: false,
-    })
+    let player: VimeoPlayer
+    try {
+      player = new VimeoPlayer(containerRef.current, {
+        id: Number(ids.id),
+        ...(ids.hash ? { h: ids.hash } : {}),
+        responsive: false,
+        width: Math.round(containerWidth),
+        autoplay: false,
+        playsinline: true,
+        dnt: true,
+        title: false,
+        byline: false,
+        portrait: false,
+      })
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err)
+      console.error('[Vimeo] constructor threw', err)
+      setErrorMessage(`Crash SDK — ${message}`)
+      return
+    }
     playerRef.current = player
 
-    // Capture les erreurs Vimeo pour les afficher en clair dans l'UI
-    // (sinon on a juste un iframe noire silencieuse).
     player.on('error', (err: { name?: string; message?: string }) => {
+      console.error('[Vimeo] error event', err)
       const name = err?.name ?? 'Erreur'
       const message = err?.message ?? 'lecture impossible'
       setErrorMessage(`${name} — ${message}`)
     })
+    player.on('loaded', () => console.log('[Vimeo] loaded'))
+    player.on('play', () => console.log('[Vimeo] play'))
+    player.on('bufferstart', () => console.log('[Vimeo] bufferstart'))
 
-    if (initialPositionSeconds > 0) {
-      player
-        .ready()
-        .then(() => player.setCurrentTime(initialPositionSeconds))
-        .catch(() => {
-          // noop : la lib renvoie une erreur si timecode > durée
-        })
-    }
+    player
+      .ready()
+      .then(() => {
+        console.log('[Vimeo] ready')
+        if (initialPositionSeconds > 0) {
+          return player.setCurrentTime(initialPositionSeconds)
+        }
+      })
+      .catch((err) => {
+        console.error('[Vimeo] ready/seek failed', err)
+        const message = err instanceof Error ? err.message : String(err)
+        setErrorMessage(`Init échouée — ${message}`)
+      })
 
     return () => {
       player.destroy().catch(() => {})
