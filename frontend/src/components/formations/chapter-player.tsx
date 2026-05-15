@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import YouTube, { type YouTubePlayer } from 'react-youtube'
 import VimeoPlayer from '@vimeo/player'
 import { PlayCircle } from 'lucide-react'
@@ -163,6 +163,7 @@ function VimeoChapterPlayer({
 }: PlayerProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const playerRef = useRef<VimeoPlayer | null>(null)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   const tickRef = useRef(onProgressTick)
   tickRef.current = onProgressTick
@@ -171,15 +172,20 @@ function VimeoChapterPlayer({
     if (!containerRef.current || !chapter.video_url) return
     const ids = extractVimeoId(chapter.video_url)
     if (!ids) return
+    setErrorMessage(null)
+
+    // Mesure la largeur réelle du conteneur pour créer une iframe à la
+    // bonne dimension dès le départ. Avec une largeur fixe trop grande
+    // (ex: 1280) sur un téléphone (~375px), Safari iOS doit rescaler
+    // une iframe massive en CSS et rend parfois un écran noir.
+    const containerWidth =
+      containerRef.current.getBoundingClientRect().width || 640
+
     const player = new VimeoPlayer(containerRef.current, {
       id: Number(ids.id),
       ...(ids.hash ? { h: ids.hash } : {}),
-      // responsive: false → on laisse notre wrapper aspect-[16/9] gouverner
-      // la taille. Avec `responsive: true`, Vimeo injecte son propre
-      // wrapper `padding-bottom: ratio%` qui se superpose à notre
-      // aspect-ratio CSS et coupe parfois le bas de l'image.
       responsive: false,
-      width: 1280,
+      width: Math.round(containerWidth),
       autoplay: false,
       // playsinline: sur iOS sans cette option, Vimeo bascule en plein
       // écran natif au play et peut afficher du noir avant ce switch.
@@ -193,6 +199,14 @@ function VimeoChapterPlayer({
       portrait: false,
     })
     playerRef.current = player
+
+    // Capture les erreurs Vimeo pour les afficher en clair dans l'UI
+    // (sinon on a juste un iframe noire silencieuse).
+    player.on('error', (err: { name?: string; message?: string }) => {
+      const name = err?.name ?? 'Erreur'
+      const message = err?.message ?? 'lecture impossible'
+      setErrorMessage(`${name} — ${message}`)
+    })
 
     if (initialPositionSeconds > 0) {
       player
@@ -234,6 +248,11 @@ function VimeoChapterPlayer({
         ref={containerRef}
         className="absolute inset-0 h-full w-full [&_iframe]:absolute [&_iframe]:inset-0 [&_iframe]:block [&_iframe]:h-full [&_iframe]:w-full [&_iframe]:border-0"
       />
+      {errorMessage && (
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 bg-red-600/90 px-4 py-2 text-center text-xs text-white">
+          Vimeo : {errorMessage}
+        </div>
+      )}
     </div>
   )
 }
