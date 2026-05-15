@@ -1,22 +1,30 @@
 // Le Club IA — Edge Function "news-agent-manual"
 //
-// Lancement manuel admin de l'agent IA. Format différent du cron hebdo :
-// au lieu d'un récap des 5 actus de la semaine, on génère UN article focus
-// sur LE sujet IA le plus marquant des 48 dernières heures.
+// Lancement manuel admin de l'agent IA. Génère un article **récap
+// multi-sujets** (3-4 actus marquantes des dernières 48h) au lieu d'un
+// article mono-sujet. Avant ça, le manuel produisait UN seul focus
+// article ce qui paraissait pauvre quand on publiait plusieurs fois
+// par semaine (cf. retour user 2026-05-15).
 //
-// Le cron weekly (`news-agent`) reste actif et publie son récap chaque
-// dimanche 9h UTC — ces deux pipelines coexistent. La distinction se fait
-// via la colonne `category` (weekly-recap vs breaking-news) et le flag
-// `published_by_admin`.
+// Différences avec le cron hebdo (`news-agent`) :
+//   - Fenêtre : 48h (vs 7j pour le weekly-recap).
+//   - Cible sections : 4 (min 3) vs 5 pour weekly.
+//   - Catégorie : breaking-news (vs weekly-recap).
+//   - Déclenchement : manuel admin (vs cron dimanche 9h UTC).
+//
+// Les deux pipelines coexistent et peuvent même se chevaucher (le
+// manuel peut être lancé un dimanche après que le cron ait tourné).
+// L'idempotence n'est PAS gérée côté manuel — l'admin contrôle.
 //
 // Pipeline :
 //   1. Fetch RSS de 12 sources (idem cron, parallèle).
 //   2. Filtre fraîcheur AGRESSIF : 48h (vs 7j pour le récap hebdo).
 //   3. Cap à 30 candidats max.
-//   4. UN appel OpenAI gpt-4o-mini, prompt focus "1 article".
-//   5. INSERT news_articles : category='breaking-news',
+//   4. UN appel OpenAI gpt-4o-mini, prompt multi-sujets 3-4 sections.
+//   5. Assemblage déterministe du markdown côté serveur.
+//   6. INSERT news_articles : category='breaking-news',
 //      published_by_admin=true, slug timestampé pour éviter les conflits.
-//   6. Email broadcast 'breaking-news' optionnel (body.send_email).
+//   7. Email broadcast 'breaking-news' optionnel (body.send_email).
 //
 // Auth : JWT admin uniquement. Pas de service-role accepté ici (c'est
 // un déclenchement manuel par un humain identifié).
@@ -63,6 +71,12 @@ const MIN_CANDIDATES = 5
 const ARTICLE_MAX_TOKENS = 2200
 const MODEL = 'gpt-4o-mini'
 
+// Récap multi-sujets : cible 4 sections, minimum 3. Si on a moins de
+// 3 actus IA fraîches dans la fenêtre 48h, on remonte une erreur claire
+// à l'admin plutôt que de produire un article maigre.
+const TARGET_SECTIONS = 4
+const MIN_SECTIONS = 3
+
 // CORS via helper partagé — voir _shared/cors.ts
 
 // -----------------------------------------------------------------------------
@@ -78,10 +92,17 @@ interface FeedItem {
   source: string
 }
 
-interface FocusArticleJson {
+interface RecapSection {
   title: string
-  category: 'breaking-news'
-  content_markdown: string
+  summary: string
+  url: string
+}
+
+interface MultiTopicArticle {
+  title: string
+  intro: string
+  sections: RecapSection[]
+  conclusion: string
 }
 
 interface RunResult {
@@ -304,20 +325,27 @@ serve(async (req: Request) => {
       } satisfies RunResult)
     }
 
-    // ============== 3. Génération article focus ==============
+    // ============== 3. Génération article multi-sujets ==============
     const today = new Date()
     console.log(
-      `[news-agent-manual] OpenAI call : ${candidates.length} candidats → 1 article focus`,
+      `[news-agent-manual] OpenAI call : ${candidates.length} candidats → article multi-sujets (cible ${TARGET_SECTIONS})`,
     )
-    const article = await generateFocusArticle(candidates, openaiKey, today)
+    const article = await generateMultiTopicArticle(candidates, openaiKey, today)
     if (!article) {
       return jsonResponse(200, {
         ok: false,
-        error: "L'agent IA n'a pas pu générer d'article (réponse OpenAI invalide).",
+        error: "L'agent IA n'a pas pu générer d'article (réponse OpenAI invalide ou moins de 3 sujets exploitables).",
         candidates_count: candidates.length,
         duration_ms: Date.now() - startedAt,
       } satisfies RunResult)
     }
+
+    // Assemblage déterministe du markdown final côté serveur (même
+    // structure que le récap weekly pour cohérence visuelle).
+    const contentMd = assembleMarkdown(article)
+    console.log(
+      `[news-agent-manual] Article assemblé : ${article.sections.length} sections, ${contentMd.length} chars`,
+    )
 
     // ============== 4. INSERT news_articles ==============
     // Slug timestampé : actu-ia-2026-05-07-14-32 — évite les conflits si
@@ -327,8 +355,8 @@ serve(async (req: Request) => {
       .from('news_articles')
       .insert({
         slug,
-        title: article.title.slice(0, 200),
-        content: article.content_markdown,
+        title: article.title,
+        content: contentMd,
         cover_image_url: null,
         category: 'breaking-news',
         source_url: null,
@@ -365,7 +393,7 @@ serve(async (req: Request) => {
         {
           slug: inserted.slug as string,
           title: inserted.title as string,
-          contentMarkdown: article.content_markdown,
+          contentMarkdown: contentMd,
         },
       )
       emailSent = sent
@@ -409,41 +437,38 @@ serve(async (req: Request) => {
 })
 
 // -----------------------------------------------------------------------------
-// Génération de l'article focus (1 seul appel OpenAI)
+// Génération de l'article multi-sujets (1 seul appel OpenAI)
 // -----------------------------------------------------------------------------
 
-async function generateFocusArticle(
+async function generateMultiTopicArticle(
   candidates: FeedItem[],
   apiKey: string,
   today: Date,
-): Promise<FocusArticleJson | null> {
-  const system = `Tu es l'agent éditorial du Club IA, communauté francophone d'experts en intelligence artificielle.
+): Promise<MultiTopicArticle | null> {
+  const system = `Tu es l'agent éditorial du Club IA, communauté francophone d'experts en intelligence artificielle. Tu rédiges un brief multi-sujets en français qui couvre les ${TARGET_SECTIONS} actualités IA les plus marquantes des dernières 48h, dans un ton éducatif, accessible et engageant. Tu utilises le tutoiement systématique. Tu évites le jargon inutile. Tu insistes sur l'impact concret pour les entrepreneurs, créateurs et professionnels francophones.
 
-À partir de la liste d'articles IA des dernières 48h ci-dessous, identifie LE sujet le plus marquant — celui qui aura le plus d'impact pour les entrepreneurs et créateurs francophones — et rédige UN article complet de 400 à 600 mots en français.
-
-Ton : éducatif, accessible, engageant. Tutoiement systématique. Pas de jargon inutile. Insiste sur l'impact concret pour les entrepreneurs, créateurs et professionnels francophones.
-
-Structure imposée du content_markdown :
-- Une intro de 2-3 phrases qui plante le contexte (pas de h2 d'intro).
-- Section ## De quoi on parle — qu'est-ce qui s'est passé, factuel.
-- Section ## Pourquoi c'est important — impact pour les francophones, l'écosystème.
-- Section ## Ce que ça change concrètement pour toi — actions, opportunités, takeaway.
-- Une conclusion (3-4 phrases) qui donne UN takeaway actionnable.
-- Un séparateur "---" puis "*Sources :*" suivi de 2-3 liens markdown vers les sources les plus pertinentes (depuis la liste candidate uniquement).
-
-Les sections h2 sont obligatoires (3 sections). Pas de h1 dans le markdown (le titre est séparé).
-
-Sont pertinents : nouveautés modèles IA, fonctionnalités, releases majeures, levées de fonds importantes, recherche scientifique notable, cas d'usage concrets impactants.
-Ne sont PAS pertinents : actualités marketing pure, événements sans rapport, clickbait, tech non-IA. Si une source FR (numerama, frandroid, lemonde, siecledigital) propose un article non-IA, IGNORE-LE.
+Sont pertinents : nouveautés modèles IA, fonctionnalités, capacités, releases, levées de fonds, acquisitions, recherche scientifique, cas d'usage concrets, outils nouveaux ou mis à jour.
+Ne sont PAS pertinents : actualités marketing pure, événements politiques sans rapport, clickbait, tech non-IA.
 
 Tu réponds UNIQUEMENT en JSON strict avec ce schéma :
 {
-  "title": "string (titre accrocheur en français qui fait envie de cliquer, max 100 caractères)",
-  "category": "breaking-news",
-  "content_markdown": "string (article complet 400-600 mots avec sections h2)"
+  "title": "string (titre accrocheur 80 chars max qui reflète qu'il y a plusieurs actus marquantes, ex: \\"4 actus IA à retenir : Gemini, Anthropic, Mistral, Hugging Face\\" ou \\"L'essentiel IA cette semaine\\")",
+  "intro": "string (2-3 phrases, plante le décor : ce qui ressort de ces 48h en IA)",
+  "sections": [
+    {
+      "title": "string (titre court accrocheur en français, max 80 caractères)",
+      "summary": "string (résumé 3-5 phrases : ce qui se passe, pourquoi c'est important, ce que ça change concrètement pour le lecteur francophone)",
+      "url": "string (lien direct vers l'article original)"
+    }
+  ],
+  "conclusion": "string (3-4 phrases qui synthétisent les tendances et donnent UN takeaway actionnable)"
 }
 
-Les URLs des sources reprennent EXACTEMENT les liens fournis dans la liste candidate (pas d'invention).`
+Contraintes sur "sections" :
+- EXACTEMENT ${TARGET_SECTIONS} sections (ou ${MIN_SECTIONS} minimum si le pool est trop pauvre).
+- Mixe les sources autant que possible (au plus 2 articles d'une même source).
+- Privilégie les vraies actus IA. Si une source FR (numerama, frandroid, lemonde, siecledigital) propose un article non-IA, IGNORE-LE.
+- Le champ "url" reprend EXACTEMENT le lien fourni dans la liste candidate (pas d'invention).`
 
   const candidatesBlock = candidates
     .map((c, i) => {
@@ -464,7 +489,7 @@ Voici les ${candidates.length} articles IA candidats publiés ces ${FRESHNESS_HO
 
 ${candidatesBlock}
 
-Identifie LE sujet le plus marquant et rédige UN article focus complet au format JSON décrit.`
+Sélectionne les ${TARGET_SECTIONS} actualités les plus marquantes en mixant les sources. Compose le brief au format JSON décrit dans le system prompt.`
 
   try {
     const res = await callOpenAI(apiKey, {
@@ -480,12 +505,13 @@ Identifie LE sujet le plus marquant et rédige UN article focus complet au forma
       console.error('[news-agent-manual] OpenAI : réponse vide')
       return null
     }
-    const parsed = JSON.parse(raw) as Partial<FocusArticleJson>
+    const parsed = JSON.parse(raw) as Partial<MultiTopicArticle>
     if (
       typeof parsed.title !== 'string' ||
-      typeof parsed.content_markdown !== 'string' ||
-      parsed.title.length === 0 ||
-      parsed.content_markdown.length < 100
+      typeof parsed.intro !== 'string' ||
+      typeof parsed.conclusion !== 'string' ||
+      !Array.isArray(parsed.sections) ||
+      parsed.title.length === 0
     ) {
       console.error(
         '[news-agent-manual] OpenAI : JSON incomplet',
@@ -493,16 +519,75 @@ Identifie LE sujet le plus marquant et rédige UN article focus complet au forma
       )
       return null
     }
+    // Filtre les sections invalides + cap à TARGET_SECTIONS
+    const cleanSections = parsed.sections
+      .filter(
+        (s): s is RecapSection =>
+          !!s && typeof s.title === 'string' &&
+          typeof s.summary === 'string' &&
+          typeof s.url === 'string' &&
+          s.url.length > 0,
+      )
+      .map((s) => ({
+        title: s.title.trim().slice(0, 120),
+        summary: s.summary.trim(),
+        url: s.url.trim(),
+      }))
+    if (cleanSections.length < MIN_SECTIONS) {
+      console.error(
+        `[news-agent-manual] Seulement ${cleanSections.length} sections valides (< ${MIN_SECTIONS}).`,
+      )
+      return null
+    }
     return {
-      title: parsed.title.trim(),
-      category: 'breaking-news',
-      content_markdown: parsed.content_markdown.trim(),
+      title: parsed.title.trim().slice(0, 200),
+      intro: parsed.intro.trim(),
+      sections: cleanSections.slice(0, TARGET_SECTIONS),
+      conclusion: parsed.conclusion.trim(),
     }
   } catch (err) {
     if (err instanceof FatalOpenAIAuthError) throw err
-    console.error('[news-agent-manual] generateFocusArticle:', normalizeError(err))
+    console.error('[news-agent-manual] generateMultiTopicArticle:', normalizeError(err))
     return null
   }
+}
+
+// -----------------------------------------------------------------------------
+// Assemblage markdown — même structure que le récap weekly pour cohérence
+// visuelle (intro, sections numérotées avec source, conclusion, signature).
+// -----------------------------------------------------------------------------
+
+function assembleMarkdown(article: MultiTopicArticle): string {
+  const parts: string[] = []
+  parts.push("## L'essentiel des dernières 48h")
+  parts.push('')
+  parts.push(article.intro)
+  parts.push('')
+
+  article.sections.forEach((section, idx) => {
+    parts.push('---')
+    parts.push('')
+    parts.push(`### ${idx + 1}. ${section.title}`)
+    parts.push('')
+    parts.push(section.summary)
+    parts.push('')
+    parts.push(`👉 [Source originale](${section.url})`)
+    parts.push('')
+  })
+
+  parts.push('---')
+  parts.push('')
+  parts.push('## À retenir')
+  parts.push('')
+  parts.push(article.conclusion)
+  parts.push('')
+  parts.push('---')
+  parts.push('')
+  parts.push(
+    "*Ce brief multi-sujets est généré par l'agent IA du Club à partir des actus IA des dernières 48 h.*",
+  )
+
+  return parts.join('\n')
 }
 
 // -----------------------------------------------------------------------------
