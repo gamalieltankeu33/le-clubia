@@ -14,6 +14,7 @@ import {
   MessageSquare,
   Newspaper,
   RefreshCw,
+  ShieldCheck,
   Sparkles,
   TrendingDown,
   TrendingUp,
@@ -563,6 +564,12 @@ function AdminDashboardPage() {
             icon={Activity}
             title="Insights engagement"
             description="Likes, avis & posts populaires"
+          />
+          <Shortcut
+            to="/app/admin/audit-log"
+            icon={ShieldCheck}
+            title="Audit log"
+            description="Trace des actions admin"
           />
           <ShortcutDisabled
             icon={Sparkles}

@@ -19,6 +19,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { AvatarDisplay } from '@/components/avatar-display'
 import { CardElite } from '@/components/shared/card-elite'
+import { MfaSection } from '@/components/profile/mfa-section'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/auth-store'
 import { useCoachStore } from '@/stores/coach-store'
@@ -521,6 +522,13 @@ function ProfilPage() {
               </Button>
             </div>
           )}
+        </Section>
+      </div>
+
+      {/* Sécurité — MFA */}
+      <div className="mt-12">
+        <Section title="Sécurité">
+          <MfaSection />
         </Section>
       </div>
 

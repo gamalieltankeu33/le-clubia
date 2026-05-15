@@ -39,6 +39,12 @@ function AuthPage() {
   const [submitting, setSubmitting] = useState(false)
   const [googleLoading, setGoogleLoading] = useState(false)
 
+  // MFA challenge state — actif uniquement si le user vient de réussir
+  // son login avec mdp ET qu'il a un factor TOTP vérifié. Tant que
+  // mfaFactorId est null, le step credentials normal est affiché.
+  const [mfaFactorId, setMfaFactorId] = useState<string | null>(null)
+  const [mfaCode, setMfaCode] = useState('')
+
   // Plan choisi sur la landing : passé en query param ?plan=annual|semestrial.
   // On le mémorise et on l'enregistre dans profiles.desired_plan_id après
   // signup pour que l'admin puisse pré-sélectionner ce plan à l'activation.
@@ -106,6 +112,33 @@ function AuthPage() {
           setSubmitting(false)
           return
         }
+
+        // Après signIn, on est en AAL1 (mdp seul). Si le user a un
+        // factor TOTP vérifié, Supabase exige un challenge supplémentaire
+        // pour passer en AAL2. On NE call PAS routeAuthenticatedUser
+        // dans ce cas — on switche en step MFA d'abord.
+        const { data: aal } =
+          await supabase.auth.mfa.getAuthenticatorAssuranceLevel()
+        if (
+          aal?.currentLevel === 'aal1' &&
+          aal?.nextLevel === 'aal2'
+        ) {
+          const { data: factors } = await supabase.auth.mfa.listFactors()
+          const totpFactor = factors?.totp?.find(
+            (f) => f.status === 'verified',
+          )
+          if (totpFactor) {
+            setMfaFactorId(totpFactor.id)
+            setSubmitting(false)
+            return
+          }
+          // Aucun factor verified mais AAL2 requis → cas anormal, on
+          // déconnecte pour éviter une session bancale.
+          await useAuthStore.getState().signOut()
+          toast.error('Configuration MFA inattendue. Reconnecte-toi.')
+          setSubmitting(false)
+          return
+        }
       } else {
         const { error } = await signUp(trimmedEmail, password)
         if (error) {
@@ -154,6 +187,48 @@ function AuthPage() {
       toast.error(error)
       setGoogleLoading(false)
     }
+  }
+
+  async function verifyMfa() {
+    if (!mfaFactorId || mfaCode.length !== 6 || submitting) return
+    setSubmitting(true)
+    try {
+      const { data: challenge, error: challErr } =
+        await supabase.auth.mfa.challenge({ factorId: mfaFactorId })
+      if (challErr || !challenge) {
+        toast.error('Création du challenge MFA impossible.')
+        setSubmitting(false)
+        return
+      }
+      const { error: verifyErr } = await supabase.auth.mfa.verify({
+        factorId: mfaFactorId,
+        challengeId: challenge.id,
+        code: mfaCode,
+      })
+      if (verifyErr) {
+        toast.error('Code invalide. Réessaie.')
+        setSubmitting(false)
+        return
+      }
+      // AAL2 atteint — refresh le store (rôle / sub) puis route.
+      await useAuthStore.getState().refreshUserData()
+      setMfaFactorId(null)
+      setMfaCode('')
+      await routeAuthenticatedUser()
+    } catch (err) {
+      console.error('[auth] verifyMfa error', err)
+      toast.error('Erreur lors de la vérification.')
+      setSubmitting(false)
+    }
+  }
+
+  async function cancelMfa() {
+    // L'utilisateur abandonne le challenge MFA → on déconnecte pour
+    // pas laisser une session AAL1 fantôme. Reset complet du formulaire.
+    await useAuthStore.getState().signOut()
+    setMfaFactorId(null)
+    setMfaCode('')
+    setPassword('')
   }
 
   const formDisabled = submitting || googleLoading
@@ -236,11 +311,78 @@ function AuthPage() {
           )}
 
           <div className="mt-6 space-y-5">
-            <GoogleButton onClick={handleGoogle} loading={googleLoading} />
+            {mfaFactorId ? (
+              // Step MFA : remplace TOUT le formulaire (Google + email + mdp)
+              // tant que le challenge n'est pas validé. L'utilisateur est
+              // déjà authentifié AAL1 — on lui demande son code TOTP pour
+              // monter en AAL2.
+              <form
+                className="space-y-4"
+                onSubmit={(e) => {
+                  e.preventDefault()
+                  void verifyMfa()
+                }}
+              >
+                <div className="rounded-lg border border-[var(--primary)]/20 bg-[var(--primary)]/[0.04] p-4">
+                  <p className="text-sm font-semibold">
+                    Double authentification
+                  </p>
+                  <p className="mt-1 text-xs text-[var(--muted-foreground)]">
+                    Ouvre ton app authenticator (Google Authenticator,
+                    1Password, Aegis…) et saisis le code à 6 chiffres généré
+                    pour Le Club IA.
+                  </p>
+                </div>
 
-            <Divider>ou avec ton email</Divider>
+                <div className="space-y-2">
+                  <Label htmlFor="mfa-code">Code à 6 chiffres</Label>
+                  <Input
+                    id="mfa-code"
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    maxLength={6}
+                    placeholder="123456"
+                    value={mfaCode}
+                    onChange={(e) =>
+                      setMfaCode(e.target.value.replace(/\D/g, ''))
+                    }
+                    disabled={submitting}
+                    autoFocus
+                    className="font-mono text-lg tracking-widest"
+                  />
+                </div>
 
-            <form className="space-y-4" onSubmit={handleSubmit}>
+                <button
+                  type="submit"
+                  disabled={submitting || mfaCode.length !== 6}
+                  className="cta-black w-full"
+                >
+                  {submitting ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <>
+                      Vérifier
+                      <ArrowRight className="h-4 w-4" />
+                    </>
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={cancelMfa}
+                  disabled={submitting}
+                  className="block w-full text-center text-xs text-[var(--muted-foreground)] underline hover:text-[var(--foreground)]"
+                >
+                  Annuler et se reconnecter
+                </button>
+              </form>
+            ) : (
+              <>
+                <GoogleButton onClick={handleGoogle} loading={googleLoading} />
+
+                <Divider>ou avec ton email</Divider>
+
+                <form className="space-y-4" onSubmit={handleSubmit}>
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -343,6 +485,8 @@ function AuthPage() {
                 </p>
               )}
             </form>
+              </>
+            )}
           </div>
         </div>
       </Reveal>
