@@ -66,7 +66,7 @@ export function FourPillars() {
       {/* Background depth halo */}
       <div className="pointer-events-none absolute left-0 top-1/2 h-[500px] w-[500px] -translate-y-1/2 rounded-full bg-[var(--primary)]/[0.03] blur-[100px]" />
 
-      <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
           <Reveal>
             <Eyebrow className="mb-4">Tout en un</Eyebrow>
@@ -84,18 +84,18 @@ export function FourPillars() {
         <div className="mt-12 grid gap-8 sm:mt-16 md:grid-cols-2">
           {PILLARS.map((p, i) => (
             <Reveal key={p.title} delay={i * 0.1} direction={i % 2 === 0 ? 'right' : 'left'}>
-              <div className="group relative flex h-full flex-col overflow-hidden rounded-[2.5rem] border border-[var(--border)] bg-white transition-all duration-700 hover:border-[var(--primary)]/20 hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.08)]">
-                <div className="relative z-10 flex flex-col p-8 sm:p-10">
+              <div className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-[var(--border)] bg-white transition-all duration-700 hover:border-[var(--primary)]/20 hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.08)] sm:rounded-[2.5rem]">
+                <div className="relative z-10 flex flex-col p-6 sm:p-10">
                   <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#0A0A0A] text-white shadow-xl shadow-black/10 transition-transform duration-500 group-hover:scale-110 group-hover:bg-[var(--primary)]">
                     <p.icon className="h-6 w-6" />
                   </div>
-                  <h3 className="mt-8 font-display text-3xl font-black tracking-tight text-[#0A0A0A] sm:text-4xl">
+                  <h3 className="mt-8 font-display text-2xl font-black tracking-tight text-[#0A0A0A] sm:text-4xl">
                     {p.title}
                   </h3>
-                  <p className="mt-4 text-lg font-medium leading-relaxed text-[#4A4A4A] opacity-70">
+                  <p className="mt-4 text-base font-medium leading-relaxed text-[#4A4A4A] opacity-70 sm:text-lg">
                     {p.description}
                   </p>
-                  
+
                   {p.link && (
                     <Link
                       to={p.link as any}
@@ -106,9 +106,9 @@ export function FourPillars() {
                     </Link>
                   )}
                 </div>
-                
+
                 {/* Mockup section - No longer forced to bottom with mt-auto */}
-                <div className="px-6 pb-8 sm:px-8 sm:pb-10">
+                <div className="px-4 pb-6 sm:px-8 sm:pb-10">
                   <div className="relative overflow-hidden rounded-2xl bg-[#F8F9FA] p-4 transition-transform duration-700 group-hover:scale-[1.01]">
                     {p.mockup}
                   </div>
