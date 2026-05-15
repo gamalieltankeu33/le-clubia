@@ -8,7 +8,7 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https://uzsohjzrwgqmwiorzrky.supabase.co https://cdn.simpleicons.org https://i.ytimg.com https://i.vimeocdn.com https://*.googleusercontent.com https://*.ggpht.com; connect-src 'self' https://uzsohjzrwgqmwiorzrky.supabase.co wss://uzsohjzrwgqmwiorzrky.supabase.co; frame-src https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com https://drive.google.com; frame-ancestors 'none'; form-action 'self'; base-uri 'self'; object-src 'none'; upgrade-insecure-requests"
+          "value": "default-src 'self'; script-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://s.ytimg.com https://player.vimeo.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https://uzsohjzrwgqmwiorzrky.supabase.co https://cdn.simpleicons.org https://i.ytimg.com https://i.vimeocdn.com https://*.googleusercontent.com https://*.ggpht.com; media-src 'self' blob: https://*.vimeocdn.com; connect-src 'self' https://uzsohjzrwgqmwiorzrky.supabase.co wss://uzsohjzrwgqmwiorzrky.supabase.co https://player.vimeo.com https://*.vimeocdn.com; frame-src https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com https://drive.google.com; frame-ancestors 'none'; form-action 'self'; base-uri 'self'; object-src 'none'; upgrade-insecure-requests"
         },
         {
           "key": "Strict-Transport-Security",

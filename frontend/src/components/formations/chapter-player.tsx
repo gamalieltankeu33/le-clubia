@@ -97,11 +97,13 @@ function YouTubeChapterPlayer({
         opts={{
           width: '100%',
           height: '100%',
+          host: 'https://www.youtube-nocookie.com',
           playerVars: {
             modestbranding: 1,
             rel: 0,
             showinfo: 0,
             autoplay: 0,
+            playsinline: 1,
             start: Math.max(0, Math.floor(initialPositionSeconds)),
           },
         }}
@@ -179,6 +181,9 @@ function VimeoChapterPlayer({
       responsive: false,
       width: 1280,
       autoplay: false,
+      // playsinline: sur iOS sans cette option, Vimeo bascule en plein
+      // écran natif au play et peut afficher du noir avant ce switch.
+      playsinline: true,
       title: false,
       byline: false,
       portrait: false,
