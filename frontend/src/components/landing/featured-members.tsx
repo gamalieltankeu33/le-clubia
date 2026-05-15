@@ -16,56 +16,58 @@ interface Member {
   bgTo: string
 }
 
-// Édite cette liste pour customiser. Drop tes images dans
-// /public/landing/members/ avec ces noms exacts pour les voir.
+// Les 6 membres mis en avant. Les images sont en /public/landing/members/
+// au format {slug}.jpg, ratio 3:4 portrait, cadrage tête + buste.
+// Pour mettre à jour un membre : remplace l'image au même chemin, édite
+// l'entrée correspondante ici.
 const MEMBERS: Member[] = [
   {
-    name: 'Anna L.',
-    expertise: 'Expert YouTube IA',
-    initials: 'AL',
-    image: '/landing/members/member-1.jpg',
+    name: 'Patricia Njie',
+    expertise: 'Marketing & vente par webinaires',
+    initials: 'PN',
+    image: '/landing/members/patricia-njie.jpg',
+    bgFrom: '#7c2d12',
+    bgTo: '#f97316',
+  },
+  {
+    name: 'Fanel Nguimfack',
+    expertise: 'CEO Branddeo · stratégie YouTube',
+    initials: 'FN',
+    image: '/landing/members/fanel-nguimfack.jpg',
     bgFrom: '#1E40AF',
     bgTo: '#3858d8',
   },
   {
-    name: 'Marc D.',
-    expertise: 'Expert automatisation Make',
-    initials: 'MD',
-    image: '/landing/members/member-2.jpg',
-    bgFrom: '#2563EB',
+    name: 'Dorian Mouchan',
+    expertise: 'Créateur tech & entrepreneur IA',
+    initials: 'DM',
+    image: '/landing/members/dorian-mouchan.jpg',
+    bgFrom: '#0F1E4D',
     bgTo: '#60A5FA',
   },
   {
-    name: 'Léa M.',
-    expertise: 'Expert dev SaaS IA',
-    initials: 'LM',
-    image: '/landing/members/member-3.jpg',
+    name: 'Warren Steeve',
+    expertise: 'Créateur digital · expert IA',
+    initials: 'WS',
+    image: '/landing/members/warren-steeve.jpg',
     bgFrom: '#7c3aed',
     bgTo: '#a855f7',
   },
   {
-    name: 'Tom B.',
-    expertise: 'Expert prompt engineering',
-    initials: 'TB',
-    image: '/landing/members/member-4.jpg',
-    bgFrom: '#0ea5e9',
-    bgTo: '#1E40AF',
-  },
-  {
-    name: 'Inès K.',
-    expertise: 'Expert monétisation IA',
-    initials: 'IK',
-    image: '/landing/members/member-5.jpg',
+    name: 'Dilane Nofolé',
+    expertise: 'Expert IA & créateur de contenu',
+    initials: 'DN',
+    image: '/landing/members/dilane-nofole.jpg',
     bgFrom: '#1E3A8A',
     bgTo: '#93C5FD',
   },
   {
-    name: 'Théo G.',
-    expertise: 'Expert vidéo IA (Sora, Runway)',
-    initials: 'TG',
-    image: '/landing/members/member-6.jpg',
-    bgFrom: '#0F1E4D',
-    bgTo: '#60A5FA',
+    name: 'Kevin Chris',
+    expertise: 'Tech, IA & automatisation',
+    initials: 'KC',
+    image: '/landing/members/kevin-chris.jpg',
+    bgFrom: '#0ea5e9',
+    bgTo: '#1E40AF',
   },
 ]
 
