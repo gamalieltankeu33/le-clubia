@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import YouTube, { type YouTubePlayer } from 'react-youtube'
 import VimeoPlayer from '@vimeo/player'
 import { PlayCircle } from 'lucide-react'
@@ -163,49 +163,84 @@ function VimeoChapterPlayer({
 }: PlayerProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const playerRef = useRef<VimeoPlayer | null>(null)
+  const [showFallback, setShowFallback] = useState(false)
+  const [diag, setDiag] = useState('')
 
   const tickRef = useRef(onProgressTick)
   tickRef.current = onProgressTick
 
   useEffect(() => {
+    setShowFallback(false)
+    setDiag('init…')
     if (!containerRef.current || !chapter.video_url) return
     const ids = extractVimeoId(chapter.video_url)
-    if (!ids) return
+    if (!ids) {
+      setDiag('URL non reconnue')
+      setShowFallback(true)
+      return
+    }
 
-    // Largeur mesurée au mount : créer l'iframe à sa dimension réelle
-    // au lieu d'une largeur fixe (1280) puis rescaler en CSS — Safari
-    // iOS rendait parfois noir l'iframe rescalée.
     const containerWidth =
       containerRef.current.getBoundingClientRect().width || 640
 
-    const player = new VimeoPlayer(containerRef.current, {
-      id: Number(ids.id),
-      ...(ids.hash ? { h: ids.hash } : {}),
-      responsive: false,
-      width: Math.round(containerWidth),
-      autoplay: false,
-      // playsinline: sur iOS, sans cette option, la vidéo bascule en
-      // plein écran natif au play.
-      playsinline: true,
-      // dnt: désactive les cookies tracking Vimeo. Sans ça, Safari iOS
-      // (ITP) bloque les cookies tiers et le player reste noir.
-      dnt: true,
-      title: false,
-      byline: false,
-      portrait: false,
-    })
+    let player: VimeoPlayer
+    try {
+      player = new VimeoPlayer(containerRef.current, {
+        id: Number(ids.id),
+        ...(ids.hash ? { h: ids.hash } : {}),
+        responsive: false,
+        width: Math.round(containerWidth),
+        autoplay: false,
+        playsinline: true,
+        dnt: true,
+        title: false,
+        byline: false,
+        portrait: false,
+      })
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err)
+      setDiag(`SDK crash: ${msg}`)
+      setShowFallback(true)
+      return
+    }
     playerRef.current = player
 
-    if (initialPositionSeconds > 0) {
-      player
-        .ready()
-        .then(() => player.setCurrentTime(initialPositionSeconds))
-        .catch(() => {
-          // noop : la lib renvoie une erreur si timecode > durée
-        })
-    }
+    player.on('error', (err: { name?: string; message?: string }) => {
+      setDiag(`erreur Vimeo: ${err?.name ?? '?'} — ${err?.message ?? '?'}`)
+      setShowFallback(true)
+    })
+
+    // 4 s après le mount, si rien n'a démarré, on inspecte l'iframe
+    // réelle et on propose le fallback. Permet de diagnostiquer un
+    // player invisible/0px sans imposer le fallback en UX normale.
+    const fallbackTimer = window.setTimeout(() => {
+      const iframe = containerRef.current?.querySelector('iframe')
+      if (!iframe) {
+        setDiag('aucune iframe créée')
+        setShowFallback(true)
+        return
+      }
+      const rect = iframe.getBoundingClientRect()
+      setDiag(`iframe ${Math.round(rect.width)}×${Math.round(rect.height)}`)
+      if (rect.width < 10 || rect.height < 10) setShowFallback(true)
+    }, 4000)
+
+    player
+      .ready()
+      .then(() => {
+        setDiag('player prêt')
+        if (initialPositionSeconds > 0) {
+          return player.setCurrentTime(initialPositionSeconds)
+        }
+      })
+      .catch((err) => {
+        const msg = err instanceof Error ? err.message : String(err)
+        setDiag(`init échouée: ${msg}`)
+        setShowFallback(true)
+      })
 
     return () => {
+      window.clearTimeout(fallbackTimer)
       player.destroy().catch(() => {})
       playerRef.current = null
     }
@@ -230,12 +265,35 @@ function VimeoChapterPlayer({
   }, [chapter.id])
 
   return (
-    <div className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl bg-black">
-      <div
-        key={chapter.id}
-        ref={containerRef}
-        className="absolute inset-0 h-full w-full [&_iframe]:absolute [&_iframe]:inset-0 [&_iframe]:block [&_iframe]:h-full [&_iframe]:w-full [&_iframe]:border-0"
-      />
+    <div className="space-y-1">
+      <div className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl bg-black">
+        <div
+          key={chapter.id}
+          ref={containerRef}
+          className="absolute inset-0 h-full w-full [&_iframe]:absolute [&_iframe]:inset-0 [&_iframe]:block [&_iframe]:h-full [&_iframe]:w-full [&_iframe]:border-0"
+        />
+        {showFallback && chapter.video_url && (
+          <a
+            href={chapter.video_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 bg-black/80 px-4 text-center text-white"
+          >
+            <PlayCircle className="h-12 w-12" />
+            <span className="text-sm font-semibold">
+              Ouvrir la vidéo sur Vimeo
+            </span>
+            <span className="text-xs opacity-70">
+              Le player intégré ne se charge pas sur cet appareil
+            </span>
+          </a>
+        )}
+      </div>
+      {diag && (
+        <p className="text-right font-mono text-[10px] text-[var(--muted-foreground)] opacity-50">
+          {diag}
+        </p>
+      )}
     </div>
   )
 }
