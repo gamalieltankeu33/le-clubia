@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import YouTube, { type YouTubePlayer } from 'react-youtube'
 import VimeoPlayer from '@vimeo/player'
 import { PlayCircle } from 'lucide-react'
@@ -163,74 +163,47 @@ function VimeoChapterPlayer({
 }: PlayerProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const playerRef = useRef<VimeoPlayer | null>(null)
-  const [logs, setLogs] = useState<string[]>([])
-  const log = (msg: string) => {
-    const stamp = new Date().toISOString().slice(11, 19)
-    setLogs((prev) => [...prev, `${stamp} ${msg}`].slice(-12))
-    console.log('[Vimeo]', msg)
-  }
 
   const tickRef = useRef(onProgressTick)
   tickRef.current = onProgressTick
 
   useEffect(() => {
-    setLogs([])
-    if (!containerRef.current || !chapter.video_url) {
-      log('pas d\'URL vidéo')
-      return
-    }
+    if (!containerRef.current || !chapter.video_url) return
     const ids = extractVimeoId(chapter.video_url)
-    if (!ids) {
-      log('URL non reconnue')
-      return
-    }
-    log(`init videoId=${ids.id}${ids.hash ? ` hash=${ids.hash}` : ''}`)
+    if (!ids) return
 
+    // Largeur mesurée au mount : créer l'iframe à sa dimension réelle
+    // au lieu d'une largeur fixe (1280) puis rescaler en CSS — Safari
+    // iOS rendait parfois noir l'iframe rescalée.
     const containerWidth =
       containerRef.current.getBoundingClientRect().width || 640
-    log(`largeur conteneur=${Math.round(containerWidth)}px`)
 
-    let player: VimeoPlayer
-    try {
-      player = new VimeoPlayer(containerRef.current, {
-        id: Number(ids.id),
-        ...(ids.hash ? { h: ids.hash } : {}),
-        responsive: false,
-        width: Math.round(containerWidth),
-        autoplay: false,
-        playsinline: true,
-        dnt: true,
-        title: false,
-        byline: false,
-        portrait: false,
-      })
-      log('SDK construit OK')
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err)
-      log(`CRASH constructeur: ${message}`)
-      return
-    }
+    const player = new VimeoPlayer(containerRef.current, {
+      id: Number(ids.id),
+      ...(ids.hash ? { h: ids.hash } : {}),
+      responsive: false,
+      width: Math.round(containerWidth),
+      autoplay: false,
+      // playsinline: sur iOS, sans cette option, la vidéo bascule en
+      // plein écran natif au play.
+      playsinline: true,
+      // dnt: désactive les cookies tracking Vimeo. Sans ça, Safari iOS
+      // (ITP) bloque les cookies tiers et le player reste noir.
+      dnt: true,
+      title: false,
+      byline: false,
+      portrait: false,
+    })
     playerRef.current = player
 
-    player.on('error', (err: { name?: string; message?: string }) => {
-      log(`ERROR event: ${err?.name ?? '?'} — ${err?.message ?? '?'}`)
-    })
-    player.on('loaded', () => log('event loaded'))
-    player.on('play', () => log('event play'))
-    player.on('bufferstart', () => log('event bufferstart'))
-
-    player
-      .ready()
-      .then(() => {
-        log('event ready ✓')
-        if (initialPositionSeconds > 0) {
-          return player.setCurrentTime(initialPositionSeconds)
-        }
-      })
-      .catch((err) => {
-        const message = err instanceof Error ? err.message : String(err)
-        log(`ready() échoué: ${message}`)
-      })
+    if (initialPositionSeconds > 0) {
+      player
+        .ready()
+        .then(() => player.setCurrentTime(initialPositionSeconds))
+        .catch(() => {
+          // noop : la lib renvoie une erreur si timecode > durée
+        })
+    }
 
     return () => {
       player.destroy().catch(() => {})
@@ -257,35 +230,12 @@ function VimeoChapterPlayer({
   }, [chapter.id])
 
   return (
-    <div className="space-y-2">
-      <div className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl bg-black">
-        <div
-          key={chapter.id}
-          ref={containerRef}
-          className="absolute inset-0 h-full w-full [&_iframe]:absolute [&_iframe]:inset-0 [&_iframe]:block [&_iframe]:h-full [&_iframe]:w-full [&_iframe]:border-0"
-        />
-      </div>
-      <details
-        className="rounded-lg border border-yellow-400 bg-yellow-50 px-3 py-2 text-[11px] text-yellow-900"
-        open
-      >
-        <summary className="cursor-pointer font-semibold">
-          Diagnostic Vimeo (temporaire — à retirer après fix)
-        </summary>
-        <pre className="mt-1 max-h-48 overflow-auto whitespace-pre-wrap break-words font-mono leading-tight">
-          {logs.length === 0 ? '(pas encore de log)' : logs.join('\n')}
-        </pre>
-        {chapter.video_url && (
-          <a
-            href={chapter.video_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-2 inline-block text-blue-700 underline"
-          >
-            Ouvrir la vidéo directement sur Vimeo →
-          </a>
-        )}
-      </details>
+    <div className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl bg-black">
+      <div
+        key={chapter.id}
+        ref={containerRef}
+        className="absolute inset-0 h-full w-full [&_iframe]:absolute [&_iframe]:inset-0 [&_iframe]:block [&_iframe]:h-full [&_iframe]:w-full [&_iframe]:border-0"
+      />
     </div>
   )
 }
