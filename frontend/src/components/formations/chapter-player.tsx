@@ -156,6 +156,12 @@ function DriveChapterPlayer({ chapter }: PlayerProps) {
 // =============================================================================
 // Vimeo
 // =============================================================================
+// Détection mobile : sur desktop la lecture Vimeo fonctionne nativement,
+// le fallback et le diagnostic ne doivent s'afficher que sur smartphone.
+const IS_MOBILE =
+  typeof navigator !== 'undefined' &&
+  /Mobi|iP(hone|ad|od)|Android/.test(navigator.userAgent)
+
 function VimeoChapterPlayer({
   chapter,
   initialPositionSeconds,
@@ -171,12 +177,14 @@ function VimeoChapterPlayer({
 
   useEffect(() => {
     setShowFallback(false)
-    setDiag('init…')
+    setDiag(IS_MOBILE ? 'init…' : '')
     if (!containerRef.current || !chapter.video_url) return
     const ids = extractVimeoId(chapter.video_url)
     if (!ids) {
-      setDiag('URL non reconnue')
-      setShowFallback(true)
+      if (IS_MOBILE) {
+        setDiag('URL non reconnue')
+        setShowFallback(true)
+      }
       return
     }
 
@@ -198,49 +206,56 @@ function VimeoChapterPlayer({
         portrait: false,
       })
     } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err)
-      setDiag(`SDK crash: ${msg}`)
-      setShowFallback(true)
+      if (IS_MOBILE) {
+        const msg = err instanceof Error ? err.message : String(err)
+        setDiag(`SDK crash: ${msg}`)
+        setShowFallback(true)
+      }
       return
     }
     playerRef.current = player
 
-    player.on('error', (err: { name?: string; message?: string }) => {
-      setDiag(`erreur Vimeo: ${err?.name ?? '?'} — ${err?.message ?? '?'}`)
-      setShowFallback(true)
-    })
-
-    // 4 s après le mount, si rien n'a démarré, on inspecte l'iframe
-    // réelle et on propose le fallback. Permet de diagnostiquer un
-    // player invisible/0px sans imposer le fallback en UX normale.
-    const fallbackTimer = window.setTimeout(() => {
-      const iframe = containerRef.current?.querySelector('iframe')
-      if (!iframe) {
-        setDiag('aucune iframe créée')
+    if (IS_MOBILE) {
+      player.on('error', (err: { name?: string; message?: string }) => {
+        setDiag(`erreur Vimeo: ${err?.name ?? '?'} — ${err?.message ?? '?'}`)
         setShowFallback(true)
-        return
-      }
-      const rect = iframe.getBoundingClientRect()
-      setDiag(`iframe ${Math.round(rect.width)}×${Math.round(rect.height)}`)
-      if (rect.width < 10 || rect.height < 10) setShowFallback(true)
-    }, 4000)
+      })
+    }
+
+    // Sur mobile uniquement : 4 s après le mount, si l'iframe est
+    // absente ou < 10 px, on propose un fallback "ouvrir sur Vimeo".
+    const fallbackTimer = IS_MOBILE
+      ? window.setTimeout(() => {
+          const iframe = containerRef.current?.querySelector('iframe')
+          if (!iframe) {
+            setDiag('aucune iframe créée')
+            setShowFallback(true)
+            return
+          }
+          const rect = iframe.getBoundingClientRect()
+          setDiag(`iframe ${Math.round(rect.width)}×${Math.round(rect.height)}`)
+          if (rect.width < 10 || rect.height < 10) setShowFallback(true)
+        }, 4000)
+      : null
 
     player
       .ready()
       .then(() => {
-        setDiag('player prêt')
+        if (IS_MOBILE) setDiag('player prêt')
         if (initialPositionSeconds > 0) {
           return player.setCurrentTime(initialPositionSeconds)
         }
       })
       .catch((err) => {
-        const msg = err instanceof Error ? err.message : String(err)
-        setDiag(`init échouée: ${msg}`)
-        setShowFallback(true)
+        if (IS_MOBILE) {
+          const msg = err instanceof Error ? err.message : String(err)
+          setDiag(`init échouée: ${msg}`)
+          setShowFallback(true)
+        }
       })
 
     return () => {
-      window.clearTimeout(fallbackTimer)
+      if (fallbackTimer !== null) window.clearTimeout(fallbackTimer)
       player.destroy().catch(() => {})
       playerRef.current = null
     }
