@@ -55,16 +55,25 @@ interface DbResource {
 }
 
 export function ResourcesPreview({ className }: { className?: string }) {
+  // La landing est publique. La table `resources` a une RLS qui n'autorise
+  // que les membres actifs / admins → l'anon role ne pouvait rien lire.
+  // On lit donc la vue `resources_public` (titre + type + catégorie
+  // uniquement, sans URLs de fichier ni contenu).
   const { data: resources = [] } = useQuery({
     queryKey: ['landing', 'resources-preview'],
     queryFn: async (): Promise<DbResource[]> => {
       const { data } = await supabase
-        .from('resources')
+        .from('resources_public')
         .select('id, title, resource_type')
-        .eq('is_published', true)
         .order('created_at', { ascending: false })
         .limit(6)
-      return data ?? []
+      return (data ?? [])
+        .filter((r) => r.id != null && r.title != null)
+        .map((r) => ({
+          id: r.id as string,
+          title: r.title as string,
+          resource_type: r.resource_type,
+        }))
     },
     staleTime: 10 * 60 * 1000,
   })

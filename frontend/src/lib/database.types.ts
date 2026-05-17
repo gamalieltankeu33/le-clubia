@@ -824,7 +824,32 @@ export type Database = {
         Relationships: []
       }
     }
-    Views: { [_ in never]: never }
+    Views: {
+      resources_public: {
+        Row: {
+          id: string | null
+          title: string | null
+          resource_type: ResourceType | null
+          category: string | null
+          created_at: string | null
+        }
+        Insert: {
+          id?: string | null
+          title?: string | null
+          resource_type?: ResourceType | null
+          category?: string | null
+          created_at?: string | null
+        }
+        Update: {
+          id?: string | null
+          title?: string | null
+          resource_type?: ResourceType | null
+          category?: string | null
+          created_at?: string | null
+        }
+        Relationships: []
+      }
+    }
     Functions: { [_ in never]: never }
     Enums: {
       user_role: UserRole
