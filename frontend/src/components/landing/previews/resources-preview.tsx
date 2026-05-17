@@ -1,106 +1,128 @@
+import { useQuery } from '@tanstack/react-query'
 import {
   Download,
+  ExternalLink,
   FileText,
   Sparkles,
   Workflow,
   type LucideIcon,
 } from 'lucide-react'
 import { BrowserCard } from './browser-card'
+import { supabase } from '@/lib/supabase'
 import { cn } from '@/lib/utils'
 
-interface ResourceItem {
-  title: string
-  type: 'Prompt' | 'Template' | 'Guide'
-  icon: LucideIcon
-  bg: string
-  fg: string
-}
-
-const RESOURCES: ResourceItem[] = [
-  {
-    title: 'Guide pratique : Maîtriser Claude 3.5',
-    type: 'Guide',
-    icon: FileText,
-    bg: 'bg-[#1E40AF]/10',
-    fg: 'text-[#1E40AF]',
-  },
-  {
-    title: "Plan d'action : Lancement de SaaS IA",
-    type: 'Template',
-    icon: Workflow,
-    bg: 'bg-[var(--bleu-ciel)]/15',
-    fg: 'text-[var(--bleu-ciel-deep)]',
-  },
-  {
-    title: 'Calendrier éditorial : 30 jours de contenu',
-    type: 'Template',
-    icon: FileText,
-    bg: 'bg-[var(--or)]/15',
-    fg: 'text-[var(--or-deep)]',
-  },
-  {
-    title: 'Prompt Business : Rédaction de contrats',
-    type: 'Prompt',
+const TYPE_STYLE: Record<
+  string,
+  { label: string; icon: LucideIcon; bg: string; fg: string }
+> = {
+  prompt: {
+    label: 'Prompt',
     icon: Sparkles,
     bg: 'bg-emerald-500/10',
     fg: 'text-emerald-600',
   },
-  {
-    title: 'Template Notion : Gestion de projets IA',
-    type: 'Template',
+  template: {
+    label: 'Template',
     icon: Workflow,
+    bg: 'bg-[var(--bleu-ciel)]/15',
+    fg: 'text-[var(--bleu-ciel-deep)]',
+  },
+  guide_pdf: {
+    label: 'Guide',
+    icon: FileText,
+    bg: 'bg-[var(--or)]/15',
+    fg: 'text-[var(--or-deep)]',
+  },
+  tool_link: {
+    label: 'Outil',
+    icon: ExternalLink,
     bg: 'bg-violet-500/10',
     fg: 'text-violet-600',
   },
-  {
-    title: 'Guide : Automatisation avec n8n',
-    type: 'Guide',
-    icon: FileText,
-    bg: 'bg-orange-500/10',
-    fg: 'text-orange-600',
-  },
-]
+}
+
+const DEFAULT_STYLE = {
+  label: 'Ressource',
+  icon: FileText,
+  bg: 'bg-gray-500/10',
+  fg: 'text-gray-600',
+}
+
+interface DbResource {
+  id: string
+  title: string
+  resource_type: string | null
+}
 
 export function ResourcesPreview({ className }: { className?: string }) {
+  const { data: resources = [] } = useQuery({
+    queryKey: ['landing', 'resources-preview'],
+    queryFn: async (): Promise<DbResource[]> => {
+      const { data } = await supabase
+        .from('resources')
+        .select('id, title, resource_type')
+        .eq('is_published', true)
+        .order('created_at', { ascending: false })
+        .limit(6)
+      return data ?? []
+    },
+    staleTime: 10 * 60 * 1000,
+  })
+
   return (
     <BrowserCard className={className}>
       <div className="space-y-3 p-4 sm:p-5">
-        {RESOURCES.map((r) => {
-          const Icon = r.icon
-          return (
-            <div
-              key={r.title}
-              className="flex items-center gap-3 rounded-xl border border-[#E5E5E5] bg-white p-3"
-            >
-              <span
-                className={cn(
-                  'flex h-9 w-9 shrink-0 items-center justify-center rounded-lg',
-                  r.bg,
-                  r.fg,
-                )}
+        {resources.length === 0
+          ? Array.from({ length: 6 }).map((_, i) => (
+              <div
+                key={i}
+                className="flex items-center gap-3 rounded-xl border border-[#E5E5E5] bg-white p-3"
               >
-                <Icon className="h-4 w-4" />
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-xs font-semibold text-[#0A0A0A]">
-                  {r.title}
-                </p>
-                <span
-                  className={cn(
-                    'mt-0.5 inline-flex rounded-full px-1.5 py-0.5 text-[9px] font-medium',
-                    r.bg,
-                    r.fg,
-                  )}
-                >
-                  {r.type}
-                </span>
+                <span className="h-9 w-9 shrink-0 animate-pulse rounded-lg bg-gray-200" />
+                <div className="min-w-0 flex-1 space-y-1.5">
+                  <span className="block h-3 w-3/4 animate-pulse rounded bg-gray-200" />
+                  <span className="block h-2 w-12 animate-pulse rounded bg-gray-100" />
+                </div>
               </div>
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-[#737373]">
-                <Download className="h-3.5 w-3.5" />
-              </span>
-            </div>
-          )
-        })}
+            ))
+          : resources.map((r) => {
+              const style =
+                (r.resource_type && TYPE_STYLE[r.resource_type]) || DEFAULT_STYLE
+              const Icon = style.icon
+              return (
+                <div
+                  key={r.id}
+                  className="flex items-center gap-3 rounded-xl border border-[#E5E5E5] bg-white p-3"
+                >
+                  <span
+                    className={cn(
+                      'flex h-9 w-9 shrink-0 items-center justify-center rounded-lg',
+                      style.bg,
+                      style.fg,
+                    )}
+                  >
+                    <Icon className="h-4 w-4" />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-xs font-semibold text-[#0A0A0A]">
+                      {r.title}
+                    </p>
+                    <span
+                      className={cn(
+                        'mt-0.5 inline-flex rounded-full px-1.5 py-0.5 text-[9px] font-medium',
+                        style.bg,
+                        style.fg,
+                      )}
+                    >
+                      {style.label}
+                    </span>
+                  </div>
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-[#737373]">
+                    <Download className="h-3.5 w-3.5" />
+                  </span>
+                </div>
+              )
+            })}
       </div>
     </BrowserCard>
   )

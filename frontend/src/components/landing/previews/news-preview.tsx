@@ -1,38 +1,111 @@
-import {
-  ImageWithFallback,
-} from './image-with-fallback'
+import { TrendingUp } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-const articles = [
+// Visuels brandés cohérents avec chaque titre.
+// Logos via cdn.simpleicons.org (déjà autorisé dans la CSP img-src).
+type ArticleVisual =
+  | { kind: 'duo'; leftLogo: string; rightLogo: string; leftBg: string; rightBg: string }
+  | { kind: 'mono'; logo: string; bg: string }
+  | { kind: 'metric'; bg: string; value: string; label: string }
+
+interface Article {
+  title: string
+  source: string
+  tag: string
+  visual: ArticleVisual
+}
+
+const articles: Article[] = [
   {
     title: 'GPT-X dépasse Claude sur les benchmarks de code',
     source: 'openai.com',
     tag: 'Modèles',
-    image: '/landing/previews/article-benchmarks.png',
-    color: 'bg-blue-600',
+    visual: {
+      kind: 'duo',
+      leftLogo: 'https://cdn.simpleicons.org/openai/FFFFFF',
+      rightLogo: 'https://cdn.simpleicons.org/anthropic/FFFFFF',
+      leftBg: 'bg-[#10A37F]',
+      rightBg: 'bg-[#D97757]',
+    },
   },
   {
     title: 'Mistral publie son nouveau modèle open source',
     source: 'huggingface.co',
     tag: 'Lancements',
-    image: '/landing/previews/article-mistral.png',
-    color: 'bg-indigo-500',
+    visual: {
+      kind: 'mono',
+      logo: 'https://cdn.simpleicons.org/mistralai/FFFFFF',
+      bg: 'bg-gradient-to-br from-[#FA520F] to-[#FFCC00]',
+    },
   },
   {
     title: 'Claude lance les agents autonomes en production',
     source: 'anthropic.com',
     tag: 'Outils',
-    image: '/landing/previews/article-agents.png',
-    color: 'bg-slate-800',
+    visual: {
+      kind: 'mono',
+      logo: 'https://cdn.simpleicons.org/anthropic/FFFFFF',
+      bg: 'bg-gradient-to-br from-[#1F1F1F] to-[#3A2415]',
+    },
   },
   {
     title: 'Les levées de fonds IA atteignent un nouveau record',
     source: 'techcrunch.com',
     tag: 'Business',
-    image: '/landing/previews/article-funding.png',
-    color: 'bg-emerald-600',
+    visual: {
+      kind: 'metric',
+      bg: 'bg-gradient-to-br from-emerald-600 to-emerald-700',
+      value: '+185%',
+      label: 'YoY funding',
+    },
   },
 ]
+
+function ArticleVisualBlock({ visual, title }: { visual: ArticleVisual; title: string }) {
+  if (visual.kind === 'duo') {
+    return (
+      <div className="absolute inset-0 grid grid-cols-2">
+        <div className={cn('flex items-center justify-center', visual.leftBg)}>
+          <img src={visual.leftLogo} alt="" className="h-8 w-8 sm:h-10 sm:w-10 opacity-95" loading="lazy" />
+        </div>
+        <div className={cn('flex items-center justify-center', visual.rightBg)}>
+          <img src={visual.rightLogo} alt="" className="h-8 w-8 sm:h-10 sm:w-10 opacity-95" loading="lazy" />
+        </div>
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white px-1.5 py-0.5 text-[8px] font-black uppercase tracking-wider text-[#0A0A0A] shadow-md sm:text-[9px]"
+        >
+          vs
+        </span>
+      </div>
+    )
+  }
+
+  if (visual.kind === 'mono') {
+    return (
+      <div className={cn('absolute inset-0 flex items-center justify-center', visual.bg)}>
+        <img
+          src={visual.logo}
+          alt={title}
+          className="h-10 w-10 opacity-95 sm:h-12 sm:w-12"
+          loading="lazy"
+        />
+      </div>
+    )
+  }
+
+  return (
+    <div className={cn('absolute inset-0 flex flex-col items-center justify-center text-white', visual.bg)}>
+      <TrendingUp className="mb-1 h-5 w-5 opacity-80" />
+      <span className="font-display text-xl font-black leading-none tracking-tight sm:text-2xl">
+        {visual.value}
+      </span>
+      <span className="mt-0.5 text-[7px] font-bold uppercase tracking-widest opacity-80 sm:text-[8px]">
+        {visual.label}
+      </span>
+    </div>
+  )
+}
 
 export function NewsPreview({ className }: { className?: string }) {
   return (
@@ -43,15 +116,8 @@ export function NewsPreview({ className }: { className?: string }) {
             key={i}
             className="group/article overflow-hidden rounded-xl border border-[#0A0A0A]/5 bg-white transition-all hover:border-[var(--primary)]/20 hover:shadow-lg"
           >
-            <div className="aspect-[16/10] w-full overflow-hidden bg-gray-100 relative">
-              <ImageWithFallback
-                src={article.image}
-                alt={article.title}
-                className="h-full w-full object-cover transition-transform duration-500 group-hover/article:scale-110"
-                fallback={
-                  <div className={cn("absolute inset-0", article.color)} />
-                }
-              />
+            <div className="relative aspect-[16/10] w-full overflow-hidden bg-gray-100">
+              <ArticleVisualBlock visual={article.visual} title={article.title} />
               <div className="absolute top-2 left-2">
                 <span className="rounded-full bg-white/90 backdrop-blur-sm px-2 py-0.5 text-[8px] font-black uppercase tracking-wider text-[#0A0A0A] shadow-sm">
                   {article.tag}
