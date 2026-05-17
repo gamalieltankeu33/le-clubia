@@ -20,7 +20,7 @@ export function FormationSection() {
             Académie Le Club IA
           </span>
           <h2 className="font-display text-3xl font-black tracking-tight text-[#0A0A0A] md:text-5xl">
-            Formations <span className="italic text-[var(--primary)]">Pratiques & Actionnables</span>
+            Formations <span className="italic text-[var(--bleu-ciel-deep)]">Pratiques & Actionnables</span>
           </h2>
           <p className="mx-auto mt-4 max-w-md text-sm font-medium text-[#4A4A4A] opacity-80">
             Maîtrise les outils de demain pour bâtir ton empire aujourd'hui.

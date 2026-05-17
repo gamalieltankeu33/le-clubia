@@ -7,11 +7,8 @@ export type BrandLogoVariant = 'primary' | 'inverse'
 interface BrandLogoProps {
   size?: BrandLogoSize
   /**
-   * - `primary` : capsule bleu Bloomberg + texte blanc cassé + point
-   *   émeraude (par défaut).
-   * - `inverse` : capsule blanche + bordure bleue + texte bleu + point
-   *   émeraude. À utiliser sur fond très foncé/coloré où la capsule
-   *   bleue serait peu lisible.
+   * - `primary` : texte noir "leclub" + ".ia" bleu vif. Pour fonds clairs.
+   * - `inverse` : texte blanc "leclub" + ".ia" bleu vif. Pour fonds foncés.
    */
   variant?: BrandLogoVariant
   className?: string
@@ -25,17 +22,19 @@ interface BrandLogoProps {
   showSignature?: boolean
 }
 
-// Capsule SVG de viewBox 200×72.
+// SVG sans capsule — texte pur. viewBox 200×48 plus compact.
 const SIZE_STYLE: Record<BrandLogoSize, { width: number; height: number }> = {
-  sm: { width: 100, height: 36 },
-  md: { width: 140, height: 50 },
-  lg: { width: 175, height: 63 },
-  xl: { width: 240, height: 86 },
+  sm: { width: 100, height: 24 },
+  md: { width: 140, height: 34 },
+  lg: { width: 180, height: 43 },
+  xl: { width: 240, height: 58 },
 }
 
-const BLEU = '#0F1E4D'
+// Couleurs du nouveau logo : noir profond pour "leclub", bleu vif
+// pour ".ia" (aligné sur --bleu-ciel-deep = #2563EB du design system).
+const NOIR = '#0A0A0A'
 const BLANC = '#FAFAF9'
-const BLEU_CIEL = '#60A5FA'
+const BLEU_IA = '#2563EB'
 
 export function BrandLogo({
   size = 'md',
@@ -45,9 +44,7 @@ export function BrandLogo({
   showSignature = false,
 }: BrandLogoProps) {
   const isInverse = variant === 'inverse'
-  const fillBg = isInverse ? BLANC : BLEU
-  const textColor = isInverse ? BLEU : BLANC
-  const strokeColor = isInverse ? BLEU : 'none'
+  const textColor = isInverse ? BLANC : NOIR
   const dimensions = SIZE_STYLE[size]
 
   const svg = (
@@ -56,47 +53,22 @@ export function BrandLogo({
       aria-label="Le Club IA"
       width={dimensions.width}
       height={dimensions.height}
-      viewBox="0 0 200 72"
+      viewBox="0 0 200 48"
       xmlns="http://www.w3.org/2000/svg"
       className={cn('block', className)}
     >
-      <defs>
-        {/* Halo bleu ciel derrière le point — signature harmonique bleue */}
-        <radialGradient id="bleuCielHalo" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor={BLEU_CIEL} stopOpacity="0.55" />
-          <stop offset="100%" stopColor={BLEU_CIEL} stopOpacity="0" />
-        </radialGradient>
-      </defs>
-
-      {/* Capsule pilule */}
-      <rect
-        x={isInverse ? 1.5 : 0}
-        y={isInverse ? 1.5 : 0}
-        width={isInverse ? 197 : 200}
-        height={isInverse ? 69 : 72}
-        rx={36}
-        fill={fillBg}
-        stroke={strokeColor}
-        strokeWidth={isInverse ? 2.5 : 0}
-      />
-
-      {/* "leclub.ia" — point bleu ciel (harmonie chromatique avec la
-          capsule bleu Bloomberg). */}
       <text
         x="100"
-        y="48"
+        y="36"
         fontFamily="'Bricolage Grotesque', Inter, system-ui, sans-serif"
-        fontWeight={700}
-        fontSize={32}
+        fontWeight={800}
+        fontSize={36}
         fill={textColor}
         textAnchor="middle"
-        letterSpacing="-0.02em"
+        letterSpacing="-0.045em"
       >
         leclub
-        <tspan fill={BLEU_CIEL} fontWeight={800} fontSize={36}>
-          .
-        </tspan>
-        ia
+        <tspan fill={BLEU_IA}>.ia</tspan>
       </text>
     </svg>
   )

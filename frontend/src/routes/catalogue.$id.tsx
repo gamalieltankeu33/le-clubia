@@ -88,7 +88,7 @@ function FormationDetailPage() {
             <h1 className="font-display text-4xl font-black leading-[1.1] tracking-tighter text-[#0A0A0A] md:text-6xl">
               {formation.title}
             </h1>
-            <p className="mt-4 font-display text-xl font-bold italic text-[var(--primary)] md:text-2xl">
+            <p className="mt-4 font-display text-xl font-bold italic text-[var(--bleu-ciel-deep)] md:text-2xl">
               {formation.subtitle}
             </p>
 
