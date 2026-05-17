@@ -1,5 +1,4 @@
-import { Clock, GraduationCap } from 'lucide-react'
-import { BrowserCard } from './browser-card'
+import { Clock } from 'lucide-react'
 import {
   GradientPlaceholder,
   ImageWithFallback,
@@ -29,8 +28,10 @@ export function FormationsPreview({ className }: { className?: string }) {
           key={f.id}
           className="group/item relative flex flex-col gap-3 rounded-2xl border border-[#0A0A0A]/5 bg-white p-3 shadow-sm transition-all hover:border-[var(--primary)]/20 hover:shadow-md"
         >
-          {/* Thumbnail - YouTube style - Reduced size */}
-          <div className="aspect-video w-full overflow-hidden rounded-xl bg-gray-100 md:aspect-[21/9]">
+          {/* Thumbnail YouTube/Vimeo style : aspect-video (16:9) partout
+              pour matcher le ratio natif des miniatures et éviter de
+              cropper haut/bas avec object-cover. */}
+          <div className="aspect-video w-full overflow-hidden rounded-xl bg-gray-100">
             <ImageWithFallback
               src={f.image ?? ''}
               alt={f.title}
