@@ -35,34 +35,47 @@ export function FormationSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1, duration: 0.4 }}
-              className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-[#0A0A0A]/5 bg-white p-8 transition-all duration-500 hover:border-[var(--primary)]/30 hover:shadow-xl hover:shadow-[var(--primary)]/5"
+              className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-[#0A0A0A]/5 bg-white transition-all duration-500 hover:border-[var(--primary)]/30 hover:shadow-xl hover:shadow-[var(--primary)]/5"
             >
-              <div className={cn("absolute -right-10 -top-10 h-32 w-32 blur-3xl opacity-5 transition-opacity group-hover:opacity-10 bg-gradient-to-br", f.color)} />
-              
-              <div className="relative z-10 flex-1">
-                <div className="mb-6 flex items-center justify-between">
-                  <span className="rounded-full bg-[var(--primary)]/10 px-2 py-1 text-[8px] font-black uppercase tracking-widest text-[var(--primary)]">
-                    {f.category}
-                  </span>
-                  <div className="flex items-center gap-1 text-[10px] font-bold text-[#4A4A4A]">
-                    <Clock className="h-3 w-3" /> {f.duration}
-                  </div>
+              {f.image && (
+                <div className="relative aspect-video w-full overflow-hidden bg-[#F8F9FA]">
+                  <img
+                    src={f.image}
+                    alt={f.title}
+                    loading="lazy"
+                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
                 </div>
-                <h3 className="font-display text-xl font-black text-[#0A0A0A] transition-colors group-hover:text-[var(--primary)] md:text-2xl">
-                  {f.title}
-                </h3>
-                <p className="mt-4 text-sm font-medium leading-relaxed text-[#4A4A4A] opacity-70 line-clamp-3">
-                  {f.shortDescription}
-                </p>
-              </div>
+              )}
 
-              <div className="mt-10">
-                <Link to="/catalogue/$id" params={{ id: f.id }}>
-                  <Button variant="ghost" className="h-11 w-full justify-between rounded-xl border border-[#0A0A0A]/5 px-4 transition-all group-hover:border-[var(--primary)] group-hover:bg-[var(--primary)] group-hover:text-white">
-                    <span className="text-[10px] font-black uppercase tracking-widest">Voir le programme</span>
-                    <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
-                  </Button>
-                </Link>
+              <div className="relative flex flex-1 flex-col p-8">
+                <div className={cn("absolute -right-10 -top-10 h-32 w-32 blur-3xl opacity-5 transition-opacity group-hover:opacity-10 bg-gradient-to-br", f.color)} />
+
+                <div className="relative z-10 flex-1">
+                  <div className="mb-6 flex items-center justify-between">
+                    <span className="rounded-full bg-[var(--primary)]/10 px-2 py-1 text-[8px] font-black uppercase tracking-widest text-[var(--primary)]">
+                      {f.category}
+                    </span>
+                    <div className="flex items-center gap-1 text-[10px] font-bold text-[#4A4A4A]">
+                      <Clock className="h-3 w-3" /> {f.duration}
+                    </div>
+                  </div>
+                  <h3 className="font-display text-xl font-black text-[#0A0A0A] transition-colors group-hover:text-[var(--primary)] md:text-2xl">
+                    {f.title}
+                  </h3>
+                  <p className="mt-4 text-sm font-medium leading-relaxed text-[#4A4A4A] opacity-70 line-clamp-3">
+                    {f.shortDescription}
+                  </p>
+                </div>
+
+                <div className="relative z-10 mt-10">
+                  <Link to="/catalogue/$id" params={{ id: f.id }}>
+                    <Button variant="ghost" className="h-11 w-full justify-between rounded-xl border border-[#0A0A0A]/5 px-4 transition-all group-hover:border-[var(--primary)] group-hover:bg-[var(--primary)] group-hover:text-white">
+                      <span className="text-[10px] font-black uppercase tracking-widest">Voir le programme</span>
+                      <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+                    </Button>
+                  </Link>
+                </div>
               </div>
             </motion.div>
           ))}

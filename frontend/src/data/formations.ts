@@ -28,6 +28,7 @@ export const FORMATIONS: Formation[] = [
     category: "Outils IA",
     level: "debutant",
     duration: "2h30",
+    image: "https://uzsohjzrwgqmwiorzrky.supabase.co/storage/v1/object/public/formation-covers/d7a3556f-f9df-4dc0-ad99-1c425d746017.png",
     color: "from-blue-500/20 to-cyan-500/20",
     chapters: [
       { title: "Introduction à l'IA générative", duration: "15 min", description: "c'est quoi vraiment, pourquoi 2024 a tout changé" },
@@ -36,6 +37,21 @@ export const FORMATIONS: Formation[] = [
       { title: "Tes 10 cas d'usage du quotidien", duration: "30 min", description: "emails, recherche, brainstorming, traduction, etc." },
       { title: "Sécurité et confidentialité", duration: "15 min", description: "ce qu'il ne faut JAMAIS partager avec une IA" },
       { title: "Construis ton workspace IA", duration: "20 min", description: "quels abonnements prendre, dans quel ordre" },
+    ],
+  },
+  {
+    id: "comment-creer-agents-ia",
+    title: "Comment Créer des Agents IA",
+    subtitle: "Automatise tes tâches au quotidien avec Accio Work",
+    shortDescription: "Crée des agents IA capables d'automatiser tes tâches quotidiennes grâce à Accio Work.",
+    longDescription: "Dans cette formation, tu vas apprendre à créer des agents IA pour automatiser tes tâches au quotidien. L'outil que nous allons voir s'appelle Accio Work, un outil d'intelligence artificielle qui va t'aider à concevoir des agents IA sur mesure pour ton workflow, sans aucune compétence technique requise.",
+    category: "Outils IA",
+    level: "intermediaire",
+    duration: "28 min",
+    image: "https://uzsohjzrwgqmwiorzrky.supabase.co/storage/v1/object/public/formation-covers/59fde8ab-d57a-47cd-b645-e41e2e62355a.png",
+    color: "from-purple-500/20 to-fuchsia-500/20",
+    chapters: [
+      { title: "Maîtriser les agents IA avec Accio Work", duration: "28 min", description: "tout pour créer ton premier agent IA opérationnel" },
     ],
   },
   {
@@ -166,6 +182,7 @@ export const FORMATIONS: Formation[] = [
     category: "Développement IA",
     level: "avance",
     duration: "5h",
+    image: "https://uzsohjzrwgqmwiorzrky.supabase.co/storage/v1/object/public/formation-covers/84ceb51d-cbe9-440a-8a5a-8396c8851a78.png",
     color: "from-cyan-500/20 to-sky-500/20",
     chapters: [
       { title: "C'est quoi un micro-SaaS ?", duration: "20 min", description: "vs SaaS traditionnel, exemples qui rapportent" },
