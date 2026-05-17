@@ -1,11 +1,19 @@
+import { useState } from 'react'
 import { TrendingUp } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-// Visuels brandés cohérents avec chaque titre.
-// Logos via cdn.simpleicons.org (déjà autorisé dans la CSP img-src).
+// Logos via cdn.simpleicons.org (autorisé dans la CSP img-src).
+// SimpleIcons a parfois retiré OpenAI de son catalogue → on prévoit
+// systématiquement un fallback texte si l'image échoue à charger.
+
+interface BrandLogo {
+  src: string
+  text: string
+}
+
 type ArticleVisual =
-  | { kind: 'duo'; leftLogo: string; rightLogo: string; leftBg: string; rightBg: string }
-  | { kind: 'mono'; logo: string; bg: string }
+  | { kind: 'duo'; left: BrandLogo; right: BrandLogo; leftBg: string; rightBg: string }
+  | { kind: 'mono'; brand: BrandLogo; bg: string }
   | { kind: 'metric'; bg: string; value: string; label: string }
 
 interface Article {
@@ -22,8 +30,8 @@ const articles: Article[] = [
     tag: 'Modèles',
     visual: {
       kind: 'duo',
-      leftLogo: 'https://cdn.simpleicons.org/openai/FFFFFF',
-      rightLogo: 'https://cdn.simpleicons.org/anthropic/FFFFFF',
+      left: { src: 'https://cdn.simpleicons.org/openai/FFFFFF', text: 'GPT' },
+      right: { src: 'https://cdn.simpleicons.org/anthropic/FFFFFF', text: 'Claude' },
       leftBg: 'bg-[#10A37F]',
       rightBg: 'bg-[#D97757]',
     },
@@ -34,7 +42,7 @@ const articles: Article[] = [
     tag: 'Lancements',
     visual: {
       kind: 'mono',
-      logo: 'https://cdn.simpleicons.org/mistralai/FFFFFF',
+      brand: { src: 'https://cdn.simpleicons.org/mistralai/FFFFFF', text: 'Mistral' },
       bg: 'bg-gradient-to-br from-[#FA520F] to-[#FFCC00]',
     },
   },
@@ -44,7 +52,7 @@ const articles: Article[] = [
     tag: 'Outils',
     visual: {
       kind: 'mono',
-      logo: 'https://cdn.simpleicons.org/anthropic/FFFFFF',
+      brand: { src: 'https://cdn.simpleicons.org/anthropic/FFFFFF', text: 'Claude' },
       bg: 'bg-gradient-to-br from-[#1F1F1F] to-[#3A2415]',
     },
   },
@@ -61,15 +69,54 @@ const articles: Article[] = [
   },
 ]
 
-function ArticleVisualBlock({ visual, title }: { visual: ArticleVisual; title: string }) {
+/** Logo brand avec fallback texte si l'image ne charge pas (CDN down,
+ *  marque retirée de SimpleIcons, etc.). Le texte est sizé pour rester
+ *  lisible dans la même bbox que le logo. */
+function BrandMark({
+  brand,
+  imgClassName,
+  textClassName,
+}: {
+  brand: BrandLogo
+  imgClassName: string
+  textClassName: string
+}) {
+  const [errored, setErrored] = useState(false)
+  if (errored) {
+    return (
+      <span className={cn('font-display font-black tracking-tight text-white', textClassName)}>
+        {brand.text}
+      </span>
+    )
+  }
+  return (
+    <img
+      src={brand.src}
+      alt={brand.text}
+      loading="lazy"
+      onError={() => setErrored(true)}
+      className={imgClassName}
+    />
+  )
+}
+
+function ArticleVisualBlock({ visual }: { visual: ArticleVisual }) {
   if (visual.kind === 'duo') {
     return (
       <div className="absolute inset-0 grid grid-cols-2">
         <div className={cn('flex items-center justify-center', visual.leftBg)}>
-          <img src={visual.leftLogo} alt="" className="h-8 w-8 sm:h-10 sm:w-10 opacity-95" loading="lazy" />
+          <BrandMark
+            brand={visual.left}
+            imgClassName="h-8 w-8 opacity-95 sm:h-10 sm:w-10"
+            textClassName="text-base sm:text-lg"
+          />
         </div>
         <div className={cn('flex items-center justify-center', visual.rightBg)}>
-          <img src={visual.rightLogo} alt="" className="h-8 w-8 sm:h-10 sm:w-10 opacity-95" loading="lazy" />
+          <BrandMark
+            brand={visual.right}
+            imgClassName="h-8 w-8 opacity-95 sm:h-10 sm:w-10"
+            textClassName="text-base sm:text-lg"
+          />
         </div>
         <span
           aria-hidden="true"
@@ -84,11 +131,10 @@ function ArticleVisualBlock({ visual, title }: { visual: ArticleVisual; title: s
   if (visual.kind === 'mono') {
     return (
       <div className={cn('absolute inset-0 flex items-center justify-center', visual.bg)}>
-        <img
-          src={visual.logo}
-          alt={title}
-          className="h-10 w-10 opacity-95 sm:h-12 sm:w-12"
-          loading="lazy"
+        <BrandMark
+          brand={visual.brand}
+          imgClassName="h-10 w-10 opacity-95 sm:h-12 sm:w-12"
+          textClassName="text-lg sm:text-xl"
         />
       </div>
     )
@@ -117,7 +163,7 @@ export function NewsPreview({ className }: { className?: string }) {
             className="group/article overflow-hidden rounded-xl border border-[#0A0A0A]/5 bg-white transition-all hover:border-[var(--primary)]/20 hover:shadow-lg"
           >
             <div className="relative aspect-[16/10] w-full overflow-hidden bg-gray-100">
-              <ArticleVisualBlock visual={article.visual} title={article.title} />
+              <ArticleVisualBlock visual={article.visual} />
               <div className="absolute top-2 left-2">
                 <span className="rounded-full bg-white/90 backdrop-blur-sm px-2 py-0.5 text-[8px] font-black uppercase tracking-wider text-[#0A0A0A] shadow-sm">
                   {article.tag}
