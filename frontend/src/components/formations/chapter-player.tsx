@@ -188,16 +188,19 @@ function VimeoChapterPlayer({
       return
     }
 
-    const containerWidth =
-      containerRef.current.getBoundingClientRect().width || 640
-
     let player: VimeoPlayer
     try {
       player = new VimeoPlayer(containerRef.current, {
         id: Number(ids.id),
         ...(ids.hash ? { h: ids.hash } : {}),
-        responsive: false,
-        width: Math.round(containerWidth),
+        // responsive: true → Vimeo gère le sizing dynamiquement et
+        // auto-adapte au conteneur. C'est nécessaire sur Safari iOS où
+        // un width fixe inline (1280) sur l'iframe n'est pas overridé
+        // correctement par notre CSS h-full/w-full → iframe à 1px ou
+        // hors viewport. Le wrapper ajouté par Vimeo (padding-top:
+        // 56.25%) est neutralisé via [&>div]:!pt-0 sur le containerRef
+        // pour ne pas doubler notre aspect-[16/9] externe.
+        responsive: true,
         autoplay: false,
         playsinline: true,
         dnt: true,
@@ -285,7 +288,13 @@ function VimeoChapterPlayer({
         <div
           key={chapter.id}
           ref={containerRef}
-          className="absolute inset-0 h-full w-full [&_iframe]:absolute [&_iframe]:inset-0 [&_iframe]:block [&_iframe]:h-full [&_iframe]:w-full [&_iframe]:border-0"
+          // Avec responsive:true le SDK Vimeo injecte un wrapper
+          // <div style="padding:56.25% 0 0 0; position:relative"> qui
+          // doublerait notre aspect-[16/9]. On le neutralise (!pt-0,
+          // absolute inset-0) puis on force l'iframe interne à
+          // remplir tout l'espace avec !important pour battre les
+          // styles inline du SDK sur Safari iOS.
+          className="absolute inset-0 h-full w-full [&>div]:!absolute [&>div]:!inset-0 [&>div]:!h-full [&>div]:!w-full [&>div]:!pt-0 [&_iframe]:absolute [&_iframe]:inset-0 [&_iframe]:block [&_iframe]:!h-full [&_iframe]:!w-full [&_iframe]:border-0"
         />
         {showFallback && chapter.video_url && (
           <a
