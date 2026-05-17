@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import YouTube, { type YouTubePlayer } from 'react-youtube'
 import VimeoPlayer from '@vimeo/player'
 import { PlayCircle } from 'lucide-react'
@@ -156,109 +156,57 @@ function DriveChapterPlayer({ chapter }: PlayerProps) {
 // =============================================================================
 // Vimeo
 // =============================================================================
-// Détection mobile : sur desktop la lecture Vimeo fonctionne nativement,
-// le fallback et le diagnostic ne doivent s'afficher que sur smartphone.
-const IS_MOBILE =
-  typeof navigator !== 'undefined' &&
-  /Mobi|iP(hone|ad|od)|Android/.test(navigator.userAgent)
+// On crée l'iframe NOUS-MÊMES (avec l'URL player.vimeo.com et les
+// query params dnt/playsinline) puis on ATTACHE le SDK à l'iframe
+// existante. Ça évite que le SDK fasse son propre fetch GET /config
+// (qui échoue avec "There was an error fetching the embed code from
+// Vimeo" sur Safari iOS sans cookies de session). L'attach mode
+// communique uniquement via postMessage, donc on garde le tracking
+// de progression sans le call /config strict.
+
+function buildVimeoIframeSrc(id: string, hash?: string): string {
+  const params = new URLSearchParams({
+    dnt: '1',
+    playsinline: '1',
+    autoplay: '0',
+    title: '0',
+    byline: '0',
+    portrait: '0',
+  })
+  if (hash) params.set('h', hash)
+  return `https://player.vimeo.com/video/${id}?${params.toString()}`
+}
 
 function VimeoChapterPlayer({
   chapter,
   initialPositionSeconds,
   onProgressTick,
 }: PlayerProps) {
-  const containerRef = useRef<HTMLDivElement>(null)
+  const iframeRef = useRef<HTMLIFrameElement>(null)
   const playerRef = useRef<VimeoPlayer | null>(null)
-  const [showFallback, setShowFallback] = useState(false)
-  const [diag, setDiag] = useState('')
 
   const tickRef = useRef(onProgressTick)
   tickRef.current = onProgressTick
 
-  useEffect(() => {
-    setShowFallback(false)
-    setDiag(IS_MOBILE ? 'init…' : '')
-    if (!containerRef.current || !chapter.video_url) return
-    const ids = extractVimeoId(chapter.video_url)
-    if (!ids) {
-      if (IS_MOBILE) {
-        setDiag('URL non reconnue')
-        setShowFallback(true)
-      }
-      return
-    }
+  const ids = chapter.video_url ? extractVimeoId(chapter.video_url) : null
+  const iframeSrc = ids ? buildVimeoIframeSrc(ids.id, ids.hash) : null
 
-    let player: VimeoPlayer
-    try {
-      player = new VimeoPlayer(containerRef.current, {
-        id: Number(ids.id),
-        ...(ids.hash ? { h: ids.hash } : {}),
-        // responsive: true → Vimeo gère le sizing dynamiquement et
-        // auto-adapte au conteneur. C'est nécessaire sur Safari iOS où
-        // un width fixe inline (1280) sur l'iframe n'est pas overridé
-        // correctement par notre CSS h-full/w-full → iframe à 1px ou
-        // hors viewport. Le wrapper ajouté par Vimeo (padding-top:
-        // 56.25%) est neutralisé via [&>div]:!pt-0 sur le containerRef
-        // pour ne pas doubler notre aspect-[16/9] externe.
-        responsive: true,
-        autoplay: false,
-        playsinline: true,
-        dnt: true,
-        title: false,
-        byline: false,
-        portrait: false,
-      })
-    } catch (err) {
-      if (IS_MOBILE) {
-        const msg = err instanceof Error ? err.message : String(err)
-        setDiag(`SDK crash: ${msg}`)
-        setShowFallback(true)
-      }
-      return
-    }
+  useEffect(() => {
+    if (!iframeRef.current) return
+    // Attach mode : pas de /config fetch, juste postMessage avec l'iframe.
+    const player = new VimeoPlayer(iframeRef.current)
     playerRef.current = player
 
-    if (IS_MOBILE) {
-      player.on('error', (err: { name?: string; message?: string }) => {
-        setDiag(`erreur Vimeo: ${err?.name ?? '?'} — ${err?.message ?? '?'}`)
-        setShowFallback(true)
-      })
+    if (initialPositionSeconds > 0) {
+      player
+        .ready()
+        .then(() => player.setCurrentTime(initialPositionSeconds))
+        .catch(() => {
+          // noop : timecode > durée
+        })
     }
 
-    // Sur mobile uniquement : 4 s après le mount, si l'iframe est
-    // absente ou < 10 px, on propose un fallback "ouvrir sur Vimeo".
-    const fallbackTimer = IS_MOBILE
-      ? window.setTimeout(() => {
-          const iframe = containerRef.current?.querySelector('iframe')
-          if (!iframe) {
-            setDiag('aucune iframe créée')
-            setShowFallback(true)
-            return
-          }
-          const rect = iframe.getBoundingClientRect()
-          setDiag(`iframe ${Math.round(rect.width)}×${Math.round(rect.height)}`)
-          if (rect.width < 10 || rect.height < 10) setShowFallback(true)
-        }, 4000)
-      : null
-
-    player
-      .ready()
-      .then(() => {
-        if (IS_MOBILE) setDiag('player prêt')
-        if (initialPositionSeconds > 0) {
-          return player.setCurrentTime(initialPositionSeconds)
-        }
-      })
-      .catch((err) => {
-        if (IS_MOBILE) {
-          const msg = err instanceof Error ? err.message : String(err)
-          setDiag(`init échouée: ${msg}`)
-          setShowFallback(true)
-        }
-      })
-
     return () => {
-      if (fallbackTimer !== null) window.clearTimeout(fallbackTimer)
       player.destroy().catch(() => {})
       playerRef.current = null
     }
@@ -276,48 +224,25 @@ function VimeoChapterPlayer({
         ])
         if (seconds > 0) tickRef.current(Number(seconds), Number(duration))
       } catch {
-        // noop : le player peut être en cours de chargement
+        // noop : player peut être en cours de chargement
       }
     }, SAVE_INTERVAL_MS)
     return () => window.clearInterval(interval)
   }, [chapter.id])
 
+  if (!iframeSrc) return <UnsupportedPlayer />
+
   return (
-    <div className="space-y-1">
-      <div className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl bg-black">
-        <div
-          key={chapter.id}
-          ref={containerRef}
-          // Avec responsive:true le SDK Vimeo injecte un wrapper
-          // <div style="padding:56.25% 0 0 0; position:relative"> qui
-          // doublerait notre aspect-[16/9]. On le neutralise (!pt-0,
-          // absolute inset-0) puis on force l'iframe interne à
-          // remplir tout l'espace avec !important pour battre les
-          // styles inline du SDK sur Safari iOS.
-          className="absolute inset-0 h-full w-full [&>div]:!absolute [&>div]:!inset-0 [&>div]:!h-full [&>div]:!w-full [&>div]:!pt-0 [&_iframe]:absolute [&_iframe]:inset-0 [&_iframe]:block [&_iframe]:!h-full [&_iframe]:!w-full [&_iframe]:border-0"
-        />
-        {showFallback && chapter.video_url && (
-          <a
-            href={chapter.video_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 bg-black/80 px-4 text-center text-white"
-          >
-            <PlayCircle className="h-12 w-12" />
-            <span className="text-sm font-semibold">
-              Ouvrir la vidéo sur Vimeo
-            </span>
-            <span className="text-xs opacity-70">
-              Le player intégré ne se charge pas sur cet appareil
-            </span>
-          </a>
-        )}
-      </div>
-      {diag && (
-        <p className="text-right font-mono text-[10px] text-[var(--muted-foreground)] opacity-50">
-          {diag}
-        </p>
-      )}
+    <div className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl bg-black">
+      <iframe
+        key={chapter.id}
+        ref={iframeRef}
+        src={iframeSrc}
+        title={chapter.title}
+        allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media"
+        allowFullScreen
+        className="absolute inset-0 block h-full w-full border-0"
+      />
     </div>
   )
 }
