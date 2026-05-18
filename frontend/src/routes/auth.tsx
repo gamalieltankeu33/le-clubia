@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { ArrowRight, Eye, EyeOff, Loader2, Lock, Sparkles } from 'lucide-react'
 import { toast } from 'sonner'
-import { GoogleButton } from '@/components/google-button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { BrandLogo } from '@/components/brand-logo'
@@ -27,7 +26,6 @@ function AuthPage() {
   const navigate = useNavigate()
   const signIn = useAuthStore((s) => s.signIn)
   const signUp = useAuthStore((s) => s.signUp)
-  const signInWithGoogle = useAuthStore((s) => s.signInWithGoogle)
   const isInitialized = useAuthStore((s) => s.isInitialized)
   const user = useAuthStore((s) => s.user)
 
@@ -37,7 +35,6 @@ function AuthPage() {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [submitting, setSubmitting] = useState(false)
-  const [googleLoading, setGoogleLoading] = useState(false)
 
   // MFA challenge state — actif uniquement si le user vient de réussir
   // son login avec mdp ET qu'il a un factor TOTP vérifié. Tant que
@@ -179,16 +176,6 @@ function AuthPage() {
     }
   }
 
-  async function handleGoogle() {
-    if (googleLoading) return
-    setGoogleLoading(true)
-    const { error } = await signInWithGoogle()
-    if (error) {
-      toast.error(error)
-      setGoogleLoading(false)
-    }
-  }
-
   async function verifyMfa() {
     if (!mfaFactorId || mfaCode.length !== 6 || submitting) return
     setSubmitting(true)
@@ -231,7 +218,7 @@ function AuthPage() {
     setPassword('')
   }
 
-  const formDisabled = submitting || googleLoading
+  const formDisabled = submitting
   const isSignup = mode === 'signup'
   const passwordValidation =
     isSignup && password.length > 0 ? validatePassword(password) : null
@@ -378,10 +365,6 @@ function AuthPage() {
               </form>
             ) : (
               <>
-                <GoogleButton onClick={handleGoogle} loading={googleLoading} />
-
-                <Divider>ou avec ton email</Divider>
-
                 <form className="space-y-4" onSubmit={handleSubmit}>
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
@@ -582,17 +565,3 @@ function TabButton({
   )
 }
 
-function Divider({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="relative py-4">
-      <div className="absolute inset-0 flex items-center">
-        <span className="w-full border-t border-[var(--border)]" />
-      </div>
-      <div className="relative flex justify-center">
-        <span className="bg-white/50 px-3 text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--muted-foreground)] backdrop-blur-sm">
-          {children}
-        </span>
-      </div>
-    </div>
-  )
-}

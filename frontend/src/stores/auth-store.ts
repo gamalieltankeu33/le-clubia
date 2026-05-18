@@ -40,7 +40,6 @@ interface AuthState {
   initialize: () => Promise<void>
   signUp: (email: string, password: string) => Promise<{ error: string | null }>
   signIn: (email: string, password: string) => Promise<{ error: string | null }>
-  signInWithGoogle: () => Promise<{ error: string | null }>
   /** Envoie l'email de réinitialisation Supabase (lien valide ~1h). */
   requestPasswordReset: (email: string) => Promise<{ error: string | null }>
   /** Met à jour le mot de passe de l'utilisateur (session recovery active). */
@@ -169,23 +168,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       set({ user: data.user, profile, subscription, isLoading: false })
     } else {
       set({ isLoading: false })
-    }
-    return { error: null }
-  },
-
-  signInWithGoogle: async () => {
-    // Lance l'OAuth Google. Le navigateur est redirigé vers Google,
-    // puis revient sur l'app avec un access_token. Le listener
-    // onAuthStateChange (dans initialize) hydratera le store automatiquement.
-    // Pré-requis : provider Google activé dans Supabase Auth → Providers.
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/auth`,
-      },
-    })
-    if (error) {
-      return { error: humanizeAuthError(error.message) }
     }
     return { error: null }
   },
