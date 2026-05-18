@@ -110,7 +110,7 @@ function CheckoutPage() {
 
         <div className="mt-8 text-center">
           <Button variant="ghost" className="text-[var(--muted-foreground)]" asChild>
-            <Link to="/">
+            <Link to="/abonnement">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Changer de plan
             </Link>
