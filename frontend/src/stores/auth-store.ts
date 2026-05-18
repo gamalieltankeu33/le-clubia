@@ -145,6 +145,17 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         data.user.id,
       )
       set({ user: data.user, profile, subscription, isLoading: false })
+
+      // Best-effort : envoie l'email "Finalise ton inscription".
+      // L'utilisateur a déjà sa session active à ce stade, donc supabase
+      // injectera son JWT automatiquement. Si l'envoi échoue (Resend
+      // down, etc.) on log mais on ne bloque pas — l'inscription reste
+      // valide et l'utilisateur voit déjà la page abonnement.
+      void supabase.functions
+        .invoke('send-signup-email', { body: {} })
+        .catch((err) => {
+          console.warn('[signUp] send-signup-email failed', err)
+        })
     } else {
       set({ isLoading: false })
     }

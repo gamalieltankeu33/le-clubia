@@ -38,6 +38,7 @@ type EmailType =
   | 'event-reminder-today'
   | 'welcome'
   | 'subscription-expiring'
+  | 'signup-pending-payment'
 
 interface BaseRequest {
   type: EmailType
@@ -220,6 +221,8 @@ function renderTemplate(
       return tplWelcome(data)
     case 'subscription-expiring':
       return tplSubscriptionExpiring(data)
+    case 'signup-pending-payment':
+      return tplSignupPendingPayment(data)
     default:
       throw new Error(`Type inconnu : ${type}`)
   }
@@ -903,6 +906,68 @@ function tplSubscriptionExpiring(raw: Record<string, unknown>) {
       body: textBody,
       ctaUrl: renewalUrl,
       ctaLabel: isUrgent ? 'Reconduire maintenant' : 'Reconduire mon abonnement',
+    }),
+  }
+}
+
+// =============================================================================
+// Template 7 — Inscription créée, paiement à finaliser
+// =============================================================================
+//
+// Envoyé immédiatement après que l'utilisateur a créé son compte
+// (email + mot de passe). Le compte existe mais l'abonnement n'est pas
+// encore payé → on l'invite à choisir un plan et payer pour activer
+// l'accès au Club.
+
+interface SignupPendingPaymentData {
+  member_first_name?: string
+}
+
+function tplSignupPendingPayment(raw: Record<string, unknown>) {
+  const d = raw as unknown as SignupPendingPaymentData
+  const firstName = (d.member_first_name ?? '').trim() || ''
+  const greeting = firstName
+    ? `Bienvenue ${escapeHtml(firstName)} !`
+    : 'Bienvenue !'
+
+  const body = `
+    <p style="margin:0 0 12px;">${greeting}</p>
+    <p style="margin:0 0 16px;">Ton compte vient d'être créé sur Le Club IA. Il ne te reste qu'une dernière étape : <strong>choisir ton plan et finaliser ton paiement</strong> pour débloquer l'accès complet à la communauté.</p>
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#FAFAF9;border:1px solid #E5E5E5;border-radius:12px;padding:16px;margin:16px 0;">
+      <tr>
+        <td>
+          <p style="margin:0 0 8px;font-size:14px;font-weight:600;color:#0A0A0A;">Ce que tu vas débloquer :</p>
+          <ul style="margin:0;padding-left:18px;color:#525252;font-size:14px;line-height:1.7;">
+            <li>Toutes les formations IA en français (illimitées)</li>
+            <li>Coach IA personnel (30 messages / jour)</li>
+            <li>Communauté privée des membres</li>
+            <li>Veille IA hebdomadaire et bibliothèque de ressources</li>
+            <li>Coaching live mensuel avec experts IA</li>
+          </ul>
+        </td>
+      </tr>
+    </table>
+    <p style="margin:16px 0 0;font-size:14px;color:#525252;">Deux formules sans reconduction automatique : <strong>100 €</strong> pour 6 mois ou <strong>150 €</strong> pour 12 mois (la plus avantageuse).</p>
+    <p style="margin:16px 0 0;font-size:13px;color:#737373;">Une question ? Réponds simplement à cet email — on te répondra rapidement.</p>
+  `
+
+  return {
+    subject: '🎯 Finalise ton inscription au Club IA',
+    html: layoutHtml({
+      preheader: 'Ton compte est créé. Choisis ton plan pour débloquer le Club.',
+      heroEmoji: '🎯',
+      heroTitle: 'Finalise ton inscription',
+      heroSubtitle: 'Encore une étape avant de rejoindre le Club',
+      body,
+      ctaUrl: `${APP_URL}/abonnement`,
+      ctaLabel: 'Choisir mon plan',
+    }),
+    text: plainText({
+      title: 'Finalise ton inscription',
+      subtitle: 'Encore une étape avant de rejoindre le Club',
+      body: `${firstName ? `Bienvenue ${firstName} !` : 'Bienvenue !'}\n\nTon compte vient d'être créé sur Le Club IA. Il ne te reste qu'une dernière étape : choisir ton plan et finaliser ton paiement pour débloquer l'accès complet à la communauté.\n\nFormules : 100 € pour 6 mois ou 150 € pour 12 mois (la plus avantageuse).`,
+      ctaUrl: `${APP_URL}/abonnement`,
+      ctaLabel: 'Choisir mon plan',
     }),
   }
 }
