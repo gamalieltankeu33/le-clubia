@@ -291,8 +291,8 @@ function AuthPage() {
             <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-[var(--primary)]/10 px-3 py-1.5 text-xs font-medium text-[var(--primary)]">
               <Sparkles className="h-3.5 w-3.5" />
               {desiredPlanId === 'annual'
-                ? 'Plan choisi : Annuel — 99 000 FCFA'
-                : 'Plan choisi : 6 mois — 69 000 FCFA'}
+                ? 'Plan choisi : Annuel — 150 €'
+                : 'Plan choisi : 6 mois — 100 €'}
             </div>
           )}
 

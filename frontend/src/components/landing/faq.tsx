@@ -20,7 +20,7 @@ const FAQS = [
   },
   {
     q: 'Quels sont les plans disponibles ?',
-    a: "Deux formules sans reconduction automatique : le Plan Master annuel à 99 000 FCFA (la plus avantageuse, ~8 250 FCFA/mois) et le Plan Progress semestriel à 69 000 FCFA (~11 500 FCFA/mois). Tu choisis au moment de t'inscrire.",
+    a: "Deux formules sans reconduction automatique : le Plan Master annuel à 150 € (la plus avantageuse, ~12,50 €/mois) et le Plan Progress semestriel à 100 € (~16,67 €/mois). Tu choisis au moment de t'inscrire.",
   },
   {
     q: "L'abonnement se reconduit-il automatiquement ?",
@@ -32,7 +32,7 @@ const FAQS = [
   },
   {
     q: 'Y a-t-il un essai gratuit ?',
-    a: "Pas de période d'essai gratuite. Tu choisis entre la formule semestrielle (69 000 FCFA pour 6 mois) ou annuelle (99 000 FCFA pour 12 mois), sans reconduction automatique. Tu testes le Club et tu décides librement de reconduire au terme.",
+    a: "Pas de période d'essai gratuite. Tu choisis entre la formule semestrielle (100 € pour 6 mois) ou annuelle (150 € pour 12 mois), sans reconduction automatique. Tu testes le Club et tu décides librement de reconduire au terme.",
   },
   {
     q: 'Quelle différence avec une simple newsletter IA ?',

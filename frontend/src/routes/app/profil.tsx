@@ -696,7 +696,7 @@ function SubscriptionCard() {
           : 'Membre du Club')
 
   const priceLabel = planQuery.data
-    ? `${planQuery.data.price_xof.toLocaleString('fr-FR').replace(/ | /g, ' ')} FCFA / ${planQuery.data.duration_months} mois`
+    ? `${planQuery.data.price_xof.toLocaleString('fr-FR').replace(/ |\s/g, ' ')} € / ${planQuery.data.duration_months} mois`
     : null
 
   return (

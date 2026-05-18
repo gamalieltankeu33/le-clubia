@@ -21,9 +21,12 @@ export async function fetchActivePricingPlans(): Promise<
 }
 
 /**
- * Formatage XOF → "69 000 FCFA" avec espace insécable comme séparateur
- * de milliers (convention française).
+ * Formatage prix → "100 €" (convention française : symbole après,
+ * séparateur de milliers en espace insécable). Le nom historique
+ * formatXof est conservé pour ne pas casser les call sites — la
+ * colonne DB s'appelle toujours price_xof mais représente désormais
+ * des EUR entiers (cf. migration prix FCFA→EUR).
  */
 export function formatXof(amount: number): string {
-  return `${amount.toLocaleString('fr-FR').replace(/ | /g, ' ')} FCFA`
+  return `${amount.toLocaleString('fr-FR').replace(/ |\s/g, ' ')} €`
 }

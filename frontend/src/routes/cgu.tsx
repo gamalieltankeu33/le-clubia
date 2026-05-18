@@ -105,10 +105,10 @@ function CGUPage() {
 
       <h2>4. Abonnement et paiement</h2>
       <p>
-        L'accès au Service est subordonné à la souscription d'un abonnement
-        annuel au tarif unique de{' '}
-        <strong>79&nbsp;000 FCFA TTC par an</strong>, soit environ 120 €
-        toutes taxes comprises selon le taux de change en vigueur.
+        L'accès au Service est proposé sous deux formules sans reconduction
+        automatique : un abonnement annuel <strong>Plan Master</strong> à{' '}
+        <strong>150&nbsp;€ TTC</strong> et un abonnement semestriel{' '}
+        <strong>Plan Progress</strong> à <strong>100&nbsp;€ TTC</strong>.
       </p>
       <p>
         Le paiement s'effectue par mobile money via les opérateurs partenaires{' '}

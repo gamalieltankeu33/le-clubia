@@ -48,20 +48,20 @@ const FALLBACK_PLANS: PublicPricingPlan[] = [
   {
     id: 'annual',
     display_name: 'Plan Master',
-    price_xof: 99_000,
+    price_xof: 150,
     duration_months: 12,
     is_recommended: true,
-    description: 'La maîtrise totale. Économise 39 000 FCFA par an.',
-    monthly_price_xof: 8_250,
+    description: 'La maîtrise totale. Économise 50 € par an.',
+    monthly_price_xof: 13,
   },
   {
     id: 'semestrial',
     display_name: 'Plan Progress',
-    price_xof: 69_000,
+    price_xof: 100,
     duration_months: 6,
     is_recommended: false,
     description: 'Idéal pour lancer ta transformation IA sur 6 mois',
-    monthly_price_xof: 11_500,
+    monthly_price_xof: 17,
   },
 ]
 
@@ -106,7 +106,7 @@ export function PricingCard() {
             </h2>
             <p className="mx-auto mt-8 max-w-2xl text-lg leading-relaxed text-[var(--muted-foreground)] sm:text-xl">
               Tout est inclus dans les deux plans. La formule annuelle te
-              fait économiser <span className="font-bold text-[var(--foreground)]">{savings ? formatXof(savings) : '39 000 FCFA'}</span>.
+              fait économiser <span className="font-bold text-[var(--foreground)]">{savings ? formatXof(savings) : '50 €'}</span>.
             </p>
           </Reveal>
         </div>
@@ -184,12 +184,12 @@ function PricingPlanCard({
               <span className="font-display text-6xl font-bold tracking-tighter text-[var(--foreground)]">
                 {plan.price_xof.toLocaleString('fr-FR')}
               </span>
-              <span className="text-xl font-bold text-[var(--foreground)]">FCFA</span>
+              <span className="text-xl font-bold text-[var(--foreground)]">€</span>
             </div>
             <p className="mt-2 text-sm font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">
               {plan.duration_months === 12 ? 'Accès 1 an' : `Accès ${plan.duration_months} mois`}
               <span className="mx-2 opacity-30">|</span>
-              {plan.monthly_price_xof.toLocaleString('fr-FR')} FCFA / mois
+              {plan.monthly_price_xof.toLocaleString('fr-FR')} € / mois
             </p>
           </div>
 

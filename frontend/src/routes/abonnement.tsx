@@ -22,20 +22,20 @@ const FALLBACK_PLANS: PublicPricingPlan[] = [
   {
     id: 'annual',
     display_name: 'Plan Master',
-    price_xof: 99_000,
+    price_xof: 150,
     duration_months: 12,
     is_recommended: true,
-    description: 'La maîtrise totale. Économise 39 000 FCFA par an.',
-    monthly_price_xof: 8_250,
+    description: 'La maîtrise totale. Économise 50 € par an.',
+    monthly_price_xof: 13,
   },
   {
     id: 'semestrial',
     display_name: 'Plan Progress',
-    price_xof: 69_000,
+    price_xof: 100,
     duration_months: 6,
     is_recommended: false,
     description: 'Idéal pour lancer ta transformation IA sur 6 mois.',
-    monthly_price_xof: 11_500,
+    monthly_price_xof: 17,
   },
 ]
 
@@ -297,7 +297,7 @@ function PlanCard({
             {plan.price_xof.toLocaleString('fr-FR')}
           </span>
           <span className="text-lg font-bold text-[var(--foreground)]">
-            FCFA
+            €
           </span>
         </div>
         <p className="mt-2 text-xs font-bold uppercase tracking-widest text-[var(--muted-foreground)]">
@@ -305,7 +305,7 @@ function PlanCard({
             ? 'Accès 1 an'
             : `Accès ${plan.duration_months} mois`}
           <span className="mx-2 opacity-30">|</span>
-          {plan.monthly_price_xof.toLocaleString('fr-FR')} FCFA / mois
+          {plan.monthly_price_xof.toLocaleString('fr-FR')} € / mois
         </p>
       </div>
 

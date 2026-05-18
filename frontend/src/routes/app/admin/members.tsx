@@ -751,16 +751,16 @@ function ActivateSubscriptionDialog({
 
             <PlanRadio
               id="annual"
-              label="Annuel — 99 000 FCFA"
-              hint="12 mois · ~8 250 FCFA/mois ⭐ Recommandé"
+              label="Annuel — 150 €"
+              hint="12 mois · ~13 €/mois ⭐ Recommandé"
               checked={selectedPlanId === 'annual'}
               onChange={() => setSelectedPlanId('annual')}
               disabled={submitting}
             />
             <PlanRadio
               id="semestrial"
-              label="6 mois — 69 000 FCFA"
-              hint="6 mois · ~11 500 FCFA/mois"
+              label="6 mois — 100 €"
+              hint="6 mois · ~17 €/mois"
               checked={selectedPlanId === 'semestrial'}
               onChange={() => setSelectedPlanId('semestrial')}
               disabled={submitting}
@@ -768,7 +768,7 @@ function ActivateSubscriptionDialog({
             <PlanRadio
               id="legacy_annual"
               label="Legacy 79 000 FCFA / an"
-              hint="Réservé aux early adopters historiques"
+              hint="Réservé aux early adopters historiques (FCFA)"
               checked={selectedPlanId === 'legacy_annual'}
               onChange={() => setSelectedPlanId('legacy_annual')}
               disabled={submitting}

@@ -52,7 +52,7 @@ export function AuthShell({
           </h2>
           <p className="mt-5 text-lg text-white/80">
             Formations, coach IA, communauté, ressources. Tout ce qu'il te
-            faut, pour 79&nbsp;000&nbsp;FCFA/an.
+            faut, pour 150&nbsp;€/an.
           </p>
 
           <ul className="mt-8 space-y-3">
