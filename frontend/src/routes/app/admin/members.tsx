@@ -9,6 +9,8 @@ import {
   Loader2,
   Search,
   Shield,
+  Trash2,
+  UserPlus,
   Users,
   X,
 } from 'lucide-react'
@@ -134,6 +136,7 @@ function AdminMembersPage() {
   const [activatingMember, setActivatingMember] = useState<MemberRow | null>(
     null,
   )
+  const [isAddingMember, setIsAddingMember] = useState(false)
 
   const query = useQuery({
     queryKey: ['admin-members'],
@@ -269,6 +272,64 @@ function AdminMembersPage() {
     },
   })
 
+  // Création manuelle d'un membre via admin-create-member.
+  // L'invité reçoit un magic link Supabase pour définir son mdp et se
+  // connecter. Sa subscription est activée pour la durée du plan choisi.
+  const createMemberMutation = useMutation({
+    mutationFn: async (input: {
+      email: string
+      plan_id: 'annual' | 'semestrial'
+      first_name?: string
+      last_name?: string
+    }) => {
+      const { data, error } = await supabase.functions.invoke(
+        'admin-create-member',
+        { body: input },
+      )
+      if (error) throw error
+      if (!data?.ok) throw new Error(data?.error ?? 'Création impossible.')
+      return data
+    },
+    onSuccess: (_data, vars) => {
+      toast.success(
+        `Invitation envoyée à ${vars.email}. Plan ${PLAN_LABELS[vars.plan_id] ?? vars.plan_id} activé.`,
+      )
+      queryClient.invalidateQueries({ queryKey: ['admin-members'] })
+      queryClient.invalidateQueries({ queryKey: ['admin-stats'] })
+      setIsAddingMember(false)
+    },
+    onError: (err) => {
+      const msg = err instanceof Error ? err.message : 'Erreur inconnue.'
+      console.error('[admin-members] create error:', err)
+      toast.error(msg)
+    },
+  })
+
+  // Suppression admin d'un autre membre via admin-delete-member.
+  // La cascade ON DELETE Postgres nettoie tout (profile, subs, posts,
+  // comments, etc.) — voir delete-my-account pour le détail.
+  const deleteMemberMutation = useMutation({
+    mutationFn: async (member: MemberRow) => {
+      const { data, error } = await supabase.functions.invoke(
+        'admin-delete-member',
+        { body: { user_id: member.id } },
+      )
+      if (error) throw error
+      if (!data?.ok) throw new Error(data?.error ?? 'Suppression impossible.')
+      return data
+    },
+    onSuccess: (_data, member) => {
+      toast.success(`${member.email} supprimé.`)
+      queryClient.invalidateQueries({ queryKey: ['admin-members'] })
+      queryClient.invalidateQueries({ queryKey: ['admin-stats'] })
+    },
+    onError: (err) => {
+      const msg = err instanceof Error ? err.message : 'Erreur inconnue.'
+      console.error('[admin-members] delete error:', err)
+      toast.error(msg)
+    },
+  })
+
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase()
     let list = (query.data ?? []).filter((m) => {
@@ -334,6 +395,27 @@ function AdminMembersPage() {
     })
   }
 
+  async function handleDeleteMember(member: MemberRow) {
+    if (member.id === myUserId) {
+      toast.error('Tu ne peux pas supprimer ton propre compte ici.')
+      return
+    }
+    const fullName =
+      [member.first_name, member.last_name].filter(Boolean).join(' ') ||
+      member.email
+    const ok = await confirm({
+      title: 'Supprimer ce membre ?',
+      contentPreview: fullName,
+      description:
+        "Action IRRÉVERSIBLE. Le compte, son abonnement, ses posts, ses commentaires et ses fichiers seront supprimés définitivement.",
+      confirmLabel: 'Supprimer',
+      variant: 'destructive',
+      icon: Trash2,
+    })
+    if (!ok) return
+    deleteMemberMutation.mutate(member)
+  }
+
   return (
     <div className="mx-auto max-w-6xl px-6 py-10 lg:py-14">
       <motion.div
@@ -341,16 +423,26 @@ function AdminMembersPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
       >
-        <div className="flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--accent)]/15 text-[var(--accent)]">
-            <Users className="h-5 w-5" />
-          </span>
-          <h1 className="font-display text-3xl font-semibold tracking-tight md:text-4xl">
-            Gestion des membres
-          </h1>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--accent)]/15 text-[var(--accent)]">
+              <Users className="h-5 w-5" />
+            </span>
+            <h1 className="font-display text-3xl font-semibold tracking-tight md:text-4xl">
+              Gestion des membres
+            </h1>
+          </div>
+          <Button
+            type="button"
+            onClick={() => setIsAddingMember(true)}
+            className="shrink-0"
+          >
+            <UserPlus className="h-4 w-4" />
+            Ajouter un membre
+          </Button>
         </div>
         <p className="mt-3 max-w-2xl text-[var(--muted-foreground)]">
-          Recherche, certifie et gère les rôles des membres du Club.
+          Recherche, certifie, gère les rôles, ajoute ou supprime les membres du Club.
         </p>
       </motion.div>
 
@@ -467,6 +559,9 @@ function AdminMembersPage() {
                     <th className="px-4 py-3 text-center font-medium">
                       Admin
                     </th>
+                    <th className="px-4 py-3 text-center font-medium">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -562,6 +657,22 @@ function AdminMembersPage() {
                             offClassName="bg-[var(--secondary)] text-[var(--muted-foreground)]"
                           />
                         </td>
+                        <td className="px-4 py-3 text-center">
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteMember(m)}
+                            disabled={isMe || deleteMemberMutation.isPending}
+                            aria-label="Supprimer ce membre"
+                            title={
+                              isMe
+                                ? 'Tu ne peux pas te supprimer ici.'
+                                : 'Supprimer ce membre'
+                            }
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--secondary)] text-[var(--muted-foreground)] transition-colors hover:bg-red-500/10 hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-[var(--secondary)] disabled:hover:text-[var(--muted-foreground)]"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </td>
                       </tr>
                     )
                   })}
@@ -585,6 +696,12 @@ function AdminMembersPage() {
           }
         }}
         submitting={activateMutation.isPending}
+      />
+      <AddMemberDialog
+        open={isAddingMember}
+        onClose={() => setIsAddingMember(false)}
+        onConfirm={(input) => createMemberMutation.mutate(input)}
+        submitting={createMemberMutation.isPending}
       />
     </div>
   )
@@ -927,5 +1044,211 @@ function ToggleIcon({
         <IconOff className="h-4 w-4 opacity-40" />
       )}
     </button>
+  )
+}
+
+// =====================================================================
+// AddMemberDialog — création manuelle d'un compte membre par l'admin
+// =====================================================================
+// L'admin saisit email + plan + nom optionnel. Au submit, on appelle
+// admin-create-member qui crée le user (invité), envoie un magic link
+// Supabase et active la subscription pour la durée du plan.
+function AddMemberDialog({
+  open,
+  onClose,
+  onConfirm,
+  submitting,
+}: {
+  open: boolean
+  onClose: () => void
+  onConfirm: (input: {
+    email: string
+    plan_id: 'annual' | 'semestrial'
+    first_name?: string
+    last_name?: string
+  }) => void
+  submitting: boolean
+}) {
+  const [email, setEmail] = useState('')
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
+  const [planId, setPlanId] = useState<'annual' | 'semestrial'>('annual')
+
+  // Reset form à chaque ouverture
+  useEffect(() => {
+    if (open) {
+      setEmail('')
+      setFirstName('')
+      setLastName('')
+      setPlanId('annual')
+    }
+  }, [open])
+
+  // Échap + body lock
+  useEffect(() => {
+    if (!open) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !submitting) onClose()
+    }
+    window.addEventListener('keydown', onKey)
+    const prevOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      document.body.style.overflow = prevOverflow
+    }
+  }, [open, submitting, onClose])
+
+  if (!open) return null
+
+  const trimmedEmail = email.trim().toLowerCase()
+  const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    if (!isValid || submitting) return
+    onConfirm({
+      email: trimmedEmail,
+      plan_id: planId,
+      first_name: firstName.trim() || undefined,
+      last_name: lastName.trim() || undefined,
+    })
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-0 backdrop-blur-sm sm:items-center sm:p-6"
+      onClick={() => {
+        if (!submitting) onClose()
+      }}
+    >
+      <div
+        className="w-full max-w-lg overflow-hidden rounded-t-3xl bg-[var(--card)] shadow-2xl sm:rounded-3xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <form onSubmit={handleSubmit}>
+          <div className="border-b border-[var(--border)] px-6 py-5">
+            <div className="flex items-center gap-3">
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--primary)]/10 text-[var(--primary)]">
+                <UserPlus className="h-4 w-4" />
+              </span>
+              <div>
+                <h2 className="font-display text-lg font-semibold tracking-tight">
+                  Ajouter un membre
+                </h2>
+                <p className="text-xs text-[var(--muted-foreground)]">
+                  L'invité recevra un email pour définir son mot de passe.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-4 px-6 py-5">
+            <div>
+              <label
+                htmlFor="add-member-email"
+                className="mb-1.5 block text-xs font-medium text-[var(--muted-foreground)]"
+              >
+                Email <span className="text-red-500">*</span>
+              </label>
+              <Input
+                id="add-member-email"
+                type="email"
+                autoComplete="off"
+                placeholder="invite@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={submitting}
+                required
+                autoFocus
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label
+                  htmlFor="add-member-first"
+                  className="mb-1.5 block text-xs font-medium text-[var(--muted-foreground)]"
+                >
+                  Prénom
+                </label>
+                <Input
+                  id="add-member-first"
+                  type="text"
+                  autoComplete="off"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  disabled={submitting}
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="add-member-last"
+                  className="mb-1.5 block text-xs font-medium text-[var(--muted-foreground)]"
+                >
+                  Nom
+                </label>
+                <Input
+                  id="add-member-last"
+                  type="text"
+                  autoComplete="off"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  disabled={submitting}
+                />
+              </div>
+            </div>
+
+            <fieldset>
+              <legend className="mb-2 block text-xs font-medium text-[var(--muted-foreground)]">
+                Plan à activer
+              </legend>
+              <div className="space-y-2">
+                <PlanRadio
+                  id="add-annual"
+                  label="Annuel — 150 €"
+                  hint="12 mois · ~13 €/mois ⭐ Recommandé"
+                  checked={planId === 'annual'}
+                  onChange={() => setPlanId('annual')}
+                  disabled={submitting}
+                />
+                <PlanRadio
+                  id="add-semestrial"
+                  label="6 mois — 100 €"
+                  hint="6 mois · ~17 €/mois"
+                  checked={planId === 'semestrial'}
+                  onChange={() => setPlanId('semestrial')}
+                  disabled={submitting}
+                />
+              </div>
+            </fieldset>
+          </div>
+
+          <div className="flex items-center justify-end gap-2 border-t border-[var(--border)] bg-[var(--background)] px-6 py-4">
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={onClose}
+              disabled={submitting}
+            >
+              Annuler
+            </Button>
+            <Button type="submit" disabled={!isValid || submitting}>
+              {submitting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Envoi…
+                </>
+              ) : (
+                <>
+                  <UserPlus className="h-4 w-4" />
+                  Inviter
+                </>
+              )}
+            </Button>
+          </div>
+        </form>
+      </div>
+    </div>
   )
 }
