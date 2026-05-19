@@ -534,32 +534,22 @@ function AdminMembersPage() {
               <table className="w-full text-sm">
                 <thead className="border-b border-[var(--border)] bg-[var(--background)] text-xs uppercase tracking-wider text-[var(--muted-foreground)]">
                   <tr>
-                    <th className="px-4 py-3 text-left font-medium">Membre</th>
-                    <th className="px-4 py-3 text-left font-medium">
-                      Inscription
-                    </th>
-                    <th className="px-4 py-3 text-left font-medium">
-                      Activité
-                    </th>
-                    <th className="px-4 py-3 text-left font-medium">
+                    <th className="px-3 py-3 text-left font-medium">Membre</th>
+                    <th className="px-3 py-3 text-left font-medium">Dates</th>
+                    <th className="px-3 py-3 text-left font-medium">
                       Abonnement
                     </th>
-                    <th className="px-4 py-3 text-left font-medium">
-                      Plan
+                    <th className="px-3 py-3 text-left font-medium">Plan</th>
+                    <th className="px-3 py-3 text-center font-medium">
+                      Activité
                     </th>
-                    <th className="px-4 py-3 text-center font-medium">
-                      Posts
-                    </th>
-                    <th className="px-4 py-3 text-center font-medium">
-                      Coms.
-                    </th>
-                    <th className="px-4 py-3 text-center font-medium">
+                    <th className="px-3 py-3 text-center font-medium">
                       Certifié
                     </th>
-                    <th className="px-4 py-3 text-center font-medium">
+                    <th className="px-3 py-3 text-center font-medium">
                       Admin
                     </th>
-                    <th className="sticky right-0 z-10 bg-[var(--background)] px-4 py-3 text-center font-medium shadow-[-8px_0_8px_-8px_rgba(0,0,0,0.08)]">
+                    <th className="px-3 py-3 text-center font-medium">
                       Actions
                     </th>
                   </tr>
@@ -575,7 +565,7 @@ function AdminMembersPage() {
                         key={m.id}
                         className="group border-b border-[var(--border)] last:border-0 hover:bg-[var(--secondary)]/30"
                       >
-                        <td className="px-4 py-3">
+                        <td className="px-3 py-3">
                           <div className="flex items-center gap-3">
                             <InitialsAvatar
                               firstName={m.first_name}
@@ -598,37 +588,47 @@ function AdminMembersPage() {
                             </div>
                           </div>
                         </td>
-                        <td className="px-4 py-3 text-xs text-[var(--muted-foreground)]">
-                          {formatDistanceToNow(new Date(m.created_at), {
-                            addSuffix: true,
-                            locale: fr,
-                          })}
-                        </td>
-                        <td className="px-4 py-3 text-xs text-[var(--muted-foreground)]">
-                          {m.last_active_at
-                            ? formatDistanceToNow(new Date(m.last_active_at), {
+                        <td className="px-3 py-3 text-xs text-[var(--muted-foreground)]">
+                          <div className="leading-tight">
+                            <span className="block">
+                              Inscrit{' '}
+                              {formatDistanceToNow(new Date(m.created_at), {
                                 addSuffix: true,
                                 locale: fr,
-                              })
-                            : 'Jamais'}
+                              })}
+                            </span>
+                            <span className="block opacity-70">
+                              Actif{' '}
+                              {m.last_active_at
+                                ? formatDistanceToNow(
+                                    new Date(m.last_active_at),
+                                    { addSuffix: true, locale: fr },
+                                  )
+                                : 'jamais'}
+                            </span>
+                          </div>
                         </td>
-                        <td className="px-4 py-3">
+                        <td className="px-3 py-3">
                           <SubChip status={m.subscription_status} />
                         </td>
-                        <td className="px-4 py-3">
+                        <td className="px-3 py-3">
                           <PlanCell
                             planId={m.plan_id}
                             onActivate={() => setActivatingMember(m)}
                             disabled={activateMutation.isPending}
                           />
                         </td>
-                        <td className="px-4 py-3 text-center font-medium tabular-nums">
-                          {m.posts_count}
+                        <td className="px-3 py-3 text-center text-xs text-[var(--muted-foreground)] tabular-nums">
+                          <span className="font-medium text-[var(--foreground)]">
+                            {m.posts_count}
+                          </span>
+                          <span className="opacity-50"> posts · </span>
+                          <span className="font-medium text-[var(--foreground)]">
+                            {m.comments_count}
+                          </span>
+                          <span className="opacity-50"> coms</span>
                         </td>
-                        <td className="px-4 py-3 text-center font-medium tabular-nums">
-                          {m.comments_count}
-                        </td>
-                        <td className="px-4 py-3 text-center">
+                        <td className="px-3 py-3 text-center">
                           <ToggleIcon
                             on={m.is_verified}
                             onClick={() =>
@@ -645,7 +645,7 @@ function AdminMembersPage() {
                             offClassName="bg-[var(--secondary)] text-[var(--muted-foreground)]"
                           />
                         </td>
-                        <td className="px-4 py-3 text-center">
+                        <td className="px-3 py-3 text-center">
                           <ToggleIcon
                             on={m.role === 'admin'}
                             onClick={() => handleToggleAdmin(m)}
@@ -657,7 +657,7 @@ function AdminMembersPage() {
                             offClassName="bg-[var(--secondary)] text-[var(--muted-foreground)]"
                           />
                         </td>
-                        <td className="sticky right-0 z-10 bg-[var(--card)] px-4 py-3 text-center shadow-[-8px_0_8px_-8px_rgba(0,0,0,0.08)] group-hover:bg-[color-mix(in_oklab,var(--card),var(--secondary)_30%)]">
+                        <td className="px-3 py-3 text-center">
                           <button
                             type="button"
                             onClick={() => handleDeleteMember(m)}
