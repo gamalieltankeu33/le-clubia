@@ -559,7 +559,7 @@ function AdminMembersPage() {
                     <th className="px-4 py-3 text-center font-medium">
                       Admin
                     </th>
-                    <th className="px-4 py-3 text-center font-medium">
+                    <th className="sticky right-0 z-10 bg-[var(--background)] px-4 py-3 text-center font-medium shadow-[-8px_0_8px_-8px_rgba(0,0,0,0.08)]">
                       Actions
                     </th>
                   </tr>
@@ -573,7 +573,7 @@ function AdminMembersPage() {
                     return (
                       <tr
                         key={m.id}
-                        className="border-b border-[var(--border)] last:border-0 hover:bg-[var(--secondary)]/30"
+                        className="group border-b border-[var(--border)] last:border-0 hover:bg-[var(--secondary)]/30"
                       >
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-3">
@@ -657,7 +657,7 @@ function AdminMembersPage() {
                             offClassName="bg-[var(--secondary)] text-[var(--muted-foreground)]"
                           />
                         </td>
-                        <td className="px-4 py-3 text-center">
+                        <td className="sticky right-0 z-10 bg-[var(--card)] px-4 py-3 text-center shadow-[-8px_0_8px_-8px_rgba(0,0,0,0.08)] group-hover:bg-[color-mix(in_oklab,var(--card),var(--secondary)_30%)]">
                           <button
                             type="button"
                             onClick={() => handleDeleteMember(m)}
