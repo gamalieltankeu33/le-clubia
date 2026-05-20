@@ -192,9 +192,22 @@ function VimeoChapterPlayer({
   const iframeSrc = ids ? buildVimeoIframeSrc(ids.id, ids.hash) : null
 
   useEffect(() => {
-    if (!iframeRef.current) return
+    // Pas d'iframe (URL invalide / champ vide) → on ne tente pas de
+    // créer le SDK pour éviter de throw vers l'ErrorBoundary.
+    if (!iframeRef.current || !iframeSrc) return
+
     // Attach mode : pas de /config fetch, juste postMessage avec l'iframe.
-    const player = new VimeoPlayer(iframeRef.current)
+    // Try/catch défensif : le SDK Vimeo peut throw synchronement si
+    // l'iframe n'est pas une URL player.vimeo.com valide (cas d'URL
+    // malformée stockée en DB). Sans ce catch, l'erreur remonte
+    // jusqu'à l'ErrorBoundary global et casse toute la page.
+    let player: VimeoPlayer
+    try {
+      player = new VimeoPlayer(iframeRef.current)
+    } catch (err) {
+      console.error('[VimeoPlayer] Init failed', err)
+      return
+    }
     playerRef.current = player
 
     if (initialPositionSeconds > 0) {
@@ -211,7 +224,7 @@ function VimeoChapterPlayer({
       playerRef.current = null
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chapter.id])
+  }, [chapter.id, iframeSrc])
 
   useEffect(() => {
     const interval = window.setInterval(async () => {
