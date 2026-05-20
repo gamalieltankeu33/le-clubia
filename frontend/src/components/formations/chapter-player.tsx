@@ -189,18 +189,41 @@ function VimeoChapterPlayer({
   tickRef.current = onProgressTick
 
   const ids = chapter.video_url ? extractVimeoId(chapter.video_url) : null
-  const iframeSrc = ids ? buildVimeoIframeSrc(ids.id, ids.hash) : null
 
+  // src figé au 1er render valide. On NE change PAS la src de
+  // l'iframe au changement de chapitre, sinon React démonte/remonte
+  // l'iframe et le SDK Vimeo (qui manipule les nœuds DOM en parallèle)
+  // entre en conflit → "The object can not be found here" sur
+  // removeChild. À la place, on utilise player.loadVideo() pour
+  // switcher de vidéo dans la même iframe sans toucher au DOM.
+  const initialSrcRef = useRef<string | null>(null)
+  if (!initialSrcRef.current && ids) {
+    initialSrcRef.current = buildVimeoIframeSrc(ids.id, ids.hash)
+  }
+  const iframeSrc = initialSrcRef.current
+
+  // Effet : créer le SDK la 1re fois, ou charger une autre vidéo si
+  // le SDK existe déjà. Dépend uniquement de l'id du chapitre.
   useEffect(() => {
-    // Pas d'iframe (URL invalide / champ vide) → on ne tente pas de
-    // créer le SDK pour éviter de throw vers l'ErrorBoundary.
-    if (!iframeRef.current || !iframeSrc) return
+    if (!iframeRef.current || !ids) return
 
-    // Attach mode : pas de /config fetch, juste postMessage avec l'iframe.
-    // Try/catch défensif : le SDK Vimeo peut throw synchronement si
-    // l'iframe n'est pas une URL player.vimeo.com valide (cas d'URL
-    // malformée stockée en DB). Sans ce catch, l'erreur remonte
-    // jusqu'à l'ErrorBoundary global et casse toute la page.
+    // Player déjà créé → loadVideo, pas de remount.
+    if (playerRef.current) {
+      const player = playerRef.current
+      player
+        .loadVideo(Number(ids.id))
+        .then(() => {
+          if (initialPositionSeconds > 0) {
+            return player.setCurrentTime(initialPositionSeconds)
+          }
+        })
+        .catch((err: unknown) => {
+          console.error('[VimeoPlayer] loadVideo failed', err)
+        })
+      return
+    }
+
+    // Première fois : init du SDK en attach mode.
     let player: VimeoPlayer
     try {
       player = new VimeoPlayer(iframeRef.current)
@@ -218,13 +241,23 @@ function VimeoChapterPlayer({
           // noop : timecode > durée
         })
     }
-
-    return () => {
-      player.destroy().catch(() => {})
-      playerRef.current = null
-    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chapter.id, iframeSrc])
+  }, [chapter.id])
+
+  // Cleanup au démontage du composant (changement de formation, pas
+  // de chapitre). On laisse le SDK détruire ses propres listeners
+  // une fois que React a fini son démontage.
+  useEffect(() => {
+    return () => {
+      const player = playerRef.current
+      playerRef.current = null
+      if (player) {
+        // On lance destroy() de façon "fire-and-forget" et on swallow
+        // les erreurs de cleanup pour ne pas re-déclencher l'erreur.
+        player.destroy().catch(() => {})
+      }
+    }
+  }, [])
 
   useEffect(() => {
     const interval = window.setInterval(async () => {
@@ -248,7 +281,6 @@ function VimeoChapterPlayer({
   return (
     <div className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl bg-black">
       <iframe
-        key={chapter.id}
         ref={iframeRef}
         src={iframeSrc}
         title={chapter.title}
