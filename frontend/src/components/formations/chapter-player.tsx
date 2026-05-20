@@ -209,19 +209,26 @@ function VimeoChapterPlayer({
     if (!iframeRef.current || !ids) return
     setErrorMessage(null)
 
-    // Timeout de sûreté : Vimeo peut bloquer silencieusement
-    // (privacy "Specific domains" avec mismatch, vidéo en mode
-    // "Hide from Vimeo" trop strict, etc.) sans émettre d'event
-    // `error`. Si on n'a pas vu `loaded` après 8 s, on bascule sur
-    // le fallback "Ouvrir sur Vimeo".
-    let loaded = false
+    // Watchdog : Vimeo peut bloquer silencieusement sans émettre
+    // d'event `error`. Si player.ready() ne résout pas en 10 s, on
+    // affiche le fallback. On utilise ready() (Promise garantie de
+    // résoudre dès que le handshake postMessage est établi) plutôt
+    // que l'event `loaded` qui peut être émis AVANT que le SDK
+    // n'écoute (race condition avec l'iframe qui se charge au render
+    // alors que le SDK s'attache au useEffect d'après).
+    let cancelled = false
     const watchdog = window.setTimeout(() => {
-      if (!loaded) {
+      if (!cancelled) {
         setErrorMessage(
-          'Vimeo n\'a pas répondu — la vidéo est probablement en privacy restreinte (privacy domain ou "Hide from Vimeo"). Vérifie les réglages d\'embed de cette vidéo dans ton compte Vimeo.',
+          'Vimeo n\'a pas répondu à temps. Si le problème persiste, vérifie les réglages d\'embed de cette vidéo dans ton compte Vimeo.',
         )
       }
-    }, 8000)
+    }, 10000)
+
+    const clearWatchdog = () => {
+      cancelled = true
+      window.clearTimeout(watchdog)
+    }
 
     // Player déjà créé → loadVideo, pas de remount.
     if (playerRef.current) {
@@ -229,21 +236,20 @@ function VimeoChapterPlayer({
       player
         .loadVideo(Number(ids.id))
         .then(() => {
-          loaded = true
-          window.clearTimeout(watchdog)
+          clearWatchdog()
           if (initialPositionSeconds > 0) {
             return player.setCurrentTime(initialPositionSeconds)
           }
         })
         .catch((err: { name?: string; message?: string } | unknown) => {
-          window.clearTimeout(watchdog)
+          clearWatchdog()
           console.error('[VimeoPlayer] loadVideo failed', err)
           const e = err as { name?: string; message?: string }
           setErrorMessage(
-            e?.message ?? e?.name ?? 'Cette vidéo n\'est pas accessible.',
+            e?.message ?? e?.name ?? "Cette vidéo n'est pas accessible.",
           )
         })
-      return () => window.clearTimeout(watchdog)
+      return clearWatchdog
     }
 
     // Première fois : init du SDK en attach mode.
@@ -251,36 +257,35 @@ function VimeoChapterPlayer({
     try {
       player = new VimeoPlayer(iframeRef.current)
     } catch (err) {
-      window.clearTimeout(watchdog)
+      clearWatchdog()
       console.error('[VimeoPlayer] Init failed', err)
-      setErrorMessage('Impossible d\'initialiser le lecteur Vimeo.')
+      setErrorMessage("Impossible d'initialiser le lecteur Vimeo.")
       return
     }
     playerRef.current = player
 
     player.on('error', (err: { name?: string; message?: string }) => {
-      window.clearTimeout(watchdog)
+      clearWatchdog()
       console.error('[VimeoPlayer] runtime error event', err)
       const name = err?.name ?? 'Erreur'
-      const msg = err?.message ?? 'Cette vidéo n\'est pas accessible.'
+      const msg = err?.message ?? "Cette vidéo n'est pas accessible."
       setErrorMessage(`${name} — ${msg}`)
     })
 
-    player.on('loaded', () => {
-      loaded = true
-      window.clearTimeout(watchdog)
-      setErrorMessage(null)
-    })
-
+    // player.ready() résout dès que le handshake postMessage est OK,
+    // peu importe si l'iframe a déjà chargé sa vidéo avant. C'est le
+    // signal fiable pour clear le watchdog (contrairement à l'event
+    // `loaded` qu'on peut rater à cause de la race condition).
     player
       .ready()
       .then(() => {
+        clearWatchdog()
         if (initialPositionSeconds > 0) {
           return player.setCurrentTime(initialPositionSeconds)
         }
       })
       .catch((err: { name?: string; message?: string } | unknown) => {
-        window.clearTimeout(watchdog)
+        clearWatchdog()
         console.error('[VimeoPlayer] ready() rejected', err)
         const e = err as { name?: string; message?: string }
         const msg =
@@ -288,7 +293,7 @@ function VimeoChapterPlayer({
         setErrorMessage(msg)
       })
 
-    return () => window.clearTimeout(watchdog)
+    return clearWatchdog
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chapter.id])
 
