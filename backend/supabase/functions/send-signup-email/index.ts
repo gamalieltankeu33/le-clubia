@@ -17,7 +17,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.4'
 import { getCorsHeaders, handleCorsPreflight } from '../_shared/cors.ts'
 
 const RESEND_API_URL = 'https://api.resend.com/emails'
-const FROM_DEFAULT = 'Le Club IA <noreply@leclubia.com>'
+const FROM_DEFAULT = 'Le Club IA <noreply@leclub-ia.com>'
 const REPLY_TO = 'betterzapp@gmail.com'
 const APP_URL = 'https://leclub-ia.com'
 

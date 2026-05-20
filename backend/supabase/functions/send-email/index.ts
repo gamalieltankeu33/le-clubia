@@ -22,8 +22,9 @@ import { serve } from 'https://deno.land/std@0.224.0/http/server.ts'
 import { getCorsHeaders, handleCorsPreflight } from '../_shared/cors.ts'
 
 const RESEND_API_URL = 'https://api.resend.com/emails'
-const FROM_DEFAULT = 'Le Club IA <noreply@leclubia.com>'
-// Sandbox Resend par défaut si le domaine leclubia.com n'est pas encore vérifié.
+const FROM_DEFAULT = 'Le Club IA <noreply@leclub-ia.com>'
+// Sandbox Resend (onboarding@resend.dev) — fallback si le domaine
+// leclub-ia.com n'était pas encore vérifié au moment de l'envoi.
 const FROM_SANDBOX = 'Le Club IA <onboarding@resend.dev>'
 const REPLY_TO = 'betterzapp@gmail.com'
 const APP_URL = 'https://leclub-ia.com'
