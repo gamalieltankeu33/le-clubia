@@ -39,6 +39,10 @@ export class PageErrorBoundary extends Component<Props, State> {
   render() {
     if (!this.state.error) return this.props.children
 
+    const err = this.state.error
+    const message = err.message || String(err)
+    const stack = err.stack ?? ''
+
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 px-6 py-12 text-center">
         <span className="flex h-12 w-12 items-center justify-center rounded-full bg-red-500/10 text-red-500">
@@ -53,6 +57,21 @@ export class PageErrorBoundary extends Component<Props, State> {
             Recharge pour réessayer.
           </p>
         </div>
+
+        {/* Détails de l'erreur — affichés directement à l'écran pour
+            faciliter le diagnostic sans avoir à ouvrir DevTools. À
+            laisser tant qu'on n'a pas une vraie télémétrie (Sentry). */}
+        <details className="mt-2 w-full max-w-2xl rounded-lg border border-[var(--border)] bg-[var(--card)] p-3 text-left text-xs">
+          <summary className="cursor-pointer font-mono font-semibold text-red-600">
+            {message}
+          </summary>
+          {stack && (
+            <pre className="mt-2 max-h-64 overflow-auto whitespace-pre-wrap break-words font-mono text-[10px] leading-relaxed text-[var(--muted-foreground)]">
+              {stack}
+            </pre>
+          )}
+        </details>
+
         <div className="flex flex-col gap-2 sm:flex-row">
           <button
             type="button"
