@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import YouTube, { type YouTubePlayer } from 'react-youtube'
 import VimeoPlayer from '@vimeo/player'
 import { PlayCircle } from 'lucide-react'
@@ -184,6 +184,7 @@ function VimeoChapterPlayer({
 }: PlayerProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const playerRef = useRef<VimeoPlayer | null>(null)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   const tickRef = useRef(onProgressTick)
   tickRef.current = onProgressTick
@@ -206,6 +207,7 @@ function VimeoChapterPlayer({
   // le SDK existe déjà. Dépend uniquement de l'id du chapitre.
   useEffect(() => {
     if (!iframeRef.current || !ids) return
+    setErrorMessage(null)
 
     // Player déjà créé → loadVideo, pas de remount.
     if (playerRef.current) {
@@ -217,8 +219,12 @@ function VimeoChapterPlayer({
             return player.setCurrentTime(initialPositionSeconds)
           }
         })
-        .catch((err: unknown) => {
+        .catch((err: { name?: string; message?: string } | unknown) => {
           console.error('[VimeoPlayer] loadVideo failed', err)
+          const e = err as { name?: string; message?: string }
+          setErrorMessage(
+            e?.message ?? e?.name ?? 'Cette vidéo n\'est pas accessible.',
+          )
         })
       return
     }
@@ -229,18 +235,40 @@ function VimeoChapterPlayer({
       player = new VimeoPlayer(iframeRef.current)
     } catch (err) {
       console.error('[VimeoPlayer] Init failed', err)
+      setErrorMessage('Impossible d\'initialiser le lecteur Vimeo.')
       return
     }
     playerRef.current = player
 
-    if (initialPositionSeconds > 0) {
-      player
-        .ready()
-        .then(() => player.setCurrentTime(initialPositionSeconds))
-        .catch(() => {
-          // noop : timecode > durée
-        })
-    }
+    // Listener d'erreur : Vimeo refuse l'embed (privacy stricte, vidéo
+    // privée, domaine non whitelisté, vidéo supprimée). Plutôt qu'un
+    // rectangle noir muet, on affiche le message exact dans l'UI.
+    player.on('error', (err: { name?: string; message?: string }) => {
+      console.error('[VimeoPlayer] runtime error event', err)
+      const name = err?.name ?? 'Erreur'
+      const msg = err?.message ?? 'Cette vidéo n\'est pas accessible.'
+      setErrorMessage(`${name} — ${msg}`)
+    })
+
+    // Confirmation que la vidéo a bien chargé : clear l'éventuel
+    // message d'erreur précédent (cas où on retry).
+    player.on('loaded', () => setErrorMessage(null))
+
+    player
+      .ready()
+      .then(() => {
+        if (initialPositionSeconds > 0) {
+          return player.setCurrentTime(initialPositionSeconds)
+        }
+      })
+      .catch((err: { name?: string; message?: string } | unknown) => {
+        // ready() rejette si Vimeo refuse l'embed dès l'init.
+        console.error('[VimeoPlayer] ready() rejected', err)
+        const e = err as { name?: string; message?: string }
+        const msg =
+          e?.message ?? "Cette vidéo n'a pas pu être chargée depuis Vimeo."
+        setErrorMessage(msg)
+      })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chapter.id])
 
@@ -288,6 +316,25 @@ function VimeoChapterPlayer({
         allowFullScreen
         className="absolute inset-0 block h-full w-full border-0"
       />
+      {errorMessage && (
+        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-black/85 px-6 text-center text-white">
+          <PlayCircle className="h-10 w-10 opacity-60" />
+          <p className="max-w-md text-sm font-semibold">
+            Cette vidéo n'a pas pu être chargée
+          </p>
+          <p className="max-w-md text-xs opacity-70">{errorMessage}</p>
+          {chapter.video_url && (
+            <a
+              href={chapter.video_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-2 inline-block rounded-full bg-white/15 px-4 py-1.5 text-xs font-semibold underline-offset-2 hover:bg-white/25 hover:underline"
+            >
+              Ouvrir directement sur Vimeo →
+            </a>
+          )}
+        </div>
+      )}
     </div>
   )
 }
