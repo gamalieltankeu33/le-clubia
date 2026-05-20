@@ -209,24 +209,41 @@ function VimeoChapterPlayer({
     if (!iframeRef.current || !ids) return
     setErrorMessage(null)
 
+    // Timeout de sûreté : Vimeo peut bloquer silencieusement
+    // (privacy "Specific domains" avec mismatch, vidéo en mode
+    // "Hide from Vimeo" trop strict, etc.) sans émettre d'event
+    // `error`. Si on n'a pas vu `loaded` après 8 s, on bascule sur
+    // le fallback "Ouvrir sur Vimeo".
+    let loaded = false
+    const watchdog = window.setTimeout(() => {
+      if (!loaded) {
+        setErrorMessage(
+          'Vimeo n\'a pas répondu — la vidéo est probablement en privacy restreinte (privacy domain ou "Hide from Vimeo"). Vérifie les réglages d\'embed de cette vidéo dans ton compte Vimeo.',
+        )
+      }
+    }, 8000)
+
     // Player déjà créé → loadVideo, pas de remount.
     if (playerRef.current) {
       const player = playerRef.current
       player
         .loadVideo(Number(ids.id))
         .then(() => {
+          loaded = true
+          window.clearTimeout(watchdog)
           if (initialPositionSeconds > 0) {
             return player.setCurrentTime(initialPositionSeconds)
           }
         })
         .catch((err: { name?: string; message?: string } | unknown) => {
+          window.clearTimeout(watchdog)
           console.error('[VimeoPlayer] loadVideo failed', err)
           const e = err as { name?: string; message?: string }
           setErrorMessage(
             e?.message ?? e?.name ?? 'Cette vidéo n\'est pas accessible.',
           )
         })
-      return
+      return () => window.clearTimeout(watchdog)
     }
 
     // Première fois : init du SDK en attach mode.
@@ -234,25 +251,26 @@ function VimeoChapterPlayer({
     try {
       player = new VimeoPlayer(iframeRef.current)
     } catch (err) {
+      window.clearTimeout(watchdog)
       console.error('[VimeoPlayer] Init failed', err)
       setErrorMessage('Impossible d\'initialiser le lecteur Vimeo.')
       return
     }
     playerRef.current = player
 
-    // Listener d'erreur : Vimeo refuse l'embed (privacy stricte, vidéo
-    // privée, domaine non whitelisté, vidéo supprimée). Plutôt qu'un
-    // rectangle noir muet, on affiche le message exact dans l'UI.
     player.on('error', (err: { name?: string; message?: string }) => {
+      window.clearTimeout(watchdog)
       console.error('[VimeoPlayer] runtime error event', err)
       const name = err?.name ?? 'Erreur'
       const msg = err?.message ?? 'Cette vidéo n\'est pas accessible.'
       setErrorMessage(`${name} — ${msg}`)
     })
 
-    // Confirmation que la vidéo a bien chargé : clear l'éventuel
-    // message d'erreur précédent (cas où on retry).
-    player.on('loaded', () => setErrorMessage(null))
+    player.on('loaded', () => {
+      loaded = true
+      window.clearTimeout(watchdog)
+      setErrorMessage(null)
+    })
 
     player
       .ready()
@@ -262,13 +280,15 @@ function VimeoChapterPlayer({
         }
       })
       .catch((err: { name?: string; message?: string } | unknown) => {
-        // ready() rejette si Vimeo refuse l'embed dès l'init.
+        window.clearTimeout(watchdog)
         console.error('[VimeoPlayer] ready() rejected', err)
         const e = err as { name?: string; message?: string }
         const msg =
           e?.message ?? "Cette vidéo n'a pas pu être chargée depuis Vimeo."
         setErrorMessage(msg)
       })
+
+    return () => window.clearTimeout(watchdog)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chapter.id])
 
