@@ -53,24 +53,28 @@ interface AuthState {
   isAdmin: () => boolean
 }
 
-async function fetchProfileAndSubscription(userId: string): Promise<{
+async function fetchProfileAndSubscription(_userId: string): Promise<{
   profile: Profile | null
   subscription: Subscription | null
 }> {
-  const [profileRes, subRes] = await Promise.all([
-    supabase.from('profiles').select('*').eq('id', userId).maybeSingle(),
-    supabase
-      .from('subscriptions')
-      .select('*')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .maybeSingle(),
-  ])
-
+  // 1 RPC consolidée au lieu de 2 queries parallèles : économise 1
+  // round-trip réseau + 1 preflight CORS sur le hot path d'auth.
+  // La RPC lit auth.uid() côté serveur, donc on n'a plus besoin de
+  // passer userId — on garde le paramètre pour ne pas casser les
+  // call sites (il est juste ignoré).
+  // Voir migration rpc_get_my_app_bootstrap.
+  // @ts-expect-error - get_my_app_bootstrap est une RPC custom non typée dans Database['public']['Functions']
+  const { data, error } = await supabase.rpc('get_my_app_bootstrap')
+  if (error) {
+    console.warn('[auth-store] get_my_app_bootstrap error:', error)
+    return { profile: null, subscription: null }
+  }
+  const obj = data as
+    | { profile?: Profile | null; subscription?: Subscription | null }
+    | null
   return {
-    profile: (profileRes.data as Profile | null) ?? null,
-    subscription: (subRes.data as Subscription | null) ?? null,
+    profile: obj?.profile ?? null,
+    subscription: obj?.subscription ?? null,
   }
 }
 
