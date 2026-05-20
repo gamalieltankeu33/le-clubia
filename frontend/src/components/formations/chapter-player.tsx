@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import YouTube, { type YouTubePlayer } from 'react-youtube'
 import VimeoPlayer from '@vimeo/player'
 import { PlayCircle } from 'lucide-react'
@@ -184,133 +184,53 @@ function VimeoChapterPlayer({
 }: PlayerProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const playerRef = useRef<VimeoPlayer | null>(null)
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   const tickRef = useRef(onProgressTick)
   tickRef.current = onProgressTick
 
   const ids = chapter.video_url ? extractVimeoId(chapter.video_url) : null
+  const iframeSrc = ids ? buildVimeoIframeSrc(ids.id, ids.hash) : null
 
-  // src figé au 1er render valide. On NE change PAS la src de
-  // l'iframe au changement de chapitre, sinon React démonte/remonte
-  // l'iframe et le SDK Vimeo (qui manipule les nœuds DOM en parallèle)
-  // entre en conflit → "The object can not be found here" sur
-  // removeChild. À la place, on utilise player.loadVideo() pour
-  // switcher de vidéo dans la même iframe sans toucher au DOM.
-  const initialSrcRef = useRef<string | null>(null)
-  if (!initialSrcRef.current && ids) {
-    initialSrcRef.current = buildVimeoIframeSrc(ids.id, ids.hash)
-  }
-  const iframeSrc = initialSrcRef.current
-
-  // Effet : créer le SDK la 1re fois, ou charger une autre vidéo si
-  // le SDK existe déjà. Dépend uniquement de l'id du chapitre.
+  // SDK Vimeo en best-effort : sert uniquement à tracker la position
+  // de lecture pour la progression automatique. Si l'init plante (race
+  // condition, version SDK, etc.), l'iframe continue à afficher la
+  // vidéo normalement — c'est tout ce qui compte pour le user. Tout
+  // le code est entouré de try/catch pour ne JAMAIS throw vers React.
   useEffect(() => {
-    if (!iframeRef.current || !ids) return
-    setErrorMessage(null)
+    if (!iframeRef.current || !iframeSrc) return
 
-    // Watchdog : Vimeo peut bloquer silencieusement sans émettre
-    // d'event `error`. Si player.ready() ne résout pas en 10 s, on
-    // affiche le fallback. On utilise ready() (Promise garantie de
-    // résoudre dès que le handshake postMessage est établi) plutôt
-    // que l'event `loaded` qui peut être émis AVANT que le SDK
-    // n'écoute (race condition avec l'iframe qui se charge au render
-    // alors que le SDK s'attache au useEffect d'après).
-    let cancelled = false
-    const watchdog = window.setTimeout(() => {
-      if (!cancelled) {
-        setErrorMessage(
-          'Vimeo n\'a pas répondu à temps. Si le problème persiste, vérifie les réglages d\'embed de cette vidéo dans ton compte Vimeo.',
-        )
-      }
-    }, 10000)
-
-    const clearWatchdog = () => {
-      cancelled = true
-      window.clearTimeout(watchdog)
-    }
-
-    // Player déjà créé → loadVideo, pas de remount.
-    if (playerRef.current) {
-      const player = playerRef.current
-      player
-        .loadVideo(Number(ids.id))
-        .then(() => {
-          clearWatchdog()
-          if (initialPositionSeconds > 0) {
-            return player.setCurrentTime(initialPositionSeconds)
-          }
-        })
-        .catch((err: { name?: string; message?: string } | unknown) => {
-          clearWatchdog()
-          console.error('[VimeoPlayer] loadVideo failed', err)
-          const e = err as { name?: string; message?: string }
-          setErrorMessage(
-            e?.message ?? e?.name ?? "Cette vidéo n'est pas accessible.",
-          )
-        })
-      return clearWatchdog
-    }
-
-    // Première fois : init du SDK en attach mode.
-    let player: VimeoPlayer
+    let player: VimeoPlayer | null = null
     try {
       player = new VimeoPlayer(iframeRef.current)
+      playerRef.current = player
+
+      if (initialPositionSeconds > 0) {
+        player
+          .ready()
+          .then(() => player!.setCurrentTime(initialPositionSeconds))
+          .catch(() => {})
+      }
     } catch (err) {
-      clearWatchdog()
-      console.error('[VimeoPlayer] Init failed', err)
-      setErrorMessage("Impossible d'initialiser le lecteur Vimeo.")
-      return
+      console.warn(
+        '[VimeoPlayer] SDK attach failed — tracking de progression désactivé',
+        err,
+      )
     }
-    playerRef.current = player
 
-    player.on('error', (err: { name?: string; message?: string }) => {
-      clearWatchdog()
-      console.error('[VimeoPlayer] runtime error event', err)
-      const name = err?.name ?? 'Erreur'
-      const msg = err?.message ?? "Cette vidéo n'est pas accessible."
-      setErrorMessage(`${name} — ${msg}`)
-    })
-
-    // player.ready() résout dès que le handshake postMessage est OK,
-    // peu importe si l'iframe a déjà chargé sa vidéo avant. C'est le
-    // signal fiable pour clear le watchdog (contrairement à l'event
-    // `loaded` qu'on peut rater à cause de la race condition).
-    player
-      .ready()
-      .then(() => {
-        clearWatchdog()
-        if (initialPositionSeconds > 0) {
-          return player.setCurrentTime(initialPositionSeconds)
-        }
-      })
-      .catch((err: { name?: string; message?: string } | unknown) => {
-        clearWatchdog()
-        console.error('[VimeoPlayer] ready() rejected', err)
-        const e = err as { name?: string; message?: string }
-        const msg =
-          e?.message ?? "Cette vidéo n'a pas pu être chargée depuis Vimeo."
-        setErrorMessage(msg)
-      })
-
-    return clearWatchdog
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chapter.id])
-
-  // Cleanup au démontage du composant (changement de formation, pas
-  // de chapitre). On laisse le SDK détruire ses propres listeners
-  // une fois que React a fini son démontage.
-  useEffect(() => {
     return () => {
-      const player = playerRef.current
+      const p = playerRef.current
       playerRef.current = null
-      if (player) {
-        // On lance destroy() de façon "fire-and-forget" et on swallow
-        // les erreurs de cleanup pour ne pas re-déclencher l'erreur.
-        player.destroy().catch(() => {})
+      if (p) {
+        try {
+          void p.destroy().catch(() => {})
+        } catch {
+          // SDK destroy peut throw si l'iframe a déjà été retirée du
+          // DOM par React. C'est OK, on ignore.
+        }
       }
     }
-  }, [])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chapter.id])
 
   useEffect(() => {
     const interval = window.setInterval(async () => {
@@ -334,6 +254,7 @@ function VimeoChapterPlayer({
   return (
     <div className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl bg-black">
       <iframe
+        key={chapter.id}
         ref={iframeRef}
         src={iframeSrc}
         title={chapter.title}
@@ -341,25 +262,6 @@ function VimeoChapterPlayer({
         allowFullScreen
         className="absolute inset-0 block h-full w-full border-0"
       />
-      {errorMessage && (
-        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-black/85 px-6 text-center text-white">
-          <PlayCircle className="h-10 w-10 opacity-60" />
-          <p className="max-w-md text-sm font-semibold">
-            Cette vidéo n'a pas pu être chargée
-          </p>
-          <p className="max-w-md text-xs opacity-70">{errorMessage}</p>
-          {chapter.video_url && (
-            <a
-              href={chapter.video_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-2 inline-block rounded-full bg-white/15 px-4 py-1.5 text-xs font-semibold underline-offset-2 hover:bg-white/25 hover:underline"
-            >
-              Ouvrir directement sur Vimeo →
-            </a>
-          )}
-        </div>
-      )}
     </div>
   )
 }
