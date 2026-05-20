@@ -14,8 +14,8 @@
 // =====================================================================
 
 const ALLOWED_ORIGINS = [
-  'https://leclubia.com',
-  'https://www.leclubia.com',
+  'https://leclub-ia.com',
+  'https://www.leclub-ia.com',
   'https://le-clubia-one.vercel.app',
   'https://le-clubia-j9i5.vercel.app',
   'https://le-clubia.vercel.app',

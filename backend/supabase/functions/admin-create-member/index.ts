@@ -21,7 +21,7 @@ import { serve } from 'https://deno.land/std@0.224.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.4'
 import { getCorsHeaders, handleCorsPreflight } from '../_shared/cors.ts'
 
-const APP_URL = 'https://leclubia.com'
+const APP_URL = 'https://leclub-ia.com'
 
 interface CreateMemberRequest {
   email: string

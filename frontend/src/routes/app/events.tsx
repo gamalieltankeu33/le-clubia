@@ -94,7 +94,7 @@ function downloadIcs(event: Event) {
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
     'BEGIN:VEVENT',
-    `UID:${event.id}@leclubia.com`,
+    `UID:${event.id}@leclub-ia.com`,
     `DTSTAMP:${fmt(new Date())}`,
     `DTSTART:${fmt(start)}`,
     `DTEND:${fmt(end)}`,

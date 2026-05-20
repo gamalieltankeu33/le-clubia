@@ -15,7 +15,7 @@ function PrivacyPage() {
       <p>
         La protection des données personnelles est une priorité pour Le Club
         IA. La présente politique de confidentialité a pour objet d'informer
-        les membres et visiteurs de la plateforme leclubia.com sur la nature
+        les membres et visiteurs de la plateforme leclub-ia.com sur la nature
         des données collectées, les finalités de leur traitement, les bases
         légales mobilisées, les destinataires concernés et les droits dont
         ils disposent.

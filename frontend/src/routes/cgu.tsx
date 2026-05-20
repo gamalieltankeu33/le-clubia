@@ -37,7 +37,7 @@ function CGUPage() {
         <li>
           <strong>« Plateforme »</strong> ou <strong>« Service »</strong> :
           désigne le site et l'application Le Club IA accessibles à l'adresse
-          leclubia.com.
+          leclub-ia.com.
         </li>
         <li>
           <strong>« Éditeur »</strong> : désigne BetterZapp LLC, exploitant la

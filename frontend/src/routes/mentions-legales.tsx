@@ -10,7 +10,7 @@ function LegalNoticePage() {
     <LegalLayout title="Mentions légales" lastUpdated="6 mai 2026">
       <p>
         Les présentes mentions légales s'appliquent au site et à la plateforme
-        accessibles à l'adresse <strong>leclubia.com</strong>, ci-après « le
+        accessibles à l'adresse <strong>leclub-ia.com</strong>, ci-après « le
         Service » ou « Le Club IA ».
       </p>
 

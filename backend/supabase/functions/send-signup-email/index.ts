@@ -19,7 +19,7 @@ import { getCorsHeaders, handleCorsPreflight } from '../_shared/cors.ts'
 const RESEND_API_URL = 'https://api.resend.com/emails'
 const FROM_DEFAULT = 'Le Club IA <noreply@leclubia.com>'
 const REPLY_TO = 'betterzapp@gmail.com'
-const APP_URL = 'https://leclubia.com'
+const APP_URL = 'https://leclub-ia.com'
 
 serve(async (req: Request) => {
   const preflight = handleCorsPreflight(req)

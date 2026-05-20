@@ -26,7 +26,7 @@ const FROM_DEFAULT = 'Le Club IA <noreply@leclubia.com>'
 // Sandbox Resend par défaut si le domaine leclubia.com n'est pas encore vérifié.
 const FROM_SANDBOX = 'Le Club IA <onboarding@resend.dev>'
 const REPLY_TO = 'betterzapp@gmail.com'
-const APP_URL = 'https://leclubia.com'
+const APP_URL = 'https://leclub-ia.com'
 
 // CORS via helper partagé — voir _shared/cors.ts
 
