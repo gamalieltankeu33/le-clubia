@@ -1,8 +1,9 @@
 import { useEffect } from 'react'
-import { createRootRoute, Link, Outlet } from '@tanstack/react-router'
+import { createRootRoute, Link, Outlet, useNavigate } from '@tanstack/react-router'
 import { Toaster } from 'sonner'
 import { ArrowLeft, Compass, Sparkles } from 'lucide-react'
 import { useAuthStore } from '@/stores/auth-store'
+import { supabase } from '@/lib/supabase'
 import { PaymentSuccessHandler } from '@/components/payment/payment-success-handler'
 import { BrandLogo } from '@/components/brand-logo'
 
@@ -14,10 +15,34 @@ export const Route = createRootRoute({
 function RootComponent() {
   const isInitialized = useAuthStore((s) => s.isInitialized)
   const initialize = useAuthStore((s) => s.initialize)
+  const navigate = useNavigate()
 
   useEffect(() => {
     initialize()
   }, [initialize])
+
+  // Filet de sécurité récupération de mot de passe : si Supabase renvoie
+  // le lien sur la landing (Site URL) au lieu de /reset-password — parce
+  // que le redirectTo n'est pas allowlisté — on capte quand même l'event
+  // PASSWORD_RECOVERY (et le token #type=recovery dans le hash) et on
+  // redirige vers le formulaire. Rend le flow robuste quelle que soit
+  // la page d'atterrissage.
+  useEffect(() => {
+    const onReset = () => {
+      if (!window.location.pathname.startsWith('/reset-password')) {
+        navigate({ to: '/reset-password' })
+      }
+    }
+    // Cas 1 : event émis par supabase-js après détection du token.
+    const { data: sub } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY') onReset()
+    })
+    // Cas 2 : le hash contient déjà type=recovery au chargement (implicite).
+    if (typeof window !== 'undefined' && window.location.hash.includes('type=recovery')) {
+      onReset()
+    }
+    return () => sub.subscription.unsubscribe()
+  }, [navigate])
 
   if (!isInitialized) {
     return <BootLoader />
