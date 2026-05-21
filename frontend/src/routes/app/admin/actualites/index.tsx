@@ -57,13 +57,17 @@ function AdminNewsListPage() {
       return
     }
     try {
+      // send_email: false → l'agent ne broadcaste plus lui-même. C'est
+      // désormais le trigger DB `trg_news_email_broadcast` (sur publication)
+      // qui envoie l'email à chaque article publié, quel que soit le canal
+      // (agent, formulaire, toggle). Évite tout double-envoi.
       const res = await fetch(`${supabaseUrl}/functions/v1/news-agent-manual`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${session.access_token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ send_email: sendEmail, force: true }),
+        body: JSON.stringify({ send_email: false, force: true }),
       })
       const json = (await res.json()) as {
         ok?: boolean
@@ -78,10 +82,11 @@ function AdminNewsListPage() {
         return
       }
       if (json.ok) {
-        const emailNote =
-          sendEmail && (json.email_sent_count ?? 0) > 0
-            ? ` Email envoyé à ${json.email_sent_count} membre${(json.email_sent_count ?? 0) > 1 ? 's' : ''}.`
-            : ''
+        // L'email part automatiquement via le trigger de publication
+        // (envoi asynchrone aux membres opt-in juste après).
+        const emailNote = sendEmail
+          ? ' Email en cours d’envoi aux membres.'
+          : ''
         toast.success(
           `✓ Article publié — "${(json.article_title ?? '').slice(0, 60)}${(json.article_title ?? '').length > 60 ? '…' : ''}"${emailNote}`,
         )
