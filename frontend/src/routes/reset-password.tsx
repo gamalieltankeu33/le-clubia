@@ -16,15 +16,21 @@ export const Route = createFileRoute('/reset-password')({
 
 // Délai d'attente max pour que supabase-js consomme le hash/code de
 // l'URL (#access_token… ou ?code=… en PKCE) et établisse la session.
-// 3,5 s : laisse le temps à l'échange réseau du code de récupération
-// sur connexion lente avant de conclure que le lien est invalide.
-const SESSION_GRACE_MS = 3500
+// 5 s : large marge avant de conclure qu'un lien est invalide. Le signal
+// principal reste `storeUser` (immédiat) ; ce délai n'est qu'un filet.
+const SESSION_GRACE_MS = 5000
 
 type SessionStatus = 'checking' | 'ready' | 'invalid'
 
 function ResetPasswordPage() {
   const navigate = useNavigate()
   const updatePassword = useAuthStore((s) => s.updatePassword)
+  // La session de récupération connecte l'utilisateur → le store d'auth
+  // possède donc `user` dès que le boot a hydraté la session (le boot
+  // gère déjà le hash #access_token via getSession). C'est le signal le
+  // plus fiable, qui évite la course avec le timeout de grâce.
+  const isInitialized = useAuthStore((s) => s.isInitialized)
+  const storeUser = useAuthStore((s) => s.user)
 
   const [status, setStatus] = useState<SessionStatus>('checking')
   const [password, setPassword] = useState('')
@@ -33,30 +39,41 @@ function ResetPasswordPage() {
   const [showConfirm, setShowConfirm] = useState(false)
   const [submitting, setSubmitting] = useState(false)
 
-  // Au mount : vérifie qu'une session de récupération est bien établie.
-  // supabase-js consomme le hash de l'URL automatiquement (detectSessionInUrl)
-  // et émet un event 'PASSWORD_RECOVERY'. On combine les 2 signaux.
+  // Source de vérité n°1 : un user dans le store = session de récup OK.
+  useEffect(() => {
+    if (storeUser) setStatus('ready')
+  }, [storeUser])
+
+  // Sources de vérité n°2/3 : event PASSWORD_RECOVERY/SIGNED_IN + check
+  // getSession direct (cas refresh de page, ou store pas encore peuplé).
+  // Garde-fou : on ne conclut "invalide" qu'APRÈS l'init du boot, et si
+  // aucun signal n'est venu, pour ne jamais accuser un lien valide à tort.
   useEffect(() => {
     let cancelled = false
 
-    const sub = supabase.auth.onAuthStateChange((event) => {
+    const sub = supabase.auth.onAuthStateChange((event, session) => {
       if (cancelled) return
-      if (event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN') {
+      if (
+        event === 'PASSWORD_RECOVERY' ||
+        event === 'SIGNED_IN' ||
+        session?.user
+      ) {
         setStatus('ready')
       }
     })
 
-    // Fallback : si la session existe déjà (hash déjà consommé / refresh
-    // de la page après ouverture du lien), on autorise.
     void supabase.auth.getSession().then(({ data: { session } }) => {
       if (cancelled) return
       if (session?.user) setStatus('ready')
     })
 
-    // Garde-fou : si rien n'est venu après le délai de grâce, le lien
-    // est expiré ou invalide. On redirige vers /forgot-password.
     const timeout = window.setTimeout(() => {
       if (cancelled) return
+      // Si entre-temps le store a un user, on est prêt (re-check).
+      if (useAuthStore.getState().user) {
+        setStatus('ready')
+        return
+      }
       setStatus((prev) => {
         if (prev !== 'checking') return prev
         toast.error(
@@ -72,7 +89,7 @@ function ResetPasswordPage() {
       window.clearTimeout(timeout)
       sub.data.subscription.unsubscribe()
     }
-  }, [navigate])
+  }, [navigate, isInitialized])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
