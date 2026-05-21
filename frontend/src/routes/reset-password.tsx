@@ -14,9 +14,11 @@ export const Route = createFileRoute('/reset-password')({
   component: ResetPasswordPage,
 })
 
-// Délai d'attente max pour que supabase-js consomme le hash de l'URL
-// (#access_token=...&type=recovery=...) et établisse une session.
-const SESSION_GRACE_MS = 1500
+// Délai d'attente max pour que supabase-js consomme le hash/code de
+// l'URL (#access_token… ou ?code=… en PKCE) et établisse la session.
+// 3,5 s : laisse le temps à l'échange réseau du code de récupération
+// sur connexion lente avant de conclure que le lien est invalide.
+const SESSION_GRACE_MS = 3500
 
 type SessionStatus = 'checking' | 'ready' | 'invalid'
 

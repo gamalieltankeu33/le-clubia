@@ -89,13 +89,58 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     if (get().isInitialized) return
     set({ isLoading: true })
 
-    // getSession() lit le storage local (instantané) au lieu de getUser()
-    // qui fait un aller-retour réseau SANS timeout — sur le flow de
-    // récupération de mot de passe (le hash #access_token est consommé en
-    // parallèle par detectSessionInUrl), ce getUser() pouvait bloquer
-    // jusqu'au timeout réseau (~60s) et figer l'app sur le boot loader.
-    // try/catch : une erreur d'hydratation ne doit JAMAIS empêcher
-    // isInitialized de passer à true (sinon écran de chargement infini).
+    // Marque l'app comme initialisée une seule fois (idempotent).
+    const markReady = () => {
+      if (!get().isInitialized) {
+        set({ isLoading: false, isInitialized: true })
+      }
+    }
+
+    // ── 1. Listener AVANT tout await ───────────────────────────────────
+    // Enregistré en premier (synchrone) pour ne rater aucun event émis
+    // pendant le detectSessionInUrl du flow de récupération de mot de
+    // passe (PASSWORD_RECOVERY / SIGNED_IN). C'est aussi ce listener qui
+    // hydratera le user si getSession() était lent.
+    supabase.auth.onAuthStateChange(async (event, newSession) => {
+      if (event === 'SIGNED_OUT') {
+        clearAuthSideEffects()
+        set({ user: null, profile: null, subscription: null })
+        return
+      }
+      if (!newSession) {
+        if (!get().user) {
+          set({ user: null, profile: null, subscription: null })
+        }
+        return
+      }
+      if (
+        event === 'SIGNED_IN' ||
+        event === 'TOKEN_REFRESHED' ||
+        event === 'USER_UPDATED' ||
+        event === 'INITIAL_SESSION' ||
+        event === 'PASSWORD_RECOVERY'
+      ) {
+        try {
+          const { profile, subscription } = await fetchProfileAndSubscription(
+            newSession.user.id,
+          )
+          set({ user: newSession.user, profile, subscription })
+        } catch {
+          set({ user: newSession.user })
+        }
+        markReady()
+      }
+    })
+
+    // ── 2. Failsafe absolu ─────────────────────────────────────────────
+    // L'écran de chargement (BootLoader) bloque tant que isInitialized
+    // est false. Si getSession() se bloque (échange du code de
+    // récupération PKCE, lock auth, réseau), l'app resterait figée à
+    // l'infini. Ce timeout GARANTIT l'affichage en 3s max, quoi qu'il
+    // arrive. Le listener ci-dessus complétera l'hydratation ensuite.
+    const failsafe = window.setTimeout(markReady, 3000)
+
+    // ── 3. Hydratation locale (rapide) ─────────────────────────────────
     try {
       const {
         data: { session },
@@ -109,42 +154,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       }
     } catch (e) {
       console.error('[auth] initialize: échec hydratation initiale', e)
+    } finally {
+      window.clearTimeout(failsafe)
+      markReady()
     }
-
-    // Listener cross-tab : recharge le store si la session change ailleurs.
-    // SIGNED_OUT déclenche le même cleanup complet que signOut() — sinon
-    // un token expiré ou un logout dans un autre onglet laisserait les
-    // caches React Query + notifications + coach en mémoire.
-    supabase.auth.onAuthStateChange(async (event, newSession) => {
-      if (event === 'SIGNED_OUT') {
-        clearAuthSideEffects()
-        set({ user: null, profile: null, subscription: null })
-        return
-      }
-      // INITIAL_SESSION sans session = utilisateur non connecté au boot.
-      // Un event sans session sur un user déjà hydraté peut aussi être
-      // transient (refresh raté sur network blip) : on ne flush PAS les
-      // caches dans ce cas, un TOKEN_REFRESHED suivra. Sinon on déclenchait
-      // un faux logout qui forçait l'utilisateur à F5.
-      if (!newSession) {
-        if (!get().user) {
-          set({ user: null, profile: null, subscription: null })
-        }
-        return
-      }
-      if (
-        event === 'SIGNED_IN' ||
-        event === 'TOKEN_REFRESHED' ||
-        event === 'USER_UPDATED'
-      ) {
-        const { profile, subscription } = await fetchProfileAndSubscription(
-          newSession.user.id,
-        )
-        set({ user: newSession.user, profile, subscription })
-      }
-    })
-
-    set({ isLoading: false, isInitialized: true })
   },
 
   signUp: async (email, password) => {
