@@ -40,6 +40,19 @@ interface NotificationsState {
 
 let channel: RealtimeChannel | null = null
 let subscribedUserId: string | null = null
+// Fallback polling : si le Realtime échoue/sature (ex: pic de connexions
+// simultanées au-delà du quota Realtime), on bascule sur un refetch
+// périodique pour que les notifs arrivent quand même (latence ~45 s).
+// En fonctionnement normal (Realtime OK) ce timer reste null = 0 charge.
+let pollingTimer: ReturnType<typeof setInterval> | null = null
+const POLL_INTERVAL_MS = 45_000
+
+function stopPolling() {
+  if (pollingTimer) {
+    clearInterval(pollingTimer)
+    pollingTimer = null
+  }
+}
 
 async function loadActors(
   ids: string[],
@@ -217,12 +230,30 @@ export const useNotificationsStore = create<NotificationsState>((set, get) => ({
           })
         },
       )
-      .subscribe()
+      .subscribe((status) => {
+        // Résilience : si le canal Realtime échoue (quota saturé, réseau,
+        // timeout), on bascule sur du polling. S'il (re)devient OK, on
+        // coupe le polling pour ne pas charger la DB inutilement.
+        if (status === 'SUBSCRIBED') {
+          stopPolling()
+        } else if (
+          status === 'CHANNEL_ERROR' ||
+          status === 'TIMED_OUT' ||
+          status === 'CLOSED'
+        ) {
+          if (!pollingTimer && subscribedUserId) {
+            pollingTimer = setInterval(() => {
+              void get().fetchNotifications()
+            }, POLL_INTERVAL_MS)
+          }
+        }
+      })
 
     subscribedUserId = userId
   },
 
   unsubscribeFromRealtime: () => {
+    stopPolling()
     if (!channel) return
     void supabase.removeChannel(channel)
     channel = null
@@ -230,6 +261,7 @@ export const useNotificationsStore = create<NotificationsState>((set, get) => ({
   },
 
   reset: () => {
+    stopPolling()
     if (channel) {
       void supabase.removeChannel(channel)
       channel = null
