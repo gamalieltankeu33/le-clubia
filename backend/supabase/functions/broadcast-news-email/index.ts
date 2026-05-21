@@ -19,17 +19,26 @@ interface Body {
   article_id?: string
 }
 
+// Token partagé avec le trigger DB (`trg_broadcast_news_email`). On ne
+// compare PAS à SUPABASE_SERVICE_ROLE_KEY : depuis le passage de Supabase
+// aux nouvelles clés API, la clé legacy hardcodable dans un trigger ne
+// correspond plus à l'env injecté dans la fonction. Un secret partagé
+// (côté trigger + côté code) est fiable et indépendant du format de clé.
+const BROADCAST_TOKEN = 'lcia_nb_f0e66daf64b0d58216920a7a1a51e0318ceb195c7391e9e5'
+
 serve(async (req: Request) => {
   if (req.method !== 'POST') {
     return json({ ok: false, error: 'Method not allowed' }, 405)
   }
 
+  const token = (req.headers.get('x-broadcast-token') ?? '').trim()
+  if (token !== BROADCAST_TOKEN) {
+    return json({ ok: false, error: 'Token invalide.' }, 401)
+  }
+
   const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-  const auth = (req.headers.get('Authorization') ?? '')
-    .replace(/^Bearer\s+/i, '')
-    .trim()
-  if (!serviceKey || auth !== serviceKey.trim()) {
-    return json({ ok: false, error: 'Service-role requis.' }, 401)
+  if (!serviceKey) {
+    return json({ ok: false, error: 'Service indisponible.' }, 503)
   }
 
   const supabaseUrl = Deno.env.get('SUPABASE_URL')!
