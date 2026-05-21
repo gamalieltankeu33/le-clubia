@@ -40,20 +40,34 @@ interface MemberRow extends Profile {
   current_period_end: string | null
 }
 
+// Cap pour borner la mémoire/temps de réponse à grande échelle.
+// On charge les N membres les plus récents, puis on ne compte les
+// posts/commentaires/abos QUE pour ceux-ci (scopés via .in()), au lieu
+// de rapatrier toute la base (OOM/timeout garanti au-delà de quelques
+// milliers de membres). Une vraie pagination serveur viendra ensuite.
+const MEMBERS_PAGE_SIZE = 1000
+
 async function fetchMembers(): Promise<MemberRow[]> {
-  const [profilesRes, postsRes, commentsRes, subsRes] = await Promise.all([
-    supabase
-      .from('profiles')
-      .select('*')
-      .order('created_at', { ascending: false }),
-    supabase.from('posts').select('user_id'),
-    supabase.from('post_comments').select('user_id'),
+  const profilesRes = await supabase
+    .from('profiles')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(MEMBERS_PAGE_SIZE)
+  if (profilesRes.error) throw profilesRes.error
+
+  const memberIds = (profilesRes.data ?? []).map((p) => (p as Profile).id)
+  if (memberIds.length === 0) return []
+
+  // Compteurs + abos scopés aux seuls membres chargés.
+  const [postsRes, commentsRes, subsRes] = await Promise.all([
+    supabase.from('posts').select('user_id').in('user_id', memberIds),
+    supabase.from('post_comments').select('user_id').in('user_id', memberIds),
     supabase
       .from('subscriptions')
       .select('id, user_id, status, plan_id, current_period_end, created_at')
+      .in('user_id', memberIds)
       .order('created_at', { ascending: false }),
   ])
-  if (profilesRes.error) throw profilesRes.error
   const postsByUser = new Map<string, number>()
   for (const p of postsRes.data ?? []) {
     postsByUser.set(
