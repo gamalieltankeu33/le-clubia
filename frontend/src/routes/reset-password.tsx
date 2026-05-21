@@ -44,36 +44,15 @@ function ResetPasswordPage() {
     if (storeUser) setStatus('ready')
   }, [storeUser])
 
-  // Sources de vérité n°2/3 : event PASSWORD_RECOVERY/SIGNED_IN + check
-  // getSession direct (cas refresh de page, ou store pas encore peuplé).
-  // Garde-fou : on ne conclut "invalide" qu'APRÈS l'init du boot, et si
-  // aucun signal n'est venu, pour ne jamais accuser un lien valide à tort.
+  // Détection robuste de la session de récupération.
   useEffect(() => {
     let cancelled = false
 
-    const sub = supabase.auth.onAuthStateChange((event, session) => {
+    const markReady = () => {
+      if (!cancelled) setStatus('ready')
+    }
+    const markInvalid = () => {
       if (cancelled) return
-      if (
-        event === 'PASSWORD_RECOVERY' ||
-        event === 'SIGNED_IN' ||
-        session?.user
-      ) {
-        setStatus('ready')
-      }
-    })
-
-    void supabase.auth.getSession().then(({ data: { session } }) => {
-      if (cancelled) return
-      if (session?.user) setStatus('ready')
-    })
-
-    const timeout = window.setTimeout(() => {
-      if (cancelled) return
-      // Si entre-temps le store a un user, on est prêt (re-check).
-      if (useAuthStore.getState().user) {
-        setStatus('ready')
-        return
-      }
       setStatus((prev) => {
         if (prev !== 'checking') return prev
         toast.error(
@@ -82,6 +61,59 @@ function ResetPasswordPage() {
         navigate({ to: '/forgot-password' })
         return 'invalid'
       })
+    }
+
+    // ── Flow recommandé : token_hash dans la query (?token_hash=…&type=recovery)
+    // On établit la session EXPLICITEMENT via verifyOtp. Déterministe,
+    // pas de course avec detectSessionInUrl, résistant aux scanners
+    // d'email (le jeton n'est consommé que par ce code JS, au clic réel).
+    const params = new URLSearchParams(window.location.search)
+    const tokenHash = params.get('token_hash')
+    const type = params.get('type')
+    if (tokenHash && (type === 'recovery' || type === null)) {
+      supabase.auth
+        .verifyOtp({ type: 'recovery', token_hash: tokenHash })
+        .then(({ data, error }) => {
+          if (cancelled) return
+          if (error || !data.session) {
+            console.error('[reset] verifyOtp KO', error)
+            markInvalid()
+          } else {
+            // Nettoie l'URL (retire le token_hash) puis affiche le form.
+            window.history.replaceState({}, '', '/reset-password')
+            markReady()
+          }
+        })
+      return () => {
+        cancelled = true
+      }
+    }
+
+    // ── Fallback flow implicite (#access_token=…&type=recovery) : on
+    // s'appuie sur l'event + getSession + le user du store.
+    const sub = supabase.auth.onAuthStateChange((event, session) => {
+      if (cancelled) return
+      if (
+        event === 'PASSWORD_RECOVERY' ||
+        event === 'SIGNED_IN' ||
+        session?.user
+      ) {
+        markReady()
+      }
+    })
+
+    void supabase.auth.getSession().then(({ data: { session } }) => {
+      if (cancelled) return
+      if (session?.user) markReady()
+    })
+
+    const timeout = window.setTimeout(() => {
+      if (cancelled) return
+      if (useAuthStore.getState().user) {
+        markReady()
+        return
+      }
+      markInvalid()
     }, SESSION_GRACE_MS)
 
     return () => {
