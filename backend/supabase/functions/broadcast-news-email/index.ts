@@ -1,30 +1,34 @@
 // Le Club IA — Edge Function "broadcast-news-email"
 //
 // Envoie par email un article d'actualité à tous les membres actifs
-// (opt-in email_pref_weekly_recap). Appelée par un trigger DB sur
-// news_articles dès qu'un article passe en is_published=true (quelle
-// que soit la façon de publier : formulaire admin, toggle, ou agent).
+// (opt-in email_pref_weekly_recap). Appelée par le trigger DB
+// `trg_broadcast_news_email` dès qu'un article passe en is_published=true.
 //
-// Idempotente : on ne broadcaste qu'une seule fois par article grâce à
-// la colonne news_articles.email_broadcast_at. Si elle est déjà
-// renseignée, on ne renvoie rien (évite tout double-email).
+// Auth : header `x-broadcast-token` (secret partagé avec le trigger).
+// On n'utilise PAS la comparaison à SUPABASE_SERVICE_ROLE_KEY (depuis le
+// passage de Supabase aux nouvelles clés API, la clé legacy ne matche
+// plus selon le contexte).
 //
-// verify_jwt = false : appelée par pg_net avec le service_role en Bearer,
-// vérifié en interne. Jamais exposée utilement au navigateur.
+// Envoi : DIRECTEMENT via Resend (RESEND_API_KEY), pas via la fonction
+// send-email — car les appels service-role inter-fonctions vers
+// send-email tombent en 401 (clé legacy/nouvelle). C'est le pattern
+// éprouvé de send-signup-email.
+//
+// Idempotence : colonne news_articles.email_broadcast_at.
+// verify_jwt = false (auth interne par token).
 
 import { serve } from 'https://deno.land/std@0.224.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.4'
 
+const BROADCAST_TOKEN = 'lcia_nb_f0e66daf64b0d58216920a7a1a51e0318ceb195c7391e9e5'
+const RESEND_API_URL = 'https://api.resend.com/emails'
+const FROM_DEFAULT = 'Le Club IA <noreply@leclub-ia.com>'
+const REPLY_TO = 'betterzapp@gmail.com'
+const APP_URL = 'https://leclub-ia.com'
+
 interface Body {
   article_id?: string
 }
-
-// Token partagé avec le trigger DB (`trg_broadcast_news_email`). On ne
-// compare PAS à SUPABASE_SERVICE_ROLE_KEY : depuis le passage de Supabase
-// aux nouvelles clés API, la clé legacy hardcodable dans un trigger ne
-// correspond plus à l'env injecté dans la fonction. Un secret partagé
-// (côté trigger + côté code) est fiable et indépendant du format de clé.
-const BROADCAST_TOKEN = 'lcia_nb_f0e66daf64b0d58216920a7a1a51e0318ceb195c7391e9e5'
 
 serve(async (req: Request) => {
   if (req.method !== 'POST') {
@@ -36,12 +40,17 @@ serve(async (req: Request) => {
     return json({ ok: false, error: 'Token invalide.' }, 401)
   }
 
+  const supabaseUrl = Deno.env.get('SUPABASE_URL')!
   const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-  if (!serviceKey) {
+  const resendKey = Deno.env.get('RESEND_API_KEY') ?? ''
+  if (!serviceKey || !resendKey) {
+    console.error('[broadcast-news-email] env manquant', {
+      hasService: !!serviceKey,
+      hasResend: !!resendKey,
+    })
     return json({ ok: false, error: 'Service indisponible.' }, 503)
   }
 
-  const supabaseUrl = Deno.env.get('SUPABASE_URL')!
   const sb = createClient(supabaseUrl, serviceKey, {
     auth: { persistSession: false },
   })
@@ -56,26 +65,20 @@ serve(async (req: Request) => {
     return json({ ok: false, error: 'article_id requis.' }, 400)
   }
 
-  // 1. Récupère l'article + garde idempotence.
+  // 1. Article + idempotence.
   const { data: article, error: artErr } = await sb
     .from('news_articles')
     .select('id, slug, title, content, category, is_published, email_broadcast_at')
     .eq('id', body.article_id)
     .maybeSingle()
-
   if (artErr || !article) {
     console.error('[broadcast-news-email] article introuvable', artErr)
     return json({ ok: false, error: 'Article introuvable.' }, 404)
   }
-  if (!article.is_published) {
-    return json({ ok: true, skipped: 'not_published' })
-  }
-  if (article.email_broadcast_at) {
-    return json({ ok: true, skipped: 'already_sent' })
-  }
+  if (!article.is_published) return json({ ok: true, skipped: 'not_published' })
+  if (article.email_broadcast_at) return json({ ok: true, skipped: 'already_sent' })
 
-  // 2. Marque IMMÉDIATEMENT comme broadcasté (anti double-envoi en cas
-  //    de double déclenchement du trigger / retries pg_net).
+  // 2. Verrou idempotent immédiat.
   const { error: lockErr } = await sb
     .from('news_articles')
     .update({ email_broadcast_at: new Date().toISOString() })
@@ -91,7 +94,6 @@ serve(async (req: Request) => {
     .from('profiles')
     .select('id, email, first_name, email_pref_weekly_recap')
     .eq('email_pref_weekly_recap', true)
-
   const ids = (recipients ?? []).map((r) => r.id as string)
   let activeIds = new Set<string>()
   if (ids.length > 0) {
@@ -106,37 +108,57 @@ serve(async (req: Request) => {
     (r) => activeIds.has(r.id as string) && r.email,
   )
 
-  // 4. Envoi par lots de 10 (rate-limit Resend), template breaking-news.
+  // 4. Envoi direct Resend par lots de 10.
   const excerpt = stripMarkdownToText(String(article.content ?? '')).slice(0, 220)
-  const sendUrl = `${supabaseUrl}/functions/v1/send-email`
+  const articleUrl = `${APP_URL}/app/actualites/${article.slug}`
   let sent = 0
   let failed = 0
+  const errSamples: string[] = []
   const BATCH = 10
   for (let i = 0; i < targets.length; i += BATCH) {
     const slice = targets.slice(i, i + BATCH)
     const results = await Promise.allSettled(
-      slice.map((r) =>
-        fetch(sendUrl, {
+      slice.map((r) => {
+        const { subject, html, text } = renderNewsEmail({
+          firstName: (r.first_name as string | null) ?? '',
+          title: article.title as string,
+          excerpt,
+          url: articleUrl,
+        })
+        return fetch(RESEND_API_URL, {
           method: 'POST',
           headers: {
-            Authorization: `Bearer ${serviceKey}`,
+            Authorization: `Bearer ${resendKey}`,
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            type: 'breaking-news',
+            from: FROM_DEFAULT,
             to: r.email,
-            data: {
-              member_first_name: r.first_name ?? '',
-              article_slug: article.slug,
-              article_title: article.title,
-              article_excerpt: excerpt,
-            },
+            subject,
+            html,
+            text,
+            reply_to: REPLY_TO,
           }),
-        }).then((res) => res.json()),
-      ),
+        }).then(async (res) => {
+          if (!res.ok) {
+            const errTxt = await res.text()
+            if (errSamples.length < 2) {
+              errSamples.push(`${res.status}: ${errTxt.slice(0, 200)}`)
+            }
+            console.error(
+              `[broadcast-news-email] Resend ${res.status} to=${r.email}: ${errTxt.slice(0, 300)}`,
+            )
+            return false
+          }
+          return true
+        }).catch((e) => {
+          if (errSamples.length < 2) errSamples.push(`fetch: ${String(e).slice(0, 150)}`)
+          return false
+        })
+      }),
     )
     for (const res of results) {
-      if (res.status === 'fulfilled' && (res.value as { ok?: boolean }).ok) sent++
+      if (res.status === 'fulfilled' && res.value === true) sent++
       else failed++
     }
   }
@@ -144,7 +166,7 @@ serve(async (req: Request) => {
   console.log(
     `[broadcast-news-email] article=${article.id} sent=${sent} failed=${failed} targets=${targets.length}`,
   )
-  return json({ ok: true, sent, failed, targets: targets.length })
+  return json({ ok: true, sent, failed, targets: targets.length, errors: errSamples })
 })
 
 function json(body: unknown, status = 200): Response {
@@ -154,7 +176,6 @@ function json(body: unknown, status = 200): Response {
   })
 }
 
-/** Markdown → texte brut grossier (pour l'extrait email). */
 function stripMarkdownToText(md: string): string {
   return md
     .replace(/```[\s\S]*?```/g, ' ')
@@ -163,4 +184,69 @@ function stripMarkdownToText(md: string): string {
     .replace(/[#>*_`~-]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()
+}
+
+function escapeHtml(s: string): string {
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
+function renderNewsEmail(d: {
+  firstName: string
+  title: string
+  excerpt: string
+  url: string
+}) {
+  const greeting = d.firstName ? `Salut ${escapeHtml(d.firstName)},` : 'Salut,'
+  const subject = `🔥 Actu IA — ${d.title}`
+  const preheader = d.excerpt.slice(0, 110)
+  const html = `<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/></head>
+<body style="margin:0;padding:0;background:#FAFAF9;font-family:Inter,Arial,sans-serif;color:#0A0A0A;">
+<div style="display:none;font-size:1px;color:#FAFAF9;max-height:0;overflow:hidden;">${escapeHtml(preheader)}</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#FAFAF9;padding:32px 16px;"><tr><td align="center">
+  <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+    <tr><td align="center" style="padding-bottom:24px;">
+      <table role="presentation" cellpadding="0" cellspacing="0"><tr>
+        <td style="background:#1E40AF;color:#FFFFFF;font-family:Georgia,serif;font-weight:700;font-size:22px;padding:10px 24px;border-radius:9999px;letter-spacing:-0.02em;">leclub<span style="color:#F97316;font-weight:800;">.</span>ia</td>
+      </tr></table>
+    </td></tr>
+    <tr><td style="background:#FFFFFF;border-radius:20px;border:1px solid #E5E5E5;padding:32px;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+        <tr><td style="padding-bottom:8px;"><span style="display:inline-block;background:#F97316;color:#fff;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;padding:4px 10px;border-radius:9999px;">🔥 Actu IA</span></td></tr>
+        <tr><td style="padding-bottom:8px;"><h1 style="margin:0;font-family:Georgia,serif;font-size:22px;font-weight:700;color:#0A0A0A;letter-spacing:-0.02em;line-height:1.25;">${escapeHtml(d.title)}</h1></td></tr>
+        <tr><td style="font-size:15px;line-height:1.6;color:#0A0A0A;padding-top:8px;">
+          <p style="margin:0 0 12px;">${greeting}</p>
+          <p style="margin:0 0 16px;color:#525252;">${escapeHtml(d.excerpt)}…</p>
+        </td></tr>
+        <tr><td align="center" style="padding:16px 0 0;">
+          <a href="${escapeHtml(d.url)}" style="display:inline-block;background:#1E40AF;color:#ffffff;text-decoration:none;font-weight:600;font-size:16px;padding:14px 28px;border-radius:9999px;">Lire l'actu complète</a>
+        </td></tr>
+      </table>
+    </td></tr>
+    <tr><td align="center" style="padding:24px 16px 0;">
+      <p style="margin:0;font-size:11px;color:#737373;line-height:1.6;">Tu reçois cet email car tu es membre du Club IA.<br>
+        <a href="${APP_URL}/app/profil" style="color:#737373;text-decoration:underline;">Gérer mes préférences email</a></p>
+      <p style="margin:12px 0 0;font-size:11px;color:#A3A3A3;">Le Club IA — Édité par BetterZapp LLC</p>
+    </td></tr>
+  </table>
+</td></tr></table></body></html>`
+  const text = [
+    `Le Club IA — 🔥 Actu IA`,
+    ``,
+    d.title,
+    ``,
+    greeting,
+    ``,
+    `${d.excerpt}…`,
+    ``,
+    `Lire l'actu complète : ${d.url}`,
+    ``,
+    `— Gérer mes préférences email : ${APP_URL}/app/profil`,
+  ].join('\n')
+  return { subject, html, text }
 }
