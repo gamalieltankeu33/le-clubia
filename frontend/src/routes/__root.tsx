@@ -4,6 +4,7 @@ import { Toaster } from 'sonner'
 import { ArrowLeft, Compass, Sparkles } from 'lucide-react'
 import { useAuthStore } from '@/stores/auth-store'
 import { supabase } from '@/lib/supabase'
+import { RECOVERY_IN_URL } from '@/lib/recovery-flag'
 import { PaymentSuccessHandler } from '@/components/payment/payment-success-handler'
 import { BrandLogo } from '@/components/brand-logo'
 
@@ -37,10 +38,9 @@ function RootComponent() {
     const { data: sub } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'PASSWORD_RECOVERY') onReset()
     })
-    // Cas 2 : le hash contient déjà type=recovery au chargement (implicite).
-    if (typeof window !== 'undefined' && window.location.hash.includes('type=recovery')) {
-      onReset()
-    }
+    // Cas 2 : flag capturé au chargement, AVANT que supabase n'efface le
+    // hash (cf. recovery-flag.ts). Fiable même si l'event est manqué.
+    if (RECOVERY_IN_URL) onReset()
     return () => sub.subscription.unsubscribe()
   }, [navigate])
 

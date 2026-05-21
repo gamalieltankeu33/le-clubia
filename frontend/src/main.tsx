@@ -1,3 +1,7 @@
+// ⚠️ EN PREMIER : capture le flag de récupération de mot de passe avant
+// que supabase-js ne nettoie le hash de l'URL (cf. recovery-flag.ts).
+import './lib/recovery-flag'
+
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { RouterProvider, createRouter } from '@tanstack/react-router'
