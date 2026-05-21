@@ -89,15 +89,26 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     if (get().isInitialized) return
     set({ isLoading: true })
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (user) {
-      const { profile, subscription } = await fetchProfileAndSubscription(
-        user.id,
-      )
-      set({ user, profile, subscription })
+    // getSession() lit le storage local (instantané) au lieu de getUser()
+    // qui fait un aller-retour réseau SANS timeout — sur le flow de
+    // récupération de mot de passe (le hash #access_token est consommé en
+    // parallèle par detectSessionInUrl), ce getUser() pouvait bloquer
+    // jusqu'au timeout réseau (~60s) et figer l'app sur le boot loader.
+    // try/catch : une erreur d'hydratation ne doit JAMAIS empêcher
+    // isInitialized de passer à true (sinon écran de chargement infini).
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
+      const user = session?.user ?? null
+      if (user) {
+        const { profile, subscription } = await fetchProfileAndSubscription(
+          user.id,
+        )
+        set({ user, profile, subscription })
+      }
+    } catch (e) {
+      console.error('[auth] initialize: échec hydratation initiale', e)
     }
 
     // Listener cross-tab : recharge le store si la session change ailleurs.
