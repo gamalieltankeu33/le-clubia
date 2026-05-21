@@ -11,6 +11,25 @@ import './index.css'
 import { routeTree } from './routeTree.gen'
 import { queryClient } from '@/lib/query-client'
 
+// Auto-recovery des chunks périmés après un déploiement.
+// Quand on redéploie (Vercel), les noms de fichiers JS changent (hash).
+// Un utilisateur qui avait l'app ouverte et navigue vers une route
+// lazy-loadée demande un ancien chunk qui n'existe plus → le serveur
+// renvoie index.html → "text/html is not a valid JavaScript MIME type".
+// Vite émet `vite:preloadError` dans ce cas : on recharge la page (qui
+// récupère le index.html frais + les bons chunks). Garde-fou anti-boucle :
+// au plus un reload toutes les 10 s.
+if (typeof window !== 'undefined') {
+  window.addEventListener('vite:preloadError', () => {
+    const KEY = '__chunk_reload_at'
+    const last = Number(sessionStorage.getItem(KEY) || '0')
+    if (Date.now() - last > 10_000) {
+      sessionStorage.setItem(KEY, String(Date.now()))
+      window.location.reload()
+    }
+  })
+}
+
 const router = createRouter({ routeTree })
 
 declare module '@tanstack/react-router' {
