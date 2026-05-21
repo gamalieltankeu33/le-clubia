@@ -773,6 +773,8 @@ export type Database = {
           announcement_sent_at: string | null
           reminder_1day_sent_at: string | null
           reminder_today_sent_at: string | null
+          replay_url: string | null
+          replay_published_at: string | null
           created_by: string | null
           created_at: string
           updated_at: string
@@ -795,6 +797,8 @@ export type Database = {
           announcement_sent_at?: string | null
           reminder_1day_sent_at?: string | null
           reminder_today_sent_at?: string | null
+          replay_url?: string | null
+          replay_published_at?: string | null
           created_by?: string | null
           created_at?: string
           updated_at?: string
@@ -817,6 +821,8 @@ export type Database = {
           announcement_sent_at?: string | null
           reminder_1day_sent_at?: string | null
           reminder_today_sent_at?: string | null
+          replay_url?: string | null
+          replay_published_at?: string | null
           created_by?: string | null
           created_at?: string
           updated_at?: string

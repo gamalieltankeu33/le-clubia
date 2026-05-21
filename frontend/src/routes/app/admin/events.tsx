@@ -27,6 +27,7 @@ import { useAuthStore } from '@/stores/auth-store'
 import { supabase } from '@/lib/supabase'
 import { compressImage } from '@/lib/compress-image'
 import { generateAndUploadFallbackCover } from '@/lib/event-cover-fallback'
+import { isValidVideoUrl } from '@/lib/formation-helpers'
 import type { Database, EventType } from '@/lib/database.types'
 import { cn } from '@/lib/utils'
 import { useConfirm } from '@/hooks/use-confirm'
@@ -62,6 +63,7 @@ interface FormState {
   starts_at_local: string // datetime-local string
   duration_minutes: number
   meet_url: string
+  replay_url: string
   cover_image_url: string | null
   notify_on_publish: boolean
   notify_1_day_before: boolean
@@ -79,6 +81,7 @@ const EMPTY_FORM: FormState = {
   starts_at_local: '',
   duration_minutes: 90,
   meet_url: '',
+  replay_url: '',
   cover_image_url: null,
   notify_on_publish: true,
   notify_1_day_before: true,
@@ -248,6 +251,7 @@ function AdminEventsPage() {
         starts_at: localDatetimeToIso(form.starts_at_local),
         duration_minutes: form.duration_minutes,
         meet_url: form.meet_url.trim() || null,
+        replay_url: form.replay_url.trim() || null,
         cover_image_url: coverUrl,
         is_published: form.is_published,
         notify_on_publish: form.notify_on_publish,
@@ -440,6 +444,7 @@ function AdminEventsPage() {
       starts_at_local: isoToLocalDatetime(ev.starts_at),
       duration_minutes: ev.duration_minutes,
       meet_url: ev.meet_url ?? '',
+      replay_url: ev.replay_url ?? '',
       cover_image_url: ev.cover_image_url,
       notify_on_publish: ev.notify_on_publish,
       notify_1_day_before: ev.notify_1_day_before,
@@ -628,7 +633,16 @@ function AdminEventsPage() {
           form={editing}
           onChange={setEditing}
           onCancel={() => setEditing(null)}
-          onSubmit={() => upsertMutation.mutate(editing)}
+          onSubmit={() => {
+            const replay = editing.replay_url.trim()
+            if (replay && !isValidVideoUrl(replay)) {
+              toast.error(
+                'Lien de replay invalide (Vimeo, YouTube ou Google Drive attendus).',
+              )
+              return
+            }
+            upsertMutation.mutate(editing)
+          }}
           submitting={upsertMutation.isPending}
         />
       )}
@@ -913,6 +927,27 @@ function EventFormModal({
                 placeholder="https://meet.google.com/..."
                 disabled={submitting}
               />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="event-replay">Lien du replay (Vimeo / YouTube — optionnel)</Label>
+              <Input
+                id="event-replay"
+                type="url"
+                value={form.replay_url}
+                onChange={(e) => onChange({ ...form, replay_url: e.target.value })}
+                placeholder="https://vimeo.com/123456789"
+                disabled={submitting}
+              />
+              <p className="text-xs text-[var(--muted-foreground)]">
+                Une fois la session terminée, colle ici l'URL du replay. Elle
+                apparaîtra automatiquement dans « Masterclass Replay » côté membre.
+                {form.replay_url.trim() && !isValidVideoUrl(form.replay_url.trim()) && (
+                  <span className="mt-1 block font-medium text-red-500">
+                    URL non reconnue (Vimeo, YouTube ou Google Drive attendus).
+                  </span>
+                )}
+              </p>
             </div>
 
             <div className="space-y-1.5">

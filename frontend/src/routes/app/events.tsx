@@ -1,7 +1,7 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
   Calendar,
   CalendarDays,
@@ -9,14 +9,17 @@ import {
   ExternalLink,
   Loader2,
   Mic2,
+  PlayCircle,
   Sparkles,
   Video,
+  X,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useRequireAuth } from '@/lib/use-require-auth'
 import { supabase } from '@/lib/supabase'
 import type { Database, EventType } from '@/lib/database.types'
 import { cn } from '@/lib/utils'
+import { VideoEmbed } from '@/components/shared/video-embed'
 
 type Event = Database['public']['Tables']['events']['Row']
 
@@ -57,7 +60,7 @@ async function fetchPastEvents(): Promise<Event[]> {
     .eq('is_published', true)
     .lt('starts_at', new Date(Date.now() - 30 * 60 * 1000).toISOString())
     .order('starts_at', { ascending: false })
-    .limit(5)
+    .limit(12)
   if (error) throw error
   return (data ?? []) as Event[]
 }
@@ -124,6 +127,7 @@ function escapeIcs(s: string): string {
 
 function EventsPage() {
   const allowed = useRequireAuth({ requireOnboarded: true })
+  const [replayEvent, setReplayEvent] = useState<Event | null>(null)
 
   const upcomingQuery = useQuery({
     queryKey: ['member-events-upcoming'],
@@ -191,41 +195,193 @@ function EventsPage() {
         </div>
       </section>
 
-      {/* Passés / Replays */}
+      {/* Passés / Masterclass Replay */}
       {past.length > 0 && (
         <section className="mt-12">
           <h2 className="font-display text-lg font-semibold tracking-tight">
-            Sessions passées
+            Masterclass Replay
           </h2>
-          <p className="mt-1 text-xs text-[var(--muted-foreground)]">
-            Les replays seront disponibles dans une prochaine mise à jour.
+          <p className="mt-1 text-sm text-[var(--muted-foreground)]">
+            Tu as manqué une session live&nbsp;? Revois-la quand tu veux.
           </p>
-          <ul className="mt-4 space-y-2">
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
             {past.map((ev) => (
-              <li
+              <PastEventCard
                 key={ev.id}
-                className="flex items-center gap-3 rounded-xl border border-[var(--border)] bg-[var(--card)] p-3 opacity-75"
-              >
-                <span
-                  className={cn(
-                    'flex h-9 w-9 shrink-0 items-center justify-center rounded-lg',
-                    TYPE_TONES[ev.type],
-                  )}
-                >
-                  <Mic2 className="h-4 w-4" />
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium">{ev.title}</p>
-                  <p className="text-xs text-[var(--muted-foreground)]">
-                    {formatStartsAt(ev.starts_at)}
-                  </p>
-                </div>
-              </li>
+                event={ev}
+                onWatch={() => setReplayEvent(ev)}
+              />
             ))}
-          </ul>
+          </div>
         </section>
       )}
+
+      {/* Modal lecteur de replay */}
+      <AnimatePresence>
+        {replayEvent && (
+          <ReplayModal
+            event={replayEvent}
+            onClose={() => setReplayEvent(null)}
+          />
+        )}
+      </AnimatePresence>
     </div>
+  )
+}
+
+function PastEventCard({
+  event,
+  onWatch,
+}: {
+  event: Event
+  onWatch: () => void
+}) {
+  const hasReplay = !!event.replay_url
+
+  return (
+    <article className="group flex flex-col overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)] shadow-sm transition-shadow hover:shadow-md">
+      {/* Vignette */}
+      <button
+        type="button"
+        onClick={hasReplay ? onWatch : undefined}
+        disabled={!hasReplay}
+        className={cn(
+          'relative aspect-[16/9] w-full overflow-hidden bg-[var(--secondary)]',
+          hasReplay ? 'cursor-pointer' : 'cursor-default',
+        )}
+        aria-label={hasReplay ? `Voir le replay : ${event.title}` : undefined}
+      >
+        {event.cover_image_url ? (
+          <img
+            src={event.cover_image_url}
+            alt=""
+            loading="lazy"
+            className={cn(
+              'h-full w-full object-cover transition-transform duration-500',
+              hasReplay && 'group-hover:scale-105',
+            )}
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center">
+            <Mic2 className="h-8 w-8 text-[var(--muted-foreground)]" />
+          </div>
+        )}
+
+        {hasReplay && (
+          <>
+            <div className="absolute inset-0 bg-black/30 transition-colors group-hover:bg-black/45" />
+            <span className="absolute inset-0 flex items-center justify-center">
+              <span className="flex h-14 w-14 items-center justify-center rounded-full bg-white/95 text-[var(--primary)] shadow-lg transition-transform duration-300 group-hover:scale-110">
+                <PlayCircle className="h-8 w-8" />
+              </span>
+            </span>
+            <span className="absolute left-3 top-3 rounded-full bg-[var(--primary)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-white">
+              Replay
+            </span>
+          </>
+        )}
+      </button>
+
+      {/* Infos */}
+      <div className="flex flex-1 flex-col p-4">
+        <div className="flex items-center gap-2">
+          <span
+            className={cn(
+              'rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest',
+              TYPE_TONES[event.type],
+            )}
+          >
+            {TYPE_LABELS[event.type]}
+          </span>
+        </div>
+        <h3 className="mt-2 font-display text-base font-semibold leading-snug tracking-tight">
+          {event.title}
+        </h3>
+        {event.speaker_name && (
+          <p className="mt-1 text-xs text-[var(--muted-foreground)]">
+            Avec {event.speaker_name}
+          </p>
+        )}
+        <p className="mt-1 text-xs text-[var(--muted-foreground)]">
+          {formatStartsAt(event.starts_at)}
+        </p>
+
+        <div className="mt-3 flex-1" />
+
+        {hasReplay ? (
+          <Button
+            onClick={onWatch}
+            className="mt-2 w-full gap-2 bg-[var(--primary)] text-white hover:bg-[var(--primary)]/90"
+          >
+            <PlayCircle className="h-4 w-4" />
+            Voir le replay
+          </Button>
+        ) : (
+          <p className="mt-2 inline-flex items-center gap-1.5 text-xs font-medium text-[var(--muted-foreground)]">
+            <Loader2 className="h-3 w-3" />
+            Replay bientôt disponible
+          </p>
+        )}
+      </div>
+    </article>
+  )
+}
+
+function ReplayModal({
+  event,
+  onClose,
+}: {
+  event: Event
+  onClose: () => void
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-label={`Replay : ${event.title}`}
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.96, y: 12 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.96, y: 12 }}
+        transition={{ duration: 0.2 }}
+        className="w-full max-w-3xl overflow-hidden rounded-2xl bg-[var(--card)] shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-start justify-between gap-4 border-b border-[var(--border)] p-4">
+          <div className="min-w-0">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--primary)]">
+              {TYPE_LABELS[event.type]} · Replay
+            </p>
+            <h3 className="mt-1 truncate font-display text-lg font-semibold tracking-tight">
+              {event.title}
+            </h3>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Fermer"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[var(--muted-foreground)] transition-colors hover:bg-[var(--secondary)] hover:text-[var(--foreground)]"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="p-4">
+          <VideoEmbed url={event.replay_url ?? ''} title={event.title} />
+          {event.description && (
+            <p className="mt-4 whitespace-pre-line text-sm leading-relaxed text-[var(--muted-foreground)]">
+              {event.description}
+            </p>
+          )}
+        </div>
+      </motion.div>
+    </motion.div>
   )
 }
 
