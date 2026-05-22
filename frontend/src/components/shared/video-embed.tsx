@@ -22,10 +22,16 @@ export function VideoEmbed({
   url,
   title = 'Vidéo',
   className,
+  autoplay = false,
+  loop = false,
 }: {
   url: string
   title?: string
   className?: string
+  /** Démarrage automatique. Forcé en muet : les navigateurs bloquent
+   *  l'autoplay avec son. Le visiteur active le son via les contrôles. */
+  autoplay?: boolean
+  loop?: boolean
 }) {
   const provider = getVideoProvider(url)
 
@@ -44,10 +50,14 @@ export function VideoEmbed({
   if (provider === 'vimeo') {
     const ids = extractVimeoId(url)!
     const hashParam = ids.hash ? `&h=${ids.hash}` : ''
-    src = `https://player.vimeo.com/video/${ids.id}?dnt=1&playsinline=1${hashParam}`
+    const autoParam = autoplay ? '&autoplay=1&muted=1' : ''
+    const loopParam = loop ? '&loop=1' : ''
+    src = `https://player.vimeo.com/video/${ids.id}?dnt=1&playsinline=1${autoParam}${loopParam}${hashParam}`
   } else if (provider === 'youtube') {
     const id = extractYouTubeId(url)!
-    src = `https://www.youtube-nocookie.com/embed/${id}?rel=0&playsinline=1`
+    const autoParam = autoplay ? '&autoplay=1&mute=1' : ''
+    const loopParam = loop ? `&loop=1&playlist=${id}` : ''
+    src = `https://www.youtube-nocookie.com/embed/${id}?rel=0&playsinline=1${autoParam}${loopParam}`
   } else {
     const id = extractDriveId(url)!
     src = driveEmbedUrl(id)
