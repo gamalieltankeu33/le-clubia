@@ -120,6 +120,7 @@ export function Hero() {
                 url={VSL_VIDEO_URL}
                 title="Le Club IA — présentation"
                 className="rounded-none"
+                poster="/landing/vsl-poster.jpg"
               />
             </div>
           </div>

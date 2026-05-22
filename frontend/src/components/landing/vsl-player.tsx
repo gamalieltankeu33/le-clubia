@@ -33,10 +33,13 @@ export function VslPlayer({
   url,
   title = 'Vidéo',
   className,
+  poster,
 }: {
   url: string
   title?: string
   className?: string
+  /** Image d'aperçu (miniature) affichée avant le clic. */
+  poster?: string
 }) {
   const [playing, setPlaying] = useState(false)
 
@@ -64,28 +67,35 @@ export function VslPlayer({
           type="button"
           onClick={() => setPlaying(true)}
           aria-label="Lire la vidéo"
-          className="group absolute inset-0 flex flex-col items-center justify-center gap-5"
+          className="group absolute inset-0 flex flex-col items-center justify-center gap-4"
         >
-          {/* Texture de fond */}
-          <span aria-hidden="true" className="absolute inset-0 opacity-40">
-            <span className="absolute left-1/4 top-1/3 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--primary)]/40 blur-[100px]" />
-            <span className="absolute right-1/4 top-2/3 h-80 w-80 -translate-y-1/2 rounded-full bg-[var(--accent)]/20 blur-[100px]" />
-          </span>
+          {poster ? (
+            <img
+              src={poster}
+              alt="Aperçu de la vidéo de présentation du Club IA"
+              className="absolute inset-0 h-full w-full object-cover"
+              loading="eager"
+            />
+          ) : (
+            <span aria-hidden="true" className="absolute inset-0 opacity-40">
+              <span className="absolute left-1/4 top-1/3 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--primary)]/40 blur-[100px]" />
+              <span className="absolute right-1/4 top-2/3 h-80 w-80 -translate-y-1/2 rounded-full bg-[var(--accent)]/20 blur-[100px]" />
+            </span>
+          )}
+          {/* Voile sombre : contraste du bouton + du texte sur la miniature. */}
           <span
             aria-hidden="true"
-            className="absolute inset-0 opacity-[0.05]"
-            style={{
-              backgroundImage:
-                'linear-gradient(to right, white 1px, transparent 1px), linear-gradient(to bottom, white 1px, transparent 1px)',
-              backgroundSize: '64px 64px',
-            }}
+            className="absolute inset-0 bg-black/30 transition-colors group-hover:bg-black/40"
           />
 
-          <span className="relative flex h-20 w-20 items-center justify-center rounded-full bg-white shadow-2xl shadow-white/20 transition-transform group-hover:scale-105 sm:h-24 sm:w-24">
+          <span className="relative flex h-20 w-20 items-center justify-center rounded-full bg-white shadow-2xl shadow-black/40 transition-transform group-hover:scale-105 sm:h-24 sm:w-24">
             <Play className="ml-1 h-8 w-8 fill-[#0A0A0A] text-[#0A0A0A] sm:h-10 sm:w-10" />
           </span>
-          <span className="relative text-base font-semibold tracking-tight text-white sm:text-lg">
-            Regarder la vidéo
+          <span
+            className="relative text-base font-semibold tracking-tight text-white sm:text-lg"
+            style={{ textShadow: '0 2px 8px rgba(0,0,0,0.65)' }}
+          >
+            Cliquez pour lire la vidéo
           </span>
         </button>
       )}
