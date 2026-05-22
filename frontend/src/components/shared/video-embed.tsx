@@ -52,7 +52,9 @@ export function VideoEmbed({
     const hashParam = ids.hash ? `&h=${ids.hash}` : ''
     const autoParam = autoplay ? '&autoplay=1&muted=1' : ''
     const loopParam = loop ? '&loop=1' : ''
-    src = `https://player.vimeo.com/video/${ids.id}?dnt=1&playsinline=1${autoParam}${loopParam}${hashParam}`
+    // title/byline/portrait=0 : masque le titre, le nom de l'auteur et
+    // l'avatar superposés → lecteur épuré (même réglage que le replay).
+    src = `https://player.vimeo.com/video/${ids.id}?dnt=1&playsinline=1&title=0&byline=0&portrait=0${autoParam}${loopParam}${hashParam}`
   } else if (provider === 'youtube') {
     const id = extractYouTubeId(url)!
     const autoParam = autoplay ? '&autoplay=1&mute=1' : ''
