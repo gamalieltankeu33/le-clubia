@@ -101,7 +101,19 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     // pendant le detectSessionInUrl du flow de récupération de mot de
     // passe (PASSWORD_RECOVERY / SIGNED_IN). C'est aussi ce listener qui
     // hydratera le user si getSession() était lent.
-    supabase.auth.onAuthStateChange(async (event, newSession) => {
+    //
+    // ⚠️ DEADLOCK supabase-js : ce callback est invoqué PENDANT que le
+    // verrou d'auth interne est tenu (ex. à l'intérieur de
+    // signInWithPassword / signUp). Tout appel Supabase qui réclame ce
+    // verrou — et supabase.rpc() en a besoin pour lire le token via
+    // getSession() — provoque une attente circulaire : signInWithPassword
+    // attend la fin du callback, qui attend la RPC, qui attend le verrou
+    // tenu par signInWithPassword. Conséquence observée : au login d'un
+    // nouveau membre (connexion fraîche), le spinner tourne à l'infini.
+    // Fix (reco officielle Supabase) : on met le user à jour de façon
+    // synchrone (aucun verrou requis) et on DÉFÈRE l'appel RPC hors du
+    // callback via setTimeout(…, 0), une fois le verrou relâché.
+    supabase.auth.onAuthStateChange((event, newSession) => {
       if (event === 'SIGNED_OUT') {
         clearAuthSideEffects()
         set({ user: null, profile: null, subscription: null })
@@ -120,15 +132,21 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         event === 'INITIAL_SESSION' ||
         event === 'PASSWORD_RECOVERY'
       ) {
-        try {
-          const { profile, subscription } = await fetchProfileAndSubscription(
-            newSession.user.id,
-          )
-          set({ user: newSession.user, profile, subscription })
-        } catch {
-          set({ user: newSession.user })
-        }
-        markReady()
+        // user dispo immédiatement (pas de verrou nécessaire).
+        set({ user: newSession.user })
+        // profil + abonnement : déférés HORS du verrou pour éviter le
+        // deadlock (cf. note ci-dessus).
+        setTimeout(async () => {
+          try {
+            const { profile, subscription } = await fetchProfileAndSubscription(
+              newSession.user.id,
+            )
+            set({ profile, subscription })
+          } catch {
+            /* on garde au moins le user hydraté */
+          }
+          markReady()
+        }, 0)
       }
     })
 
