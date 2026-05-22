@@ -4,13 +4,15 @@ import {
   ArrowRight,
   GraduationCap,
   Newspaper,
-  Play,
   Sparkles,
 } from 'lucide-react'
+import { VideoEmbed } from '@/components/shared/video-embed'
 import { Eyebrow } from './eyebrow'
 import { Reveal } from './reveal'
 
-const HERO_VIDEO_URL = import.meta.env.VITE_HERO_VIDEO_URL as string | undefined
+// Vidéo VSL (Vimeo) affichée dans le hero de la landing.
+// Lecture au clic, son activé (comportement par défaut du lecteur Vimeo).
+const VSL_VIDEO_URL = 'https://vimeo.com/1194815447'
 
 const STATS = [
   { icon: GraduationCap, label: 'Catalogue de formations' },
@@ -112,72 +114,17 @@ export function Hero() {
               className="absolute -inset-10 -z-10 rounded-[3rem] bg-gradient-to-br from-[var(--primary)]/20 via-transparent to-[var(--accent)]/10 blur-[80px]"
             />
             
-            <div className="group relative overflow-hidden rounded-[2rem] border border-[var(--border)] bg-black shadow-[0_32px_64px_-16px_rgba(0,0,0,0.3)] transition-transform duration-700 hover:scale-[1.01]">
-              <div className="absolute inset-0 z-10 pointer-events-none border border-white/10 rounded-[2rem]" />
-              
-              {HERO_VIDEO_URL ? (
-                <video
-                  src={HERO_VIDEO_URL}
-                  controls
-                  playsInline
-                  preload="metadata"
-                  className="aspect-video w-full"
-                />
-              ) : (
-                <VideoPlaceholder />
-              )}
+            <div className="group relative overflow-hidden rounded-[2rem] border border-[var(--border)] bg-black shadow-[0_32px_64px_-16px_rgba(0,0,0,0.3)]">
+              <div className="absolute inset-0 z-10 pointer-events-none rounded-[2rem] border border-white/10" />
+              <VideoEmbed
+                url={VSL_VIDEO_URL}
+                title="Le Club IA — présentation"
+                className="rounded-none"
+              />
             </div>
           </div>
         </Reveal>
       </div>
     </section>
-  )
-}
-
-function VideoPlaceholder() {
-  return (
-    <div className="relative aspect-video w-full overflow-hidden bg-[#0A0A0A]">
-      {/* Background visual texture */}
-      <div className="absolute inset-0 opacity-40">
-        <div className="absolute left-1/4 top-1/3 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--primary)]/40 blur-[100px]" />
-        <div className="absolute right-1/4 top-2/3 h-80 w-80 -translate-y-1/2 rounded-full bg-[var(--accent)]/20 blur-[100px]" />
-      </div>
-      
-      {/* Grid pattern */}
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 opacity-[0.05]"
-        style={{
-          backgroundImage:
-            'linear-gradient(to right, white 1px, transparent 1px), linear-gradient(to bottom, white 1px, transparent 1px)',
-          backgroundSize: '64px 64px',
-        }}
-      />
-
-      <div className="relative flex h-full w-full flex-col items-center justify-center gap-6">
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          type="button"
-          aria-label="Lecture"
-          disabled
-          className="flex h-24 w-24 items-center justify-center rounded-full bg-white shadow-2xl shadow-white/20 backdrop-blur transition-all sm:h-32 sm:w-32"
-        >
-          <Play className="ml-2 h-10 w-10 fill-[#0A0A0A] text-[#0A0A0A] sm:h-12 sm:w-12" />
-        </motion.button>
-        <div className="flex flex-col items-center gap-2">
-          <p className="text-lg font-semibold tracking-tight text-white sm:text-xl">
-            Voir la démo en 90 secondes
-          </p>
-          <div className="flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-white/60 backdrop-blur">
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75"></span>
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500"></span>
-            </span>
-            Démo interactive
-          </div>
-        </div>
-      </div>
-    </div>
   )
 }
