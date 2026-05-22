@@ -113,7 +113,6 @@ serve(async (req: Request) => {
   const articleUrl = `${APP_URL}/app/actualites/${article.slug}`
   let sent = 0
   let failed = 0
-  const errSamples: string[] = []
   const BATCH = 10
   for (let i = 0; i < targets.length; i += BATCH) {
     const slice = targets.slice(i, i + BATCH)
@@ -142,9 +141,6 @@ serve(async (req: Request) => {
         }).then(async (res) => {
           if (!res.ok) {
             const errTxt = await res.text()
-            if (errSamples.length < 2) {
-              errSamples.push(`${res.status}: ${errTxt.slice(0, 200)}`)
-            }
             console.error(
               `[broadcast-news-email] Resend ${res.status} to=${r.email}: ${errTxt.slice(0, 300)}`,
             )
@@ -152,7 +148,7 @@ serve(async (req: Request) => {
           }
           return true
         }).catch((e) => {
-          if (errSamples.length < 2) errSamples.push(`fetch: ${String(e).slice(0, 150)}`)
+          console.error(`[broadcast-news-email] fetch KO to=${r.email}: ${String(e).slice(0, 150)}`)
           return false
         })
       }),
@@ -166,7 +162,7 @@ serve(async (req: Request) => {
   console.log(
     `[broadcast-news-email] article=${article.id} sent=${sent} failed=${failed} targets=${targets.length}`,
   )
-  return json({ ok: true, sent, failed, targets: targets.length, errors: errSamples })
+  return json({ ok: true, sent, failed, targets: targets.length })
 })
 
 function json(body: unknown, status = 200): Response {
