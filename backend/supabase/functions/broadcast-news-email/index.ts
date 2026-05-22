@@ -108,55 +108,73 @@ serve(async (req: Request) => {
     (r) => activeIds.has(r.id as string) && r.email,
   )
 
-  // 4. Envoi direct Resend par lots de 10.
+  // 4. Envoi direct Resend, en respectant la limite de débit de Resend
+  // (~2 requêtes/seconde sur le plan par défaut). On envoie par paquets
+  // de 2 espacés d'une pause, avec UNE nouvelle tentative en cas de 429
+  // (rate limit) ou d'erreur serveur 5xx — sinon un gros envoi perdrait
+  // des destinataires (cause du "1 failed" observé).
   const excerpt = stripMarkdownToText(String(article.content ?? '')).slice(0, 220)
   const articleUrl = `${APP_URL}/app/actualites/${article.slug}`
-  let sent = 0
-  let failed = 0
-  const BATCH = 10
-  for (let i = 0; i < targets.length; i += BATCH) {
-    const slice = targets.slice(i, i + BATCH)
-    const results = await Promise.allSettled(
-      slice.map((r) => {
-        const { subject, html, text } = renderNewsEmail({
-          firstName: (r.first_name as string | null) ?? '',
-          title: article.title as string,
-          excerpt,
-          url: articleUrl,
-        })
-        return fetch(RESEND_API_URL, {
+  const sleep = (ms: number) => new Promise((res) => setTimeout(res, ms))
+
+  async function sendOne(r: (typeof targets)[number]): Promise<boolean> {
+    const { subject, html, text } = renderNewsEmail({
+      firstName: (r.first_name as string | null) ?? '',
+      title: article.title as string,
+      excerpt,
+      url: articleUrl,
+    })
+    const payload = JSON.stringify({
+      from: FROM_DEFAULT,
+      to: r.email,
+      subject,
+      html,
+      text,
+      reply_to: REPLY_TO,
+    })
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const res = await fetch(RESEND_API_URL, {
           method: 'POST',
           headers: {
             Authorization: `Bearer ${resendKey}`,
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            from: FROM_DEFAULT,
-            to: r.email,
-            subject,
-            html,
-            text,
-            reply_to: REPLY_TO,
-          }),
-        }).then(async (res) => {
-          if (!res.ok) {
-            const errTxt = await res.text()
-            console.error(
-              `[broadcast-news-email] Resend ${res.status} to=${r.email}: ${errTxt.slice(0, 300)}`,
-            )
-            return false
-          }
-          return true
-        }).catch((e) => {
-          console.error(`[broadcast-news-email] fetch KO to=${r.email}: ${String(e).slice(0, 150)}`)
-          return false
+          body: payload,
         })
-      }),
-    )
+        if (res.ok) return true
+        const errTxt = await res.text()
+        if ((res.status === 429 || res.status >= 500) && attempt === 0) {
+          await sleep(1200) // backoff puis on réessaie une fois
+          continue
+        }
+        console.error(
+          `[broadcast-news-email] Resend ${res.status} to=${r.email}: ${errTxt.slice(0, 300)}`,
+        )
+        return false
+      } catch (e) {
+        if (attempt === 0) {
+          await sleep(1200)
+          continue
+        }
+        console.error(`[broadcast-news-email] fetch KO to=${r.email}: ${String(e).slice(0, 150)}`)
+        return false
+      }
+    }
+    return false
+  }
+
+  let sent = 0
+  let failed = 0
+  const CHUNK = 2
+  for (let i = 0; i < targets.length; i += CHUNK) {
+    const slice = targets.slice(i, i + CHUNK)
+    const results = await Promise.allSettled(slice.map(sendOne))
     for (const res of results) {
       if (res.status === 'fulfilled' && res.value === true) sent++
       else failed++
     }
+    if (i + CHUNK < targets.length) await sleep(1100) // ~2 envois/seconde
   }
 
   console.log(
