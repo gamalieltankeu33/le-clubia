@@ -223,41 +223,47 @@ serve(async (req: Request) => {
       }
     }
 
-    // -------- 7. Email de confirmation + bienvenue ----------------------
+    // -------- 7. Email de bienvenue (envoi DIRECT Resend) ---------------
     // Best-effort : un échec d'envoi NE doit PAS faire planter le verify.
-    // Le user a déjà payé et son abo est activé, c'est ça qui compte.
+    // Envoi DIRECT via Resend : la fonction send-email tombe en 401 pour
+    // les appels inter-fonctions depuis le passage aux nouvelles clés API.
     try {
-      const { data: profile } = await adminClient
-        .from('profiles')
-        .select('first_name')
-        .eq('id', user.id)
-        .maybeSingle()
+      const resendKey = Deno.env.get('RESEND_API_KEY') ?? ''
+      if (resendKey && user.email) {
+        const { data: profile } = await adminClient
+          .from('profiles')
+          .select('first_name')
+          .eq('id', user.id)
+          .maybeSingle()
 
-      const monthlyPrice =
-        plan?.price_xof && plan?.duration_months
-          ? Math.round(plan.price_xof / plan.duration_months)
-          : undefined
+        const { subject, html, text } = renderWelcomeEmail({
+          firstName: profile?.first_name ?? '',
+          priceEur: plan?.price_xof ?? null,
+          durationMonths,
+          periodEndIso: periodEnd.toISOString(),
+        })
 
-      await fetch(`${supabaseUrl}/functions/v1/send-email`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${supabaseServiceKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          type: 'welcome',
-          to: user.email,
-          data: {
-            member_first_name: profile?.first_name ?? '',
-            plan_display_name: plan?.display_name ?? '',
-            monthly_price_xof: monthlyPrice,
-            amount_paid_xof: plan?.price_xof,
-            duration_months: durationMonths,
-            period_end_iso: periodEnd.toISOString(),
-            reference: cartId,
+        const resp = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${resendKey}`,
+            'Content-Type': 'application/json',
           },
-        }),
-      })
+          body: JSON.stringify({
+            from: 'Le Club IA <noreply@leclub-ia.com>',
+            to: user.email,
+            subject,
+            html,
+            text,
+            reply_to: 'betterzapp@gmail.com',
+          }),
+        })
+        if (!resp.ok) {
+          console.error(
+            `[maketou-verify] welcome Resend ${resp.status}: ${(await resp.text()).slice(0, 200)}`,
+          )
+        }
+      }
     } catch (e) {
       console.error('[maketou-verify] welcome email KO (non-bloquant)', e)
     }
@@ -278,3 +284,94 @@ serve(async (req: Request) => {
   }
   return json({ status: 'failed', cartId, maketouStatus: cart.status })
 })
+
+// ---------------------------------------------------------------------------
+// Email de bienvenue (template inline, autonome, envoi direct Resend)
+// ---------------------------------------------------------------------------
+
+function escapeHtml(s: string): string {
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
+function renderWelcomeEmail(d: {
+  firstName: string
+  priceEur: number | null
+  durationMonths: number
+  periodEndIso: string
+}) {
+  const APP_URL = 'https://leclub-ia.com'
+  const dashUrl = `${APP_URL}/app/dashboard`
+  const greeting = d.firstName ? `Bienvenue ${escapeHtml(d.firstName)} !` : 'Bienvenue !'
+  const subject = '🎉 Bienvenue dans Le Club IA — ton accès est ouvert'
+  const preheader = 'Ton paiement est confirmé. Accède à ton tableau de bord.'
+  let periodEnd = ''
+  try {
+    periodEnd = new Date(d.periodEndIso).toLocaleDateString('fr-FR', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    })
+  } catch {
+    /* noop */
+  }
+  const priceLine =
+    d.priceEur != null ? `${d.priceEur} € pour ${d.durationMonths} mois` : ''
+
+  const html = `<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>${escapeHtml(subject)}</title></head>
+<body style="margin:0;padding:0;background:#FAFAF9;font-family:Inter,Arial,sans-serif;color:#0A0A0A;">
+<div style="display:none;font-size:1px;color:#FAFAF9;max-height:0;overflow:hidden;">${escapeHtml(preheader)}</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#FAFAF9;padding:32px 16px;"><tr><td align="center">
+  <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+    <tr><td align="center" style="padding-bottom:24px;">
+      <table role="presentation" cellpadding="0" cellspacing="0"><tr>
+        <td style="background:#1E40AF;color:#FFFFFF;font-family:Georgia,serif;font-weight:700;font-size:22px;padding:10px 24px;border-radius:9999px;letter-spacing:-0.02em;">leclub<span style="color:#F97316;font-weight:800;">.</span>ia</td>
+      </tr></table>
+    </td></tr>
+    <tr><td style="background:#FFFFFF;border-radius:20px;border:1px solid #E5E5E5;padding:32px;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+        <tr><td align="center" style="padding-bottom:8px;"><span style="font-size:32px;line-height:1;">🎉</span></td></tr>
+        <tr><td align="center" style="padding-bottom:8px;"><h1 style="margin:0;font-family:Georgia,serif;font-size:24px;font-weight:700;color:#0A0A0A;letter-spacing:-0.02em;">Bienvenue dans Le Club IA</h1></td></tr>
+        <tr><td align="center" style="padding-bottom:24px;"><p style="margin:0;font-size:14px;color:#737373;">Ton paiement est confirmé. Ton accès est ouvert 🚀</p></td></tr>
+        <tr><td style="font-size:15px;line-height:1.6;color:#0A0A0A;">
+          <p style="margin:0 0 12px;">${greeting}</p>
+          <p style="margin:0 0 16px;">Tu fais maintenant partie du Club. Tu as accès à <strong>toutes les formations IA</strong>, au <strong>Coach IA</strong>, à la <strong>communauté privée</strong>, à la <strong>veille hebdomadaire</strong> et au <strong>coaching live mensuel</strong>.</p>
+          ${
+            priceLine
+              ? `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#FAFAF9;border:1px solid #E5E5E5;border-radius:12px;padding:16px;margin:16px 0;"><tr><td style="font-size:14px;color:#525252;line-height:1.7;">
+            <strong style="color:#0A0A0A;">Récapitulatif</strong><br>
+            Formule : ${escapeHtml(priceLine)}${periodEnd ? `<br>Accès valable jusqu'au ${escapeHtml(periodEnd)}` : ''}
+          </td></tr></table>`
+              : ''
+          }
+        </td></tr>
+        <tr><td align="center" style="padding:24px 0 0;"><a href="${dashUrl}" style="display:inline-block;background:#1E40AF;color:#ffffff;text-decoration:none;font-weight:600;font-size:16px;padding:14px 28px;border-radius:9999px;">Accéder à mon tableau de bord</a></td></tr>
+      </table>
+    </td></tr>
+    <tr><td align="center" style="padding:24px 16px 0;">
+      <p style="margin:0;font-size:12px;color:#737373;line-height:1.6;">Une question ? Réponds simplement à cet email.</p>
+      <p style="margin:12px 0 0;font-size:11px;color:#A3A3A3;">Le Club IA — Édité par BetterZapp LLC</p>
+    </td></tr>
+  </table>
+</td></tr></table></body></html>`
+
+  const text = [
+    `Bienvenue dans Le Club IA 🎉`,
+    ``,
+    greeting,
+    ``,
+    `Ton paiement est confirmé, ton accès est ouvert.`,
+    priceLine ? `Formule : ${priceLine}${periodEnd ? ` (jusqu'au ${periodEnd})` : ''}` : ``,
+    ``,
+    `Accède à ton tableau de bord : ${dashUrl}`,
+    ``,
+    `Une question ? Réponds simplement à cet email.`,
+  ].join('\n')
+
+  return { subject, html, text }
+}
