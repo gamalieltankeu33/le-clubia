@@ -6,9 +6,9 @@ import {
   Newspaper,
   Sparkles,
 } from 'lucide-react'
-import { VideoEmbed } from '@/components/shared/video-embed'
 import { Eyebrow } from './eyebrow'
 import { Reveal } from './reveal'
+import { VslPlayer } from './vsl-player'
 
 // Vidéo VSL (Vimeo) affichée dans le hero de la landing.
 // Lecture au clic, son activé (comportement par défaut du lecteur Vimeo).
@@ -116,11 +116,10 @@ export function Hero() {
             
             <div className="group relative overflow-hidden rounded-[2rem] border border-[var(--border)] bg-black shadow-[0_32px_64px_-16px_rgba(0,0,0,0.3)]">
               <div className="absolute inset-0 z-10 pointer-events-none rounded-[2rem] border border-white/10" />
-              <VideoEmbed
+              <VslPlayer
                 url={VSL_VIDEO_URL}
                 title="Le Club IA — présentation"
                 className="rounded-none"
-                autoplay
               />
             </div>
           </div>
