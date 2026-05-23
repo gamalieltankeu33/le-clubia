@@ -13,9 +13,6 @@ import { supabase } from '@/lib/supabase'
 import { cn } from '@/lib/utils'
 import { Reveal } from '@/components/landing/reveal'
 
-const MEMBERSHIP_BLOCKED_MSG =
-  "L'accès au Club est réservé aux membres ayant un abonnement actif. Rejoins le Club pour pouvoir te connecter."
-
 export const Route = createFileRoute('/auth')({
   component: AuthPage,
 })
@@ -28,6 +25,7 @@ function AuthPage() {
   const signUp = useAuthStore((s) => s.signUp)
   const isInitialized = useAuthStore((s) => s.isInitialized)
   const user = useAuthStore((s) => s.user)
+  const profile = useAuthStore((s) => s.profile)
 
   // Par défaut signup : nouvelle plateforme = nouvelle audience.
   const [mode, setMode] = useState<AuthMode>('signup')
@@ -52,28 +50,28 @@ function AuthPage() {
     return null
   }, [])
 
-  // Route l'utilisateur authentifié vers /onboarding, /app, /checkout
-  // ou le bloque s'il n'a ni abonnement actif ni plan en attente.
-  const routeAuthenticatedUser = useCallback(async () => {
+  // Route l'utilisateur authentifié vers /onboarding, /app/dashboard,
+  // /checkout ou /abonnement (gating géré par nextRouteAfterAuth).
+  const routeAuthenticatedUser = useCallback(() => {
     const state = useAuthStore.getState()
+    // Profil pas encore hydraté : le fetch profil/abo est déféré juste
+    // après le login (anti-deadlock supabase-js). Tant qu'il n'est pas là,
+    // on ATTEND — surtout PAS de déconnexion, sinon un profile null
+    // transitoire ferait croire à tort qu'un membre actif n'est pas membre.
+    // Le useEffect ci-dessous re-déclenche dès que `profile` arrive.
+    if (!state.profile) return
     const target = nextRouteAfterAuth(state.profile, state.subscription)
-    if (target === null) {
-      // Aucun abonnement actif + aucun plan en attente → blocage strict.
-      // On déconnecte pour ne pas laisser une session "fantôme" qui
-      // ferait croire à l'utilisateur qu'il est connecté.
-      await state.signOut()
-      toast.error(MEMBERSHIP_BLOCKED_MSG, { duration: 7000 })
-      navigate({ to: '/' })
-      return
-    }
+    if (!target) return
     navigate({ to: target })
   }, [navigate])
 
-  // Auto-redirect post-OAuth (Google) ou si déjà authentifié
+  // Auto-redirect post-OAuth (Google), après login, ou si déjà authentifié.
+  // `profile` est dans les deps pour re-router dès que le profil est chargé
+  // (le user est posé avant le profil par le listener onAuthStateChange).
   useEffect(() => {
     if (!isInitialized || !user) return
-    void routeAuthenticatedUser()
-  }, [isInitialized, user, routeAuthenticatedUser])
+    routeAuthenticatedUser()
+  }, [isInitialized, user, profile, routeAuthenticatedUser])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
