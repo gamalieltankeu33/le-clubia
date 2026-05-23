@@ -67,7 +67,7 @@ export function VslPlayer({
           type="button"
           onClick={() => setPlaying(true)}
           aria-label="Lire la vidéo"
-          className="group absolute inset-0 flex flex-col items-center justify-center gap-4"
+          className="group absolute inset-0 flex flex-col items-center justify-center gap-2.5 sm:gap-4"
         >
           {poster ? (
             <img
@@ -88,11 +88,11 @@ export function VslPlayer({
             className="absolute inset-0 bg-black/30 transition-colors group-hover:bg-black/40"
           />
 
-          <span className="relative flex h-20 w-20 items-center justify-center rounded-full bg-white shadow-2xl shadow-black/40 transition-transform group-hover:scale-105 sm:h-24 sm:w-24">
-            <Play className="ml-1 h-8 w-8 fill-[#0A0A0A] text-[#0A0A0A] sm:h-10 sm:w-10" />
+          <span className="relative flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-2xl shadow-black/40 transition-transform group-hover:scale-105 sm:h-20 sm:w-20">
+            <Play className="ml-0.5 h-5 w-5 fill-[#0A0A0A] text-[#0A0A0A] sm:ml-1 sm:h-8 sm:w-8" />
           </span>
           <span
-            className="relative text-base font-semibold tracking-tight text-white sm:text-lg"
+            className="relative text-xs font-semibold tracking-tight text-white sm:text-base"
             style={{ textShadow: '0 2px 8px rgba(0,0,0,0.65)' }}
           >
             Cliquez pour lire la vidéo
