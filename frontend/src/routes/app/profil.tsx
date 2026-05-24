@@ -894,6 +894,30 @@ function AvatarUploader() {
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file || !user) return
+
+    // Garde-fou Safari iOS : certains pickers renvoient un File de
+    // taille 0 (bug connu) → on rejette avec un message clair.
+    if (file.size === 0) {
+      toast.error('Cette photo est vide. Réessaie avec une autre image.')
+      e.target.value = ''
+      return
+    }
+
+    // HEIC/HEIF (photos iPhone/iCloud) : Safari sur Mac ne convertit pas
+    // ce format de manière fiable côté navigateur, et le bucket avatars
+    // n'accepte que JPG/PNG/WebP. On rejette en amont avec un message
+    // précis au lieu d'un échec d'upload générique en silence.
+    const isHeic =
+      /image\/hei[cf]/i.test(file.type) || /\.hei[cf]$/i.test(file.name)
+    if (isHeic) {
+      toast.error(
+        "Format HEIC (iPhone) non supporté. Dans Photos → Fichier → Exporter → choisis JPG ou PNG, puis réessaie.",
+        { duration: 8000 },
+      )
+      e.target.value = ''
+      return
+    }
+
     if (file.size > MAX_AVATAR_INPUT_MB * 1024 * 1024) {
       toast.error(
         'Cette image est trop grande. Essaie une photo plus petite (max 5 Mo) ou utilise un format plus léger.',
@@ -944,7 +968,22 @@ function AvatarUploader() {
       toast.success('Photo mise à jour.')
     } catch (err) {
       console.error(err)
-      toast.error('Upload impossible. Réessaie.')
+      // Affiche la vraie erreur Storage (taille, mime, etc.) au lieu d'un
+      // toast générique : permet de diagnostiquer en un coup d'œil et
+      // évite "Upload impossible" muet en cas de fichier rejeté par le
+      // bucket (limite 2 Mo / mimes autorisés JPG-PNG-WebP).
+      const detail =
+        err instanceof Error
+          ? err.message
+          : typeof err === 'object' && err && 'message' in err
+            ? String((err as { message: unknown }).message)
+            : ''
+      toast.error(
+        detail
+          ? `Upload impossible : ${detail.slice(0, 140)}`
+          : 'Upload impossible. Réessaie.',
+        { duration: 7000 },
+      )
     } finally {
       setPhase('idle')
       if (inputRef.current) inputRef.current.value = ''
