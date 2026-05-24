@@ -958,29 +958,23 @@ function AvatarUploader() {
         return
       }
 
-      // Upload toujours sur le même path → overwrite.
-      const path = `${user.id}/avatar.jpg`
-
-      // ⚠️ Upload DIRECT via fetch (et NON via supabase.storage.upload).
-      // Pourquoi : avec le nouveau format de clé `sb_publishable_*`, le
-      // SDK supabase-js peut envoyer cette clé en Authorization au lieu
-      // du JWT du user → Storage ne décode pas → auth.uid() = null →
-      // la policy refuse avec « new row violates row-level security
-      // policy » alors que le user est bien connecté. En forçant nous-
-      // mêmes l'Authorization avec l'access_token de la session, on
-      // garantit que Storage voit bien le user et passe la RLS.
+      // ⚠️ On NE passe pas par `supabase.storage.upload()` parce que sur
+      // ce projet, Storage server ne propage pas le `sub` du JWT vers
+      // Postgres au moment de l'INSERT → `auth.uid()` = null → la policy
+      // refuse avec « new row violates row-level security policy »
+      // alors que le user est bien connecté (vérifié par simulation SQL).
+      // On passe donc par l'edge function `upload-avatar` qui valide le
+      // JWT côté serveur puis upload avec la service_role (bypass RLS).
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string
       const apiKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string
       const uploadResp = await fetch(
-        `${supabaseUrl}/storage/v1/object/avatars/${path}`,
+        `${supabaseUrl}/functions/v1/upload-avatar`,
         {
           method: 'POST',
           headers: {
             apikey: apiKey,
             Authorization: `Bearer ${sess.session.access_token}`,
             'Content-Type': 'image/jpeg',
-            'x-upsert': 'true',
-            'cache-control': '3600',
           },
           body: compressed,
         },
@@ -988,13 +982,18 @@ function AvatarUploader() {
       if (!uploadResp.ok) {
         const errBody = await uploadResp.text()
         throw new Error(
-          `Storage ${uploadResp.status}: ${errBody.slice(0, 200)}`,
+          `upload-avatar ${uploadResp.status}: ${errBody.slice(0, 200)}`,
         )
       }
-
-      // URL publique : déterministe pour un bucket public, pas besoin
-      // de passer par le SDK.
-      const cacheBusted = `${supabaseUrl}/storage/v1/object/public/avatars/${path}?v=${Date.now()}`
+      const uploadJson = (await uploadResp.json()) as {
+        ok?: boolean
+        url?: string
+        error?: string
+      }
+      if (!uploadJson.ok || !uploadJson.url) {
+        throw new Error(uploadJson.error || 'Réponse upload invalide.')
+      }
+      const cacheBusted = uploadJson.url
 
       const { error: updErr } = await supabase
         .from('profiles')
