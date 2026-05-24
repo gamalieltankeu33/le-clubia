@@ -206,23 +206,41 @@ serve(async (req: Request) => {
     return json({ error: 'Réponse paiement incomplète.' }, 502)
   }
 
-  // -------- 6. Crée la subscription "incomplete" ------------------------
-  // On insère systématiquement une nouvelle ligne. Les éventuels paniers
-  // abandonnés des tentatives précédentes restent en `incomplete` (ils
-  // seront ignorés par is_active_member). Le verify prendra la sub la
-  // plus récente avec maketou_cart_id non null.
-  const { error: insertErr } = await adminClient.from('subscriptions').insert({
-    user_id: user.id,
-    plan: 'member',
-    plan_id: body.planId,
-    status: 'incomplete',
-    maketou_cart_id: data.cart.id,
-  })
+  // -------- 6. Crée/réutilise la subscription "incomplete" --------------
+  // Idempotent : si l'utilisateur a déjà une subscription `incomplete`
+  // (clic répété, retour arrière, double-soumission), on la met à jour
+  // avec le nouveau panier au lieu d'empiler des lignes en double + des
+  // paniers Maketou orphelins. Sinon, on insère une nouvelle ligne.
+  const { data: existingIncomplete } = await adminClient
+    .from('subscriptions')
+    .select('id')
+    .eq('user_id', user.id)
+    .eq('status', 'incomplete')
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
 
-  if (insertErr) {
-    // Non bloquant : on log + on continue. Le user peut quand même
-    // payer ; au pire le verify fallback sur le cartId passé en query.
-    console.error('[maketou-checkout] insert subscription KO', insertErr)
+  if (existingIncomplete?.id) {
+    const { error: updErr } = await adminClient
+      .from('subscriptions')
+      .update({ plan_id: body.planId, maketou_cart_id: data.cart.id })
+      .eq('id', existingIncomplete.id)
+    if (updErr) {
+      console.error('[maketou-checkout] update incomplete sub KO', updErr)
+    }
+  } else {
+    const { error: insertErr } = await adminClient.from('subscriptions').insert({
+      user_id: user.id,
+      plan: 'member',
+      plan_id: body.planId,
+      status: 'incomplete',
+      maketou_cart_id: data.cart.id,
+    })
+    if (insertErr) {
+      // Non bloquant : on log + on continue. Le user peut quand même
+      // payer ; au pire le verify fallback sur le cartId passé en query.
+      console.error('[maketou-checkout] insert subscription KO', insertErr)
+    }
   }
 
   // -------- 7. Retourne l'URL de paiement -------------------------------

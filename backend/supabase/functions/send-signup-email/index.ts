@@ -78,34 +78,50 @@ serve(async (req: Request) => {
 
   const { subject, html, text } = renderTemplate(firstName)
 
-  try {
-    const res = await fetch(RESEND_API_URL, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${resendKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from: FROM_DEFAULT,
-        to: user.email,
-        subject,
-        html,
-        text,
-        reply_to: REPLY_TO,
-      }),
-    })
-    if (!res.ok) {
+  // Envoi avec réessai : lors d'un afflux d'inscriptions, Resend limite
+  // le débit (~2 req/s) et renvoie 429. Sans réessai, l'email serait
+  // perdu. On retente jusqu'à 3 fois avec backoff sur 429 / 5xx.
+  const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
+  const payload = JSON.stringify({
+    from: FROM_DEFAULT,
+    to: user.email,
+    subject,
+    html,
+    text,
+    reply_to: REPLY_TO,
+  })
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const res = await fetch(RESEND_API_URL, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${resendKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: payload,
+      })
+      if (res.ok) {
+        const data = (await res.json()) as { id?: string }
+        console.log(`[send-signup-email] sent to=${user.email} id=${data.id}`)
+        return json({ ok: true, id: data.id })
+      }
       const txt = await res.text()
+      if ((res.status === 429 || res.status >= 500) && attempt < 2) {
+        await sleep(700 * (attempt + 1))
+        continue
+      }
       console.warn(`[send-signup-email] Resend ${res.status}: ${txt.slice(0, 200)}`)
       return json({ ok: false, error: `Resend ${res.status}` })
+    } catch (e) {
+      if (attempt < 2) {
+        await sleep(700 * (attempt + 1))
+        continue
+      }
+      console.error('[send-signup-email] fetch Resend KO', e)
+      return json({ ok: false, error: 'Service email injoignable.' })
     }
-    const data = (await res.json()) as { id?: string }
-    console.log(`[send-signup-email] sent to=${user.email} id=${data.id}`)
-    return json({ ok: true, id: data.id })
-  } catch (e) {
-    console.error('[send-signup-email] fetch Resend KO', e)
-    return json({ ok: false, error: 'Service email injoignable.' })
   }
+  return json({ ok: false, error: 'Service email injoignable.' })
 })
 
 // ---------------------------------------------------------------------------

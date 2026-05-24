@@ -243,25 +243,36 @@ serve(async (req: Request) => {
           periodEndIso: periodEnd.toISOString(),
         })
 
-        const resp = await fetch('https://api.resend.com/emails', {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${resendKey}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            from: 'Le Club IA <noreply@leclub-ia.com>',
-            to: user.email,
-            subject,
-            html,
-            text,
-            reply_to: 'betterzapp@gmail.com',
-          }),
+        const payload = JSON.stringify({
+          from: 'Le Club IA <noreply@leclub-ia.com>',
+          to: user.email,
+          subject,
+          html,
+          text,
+          reply_to: 'betterzapp@gmail.com',
         })
-        if (!resp.ok) {
+        // Réessai anti-429 : en cas d'afflux de paiements simultanés,
+        // Resend peut limiter le débit. On retente jusqu'à 3 fois.
+        const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
+        for (let attempt = 0; attempt < 3; attempt++) {
+          const resp = await fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${resendKey}`,
+              'Content-Type': 'application/json',
+            },
+            body: payload,
+          })
+          if (resp.ok) break
+          const errTxt = await resp.text()
+          if ((resp.status === 429 || resp.status >= 500) && attempt < 2) {
+            await sleep(700 * (attempt + 1))
+            continue
+          }
           console.error(
-            `[maketou-verify] welcome Resend ${resp.status}: ${(await resp.text()).slice(0, 200)}`,
+            `[maketou-verify] welcome Resend ${resp.status}: ${errTxt.slice(0, 200)}`,
           )
+          break
         }
       }
     } catch (e) {
@@ -354,7 +365,8 @@ function renderWelcomeEmail(d: {
       </table>
     </td></tr>
     <tr><td align="center" style="padding:24px 16px 0;">
-      <p style="margin:0;font-size:12px;color:#737373;line-height:1.6;">Une question ? Réponds simplement à cet email.</p>
+      <p style="margin:0;font-size:12px;color:#737373;line-height:1.6;">Pour revenir plus tard, connecte-toi avec ton email et ton mot de passe : <a href="${APP_URL}/auth" style="color:#1E40AF;text-decoration:underline;font-weight:600;">se connecter à mon espace</a></p>
+      <p style="margin:10px 0 0;font-size:12px;color:#737373;line-height:1.6;">Une question ? Réponds simplement à cet email.</p>
       <p style="margin:12px 0 0;font-size:11px;color:#A3A3A3;">Le Club IA — Édité par BetterZapp LLC</p>
     </td></tr>
   </table>
@@ -369,6 +381,8 @@ function renderWelcomeEmail(d: {
     priceLine ? `Formule : ${priceLine}${periodEnd ? ` (jusqu'au ${periodEnd})` : ''}` : ``,
     ``,
     `Accède à ton tableau de bord : ${dashUrl}`,
+    ``,
+    `Pour revenir plus tard, connecte-toi : ${APP_URL}/auth`,
     ``,
     `Une question ? Réponds simplement à cet email.`,
   ].join('\n')
