@@ -20,7 +20,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { AvatarDisplay } from '@/components/avatar-display'
 import { CardElite } from '@/components/shared/card-elite'
 import { MfaSection } from '@/components/profile/mfa-section'
-import { supabase } from '@/lib/supabase'
+import { supabase, ensureFreshSession } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/auth-store'
 import { useCoachStore } from '@/stores/coach-store'
 import { INTERESTS } from '@/lib/interests'
@@ -944,6 +944,20 @@ function AvatarUploader() {
       }
 
       setPhase('uploading')
+
+      // Refresh proactif du JWT AVANT l'upload. Safari notamment a un
+      // verrou d'auth-js parfois bloqué en arrière-plan : si on uploade
+      // dans cette fenêtre, supabase-js attache un access_token vide →
+      // Storage traite la requête en anon → RLS denial avec le message
+      // « new row violates row-level security policy ». getSession()
+      // acquiert le lock + refresh proprement.
+      await ensureFreshSession()
+      const { data: sess } = await supabase.auth.getSession()
+      if (!sess.session || sess.session.user.id !== user.id) {
+        toast.error('Session expirée. Reconnecte-toi puis réessaie.')
+        return
+      }
+
       // Upload toujours sur le même path → overwrite. On bust le cache via ?v=
       const path = `${user.id}/avatar.jpg`
       const { error } = await supabase.storage
