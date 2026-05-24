@@ -958,19 +958,43 @@ function AvatarUploader() {
         return
       }
 
-      // Upload toujours sur le même path → overwrite. On bust le cache via ?v=
+      // Upload toujours sur le même path → overwrite.
       const path = `${user.id}/avatar.jpg`
-      const { error } = await supabase.storage
-        .from('avatars')
-        .upload(path, compressed, {
-          contentType: 'image/jpeg',
-          upsert: true,
-          cacheControl: '3600',
-        })
-      if (error) throw error
 
-      const { data } = supabase.storage.from('avatars').getPublicUrl(path)
-      const cacheBusted = `${data.publicUrl}?v=${Date.now()}`
+      // ⚠️ Upload DIRECT via fetch (et NON via supabase.storage.upload).
+      // Pourquoi : avec le nouveau format de clé `sb_publishable_*`, le
+      // SDK supabase-js peut envoyer cette clé en Authorization au lieu
+      // du JWT du user → Storage ne décode pas → auth.uid() = null →
+      // la policy refuse avec « new row violates row-level security
+      // policy » alors que le user est bien connecté. En forçant nous-
+      // mêmes l'Authorization avec l'access_token de la session, on
+      // garantit que Storage voit bien le user et passe la RLS.
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string
+      const apiKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string
+      const uploadResp = await fetch(
+        `${supabaseUrl}/storage/v1/object/avatars/${path}`,
+        {
+          method: 'POST',
+          headers: {
+            apikey: apiKey,
+            Authorization: `Bearer ${sess.session.access_token}`,
+            'Content-Type': 'image/jpeg',
+            'x-upsert': 'true',
+            'cache-control': '3600',
+          },
+          body: compressed,
+        },
+      )
+      if (!uploadResp.ok) {
+        const errBody = await uploadResp.text()
+        throw new Error(
+          `Storage ${uploadResp.status}: ${errBody.slice(0, 200)}`,
+        )
+      }
+
+      // URL publique : déterministe pour un bucket public, pas besoin
+      // de passer par le SDK.
+      const cacheBusted = `${supabaseUrl}/storage/v1/object/public/avatars/${path}?v=${Date.now()}`
 
       const { error: updErr } = await supabase
         .from('profiles')
