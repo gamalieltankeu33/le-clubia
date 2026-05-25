@@ -3,6 +3,7 @@ import type { User } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 import { queryClient } from '@/lib/query-client'
 import type { Profile, Subscription } from '@/lib/database.types'
+import { setSentryUser } from '@/lib/sentry'
 import { useNotificationsStore } from './notifications-store'
 import { useCoachStore } from './coach-store'
 
@@ -27,6 +28,7 @@ function clearAuthSideEffects() {
   queryClient.clear()
   useNotificationsStore.getState().reset()
   useCoachStore.getState().reset()
+  setSentryUser(null)
 }
 
 interface AuthState {
@@ -134,6 +136,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       ) {
         // user dispo immédiatement (pas de verrou nécessaire).
         set({ user: newSession.user })
+        // Sentry connaît maintenant l'identité → quand ce user plantera,
+        // on saura qui c'est dans le rapport d'erreur.
+        setSentryUser({ id: newSession.user.id, email: newSession.user.email })
         // profil + abonnement : déférés HORS du verrou pour éviter le
         // deadlock (cf. note ci-dessus).
         setTimeout(async () => {

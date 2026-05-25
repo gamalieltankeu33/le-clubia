@@ -2,6 +2,12 @@
 // que supabase-js ne nettoie le hash de l'URL (cf. recovery-flag.ts).
 import './lib/recovery-flag'
 
+// Initialisation Sentry — au plus tôt pour capturer toute erreur, même
+// celle qui surviendrait pendant le bootstrap. No-op si VITE_SENTRY_DSN
+// n'est pas configurée ou si on est en dev.
+import { initSentry } from './lib/sentry'
+initSentry()
+
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { RouterProvider, createRouter } from '@tanstack/react-router'
