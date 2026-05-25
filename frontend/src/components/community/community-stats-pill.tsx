@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { motion } from 'framer-motion'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/auth-store'
 import { cn } from '@/lib/utils'
@@ -80,40 +81,63 @@ export function CommunityStatsPill({ className }: { className?: string }) {
   // (au minimum le user courant), pas « 0 » qui serait trompeur.
   const displayedOnline = onlineCount > 0 ? onlineCount : 1
   const total = totalQuery.data
+  // Format fr-FR : 1247 → « 1 247 » (espace insécable fin), naturel à
+  // l'œil et conforme à la convention francophone.
+  const totalLabel =
+    total != null ? total.toLocaleString('fr-FR').replace(/\s/g, ' ') : null
 
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0, y: 4 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, ease: 'easeOut' }}
       className={cn(
         'mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[var(--muted-foreground)] sm:text-sm',
         className,
       )}
     >
-      {total != null && (
-        <span className="inline-flex items-center gap-1.5">
-          <span
-            aria-hidden="true"
-            className="h-1 w-1 rounded-full bg-[var(--muted-foreground)]/40"
-          />
-          <span>
-            <strong className="font-semibold text-[var(--foreground)]">
-              {total}
-            </strong>{' '}
-            {total === 1 ? 'membre' : 'membres'}
-          </span>
+      {/* Total membres : skeleton tant que la RPC charge (évite un saut
+          de texte quand la donnée arrive). Caché complètement si la RPC
+          n'existe pas encore (migration 0054 non appliquée). */}
+      {totalQuery.isLoading ? (
+        <span
+          aria-hidden="true"
+          className="inline-flex items-center gap-1.5"
+        >
+          <span className="h-1 w-1 rounded-full bg-[var(--muted-foreground)]/40" />
+          <span className="inline-block h-3 w-20 animate-pulse rounded bg-[var(--muted-foreground)]/15" />
         </span>
+      ) : (
+        total != null && (
+          <span className="inline-flex items-center gap-1.5">
+            <span
+              aria-hidden="true"
+              className="h-1 w-1 rounded-full bg-[var(--muted-foreground)]/40"
+            />
+            <span>
+              <strong className="font-semibold text-[var(--foreground)] tabular-nums">
+                {totalLabel}
+              </strong>{' '}
+              {total === 1 ? 'membre' : 'membres'}
+            </span>
+          </span>
+        )
       )}
-      <span className="inline-flex items-center gap-1.5">
+      <span
+        className="inline-flex items-center gap-1.5"
+        title="Membres actuellement connectés à la communauté"
+      >
         <span aria-hidden="true" className="relative flex h-2 w-2">
           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
           <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
         </span>
         <span>
-          <strong className="font-semibold text-[var(--foreground)]">
+          <strong className="font-semibold text-[var(--foreground)] tabular-nums">
             {displayedOnline}
           </strong>{' '}
           en ligne
         </span>
       </span>
-    </div>
+    </motion.div>
   )
 }
