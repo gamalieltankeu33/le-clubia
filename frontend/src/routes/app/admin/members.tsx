@@ -131,13 +131,17 @@ const PLAN_LABELS: Record<string, string> = {
   annual: 'Annuel',
   semestrial: '6 mois',
   legacy_annual: 'Legacy 79k',
+  trial: 'Essai 1 mois',
 }
 
 const PLAN_DURATION_MONTHS: Record<string, number> = {
   annual: 12,
   semestrial: 6,
   legacy_annual: 12,
+  trial: 1,
 }
+
+type ActivatePlanId = 'annual' | 'semestrial' | 'legacy_annual' | 'trial'
 
 function AdminMembersPage() {
   const queryClient = useQueryClient()
@@ -244,8 +248,31 @@ function AdminMembersPage() {
   const activateMutation = useMutation({
     mutationFn: async (input: {
       member: MemberRow
-      planId: 'annual' | 'semestrial' | 'legacy_annual'
+      planId: ActivatePlanId
     }) => {
+      // Plan Découverte : on délègue à l'edge function `admin-activate-trial`
+      // qui upsert la sub, seed le suivi nurture (stage=1) et déclenche
+      // l'email de bienvenue + la séquence J+7/J+21/J+27/J+30 via cron.
+      if (input.planId === 'trial') {
+        const { data, error } = await supabase.functions.invoke(
+          'admin-activate-trial',
+          { body: { email: input.member.email } },
+        )
+        if (error) {
+          type Ctx = { context?: { json?: () => Promise<{ error?: string }> } }
+          let msg = error.message
+          try {
+            const ctx = error as unknown as Ctx
+            const body = await ctx.context?.json?.()
+            if (body?.error) msg = body.error
+          } catch {
+            /* ignore */
+          }
+          throw new Error(msg)
+        }
+        return data as { ok: boolean; email_sent: boolean }
+      }
+
       const months = PLAN_DURATION_MONTHS[input.planId] ?? 12
       const start = new Date()
       const end = new Date(start)
@@ -271,18 +298,33 @@ function AdminMembersPage() {
         })
         if (error) throw error
       }
+      return null
     },
-    onSuccess: (_data, vars) => {
-      toast.success(
-        `Abonnement activé : ${PLAN_LABELS[vars.planId] ?? vars.planId}.`,
-      )
+    onSuccess: (data, vars) => {
+      if (vars.planId === 'trial') {
+        const sent =
+          data && typeof data === 'object' && 'email_sent' in data
+            ? (data as { email_sent: boolean }).email_sent
+            : false
+        toast.success(
+          sent
+            ? 'Plan Découverte activé — email de bienvenue envoyé.'
+            : 'Plan Découverte activé (envoi email échoué — voir logs).',
+          { duration: 7000 },
+        )
+      } else {
+        toast.success(
+          `Abonnement activé : ${PLAN_LABELS[vars.planId] ?? vars.planId}.`,
+        )
+      }
       queryClient.invalidateQueries({ queryKey: ['admin-members'] })
       queryClient.invalidateQueries({ queryKey: ['admin-stats'] })
       setActivatingMember(null)
     },
     onError: (err) => {
       console.error('[admin-members] activate error:', err)
-      toast.error('Activation impossible. Réessaie.')
+      const msg = err instanceof Error ? err.message : 'Activation impossible.'
+      toast.error(msg)
     },
   })
 
@@ -748,7 +790,9 @@ function PlanCell({
       ? 'bg-[var(--primary)]/10 text-[var(--primary)]'
       : planId === 'semestrial'
         ? 'bg-[var(--accent)]/15 text-[var(--accent)]'
-        : 'bg-amber-100 text-amber-800'
+        : planId === 'trial'
+          ? 'bg-blue-100 text-blue-800'
+          : 'bg-amber-100 text-amber-800'
   return (
     <div className="flex items-center gap-2">
       <span
@@ -779,21 +823,20 @@ function ActivateSubscriptionDialog({
 }: {
   member: MemberRow | null
   onClose: () => void
-  onConfirm: (planId: 'annual' | 'semestrial' | 'legacy_annual') => void
+  onConfirm: (planId: ActivatePlanId) => void
   submitting: boolean
 }) {
   // Pré-sélection : 1) plan actuel s'il existe, 2) plan désiré au signup,
   // 3) annual par défaut (plan recommandé).
-  const [selectedPlanId, setSelectedPlanId] = useState<
-    'annual' | 'semestrial' | 'legacy_annual'
-  >('annual')
+  const [selectedPlanId, setSelectedPlanId] = useState<ActivatePlanId>('annual')
 
   useEffect(() => {
     if (!member) return
     if (
       member.plan_id === 'annual' ||
       member.plan_id === 'semestrial' ||
-      member.plan_id === 'legacy_annual'
+      member.plan_id === 'legacy_annual' ||
+      member.plan_id === 'trial'
     ) {
       setSelectedPlanId(member.plan_id)
       return
@@ -904,9 +947,21 @@ function ActivateSubscriptionDialog({
               onChange={() => setSelectedPlanId('legacy_annual')}
               disabled={submitting}
             />
+            <PlanRadio
+              id="trial"
+              label="Essai 1 mois — 30 €"
+              hint="Plan Découverte · email de bienvenue + relances J+7 / J+21 / J+27 / J+30"
+              checked={selectedPlanId === 'trial'}
+              onChange={() => setSelectedPlanId('trial')}
+              disabled={submitting}
+            />
 
             <p className="pt-2 text-xs text-[var(--muted-foreground)]">
-              Renouvellement calculé&nbsp;:{' '}
+              {selectedPlanId === 'trial' ? (
+                <>Fin de l'essai&nbsp;: </>
+              ) : (
+                <>Renouvellement calculé&nbsp;: </>
+              )}
               <strong>
                 {computedEnd.toLocaleDateString('fr-FR', {
                   day: 'numeric',

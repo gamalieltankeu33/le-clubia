@@ -35,7 +35,6 @@ import {
 import { Button } from '@/components/ui/button'
 import { supabase } from '@/lib/supabase'
 import { InitialsAvatar } from '@/components/initials-avatar'
-import { TrialActivationCard } from '@/components/admin/trial-activation-card'
 import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute('/app/admin/')({
@@ -502,16 +501,6 @@ function AdminDashboardPage() {
             })}
           </div>
         </ActivityCard>
-      </section>
-
-      {/* Actions rapides */}
-      <section className="mt-12">
-        <h2 className="font-display text-xl font-semibold tracking-tight">
-          Actions rapides
-        </h2>
-        <div className="mt-5 grid gap-4 lg:grid-cols-2">
-          <TrialActivationCard />
-        </div>
       </section>
 
       {/* Raccourcis admin */}

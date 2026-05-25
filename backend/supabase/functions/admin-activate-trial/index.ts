@@ -95,45 +95,52 @@ Deno.serve(async (req: Request) => {
     )
   }
 
-  // 4. Vérifier qu'il n'y a pas déjà une sub active.
-  const { data: existingActive } = await adminClient
-    .from('subscriptions')
-    .select('id, status, current_period_end, plan_id')
-    .eq('user_id', target.id)
-    .in('status', ['active', 'trialing'])
-    .maybeSingle()
-  if (
-    existingActive &&
-    (!existingActive.current_period_end ||
-      new Date(existingActive.current_period_end) > new Date())
-  ) {
-    return json(
-      {
-        error: `${email} a déjà un abonnement actif (${existingActive.plan_id}). Activation refusée pour éviter d'écraser un plan en cours.`,
-      },
-      409,
-    )
-  }
-
-  // 5. Créer la sub trial. stage=1 : le welcome compte comme la première
-  // étape de la séquence — le cron démarre au stage 2 (J+7).
+  // 4. Activation idempotente : on cherche la sub la plus récente du user.
+  // Si elle existe → on la passe en trial actif (équivalent à choisir une
+  // autre formule dans le dropdown admin existant). Sinon → INSERT.
+  // Ce comportement matche celui des autres options (annual/semestrial)
+  // dans /app/admin/members → un admin peut basculer un user vers
+  // n'importe quel plan, y compris l'essai.
   const now = new Date()
   const periodEnd = new Date(now)
   periodEnd.setMonth(periodEnd.getMonth() + 1)
 
-  const { error: insErr } = await adminClient.from('subscriptions').insert({
-    user_id: target.id,
+  const { data: existing } = await adminClient
+    .from('subscriptions')
+    .select('id')
+    .eq('user_id', target.id)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+
+  const payload = {
     plan: 'member',
     plan_id: 'trial',
-    status: 'active',
+    status: 'active' as const,
     current_period_start: now.toISOString(),
     current_period_end: periodEnd.toISOString(),
     trial_nurture_stage: 1,
     trial_nurture_last_sent_at: now.toISOString(),
-  })
-  if (insErr) {
-    console.error('[admin-activate-trial] insert KO', insErr)
-    return json({ error: `Erreur DB : ${insErr.message}` }, 500)
+  }
+
+  if (existing?.id) {
+    const { error: updErr } = await adminClient
+      .from('subscriptions')
+      .update(payload)
+      .eq('id', existing.id)
+    if (updErr) {
+      console.error('[admin-activate-trial] update KO', updErr)
+      return json({ error: `Erreur DB : ${updErr.message}` }, 500)
+    }
+  } else {
+    const { error: insErr } = await adminClient.from('subscriptions').insert({
+      user_id: target.id,
+      ...payload,
+    })
+    if (insErr) {
+      console.error('[admin-activate-trial] insert KO', insErr)
+      return json({ error: `Erreur DB : ${insErr.message}` }, 500)
+    }
   }
 
   // 6. Envoi du welcome — best-effort, on ne fait pas planter
