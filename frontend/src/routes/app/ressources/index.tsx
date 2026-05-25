@@ -7,12 +7,17 @@ import {
   Check,
   ExternalLink,
   Library,
+  Lock,
   Search,
   X,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { EmptyState } from '@/components/shared/empty-state'
+import {
+  PremiumLockBadge,
+  useIsTrialUser,
+} from '@/components/shared/premium-lock'
 import { supabase } from '@/lib/supabase'
 import {
   RESOURCE_CATEGORIES,
@@ -227,6 +232,8 @@ function ResourcesLibraryPage() {
 
 function ResourceCard({ resource }: { resource: Resource }) {
   const navigate = useNavigate()
+  const isTrial = useIsTrialUser()
+  const locked = Boolean(resource.is_premium && isTrial)
   const visual = RESOURCE_TYPE_VISUAL[resource.resource_type]
   const TypeIcon = visual.icon
   const isTool = resource.resource_type === 'tool_link'
@@ -246,17 +253,28 @@ function ResourceCard({ resource }: { resource: Resource }) {
   }
 
   function handleOpen() {
+    // Le détail rend l'écran d'upgrade pour les trial → on laisse passer
+    // la navigation, le composant ressources/$id gère la suite.
     navigate({ to: '/app/ressources/$id', params: { id: resource.id } })
   }
 
-  const actionLabel = isTool ? 'Visiter' : 'Voir'
-  const ActionIcon = isTool ? ExternalLink : ArrowRight
+  const actionLabel = locked ? 'Passer au plan supérieur' : isTool ? 'Visiter' : 'Voir'
+  const ActionIcon = locked ? Lock : isTool ? ExternalLink : ArrowRight
 
   return (
     <article
       onClick={handleOpen}
-      className="flex cursor-pointer flex-col overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)] transition-all duration-150 touch-manipulation hover:shadow-md active:scale-[0.98] active:bg-[var(--muted)]/30"
+      className="relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)] transition-all duration-150 touch-manipulation hover:shadow-md active:scale-[0.98] active:bg-[var(--muted)]/30"
     >
+      {locked && (
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-amber-100/95 text-amber-800 shadow-sm backdrop-blur"
+        >
+          <Lock className="h-4 w-4" />
+        </span>
+      )}
+
       {resource.thumbnail_url ? (
         <div className="aspect-video w-full overflow-hidden">
           <img
@@ -292,6 +310,7 @@ function ResourceCard({ resource }: { resource: Resource }) {
           <span className="text-xs text-[var(--muted-foreground)]">
             {resource.category}
           </span>
+          {locked && <PremiumLockBadge />}
         </div>
 
         <h3 className="mt-3 line-clamp-2 font-display text-lg font-semibold leading-snug">
@@ -313,7 +332,7 @@ function ResourceCard({ resource }: { resource: Resource }) {
         <div className="mt-auto pt-5">
           <Button
             type="button"
-            variant="default"
+            variant={locked ? 'outline' : 'default'}
             className="w-full"
             onClick={(e) => {
               e.stopPropagation()

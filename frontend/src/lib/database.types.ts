@@ -246,6 +246,7 @@ export type Database = {
           level: FormationLevel
           duration_minutes: number
           is_published: boolean
+          is_premium: boolean
           created_at: string
           updated_at: string
         }
@@ -259,6 +260,7 @@ export type Database = {
           level?: FormationLevel
           duration_minutes?: number
           is_published?: boolean
+          is_premium?: boolean
           created_at?: string
           updated_at?: string
         }
@@ -272,6 +274,7 @@ export type Database = {
           level?: FormationLevel
           duration_minutes?: number
           is_published?: boolean
+          is_premium?: boolean
           created_at?: string
           updated_at?: string
         }
@@ -616,6 +619,7 @@ export type Database = {
           file_size_kb: number | null
           file_name: string | null
           is_published: boolean
+          is_premium: boolean
           created_at: string
           updated_at: string
         }
@@ -633,6 +637,7 @@ export type Database = {
           file_size_kb?: number | null
           file_name?: string | null
           is_published?: boolean
+          is_premium?: boolean
           created_at?: string
           updated_at?: string
         }
@@ -650,6 +655,7 @@ export type Database = {
           file_size_kb?: number | null
           file_name?: string | null
           is_published?: boolean
+          is_premium?: boolean
           created_at?: string
           updated_at?: string
         }

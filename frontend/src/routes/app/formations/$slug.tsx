@@ -39,6 +39,10 @@ import { MarkdownRenderer } from '@/components/coach/markdown-renderer'
 import { saveProgressKeepalive } from '@/lib/save-progress-keepalive'
 import { useChapterProgressTracker } from '@/lib/use-chapter-progress-tracker'
 import { FormationReviewModal } from '@/components/formations/formation-review-modal'
+import {
+  PremiumLockedScreen,
+  useIsTrialUser,
+} from '@/components/shared/premium-lock'
 
 export const Route = createFileRoute('/app/formations/$slug')({
   component: FormationDetailPage,
@@ -97,6 +101,7 @@ async function fetchUserReviews(userId: string, formationId: string) {
 function FormationDetailPage() {
   const { slug } = Route.useParams()
   const userId = useAuthStore((s) => s.user?.id)
+  const isTrial = useIsTrialUser()
   const refreshHistory = useCoachStore((s) => s.refreshHistory)
   const refreshQuota = useCoachStore((s) => s.refreshQuota)
   const setContext = useCoachStore((s) => s.setContext)
@@ -442,6 +447,12 @@ function FormationDetailPage() {
   }
   if (formationQuery.isError || !formation) {
     return <NotFoundState />
+  }
+  // Verrou Plan Découverte : la RLS empêche déjà la lecture des chapitres
+  // côté DB (cf. migration 0058), mais on rend l'écran d'upgrade dès le
+  // niveau formation pour offrir un message clair plutôt qu'un état vide.
+  if (formation.is_premium && isTrial) {
+    return <PremiumLockedScreen backTo="/app/formations" itemKind="formation" />
   }
 
   return (

@@ -20,6 +20,10 @@ import {
 } from '@/lib/resource-helpers'
 import type { Resource } from '@/lib/database.types'
 import { MarkdownRenderer } from '@/components/coach/markdown-renderer'
+import {
+  PremiumLockedScreen,
+  useIsTrialUser,
+} from '@/components/shared/premium-lock'
 import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute('/app/ressources/$id')({
@@ -41,6 +45,7 @@ function ResourceDetailPage() {
   const { id } = Route.useParams()
   const navigate = useNavigate()
   const router = useRouter()
+  const isTrial = useIsTrialUser()
 
   const query = useQuery({
     queryKey: ['resource-detail', id],
@@ -87,6 +92,13 @@ function ResourceDetailPage() {
   }
 
   const r = query.data
+
+  // Verrou Plan Découverte : on intercepte avant le rendu du contenu pour
+  // ne JAMAIS exposer signed URL, content texte ou external_url premium.
+  if (r.is_premium && isTrial) {
+    return <PremiumLockedScreen backTo="/app/ressources" itemKind="ressource" />
+  }
+
   const visual = RESOURCE_TYPE_VISUAL[r.resource_type]
   const TypeIcon = visual.icon
 

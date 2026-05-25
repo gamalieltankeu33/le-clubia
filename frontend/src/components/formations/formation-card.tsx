@@ -3,6 +3,7 @@ import {
   CheckCircle2,
   Clock,
   GraduationCap,
+  Lock,
   PlayCircle,
 } from 'lucide-react'
 import type { Formation } from '@/lib/database.types'
@@ -11,6 +12,10 @@ import {
   LEVEL_LABELS,
 } from '@/lib/formation-helpers'
 import { deriveProgressInfo } from '@/lib/use-formation-progress'
+import {
+  PremiumLockBadge,
+  useIsTrialUser,
+} from '@/components/shared/premium-lock'
 import { cn } from '@/lib/utils'
 import { CoverImage } from './cover-image'
 import { ProgressTube } from './progress-tube'
@@ -25,6 +30,9 @@ export interface FormationCardData extends Formation {
 }
 
 export function FormationCard({ formation }: { formation: FormationCardData }) {
+  const isTrial = useIsTrialUser()
+  const locked = Boolean(formation.is_premium && isTrial)
+
   const derived = deriveProgressInfo({
     completed: formation.completed_count,
     total: formation.chapter_count,
@@ -56,6 +64,7 @@ export function FormationCard({ formation }: { formation: FormationCardData }) {
       )}
     >
       {status === 'completed' && <CompletedRibbon />}
+      {locked && <LockedOverlay />}
 
       <CoverImage src={formation.cover_image_url} alt={formation.title} />
 
@@ -64,7 +73,7 @@ export function FormationCard({ formation }: { formation: FormationCardData }) {
           <span className="rounded-full bg-[var(--primary)]/10 px-2.5 py-0.5 text-xs font-medium text-[var(--primary)]">
             {formation.category}
           </span>
-          <StatusBadge status={status} />
+          {locked ? <PremiumLockBadge /> : <StatusBadge status={status} />}
         </div>
 
         <h3 className="mt-3 line-clamp-2 font-display text-lg font-semibold leading-snug">
@@ -150,6 +159,17 @@ function CompletedRibbon() {
       className="pointer-events-none absolute right-[-32px] top-3 z-10 rotate-45 bg-[var(--bleu-ciel-deep)] px-10 py-1 text-[10px] font-semibold uppercase tracking-wider text-white shadow"
     >
       Terminée
+    </span>
+  )
+}
+
+function LockedOverlay() {
+  return (
+    <span
+      aria-hidden="true"
+      className="pointer-events-none absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-amber-100/95 text-amber-800 shadow-sm backdrop-blur"
+    >
+      <Lock className="h-4 w-4" />
     </span>
   )
 }
