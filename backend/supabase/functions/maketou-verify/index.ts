@@ -160,7 +160,7 @@ serve(async (req: Request) => {
     return json({ error: 'Panier non rattaché à ton compte.' }, 403)
   }
 
-  const metaPlanId = (cart.meta as any).planId as 'annual' | 'semestrial' | undefined
+  const metaPlanId = (cart.meta as any).planId as 'annual' | 'semestrial' | 'trial' | undefined
 
   // -------- 6. Branchement selon status ---------------------------------
   if (cart.status === 'completed') {
@@ -172,7 +172,9 @@ serve(async (req: Request) => {
       .eq('id', planId)
       .maybeSingle()
 
-    const durationMonths = plan?.duration_months ?? (planId === 'semestrial' ? 6 : 12)
+    const durationMonths =
+      plan?.duration_months ??
+      (planId === 'trial' ? 1 : planId === 'semestrial' ? 6 : 12)
 
     const periodStart = new Date()
     const periodEnd = new Date(periodStart)

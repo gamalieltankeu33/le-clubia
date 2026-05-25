@@ -28,7 +28,7 @@ import { getCorsHeaders, handleCorsPreflight } from '../_shared/cors.ts'
 
 const MAKETOU_BASE_URL = 'https://api.maketou.net'
 
-type PlanId = 'annual' | 'semestrial'
+type PlanId = 'annual' | 'semestrial' | 'trial'
 
 interface CheckoutBody {
   planId: PlanId
@@ -73,6 +73,7 @@ serve(async (req: Request) => {
   const productIds: Record<PlanId, string | undefined> = {
     annual: Deno.env.get('MAKETOU_PRODUCT_ID_ANNUAL'),
     semestrial: Deno.env.get('MAKETOU_PRODUCT_ID_SEMESTRIAL'),
+    trial: Deno.env.get('MAKETOU_PRODUCT_ID_TRIAL'),
   }
   if (!apiKey) {
     console.error('[maketou-checkout] MAKETOU_API_KEY manquante')
@@ -108,8 +109,12 @@ serve(async (req: Request) => {
     return json({ error: 'Payload JSON invalide.' }, 400)
   }
 
-  if (body.planId !== 'annual' && body.planId !== 'semestrial') {
-    return json({ error: 'planId invalide (attendu : annual | semestrial).' }, 400)
+  if (
+    body.planId !== 'annual' &&
+    body.planId !== 'semestrial' &&
+    body.planId !== 'trial'
+  ) {
+    return json({ error: 'planId invalide (attendu : annual | semestrial | trial).' }, 400)
   }
   if (!body.email || typeof body.email !== 'string') {
     return json({ error: 'email requis.' }, 400)

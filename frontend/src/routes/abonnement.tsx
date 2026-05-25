@@ -84,21 +84,24 @@ function AbonnementPage() {
 
   const plans = useMemo(() => {
     const list = (data && data.length > 0 ? data : FALLBACK_PLANS).slice()
-    list.sort((a, b) => {
-      if (a.is_recommended !== b.is_recommended) return a.is_recommended ? -1 : 1
-      return b.duration_months - a.duration_months
-    })
-    return list.slice(0, 2)
+    // Tri par durée croissante = échelle « bon → mieux → meilleur » de
+    // gauche à droite (trial 1mo → semestrial 6mo → annual 12mo). Le
+    // badge « Recommandé » sur la dernière carte oriente naturellement
+    // l'œil vers l'engagement long.
+    list.sort((a, b) => a.duration_months - b.duration_months)
+    return list
   }, [data])
 
+  // Économie réelle du plan annuel vs semestriel sur 12 mois. On la
+  // calcule explicitement par id (et non « le recommandé vs le reste »)
+  // pour rester juste quand le plan trial est dans la liste.
   const savings = useMemo(() => {
-    const recommended = plans.find((p) => p.is_recommended)
-    const other = plans.find((p) => !p.is_recommended)
-    if (!recommended || !other) return null
-    const otherFor12Months = (other.price_xof / other.duration_months) * 12
-    const recommendedFor12Months =
-      (recommended.price_xof / recommended.duration_months) * 12
-    const diff = Math.round(otherFor12Months - recommendedFor12Months)
+    const annual = plans.find((p) => p.id === 'annual')
+    const sem = plans.find((p) => p.id === 'semestrial')
+    if (!annual || !sem) return null
+    const semFor12Months = (sem.price_xof / sem.duration_months) * 12
+    const annualFor12Months = (annual.price_xof / annual.duration_months) * 12
+    const diff = Math.round(semFor12Months - annualFor12Months)
     return diff > 0 ? diff : null
   }, [plans])
 
@@ -199,7 +202,14 @@ function AbonnementPage() {
         </div>
 
         {/* Packs */}
-        <div className="mt-14 grid gap-6 sm:gap-8 lg:grid-cols-2 lg:items-stretch">
+        <div
+          className={cn(
+            'mt-14 grid gap-6 sm:gap-8 lg:items-stretch',
+            // 3 cartes → 3 colonnes desktop, 2 cartes → 2 colonnes (cas
+            // où le plan trial n'est pas encore is_active=true en base).
+            plans.length >= 3 ? 'lg:grid-cols-3' : 'lg:grid-cols-2',
+          )}
+        >
           {plans.map((plan) => (
             <PlanCard
               key={plan.id}
@@ -251,23 +261,45 @@ function PlanCard({
   onSelect: () => void
 }) {
   const isRecommended = plan.is_recommended
+  const isTrial = plan.id === 'trial'
 
   // Copy ghostwriter — chaque pack a son angle d'attaque distinct.
-  const tagline = isRecommended
-    ? 'La voie de ceux qui ne veulent pas perdre 6 mois.'
-    : 'Démarre sans t\'engager sur 12 mois.'
+  const tagline = isTrial
+    ? 'Goûte au Club sans engagement long.'
+    : isRecommended
+      ? 'La voie de ceux qui ne veulent pas perdre 6 mois.'
+      : "Démarre sans t'engager sur 12 mois."
 
-  const ctaLabel = isRecommended
-    ? `Activer mon ${plan.display_name}`
-    : `Choisir ${plan.display_name}`
+  const ctaLabel = isTrial
+    ? 'Démarrer mon essai'
+    : isRecommended
+      ? `Activer mon ${plan.display_name}`
+      : `Choisir ${plan.display_name}`
+
+  // Inclusions : trial = idem + note « formations avancées exclues ».
+  // C'est la seule différence d'accès — gating géré en Phase 2.
+  const inclusions = isTrial
+    ? [
+        'Communauté privée francophone',
+        'Coach IA personnel (30 messages / jour)',
+        'Formations IA essentielles (niveau débutant & intermédiaire)',
+        'Récap des actus IA chaque dimanche',
+        'Bibliothèque de ressources téléchargeables',
+        'Coaching live mensuel avec experts IA',
+      ]
+    : INCLUSIONS
 
   return (
     <div
       className={cn(
         'group relative flex flex-col overflow-hidden rounded-[2rem] border bg-white p-8 transition-all duration-500 sm:p-10',
-        isRecommended
-          ? 'border-[var(--primary)] shadow-[0_48px_80px_-32px_rgba(30,64,175,0.25)] lg:scale-[1.02]'
-          : 'border-[var(--border)] hover:border-[var(--foreground)]/40 hover:shadow-xl',
+        isRecommended &&
+          'border-[var(--primary)] shadow-[0_48px_80px_-32px_rgba(30,64,175,0.25)] lg:scale-[1.02]',
+        !isRecommended &&
+          !isTrial &&
+          'border-[var(--border)] hover:border-[var(--foreground)]/40 hover:shadow-xl',
+        isTrial &&
+          'border-[var(--border)]/70 bg-[var(--background)]/60 p-7 hover:border-[var(--foreground)]/30 hover:shadow-md sm:p-8',
       )}
     >
       {isRecommended && (
@@ -278,12 +310,31 @@ function PlanCard({
           </div>
         </div>
       )}
+      {isTrial && (
+        <div className="absolute right-6 top-6">
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border)] bg-white px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-[var(--muted-foreground)]">
+            Essai 1 mois
+          </div>
+        </div>
+      )}
 
       <div>
-        <h2 className="font-display text-3xl font-bold tracking-tight text-[var(--foreground)] sm:text-4xl">
+        <h2
+          className={cn(
+            'font-display font-bold tracking-tight text-[var(--foreground)]',
+            isTrial ? 'text-2xl sm:text-3xl' : 'text-3xl sm:text-4xl',
+          )}
+        >
           {plan.display_name}
         </h2>
-        <p className="mt-3 text-sm font-medium text-[var(--primary)]">
+        <p
+          className={cn(
+            'mt-3 text-sm font-medium',
+            isTrial
+              ? 'text-[var(--muted-foreground)]'
+              : 'text-[var(--primary)]',
+          )}
+        >
           {tagline}
         </p>
         <p className="mt-3 text-base text-[var(--muted-foreground)] leading-relaxed">
@@ -293,24 +344,29 @@ function PlanCard({
 
       <div className={cn('mt-8', loading && 'animate-pulse')}>
         <div className="flex items-baseline gap-2">
-          <span className="font-display text-5xl font-bold tracking-tighter text-[var(--foreground)] sm:text-6xl">
+          <span
+            className={cn(
+              'font-display font-bold tracking-tighter text-[var(--foreground)]',
+              isTrial ? 'text-4xl sm:text-5xl' : 'text-5xl sm:text-6xl',
+            )}
+          >
             {plan.price_xof.toLocaleString('fr-FR')}
           </span>
-          <span className="text-lg font-bold text-[var(--foreground)]">
-            €
-          </span>
+          <span className="text-lg font-bold text-[var(--foreground)]">€</span>
         </div>
         <p className="mt-2 text-xs font-bold uppercase tracking-widest text-[var(--muted-foreground)]">
           {plan.duration_months === 12
             ? 'Accès 1 an'
-            : `Accès ${plan.duration_months} mois`}
+            : plan.duration_months === 1
+              ? 'Accès 1 mois'
+              : `Accès ${plan.duration_months} mois`}
           <span className="mx-2 opacity-30">|</span>
           {plan.monthly_price_xof.toLocaleString('fr-FR')} € / mois
         </p>
       </div>
 
       <ul className="mt-8 flex-1 space-y-3">
-        {INCLUSIONS.map((label) => (
+        {inclusions.map((label) => (
           <li key={label} className="flex items-start gap-3">
             <div
               className={cn(
@@ -329,15 +385,28 @@ function PlanCard({
         ))}
       </ul>
 
+      {isTrial && (
+        <p className="mt-5 text-xs text-[var(--muted-foreground)] leading-relaxed border-t border-[var(--border)]/60 pt-4">
+          <span className="font-semibold">À noter :</span> les formations
+          de niveau <em>avancé</em> sont réservées aux abonnés
+          <span className="font-semibold"> Plan Progress</span> et
+          <span className="font-semibold"> Plan Master</span>.
+        </p>
+      )}
+
       <button
         type="button"
         onClick={onSelect}
         disabled={submitting || disabled}
         className={cn(
           'mt-10 group/btn relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-full py-4 text-base font-bold transition-all',
-          isRecommended
-            ? 'bg-[var(--primary)] text-white shadow-xl shadow-[var(--primary)]/30 hover:scale-[1.02]'
-            : 'bg-[var(--foreground)] text-white hover:bg-[#1a1a1a]',
+          isRecommended &&
+            'bg-[var(--primary)] text-white shadow-xl shadow-[var(--primary)]/30 hover:scale-[1.02]',
+          !isRecommended &&
+            !isTrial &&
+            'bg-[var(--foreground)] text-white hover:bg-[#1a1a1a]',
+          isTrial &&
+            'border border-[var(--foreground)]/20 bg-white text-[var(--foreground)] hover:bg-[var(--background)]',
           (submitting || disabled) && 'cursor-wait opacity-80',
         )}
       >
