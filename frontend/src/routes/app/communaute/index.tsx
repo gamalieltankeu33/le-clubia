@@ -19,6 +19,7 @@ import { useAuthStore } from '@/stores/auth-store'
 import { supabase } from '@/lib/supabase'
 import { fetchFeedPage } from '@/lib/community-queries'
 import { PostCard, type FeedPost } from '@/components/community/post-card'
+import { CommunityStatsPill } from '@/components/community/community-stats-pill'
 import { FeedSkeleton } from '@/components/community/feed-skeleton'
 import { EmptyState } from '@/components/shared/empty-state'
 import { PullToRefresh } from '@/components/shared/pull-to-refresh'
@@ -155,6 +156,7 @@ function CommunityFeedPage() {
             Communauté
           </h1>
         </div>
+        <CommunityStatsPill />
         <p className="mt-3 text-lg text-[var(--muted-foreground)]">
           Le fil de tous les membres du Club IA.
         </p>
