@@ -139,6 +139,20 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         // Sentry connaît maintenant l'identité → quand ce user plantera,
         // on saura qui c'est dans le rapport d'erreur.
         setSentryUser({ id: newSession.user.id, email: newSession.user.email })
+
+        // TOKEN_REFRESHED ne renouvelle QUE le JWT — le profil et la
+        // subscription vivent en DB et n'ont pas changé. On évite le
+        // refetch ici pour ne pas déclencher le bug "kick out après ~60min
+        // de lecture vidéo" : pendant une longue session, l'auto-refresh
+        // du token arrive nécessairement, et si la RPC bootstrap échoue
+        // transitoirement (race, blip réseau, server hiccup), la valeur
+        // {null, null} renvoyée écrasait la subscription valide →
+        // useRequireAuth voyait active=false → redirection brutale vers
+        // /checkout au milieu de la lecture.
+        if (event === 'TOKEN_REFRESHED') {
+          return
+        }
+
         // profil + abonnement : déférés HORS du verrou pour éviter le
         // deadlock (cf. note ci-dessus).
         setTimeout(async () => {
@@ -146,7 +160,19 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             const { profile, subscription } = await fetchProfileAndSubscription(
               newSession.user.id,
             )
-            set({ profile, subscription })
+            // Garde-fou défense-en-profondeur : si la RPC a échoué et
+            // renvoyé null, on garde l'état précédent plutôt que d'écraser
+            // une identité valide. Seul SIGNED_OUT doit pouvoir vider
+            // profile/subscription.
+            const updates: Partial<{
+              profile: Profile | null
+              subscription: Subscription | null
+            }> = {}
+            if (profile) updates.profile = profile
+            if (subscription) updates.subscription = subscription
+            if (Object.keys(updates).length > 0) {
+              set(updates)
+            }
           } catch {
             /* on garde au moins le user hydraté */
           }
