@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import YouTube, { type YouTubePlayer } from 'react-youtube'
 import VimeoPlayer from '@vimeo/player'
 import { PlayCircle } from 'lucide-react'
@@ -66,6 +66,20 @@ function YouTubeChapterPlayer({
 
   const videoId = chapter.video_url ? extractYouTubeId(chapter.video_url) : null
 
+  // CRITICAL : on FIGE la position de départ au montage du chapitre.
+  // Sinon `start` dans opts.playerVars change à chaque sauvegarde de
+  // progression (toutes les ~5 s), et react-youtube interprète ce
+  // changement comme un ordre de cueVideoById() → la vidéo s'ARRÊTE
+  // et se recharge, ce qui se traduisait côté membre par "ça coupe
+  // toutes les 2 secondes". Capturer la valeur 1x via useMemo([chapter.id])
+  // évite ce remount silencieux. Voir react-youtube/dist/YouTube.js
+  // shouldUpdateVideo() qui compare prevVars.start !== vars.start.
+  const stableStartSeconds = useMemo(
+    () => Math.max(0, Math.floor(initialPositionSeconds)),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- volontaire : capture une seule fois par chapitre
+    [chapter.id],
+  )
+
   useEffect(() => {
     playerRef.current = null
   }, [chapter.id])
@@ -104,15 +118,14 @@ function YouTubeChapterPlayer({
             showinfo: 0,
             autoplay: 0,
             playsinline: 1,
-            start: Math.max(0, Math.floor(initialPositionSeconds)),
+            start: stableStartSeconds,
           },
         }}
         onReady={(event) => {
           playerRef.current = event.target
           try {
-            const target = Math.max(0, Math.floor(initialPositionSeconds))
-            if (target > 0) {
-              event.target.seekTo?.(target, true)
+            if (stableStartSeconds > 0) {
+              event.target.seekTo?.(stableStartSeconds, true)
             }
           } catch {
             // noop
