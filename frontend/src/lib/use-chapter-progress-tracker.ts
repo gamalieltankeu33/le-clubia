@@ -95,28 +95,43 @@ export function useChapterProgressTracker({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chapterId])
 
-  const invalidateProgressQueries = useCallback(() => {
-    if (!userId) return
-    // Catalogue (tube Skool) — varie selon userId.
-    queryClient.invalidateQueries({
-      queryKey: ['formations', 'catalog', userId],
-    })
-    // Détail formation courante.
-    if (formationId) {
-      queryClient.invalidateQueries({
-        queryKey: ['formation-progress', userId, formationId],
-      })
-    }
-    // Card "Reprendre la formation" sur le dashboard.
-    queryClient.invalidateQueries({
-      queryKey: ['resume-formation', userId],
-    })
-    // Vue admin engagement (si présente).
-    queryClient.invalidateQueries({ queryKey: ['admin-stats'] })
-  }, [queryClient, userId, formationId])
+  // Deux niveaux d'invalidation pour éviter de spammer toutes les
+  // queries toutes les 5 s pendant la lecture :
+  //   - 'tick'      : invalide UNIQUEMENT la query formation-progress
+  //                   (lue par la sidebar de chapitres qui affiche le
+  //                   pourcentage en temps réel). Les autres pages
+  //                   (catalogue, dashboard, admin) ne sont pas visibles
+  //                   pendant la lecture, pas besoin de les refetch.
+  //   - 'milestone' : invalide tout — utilisé au franchissement de 90 %
+  //                   et au clic "Marquer comme terminé", quand les
+  //                   indicateurs globaux changent réellement.
+  const invalidateProgressQueries = useCallback(
+    (level: 'tick' | 'milestone') => {
+      if (!userId) return
+      if (formationId) {
+        queryClient.invalidateQueries({
+          queryKey: ['formation-progress', userId, formationId],
+        })
+      }
+      if (level === 'milestone') {
+        queryClient.invalidateQueries({
+          queryKey: ['formations', 'catalog', userId],
+        })
+        queryClient.invalidateQueries({
+          queryKey: ['resume-formation', userId],
+        })
+        queryClient.invalidateQueries({ queryKey: ['admin-stats'] })
+      }
+    },
+    [queryClient, userId, formationId],
+  )
 
   const sendUpdate = useCallback(
-    async (percent: number, positionSeconds: number) => {
+    async (
+      percent: number,
+      positionSeconds: number,
+      level: 'tick' | 'milestone' = 'tick',
+    ) => {
       if (!chapterId || !userId) return
       const capturedChapterId = chapterId
       const wasCompleted = completedFiredRef.current
@@ -132,12 +147,13 @@ export function useChapterProgressTracker({
         positionSeconds,
       })
 
-      // Bascule vers completed : trigger callback + invalidation.
-      if (!wasCompleted && percent >= 90) {
+      // Bascule vers completed : trigger callback + force milestone.
+      const justCompletedNow = !wasCompleted && percent >= 90
+      if (justCompletedNow) {
         completedFiredRef.current = true
         onJustCompletedRef.current?.()
       }
-      invalidateProgressQueries()
+      invalidateProgressQueries(justCompletedNow ? 'milestone' : level)
     },
     [chapterId, userId, invalidateProgressQueries],
   )
@@ -177,7 +193,11 @@ export function useChapterProgressTracker({
   const markComplete = useCallback(async () => {
     if (!chapterId) return
     const pos = lastKnownPositionRef.current
-    await sendUpdate(100, pos)
+    // Clic manuel "Marquer comme terminé" → milestone explicite pour
+    // que le catalogue + le dashboard reflètent la complétion tout de
+    // suite, même si le franchissement de 90 % avait déjà eu lieu via
+    // un tick précédent (auquel cas justCompletedNow serait false).
+    await sendUpdate(100, pos, 'milestone')
   }, [chapterId, sendUpdate])
 
   const flushFinal = useCallback(

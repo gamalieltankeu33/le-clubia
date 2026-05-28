@@ -99,6 +99,28 @@ function YouTubeChapterPlayer({
     return () => window.clearInterval(interval)
   }, [chapter.id])
 
+  // Ceinture + bretelles : on fige aussi l'OBJET opts entier via useMemo.
+  // Même si `start` est stable, react-youtube re-render à chaque tick
+  // (parent re-render) — fastDeepEqual sur un objet identique reste true,
+  // mais autant lui passer la même référence pour éliminer toute classe
+  // de régression future où quelqu'un ajouterait un champ réactif.
+  const ytOpts = useMemo(
+    () => ({
+      width: '100%' as const,
+      height: '100%' as const,
+      host: 'https://www.youtube-nocookie.com',
+      playerVars: {
+        modestbranding: 1,
+        rel: 0,
+        showinfo: 0,
+        autoplay: 0,
+        playsinline: 1,
+        start: stableStartSeconds,
+      },
+    }),
+    [stableStartSeconds],
+  )
+
   if (!videoId) return <UnsupportedPlayer />
 
   return (
@@ -108,19 +130,7 @@ function YouTubeChapterPlayer({
         videoId={videoId}
         className="absolute inset-0 h-full w-full"
         iframeClassName="absolute inset-0 block h-full w-full border-0"
-        opts={{
-          width: '100%',
-          height: '100%',
-          host: 'https://www.youtube-nocookie.com',
-          playerVars: {
-            modestbranding: 1,
-            rel: 0,
-            showinfo: 0,
-            autoplay: 0,
-            playsinline: 1,
-            start: stableStartSeconds,
-          },
-        }}
+        opts={ytOpts}
         onReady={(event) => {
           playerRef.current = event.target
           try {
