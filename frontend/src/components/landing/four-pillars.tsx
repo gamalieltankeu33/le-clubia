@@ -138,7 +138,7 @@ export function FourPillars() {
               to="/auth"
               className="group relative inline-flex w-full items-center justify-center gap-3 overflow-hidden rounded-full bg-[#0A0A0A] px-8 py-5 text-base font-black uppercase tracking-widest text-white shadow-xl shadow-black/10 transition-all hover:scale-[1.02] active:scale-[0.98] sm:w-auto sm:px-12 sm:text-sm"
             >
-              <span className="relative z-10">Rejoindre Le Club IA</span>
+              <span className="relative z-10">Rejoindre Leclub.ia</span>
               <ArrowRight className="relative z-10 h-5 w-5 transition-transform group-hover:translate-x-1" />
               <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
             </Link>

@@ -34,7 +34,7 @@ function CataloguePage() {
             Catalogue Officiel
           </span>
           <h1 className="font-display text-4xl font-black tracking-tighter text-[#0A0A0A] md:text-6xl">
-            Le Club IA — <span className="italic text-[var(--bleu-ciel-deep)]">Formations</span>
+            Leclub.ia — <span className="italic text-[var(--bleu-ciel-deep)]">Formations</span>
           </h1>
           <p className="mt-6 max-w-2xl text-lg font-medium leading-relaxed text-[#4A4A4A] opacity-80">
             Découvre notre catalogue de formations spécialisées pour maîtriser l'IA, automatiser ton business et créer du contenu qui cartonne.

@@ -90,7 +90,7 @@ export function AuthShell({
         </div>
 
         <div className="relative z-10 text-xs text-white/50">
-          © {new Date().getFullYear()} Le Club IA — Communauté francophone
+          © {new Date().getFullYear()} Leclub.ia — Communauté francophone
         </div>
       </div>
 

@@ -79,7 +79,7 @@ export function LandingFooter() {
 
         <div className="mt-14 flex flex-col items-center justify-between gap-3 border-t border-[var(--border)] pt-6 text-xs text-[var(--muted-foreground)] sm:flex-row">
           <span>
-            © {new Date().getFullYear()} Le Club IA — Une création BetterZapp
+            © {new Date().getFullYear()} Leclub.ia — Une création BetterZapp
             LLC
           </span>
           <span className="inline-flex items-center gap-1.5">

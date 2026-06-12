@@ -13,7 +13,7 @@ function CGUPage() {
     >
       <h2>Préambule</h2>
       <p>
-        Le Club IA est une plateforme communautaire francophone dédiée à
+        Leclub.ia est une plateforme communautaire francophone dédiée à
         l'intelligence artificielle, exploitée par la société{' '}
         <strong>BetterZapp LLC</strong>. Elle propose à ses membres un
         catalogue de formations en ligne, un coach IA conversationnel, une
@@ -36,7 +36,7 @@ function CGUPage() {
       <ul>
         <li>
           <strong>« Plateforme »</strong> ou <strong>« Service »</strong> :
-          désigne le site et l'application Le Club IA accessibles à l'adresse
+          désigne le site et l'application Leclub.ia accessibles à l'adresse
           leclub-ia.com.
         </li>
         <li>
@@ -219,7 +219,7 @@ function CGUPage() {
         </li>
         <li>
           Ne pas partager, reproduire ni diffuser hors de la plateforme les
-          contenus exclusifs édités par Le Club IA (formations, articles,
+          contenus exclusifs édités par Leclub.ia (formations, articles,
           ressources), sauf autorisation expresse.
         </li>
         <li>
@@ -251,7 +251,7 @@ function CGUPage() {
 
       <h2>9. Propriété intellectuelle</h2>
       <p>
-        L'ensemble des contenus produits par Le Club IA (formations, articles,
+        L'ensemble des contenus produits par Leclub.ia (formations, articles,
         ressources, interface, design, marque, logo) reste la propriété
         exclusive de BetterZapp LLC ou de ses partenaires. Le membre ne
         bénéficie que d'un droit personnel, non exclusif, non transférable et

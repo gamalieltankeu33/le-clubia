@@ -196,7 +196,7 @@ function FormationDetailPage() {
 
                 <Link to="/auth">
                   <Button className="h-14 w-full rounded-2xl bg-[var(--primary)] text-sm font-black uppercase tracking-widest text-white shadow-xl shadow-[var(--primary)]/20 transition-all hover:scale-[1.02] active:scale-95">
-                    Rejoindre Le Club IA
+                    Rejoindre Leclub.ia
                   </Button>
                 </Link>
                 

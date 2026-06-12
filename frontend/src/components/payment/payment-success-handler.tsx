@@ -33,7 +33,7 @@ export function PaymentSuccessHandler() {
         if (error) throw error
 
         if (data?.status === 'activated') {
-          toast.success('Félicitations ! Ton accès au Club IA est maintenant activé.', { id })
+          toast.success('Félicitations ! Ton accès à Leclub.ia est maintenant activé.', { id })
 
           confetti({
             particleCount: 150,

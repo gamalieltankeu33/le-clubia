@@ -118,7 +118,7 @@ export function Hero() {
               <div className="absolute inset-0 z-10 pointer-events-none rounded-[2rem] border border-white/10" />
               <VslPlayer
                 url={VSL_VIDEO_URL}
-                title="Le Club IA — présentation"
+                title="Leclub.ia — présentation"
                 className="rounded-none"
                 poster="/landing/vsl-poster.jpg"
               />

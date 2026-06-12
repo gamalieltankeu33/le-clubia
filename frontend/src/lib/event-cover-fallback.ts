@@ -1,4 +1,4 @@
-// Génère un PNG d'affiche branded "Le Club IA" pour un événement quand
+// Génère un PNG d'affiche branded "Leclub.ia" pour un événement quand
 // l'admin n'a pas uploadé de cover. Format 1200×630 (standard OG image,
 // ratio compatible mail clients + landing).
 //
@@ -20,7 +20,7 @@ const WIDTH = 1200
 const HEIGHT = 630
 const PADDING = 80
 
-// Couleurs alignées avec le design system Le Club IA
+// Couleurs alignées avec le design system Leclub.ia
 const COLOR_BG_TOP = '#1E40AF' // primary
 const COLOR_BG_BOTTOM = '#1E3A8A' // primary darker
 const COLOR_TEXT = '#FFFFFF'

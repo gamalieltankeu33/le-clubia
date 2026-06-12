@@ -17,7 +17,7 @@ export function FormationSection() {
           transition={{ duration: 0.5 }}
         >
           <span className="mb-4 inline-block rounded-full bg-[var(--primary)]/10 px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.3em] text-[var(--primary)]">
-            Académie Le Club IA
+            Académie Leclub.ia
           </span>
           <h2 className="font-display text-3xl font-black tracking-tight text-[#0A0A0A] md:text-5xl">
             Formations <span className="italic text-[var(--bleu-ciel-deep)]">Pratiques & Actionnables</span>

@@ -315,7 +315,7 @@ function AuthPage() {
                   <p className="mt-1 text-xs text-[var(--muted-foreground)]">
                     Ouvre ton app authenticator (Google Authenticator,
                     1Password, Aegis…) et saisis le code à 6 chiffres généré
-                    pour Le Club IA.
+                    pour Leclub.ia.
                   </p>
                 </div>
 
@@ -474,7 +474,7 @@ function AuthPage() {
 
       <Reveal delay={0.4}>
         <p className="mt-10 text-center text-xs text-[var(--muted-foreground)]">
-          © {new Date().getFullYear()} Le Club IA ·{' '}
+          © {new Date().getFullYear()} Leclub.ia ·{' '}
           <Link to="/cgu" className="hover:text-[var(--foreground)]">
             CGU
           </Link>{' '}

@@ -116,7 +116,7 @@ export function NextEventBanner() {
                   to="/auth"
                   className="inline-flex items-center justify-center rounded-full bg-[var(--primary)] px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-[var(--primary)]/90 hover:shadow-md"
                 >
-                  Rejoindre Le Club IA pour y participer
+                  Rejoindre Leclub.ia pour y participer
                 </Link>
                 <p className="mt-3 text-xs text-[#737373]">
                   Réservé aux membres actifs · 14 € / mois

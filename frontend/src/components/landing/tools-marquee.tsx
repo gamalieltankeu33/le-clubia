@@ -33,7 +33,7 @@ const TOOLS: Tool[] = [
 export function ToolsMarquee() {
   return (
     <section
-      aria-label="Outils IA couverts par Le Club IA"
+      aria-label="Outils IA couverts par Leclub.ia"
       className="bg-white py-14 sm:py-16 lg:py-24 overflow-hidden"
     >
       <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">

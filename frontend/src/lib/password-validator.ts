@@ -1,5 +1,5 @@
 /**
- * Validation de mot de passe côté frontend pour Le Club IA.
+ * Validation de mot de passe côté frontend pour Leclub.ia.
  *
  * Règles dures (blockingError) — bloquent le submit :
  *  - Longueur < 8 caractères

@@ -1,12 +1,12 @@
 {
-  "name": "Le Club IA",
-  "short_name": "Le Club IA",
+  "name": "Leclub.ia",
+  "short_name": "Leclub.ia",
   "description": "Communauté francophone premium pour les passionnés d'IA.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "background_color": "#FAFAF9",
-  "theme_color": "#1E40AF",
+  "theme_color": "#2563EB",
   "lang": "fr",
   "icons": [
     {

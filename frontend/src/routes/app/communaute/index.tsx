@@ -158,7 +158,7 @@ function CommunityFeedPage() {
         </div>
         <CommunityStatsPill />
         <p className="mt-3 text-lg text-[var(--muted-foreground)]">
-          Le fil de tous les membres du Club IA.
+          Le fil de tous les membres de Leclub.ia.
         </p>
       </motion.div>
 

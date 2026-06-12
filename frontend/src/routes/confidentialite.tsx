@@ -32,7 +32,7 @@ function PrivacyPage() {
       <h2>1. Responsable du traitement</h2>
       <p>
         Le responsable du traitement des données collectées sur la plateforme
-        Le Club IA est la société <strong>BetterZapp LLC</strong>, éditrice
+        Leclub.ia est la société <strong>BetterZapp LLC</strong>, éditrice
         et exploitante du service. Toute demande relative au traitement des
         données personnelles peut être adressée à l'adresse :{' '}
         <a href="mailto:betterzapp@gmail.com">betterzapp@gmail.com</a>.
@@ -157,7 +157,7 @@ function PrivacyPage() {
       <p>Les données collectées peuvent être partagées avec :</p>
       <ul>
         <li>
-          <strong>L'équipe Le Club IA</strong> (BetterZapp LLC) : dans la
+          <strong>L'équipe Leclub.ia</strong> (BetterZapp LLC) : dans la
           stricte limite des besoins liés à l'exploitation du Service, à la
           modération et au support utilisateur.
         </li>

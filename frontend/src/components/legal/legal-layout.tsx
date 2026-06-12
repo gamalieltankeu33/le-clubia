@@ -81,7 +81,7 @@ export function LegalLayout({
 
       <footer className="border-t border-[#E5E5E5] bg-[#FAFAF9]">
         <div className="mx-auto flex h-14 max-w-3xl items-center justify-between px-5 text-xs text-[#737373] sm:px-6">
-          <span>© {new Date().getFullYear()} Le Club IA</span>
+          <span>© {new Date().getFullYear()} Leclub.ia</span>
           <Link to="/" className="hover:text-[#0A0A0A]">
             Retour à l'accueil
           </Link>

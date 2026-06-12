@@ -93,7 +93,7 @@ function downloadIcs(event: Event) {
   const lines = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    'PRODID:-//Le Club IA//Events//FR',
+    'PRODID:-//Leclub.ia//Events//FR',
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
     'BEGIN:VEVENT',

@@ -51,7 +51,7 @@ export function DashboardMockup({ className }: { className?: string }) {
             <span className="flex h-6 w-6 items-center justify-center rounded-md bg-[#1E40AF] text-white">
               <Sparkles className="h-3 w-3" />
             </span>
-            <span className="font-display text-xs font-semibold">Le Club IA</span>
+            <span className="font-display text-xs font-semibold">Leclub.ia</span>
           </div>
           <SidebarItem active>Tableau de bord</SidebarItem>
           <SidebarItem>Formations</SidebarItem>

@@ -154,7 +154,7 @@ export const FORMATIONS: Formation[] = [
       { title: "Freelance IA premium", duration: "30 min", description: "niches rémunératrices, plateformes" },
       { title: "Vendre tes propres formations", duration: "40 min", description: "création, hébergement, marketing" },
       { title: "Coaching et consulting IA", duration: "25 min", description: "packs, prix, livrables" },
-      { title: "Membership / abonnements", duration: "30 min", description: "modèle Le Club IA décortiqué" },
+      { title: "Membership / abonnements", duration: "30 min", description: "modèle Leclub.ia décortiqué" },
       { title: "Diversification stratégique", duration: "20 min", description: "la règle des 4 piliers de revenus" },
       { title: "Mindset entrepreneur IA", duration: "15 min", description: "éviter les pièges des débutants" },
     ],

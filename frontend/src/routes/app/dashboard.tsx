@@ -81,7 +81,7 @@ function DashboardPage() {
             </h1>
           </div>
           <p className="mt-2 max-w-xl text-base text-[var(--muted-foreground)]">
-            Heureux de te revoir. Voici l'essentiel de ton Club IA pour aujourd'hui.
+            Heureux de te revoir. Voici l'essentiel de ton Leclub.ia pour aujourd'hui.
           </p>
         </section>
       </Reveal>

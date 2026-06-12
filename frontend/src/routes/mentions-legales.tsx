@@ -11,12 +11,12 @@ function LegalNoticePage() {
       <p>
         Les présentes mentions légales s'appliquent au site et à la plateforme
         accessibles à l'adresse <strong>leclub-ia.com</strong>, ci-après « le
-        Service » ou « Le Club IA ».
+        Service » ou « Leclub.ia ».
       </p>
 
       <h2>1. Éditeur du site</h2>
       <p>
-        Le site et la plateforme Le Club IA sont édités et exploités par la
+        Le site et la plateforme Leclub.ia sont édités et exploités par la
         société <strong>BetterZapp LLC</strong>.
       </p>
       <ul>
@@ -32,7 +32,7 @@ function LegalNoticePage() {
           <strong>Numéro d'enregistrement</strong> : <em>à compléter</em>.
         </li>
         <li>
-          <strong>Marque exploitée</strong> : « Le Club IA ».
+          <strong>Marque exploitée</strong> : « Leclub.ia ».
         </li>
         <li>
           <strong>Adresse de contact</strong> :{' '}
@@ -76,7 +76,7 @@ function LegalNoticePage() {
       <h2>4. Propriété intellectuelle</h2>
       <p>
         L'ensemble des éléments composant le site et la plateforme — incluant
-        sans s'y limiter la marque « Le Club IA », le logo, l'identité
+        sans s'y limiter la marque « Leclub.ia », le logo, l'identité
         graphique, les textes éditoriaux, les formations, les images, les
         codes sources, les illustrations et l'interface utilisateur — est la
         propriété exclusive de BetterZapp LLC ou de ses ayants droit, et est
@@ -94,7 +94,7 @@ function LegalNoticePage() {
 
       <h2>5. Crédits</h2>
       <p>
-        Le Club IA utilise les ressources tierces suivantes, dont les
+        Leclub.ia utilise les ressources tierces suivantes, dont les
         conditions de licence respectives sont scrupuleusement respectées :
       </p>
       <ul>
@@ -136,7 +136,7 @@ function LegalNoticePage() {
 
       <h2>6. Photographies et illustrations</h2>
       <p>
-        Les photographies et illustrations affichées sur Le Club IA sont, sauf
+        Les photographies et illustrations affichées sur Leclub.ia sont, sauf
         mention contraire, soit la propriété de BetterZapp LLC, soit issues
         de bibliothèques d'images libres de droits, soit fournies par les
         membres dans le cadre de leur usage de la plateforme. Toute

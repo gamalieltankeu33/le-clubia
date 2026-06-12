@@ -15,7 +15,7 @@ const SIZE_CLASSES: Record<Size, { container: string; text: string }> = {
  *
  * Couleurs :
  *  - 0%       → texte gris foncé sur fond gris clair
- *  - 1..99%   → barre primaire (bleu Le Club IA)
+ *  - 1..99%   → barre primaire (bleu Leclub.ia)
  *  - 100%     → barre verte (emerald-500) + ✅
  */
 export function ProgressTube({

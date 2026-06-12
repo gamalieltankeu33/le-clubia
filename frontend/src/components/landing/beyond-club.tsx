@@ -15,7 +15,7 @@ export function BeyondClub() {
               Bien plus qu'<span className="serif-accent italic">une plateforme.</span>
             </h2>
             <p className="mx-auto mt-8 max-w-2xl text-lg leading-relaxed text-[var(--muted-foreground)] sm:text-xl">
-              Le Club IA t'accompagne avec une présence humaine et des récompenses concrètes pour booster ta carrière.
+              Leclub.ia t'accompagne avec une présence humaine et des récompenses concrètes pour booster ta carrière.
             </p>
           </Reveal>
         </div>

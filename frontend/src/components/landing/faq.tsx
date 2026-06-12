@@ -3,7 +3,7 @@ import { Reveal } from './reveal'
 
 const FAQS = [
   {
-    q: "À qui s'adresse Le Club IA ?",
+    q: "À qui s'adresse Leclub.ia ?",
     a: "Aux passionnés d'IA francophones, peu importe leur niveau ou leur métier : entrepreneurs, créateurs de contenu, développeurs, étudiants, freelances. Si tu veux maîtriser l'IA pour de vrai sans te noyer dans 10 newsletters, tu es au bon endroit.",
   },
   {
@@ -36,7 +36,7 @@ const FAQS = [
   },
   {
     q: 'Quelle différence avec une simple newsletter IA ?',
-    a: "Une newsletter, c'est passif et impersonnel. Le Club IA, c'est actif (formations, ressources téléchargeables) + interactif (Coach IA + communauté) + contextualisé (le coach connaît ton profil, les actus sont commentables). Tu apprends et tu pratiques en parallèle.",
+    a: "Une newsletter, c'est passif et impersonnel. Leclub.ia, c'est actif (formations, ressources téléchargeables) + interactif (Coach IA + communauté) + contextualisé (le coach connaît ton profil, les actus sont commentables). Tu apprends et tu pratiques en parallèle.",
   },
   {
     q: "Comment se passe l'onboarding ?",

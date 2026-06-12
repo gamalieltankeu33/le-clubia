@@ -72,7 +72,7 @@ export function VslPlayer({
           {poster ? (
             <img
               src={poster}
-              alt="Aperçu de la vidéo de présentation du Club IA"
+              alt="Aperçu de la vidéo de présentation de Leclub.ia"
               className="absolute inset-0 h-full w-full object-cover"
               loading="eager"
             />

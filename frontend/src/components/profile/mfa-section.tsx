@@ -72,7 +72,7 @@ export function MfaSection() {
     try {
       const { data, error } = await supabase.auth.mfa.enroll({
         factorType: 'totp',
-        friendlyName: `Le Club IA — ${new Date().toLocaleDateString('fr-FR')}`,
+        friendlyName: `Leclub.ia — ${new Date().toLocaleDateString('fr-FR')}`,
       })
       if (error || !data) {
         toast.error(

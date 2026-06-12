@@ -10,7 +10,7 @@
 //   - Z-index 50 : au-dessus du contenu, en dessous des modaux Sonner
 
 const WHATSAPP_NUMBER = '33756859917' // +33 7 56 85 99 17, format wa.me (sans +)
-const PREFILLED_MESSAGE = "Bonjour ! J'ai une question sur Le Club IA."
+const PREFILLED_MESSAGE = "Bonjour ! J'ai une question sur Leclub.ia."
 
 export function WhatsAppFloat() {
   const href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(PREFILLED_MESSAGE)}`
