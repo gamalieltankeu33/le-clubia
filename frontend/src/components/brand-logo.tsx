@@ -80,14 +80,32 @@ export function BrandLogo({
         draggable={false}
       />
     )
-    if (!asLink) return markImg
+
+    // Honor `showSignature` même avec le mark — utile pour le footer
+    // landing où on veut "icône + tagline" en colonne plutôt qu'un
+    // wordmark complet.
+    const markContent = showSignature ? (
+      <div className="inline-flex flex-col items-start gap-2">
+        {markImg}
+        <span
+          className="text-[9px] font-medium uppercase tracking-[0.28em]"
+          style={{ color: 'var(--muted-foreground)' }}
+        >
+          L'intérieur du cercle
+        </span>
+      </div>
+    ) : (
+      markImg
+    )
+
+    if (!asLink) return markContent
     return (
       <Link
         to="/"
         className="inline-flex shrink-0"
         aria-label="Leclub.ia — Accueil"
       >
-        {markImg}
+        {markContent}
       </Link>
     )
   }

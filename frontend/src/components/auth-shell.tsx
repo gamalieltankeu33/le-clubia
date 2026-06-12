@@ -43,7 +43,7 @@ export function AuthShell({
         </div>
 
         <Link to="/" className="relative z-10 inline-flex self-start">
-          <BrandLogo size="md" variant="inverse" asLink={false} />
+          <BrandLogo size="lg" variant="inverse" asLink={false} display="mark" />
         </Link>
 
         <div className="relative z-10 max-w-lg text-white">
@@ -105,7 +105,7 @@ export function AuthShell({
         <div className="relative z-10 w-full max-w-md">
           <div className="mb-8 lg:hidden">
             <Link to="/" className="inline-flex">
-              <BrandLogo size="md" variant="primary" asLink={false} />
+              <BrandLogo size="lg" variant="primary" asLink={false} display="mark" />
             </Link>
           </div>
           <h1 className="font-display text-3xl font-bold tracking-tight md:text-4xl">
