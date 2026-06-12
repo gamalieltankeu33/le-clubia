@@ -235,7 +235,7 @@ function AuthPage() {
       <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center">
         <Reveal delay={0.1}>
           <div className="mb-8 flex justify-center">
-            <BrandLogo size="md" variant="primary" />
+            <BrandLogo size="xl" variant="primary" display="mark" />
           </div>
         </Reveal>
 
