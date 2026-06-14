@@ -304,8 +304,8 @@ function layoutHtml(opts: LayoutOptions): string {
               <td align="center" style="padding-bottom:24px;">
                 <table role="presentation" border="0" cellspacing="0" cellpadding="0">
                   <tr>
-                    <td style="background:#1E40AF;color:#FFFFFF;font-family:Georgia,serif;font-weight:700;font-size:22px;padding:10px 24px;border-radius:9999px;letter-spacing:-0.02em;">
-                      leclub<span style="color:#F97316;font-weight:800;">.</span>ia
+                    <td align="center" style="padding:0;">
+                      <img src="https://leclub-ia.com/brand/wordmark.png" alt="Leclub.ia" width="150" height="34" style="display:block;border:0;outline:none;" />
                     </td>
                   </tr>
                 </table>

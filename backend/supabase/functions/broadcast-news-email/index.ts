@@ -226,7 +226,7 @@ function renderNewsEmail(d: {
   <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
     <tr><td align="center" style="padding-bottom:24px;">
       <table role="presentation" cellpadding="0" cellspacing="0"><tr>
-        <td style="background:#1E40AF;color:#FFFFFF;font-family:Georgia,serif;font-weight:700;font-size:22px;padding:10px 24px;border-radius:9999px;letter-spacing:-0.02em;">leclub<span style="color:#F97316;font-weight:800;">.</span>ia</td>
+        <td align="center" style="padding:0;"><img src="https://leclub-ia.com/brand/wordmark.png" alt="Leclub.ia" width="150" height="34" style="display:block;border:0;outline:none;" /></td>
       </tr></table>
     </td></tr>
     <tr><td style="background:#FFFFFF;border-radius:20px;border:1px solid #E5E5E5;padding:32px;">

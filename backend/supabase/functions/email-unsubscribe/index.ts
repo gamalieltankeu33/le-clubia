@@ -24,7 +24,7 @@ function page(title: string, message: string, status = 200): Response {
 <html lang="fr"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>${title}</title></head>
 <body style="margin:0;font-family:Inter,Arial,sans-serif;background:#FAFAF9;color:#0A0A0A;">
 <div style="max-width:480px;margin:64px auto;padding:0 24px;text-align:center;">
-  <div style="display:inline-block;background:#1E40AF;color:#fff;font-family:Georgia,serif;font-weight:700;font-size:20px;padding:8px 20px;border-radius:9999px;">leclub<span style="color:#F97316;">.</span>ia</div>
+  <img src="https://leclub-ia.com/brand/wordmark.png" alt="Leclub.ia" width="150" height="34" style="display:block;border:0;outline:none;margin:0 auto;" />
   <h1 style="font-family:Georgia,serif;font-size:22px;margin:32px 0 12px;">${title}</h1>
   <p style="color:#525252;line-height:1.6;font-size:15px;">${message}</p>
   <a href="https://leclub-ia.com" style="display:inline-block;margin-top:24px;color:#1E40AF;font-weight:600;text-decoration:none;">← Retour au site</a>
