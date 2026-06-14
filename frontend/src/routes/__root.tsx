@@ -73,9 +73,12 @@ function RootComponent() {
 function BootLoader() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-3 bg-[var(--background)]">
-      <span className="flex h-10 w-10 animate-pulse items-center justify-center rounded-xl bg-[var(--primary)] text-[var(--primary-foreground)]">
-        <Sparkles className="h-5 w-5" />
-      </span>
+      <img
+        src="/brand/icone.svg"
+        alt="Leclub.ia"
+        className="h-14 w-14 animate-pulse"
+        draggable={false}
+      />
       <span className="text-sm text-[var(--muted-foreground)]">
         Chargement…
       </span>
