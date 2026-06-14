@@ -92,8 +92,8 @@ export function Hero() {
                   <span className="hidden sm:inline">Rejoindre Le Club</span>
                   <span className="sm:hidden">Rejoindre</span>
                   <span className="mx-2 h-4 w-px bg-white/20" />
-                  <span className="hidden sm:inline font-bold">100&nbsp;€/6&nbsp;mois&nbsp;·&nbsp;150&nbsp;€/an</span>
-                  <span className="sm:hidden font-bold">dès 100&nbsp;€/6&nbsp;mois</span>
+                  <span className="hidden sm:inline font-bold">100&nbsp;€/3&nbsp;mois&nbsp;·&nbsp;150&nbsp;€/6&nbsp;mois</span>
+                  <span className="sm:hidden font-bold">dès 100&nbsp;€/3&nbsp;mois</span>
                   <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
                 </span>
                 {/* Shine effect */}
