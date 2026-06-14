@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Test Vimeo embed — Le Club IA</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif;
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 20px;
+      background: #FAFAF9;
+      color: #0A0A0A;
+    }
+    h1 { font-size: 22px; }
+    h2 { font-size: 16px; margin-top: 32px; color: #525252; }
+    .test {
+      background: white;
+      border: 1px solid #E5E5E5;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+    .test code {
+      display: block;
+      background: #F5F5F5;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 11px;
+      margin: 8px 0;
+      word-break: break-all;
+    }
+    .iframe-wrapper {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #000;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+    .iframe-wrapper iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+    .info {
+      font-size: 12px;
+      color: #737373;
+      margin-top: 6px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔬 Diagnostic Vimeo embed</h1>
+  <p>Cette page contient 3 iframes Vimeo. Note ce que tu vois pour chacune :
+  vidéo qui joue, écran noir, ou message d'erreur Vimeo.</p>
+
+  <div class="test">
+    <h2>Test 1 — iframe Vimeo SIMPLE (aucun paramètre)</h2>
+    <code>&lt;iframe src="https://player.vimeo.com/video/1191109086"&gt;&lt;/iframe&gt;</code>
+    <div class="iframe-wrapper">
+      <iframe
+        src="https://player.vimeo.com/video/1191109086"
+        allow="autoplay; fullscreen; picture-in-picture"
+        allowfullscreen
+      ></iframe>
+    </div>
+    <p class="info">Si cette vidéo joue → Vimeo accepte l'embed sur leclub-ia.com. Le problème est dans notre code React.</p>
+  </div>
+
+  <div class="test">
+    <h2>Test 2 — iframe Vimeo AVEC nos paramètres habituels</h2>
+    <code>?dnt=1&amp;playsinline=1&amp;autoplay=0&amp;title=0&amp;byline=0&amp;portrait=0</code>
+    <div class="iframe-wrapper">
+      <iframe
+        src="https://player.vimeo.com/video/1191109086?dnt=1&playsinline=1&autoplay=0&title=0&byline=0&portrait=0"
+        allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media"
+        allowfullscreen
+      ></iframe>
+    </div>
+    <p class="info">Si Test 1 joue mais pas Test 2 → un des paramètres pose problème (probable: dnt).</p>
+  </div>
+
+  <div class="test">
+    <h2>Test 3 — Autre vidéo (Module 1 YouTube Starter)</h2>
+    <code>player.vimeo.com/video/1122959552</code>
+    <div class="iframe-wrapper">
+      <iframe
+        src="https://player.vimeo.com/video/1122959552"
+        allow="autoplay; fullscreen; picture-in-picture"
+        allowfullscreen
+      ></iframe>
+    </div>
+    <p class="info">Pour confirmer que c'est cohérent sur plusieurs vidéos.</p>
+  </div>
+
+  <div class="test">
+    <h2>Diagnostic à m'envoyer</h2>
+    <p>Pour chacun des 3 tests ci-dessus, dis-moi ce que tu vois :</p>
+    <ul>
+      <li><strong>A.</strong> Vidéo qui joue (avec un bouton play)</li>
+      <li><strong>B.</strong> Rectangle noir vide</li>
+      <li><strong>C.</strong> Message d'erreur Vimeo dans l'iframe (texte type "Sorry, this video does not exist")</li>
+    </ul>
+  </div>
+</body>
+</html>
