@@ -128,20 +128,20 @@ type Filter =
 type SortKey = 'created_at' | 'last_active_at' | 'name'
 
 const PLAN_LABELS: Record<string, string> = {
-  annual: 'Annuel',
   semestrial: '6 mois',
+  trimestrial: '3 mois',
   legacy_annual: 'Legacy 79k',
   trial: 'Essai 1 mois',
 }
 
 const PLAN_DURATION_MONTHS: Record<string, number> = {
-  annual: 12,
   semestrial: 6,
+  trimestrial: 3,
   legacy_annual: 12,
   trial: 1,
 }
 
-type ActivatePlanId = 'annual' | 'semestrial' | 'legacy_annual' | 'trial'
+type ActivatePlanId = 'semestrial' | 'trimestrial' | 'legacy_annual' | 'trial'
 
 function AdminMembersPage() {
   const queryClient = useQueryClient()
@@ -334,7 +334,7 @@ function AdminMembersPage() {
   const createMemberMutation = useMutation({
     mutationFn: async (input: {
       email: string
-      plan_id: 'annual' | 'semestrial'
+      plan_id: 'semestrial' | 'trimestrial'
       first_name?: string
       last_name?: string
     }) => {
@@ -401,8 +401,8 @@ function AdminMembersPage() {
       }
       if (filter === 'verified' && !m.is_verified) return false
       if (filter === 'admin' && m.role !== 'admin') return false
-      if (filter === 'plan_annual' && m.plan_id !== 'annual') return false
-      if (filter === 'plan_semestrial' && m.plan_id !== 'semestrial') return false
+      if (filter === 'plan_annual' && m.plan_id !== 'semestrial') return false
+      if (filter === 'plan_semestrial' && m.plan_id !== 'trimestrial') return false
       if (filter === 'plan_legacy' && m.plan_id !== 'legacy_annual') return false
       return true
     })
@@ -518,8 +518,8 @@ function AdminMembersPage() {
             [
               ['all', 'Tous'],
               ['active_sub', 'Abonnement actif'],
-              ['plan_annual', 'Plan annuel'],
-              ['plan_semestrial', 'Plan 6 mois'],
+              ['plan_annual', 'Plan semestriel (6 mois)'],
+              ['plan_semestrial', 'Plan trimestriel (3 mois)'],
               ['plan_legacy', 'Legacy 79k'],
               ['verified', 'Certifiés'],
               ['admin', 'Admins'],
@@ -786,9 +786,9 @@ function PlanCell({
     )
   }
   const tone =
-    planId === 'annual'
+    planId === 'semestrial'
       ? 'bg-[var(--primary)]/10 text-[var(--primary)]'
-      : planId === 'semestrial'
+      : planId === 'trimestrial'
         ? 'bg-[var(--accent)]/15 text-[var(--accent)]'
         : planId === 'trial'
           ? 'bg-blue-100 text-blue-800'
@@ -827,14 +827,14 @@ function ActivateSubscriptionDialog({
   submitting: boolean
 }) {
   // Pré-sélection : 1) plan actuel s'il existe, 2) plan désiré au signup,
-  // 3) annual par défaut (plan recommandé).
-  const [selectedPlanId, setSelectedPlanId] = useState<ActivatePlanId>('annual')
+  // 3) semestrial par défaut (plan recommandé).
+  const [selectedPlanId, setSelectedPlanId] = useState<ActivatePlanId>('semestrial')
 
   useEffect(() => {
     if (!member) return
     if (
-      member.plan_id === 'annual' ||
       member.plan_id === 'semestrial' ||
+      member.plan_id === 'trimestrial' ||
       member.plan_id === 'legacy_annual' ||
       member.plan_id === 'trial'
     ) {
@@ -842,13 +842,13 @@ function ActivateSubscriptionDialog({
       return
     }
     if (
-      member.desired_plan_id === 'annual' ||
-      member.desired_plan_id === 'semestrial'
+      member.desired_plan_id === 'semestrial' ||
+      member.desired_plan_id === 'trimestrial'
     ) {
       setSelectedPlanId(member.desired_plan_id)
       return
     }
-    setSelectedPlanId('annual')
+    setSelectedPlanId('semestrial')
   }, [member])
 
   // Échap + body lock
@@ -924,19 +924,19 @@ function ActivateSubscriptionDialog({
             )}
 
             <PlanRadio
-              id="annual"
-              label="Annuel — 150 €"
-              hint="12 mois · ~13 €/mois ⭐ Recommandé"
-              checked={selectedPlanId === 'annual'}
-              onChange={() => setSelectedPlanId('annual')}
+              id="semestrial"
+              label="Semestriel — 150 €"
+              hint="6 mois · ~25 €/mois ⭐ Recommandé"
+              checked={selectedPlanId === 'semestrial'}
+              onChange={() => setSelectedPlanId('semestrial')}
               disabled={submitting}
             />
             <PlanRadio
-              id="semestrial"
-              label="6 mois — 100 €"
-              hint="6 mois · ~17 €/mois"
-              checked={selectedPlanId === 'semestrial'}
-              onChange={() => setSelectedPlanId('semestrial')}
+              id="trimestrial"
+              label="Trimestriel — 100 €"
+              hint="3 mois · ~33 €/mois"
+              checked={selectedPlanId === 'trimestrial'}
+              onChange={() => setSelectedPlanId('trimestrial')}
               disabled={submitting}
             />
             <PlanRadio
@@ -1132,7 +1132,7 @@ function AddMemberDialog({
   onClose: () => void
   onConfirm: (input: {
     email: string
-    plan_id: 'annual' | 'semestrial'
+    plan_id: 'semestrial' | 'trimestrial'
     first_name?: string
     last_name?: string
   }) => void
@@ -1141,7 +1141,7 @@ function AddMemberDialog({
   const [email, setEmail] = useState('')
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
-  const [planId, setPlanId] = useState<'annual' | 'semestrial'>('annual')
+  const [planId, setPlanId] = useState<'semestrial' | 'trimestrial'>('semestrial')
 
   // Reset form à chaque ouverture
   useEffect(() => {
@@ -1149,7 +1149,7 @@ function AddMemberDialog({
       setEmail('')
       setFirstName('')
       setLastName('')
-      setPlanId('annual')
+      setPlanId('semestrial')
     }
   }, [open])
 
@@ -1274,19 +1274,19 @@ function AddMemberDialog({
               </legend>
               <div className="space-y-2">
                 <PlanRadio
-                  id="add-annual"
-                  label="Annuel — 150 €"
-                  hint="12 mois · ~13 €/mois ⭐ Recommandé"
-                  checked={planId === 'annual'}
-                  onChange={() => setPlanId('annual')}
+                  id="add-semestrial"
+                  label="Semestriel — 150 €"
+                  hint="6 mois · ~25 €/mois ⭐ Recommandé"
+                  checked={planId === 'semestrial'}
+                  onChange={() => setPlanId('semestrial')}
                   disabled={submitting}
                 />
                 <PlanRadio
-                  id="add-semestrial"
-                  label="6 mois — 100 €"
-                  hint="6 mois · ~17 €/mois"
-                  checked={planId === 'semestrial'}
-                  onChange={() => setPlanId('semestrial')}
+                  id="add-trimestrial"
+                  label="Trimestriel — 100 €"
+                  hint="3 mois · ~33 €/mois"
+                  checked={planId === 'trimestrial'}
+                  onChange={() => setPlanId('trimestrial')}
                   disabled={submitting}
                 />
               </div>

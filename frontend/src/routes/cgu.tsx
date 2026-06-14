@@ -106,9 +106,9 @@ function CGUPage() {
       <h2>4. Abonnement et paiement</h2>
       <p>
         L'accès au Service est proposé sous deux formules sans reconduction
-        automatique : un abonnement annuel <strong>Plan Master</strong> à{' '}
-        <strong>150&nbsp;€ TTC</strong> et un abonnement semestriel{' '}
-        <strong>Plan Progress</strong> à <strong>100&nbsp;€ TTC</strong>.
+        automatique : un abonnement semestriel <strong>Plan Master</strong> à{' '}
+        <strong>150&nbsp;€ TTC</strong> (6 mois) et un abonnement trimestriel{' '}
+        <strong>Plan Progress</strong> à <strong>100&nbsp;€ TTC</strong> (3 mois).
       </p>
       <p>
         Le paiement s'effectue par mobile money via les opérateurs partenaires{' '}
@@ -125,7 +125,7 @@ function CGUPage() {
       </p>
       <p>
         L'abonnement <strong>ne se reconduit pas automatiquement</strong>. À
-        l'échéance annuelle, le membre choisit librement de renouveler ou non
+        l'échéance, le membre choisit librement de renouveler ou non
         son abonnement. Aucun débit ne sera effectué sans action explicite de
         sa part.
       </p>
@@ -157,7 +157,7 @@ function CGUPage() {
 
       <h2>6. Services inclus</h2>
       <p>
-        L'abonnement annuel donne accès, pour la durée du contrat, à
+        L'abonnement donne accès, pour la durée du contrat, à
         l'ensemble des services suivants :
       </p>
       <ul>

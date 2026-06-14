@@ -245,7 +245,7 @@ function copyForStage(stage: number, name: string, daysLeft: number): Copy {
   <li><strong>Le coaching live mensuel</strong> avec des experts IA.</li>
   <li>Et bien sûr, ton accès continue sans coupure.</li>
 </ul>
-<p style="margin:0;color:#525252;">Plan Progress : <strong>100 €/6 mois</strong>. Plan Master : <strong>150 €/an</strong> (le plus avantageux).</p>`,
+<p style="margin:0;color:#525252;">Plan Progress : <strong>100 €/3 mois</strong>. Plan Master : <strong>150 €/6 mois</strong> (le plus avantageux).</p>`,
         cta: 'Voir les plans',
         ctaUrl: abo,
       }
@@ -258,8 +258,8 @@ function copyForStage(stage: number, name: string, daysLeft: number): Copy {
         body: `<p style="margin:0 0 12px;">${hi}</p>
 <p style="margin:0 0 16px;">Ton accès Plan Découverte se termine dans <strong>${daysLeft} jours</strong>. Pour ne pas couper ton élan, tu peux dès maintenant choisir ton plan suivant :</p>
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#FAFAF9;border:1px solid #E5E5E5;border-radius:12px;padding:14px;margin:16px 0;"><tr><td style="font-size:14px;color:#525252;line-height:1.8;">
-  • <strong>Plan Progress</strong> — 100 €/6 mois — accès complet sans engagement long.<br>
-  • <strong>Plan Master</strong> — 150 €/an — la formule la plus avantageuse (économise 50 €).
+  • <strong>Plan Progress</strong> — 100 €/3 mois — accès complet sans engagement long.<br>
+  • <strong>Plan Master</strong> — 150 €/6 mois — la formule la plus avantageuse (économise 50 €).
 </td></tr></table>
 <p style="margin:0;color:#525252;">Une fois ton mois écoulé, l'accès est coupé. Pour repartir, il faudra repasser par un de ces deux plans.</p>`,
         cta: 'Activer mon plan',
@@ -275,8 +275,8 @@ function copyForStage(stage: number, name: string, daysLeft: number): Copy {
 <p style="margin:0 0 16px;">Ton Plan Découverte se termine aujourd'hui. Tu as exploré le Club pendant 30 jours — merci de la confiance.</p>
 <p style="margin:0 0 16px;">Pour continuer (et débloquer en plus les <strong>formations avancées</strong> et le <strong>coaching live mensuel</strong>), passe à l'un de nos deux plans :</p>
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#FAFAF9;border:1px solid #E5E5E5;border-radius:12px;padding:14px;margin:16px 0;"><tr><td style="font-size:14px;color:#525252;line-height:1.8;">
-  • <strong>Plan Progress</strong> — 100 €/6 mois<br>
-  • <strong>Plan Master</strong> — 150 €/an (<em>économise 50 €</em>)
+  • <strong>Plan Progress</strong> — 100 €/3 mois<br>
+  • <strong>Plan Master</strong> — 150 €/6 mois (<em>économise 50 €</em>)
 </td></tr></table>
 <p style="margin:0;color:#525252;">Pas de pression. Si ce n'est pas le bon moment, on se retrouvera plus tard.</p>`,
         cta: 'Reprendre mon accès',

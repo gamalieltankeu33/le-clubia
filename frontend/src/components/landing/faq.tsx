@@ -20,11 +20,11 @@ const FAQS = [
   },
   {
     q: 'Quels sont les plans disponibles ?',
-    a: "Deux formules sans reconduction automatique : le Plan Master annuel à 150 € (la plus avantageuse, ~12,50 €/mois) et le Plan Progress semestriel à 100 € (~16,67 €/mois). Tu choisis au moment de t'inscrire.",
+    a: "Deux formules sans reconduction automatique : le Plan Master semestriel à 150 € (~25 €/mois) et le Plan Progress trimestriel à 100 € (~33 €/mois). Tu choisis au moment de t'inscrire.",
   },
   {
     q: "L'abonnement se reconduit-il automatiquement ?",
-    a: "Non. Aucune des deux formules (annuelle ou semestrielle) ne se reconduit automatiquement. Tu ne seras jamais re-débité sans ton accord — tu choisis librement de reconduire au moment voulu.",
+    a: "Non. Aucune des deux formules (trimestrielle ou semestrielle) ne se reconduit automatiquement. Tu ne seras jamais re-débité sans ton accord — tu choisis librement de reconduire au moment voulu.",
   },
   {
     q: 'Les formations sont-elles à jour ?',
@@ -32,7 +32,7 @@ const FAQS = [
   },
   {
     q: 'Y a-t-il un essai gratuit ?',
-    a: "Pas de période d'essai gratuite. Tu choisis entre la formule semestrielle (100 € pour 6 mois) ou annuelle (150 € pour 12 mois), sans reconduction automatique. Tu testes le Club et tu décides librement de reconduire au terme.",
+    a: "Pas de période d'essai gratuite. Tu choisis entre la formule trimestrielle (100 € pour 3 mois) ou semestrielle (150 € pour 6 mois), sans reconduction automatique. Tu testes le Club et tu décides librement de reconduire au terme.",
   },
   {
     q: 'Quelle différence avec une simple newsletter IA ?',

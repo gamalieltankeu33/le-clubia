@@ -837,8 +837,8 @@ interface SubscriptionExpiringData {
   plan_display_name?: string
   /** Date de fin d'accès au format ISO. */
   period_end_iso: string
-  /** ID du plan recommandé pour la reconduction (annual par défaut). */
-  renewal_plan_id?: 'annual' | 'semestrial'
+  /** ID du plan recommandé pour la reconduction (semestrial par défaut). */
+  renewal_plan_id?: 'semestrial' | 'trimestrial'
 }
 
 function tplSubscriptionExpiring(raw: Record<string, unknown>) {
@@ -846,7 +846,7 @@ function tplSubscriptionExpiring(raw: Record<string, unknown>) {
   const firstName = (d.member_first_name ?? '').trim() || ''
   const stage = d.stage === 'j1' ? 'j1' : 'j7'
   const endLabel = formatFrenchDate(d.period_end_iso)
-  const renewalPlan = d.renewal_plan_id === 'semestrial' ? 'semestrial' : 'annual'
+  const renewalPlan = d.renewal_plan_id === 'trimestrial' ? 'trimestrial' : 'semestrial'
   const renewalUrl = `${APP_URL}/checkout?plan=${renewalPlan}`
 
   const isUrgent = stage === 'j1'
@@ -948,7 +948,7 @@ function tplSignupPendingPayment(raw: Record<string, unknown>) {
         </td>
       </tr>
     </table>
-    <p style="margin:16px 0 0;font-size:14px;color:#525252;">Deux formules sans reconduction automatique : <strong>100 €</strong> pour 6 mois ou <strong>150 €</strong> pour 12 mois (la plus avantageuse).</p>
+    <p style="margin:16px 0 0;font-size:14px;color:#525252;">Deux formules sans reconduction automatique : <strong>100 €</strong> pour 3 mois ou <strong>150 €</strong> pour 6 mois (la plus avantageuse).</p>
     <p style="margin:16px 0 0;font-size:13px;color:#737373;">Une question ? Réponds simplement à cet email — on te répondra rapidement.</p>
   `
 
@@ -966,7 +966,7 @@ function tplSignupPendingPayment(raw: Record<string, unknown>) {
     text: plainText({
       title: 'Finalise ton inscription',
       subtitle: 'Encore une étape avant de rejoindre le Club',
-      body: `${firstName ? `Bienvenue ${firstName} !` : 'Bienvenue !'}\n\nTon compte vient d'être créé sur Le Club IA. Il ne te reste qu'une dernière étape : choisir ton plan et finaliser ton paiement pour débloquer l'accès complet à la communauté.\n\nFormules : 100 € pour 6 mois ou 150 € pour 12 mois (la plus avantageuse).`,
+      body: `${firstName ? `Bienvenue ${firstName} !` : 'Bienvenue !'}\n\nTon compte vient d'être créé sur Le Club IA. Il ne te reste qu'une dernière étape : choisir ton plan et finaliser ton paiement pour débloquer l'accès complet à la communauté.\n\nFormules : 100 € pour 3 mois ou 150 € pour 6 mois (la plus avantageuse).`,
       ctaUrl: `${APP_URL}/abonnement`,
       ctaLabel: 'Choisir mon plan',
     }),

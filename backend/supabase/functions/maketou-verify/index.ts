@@ -165,7 +165,7 @@ serve(async (req: Request) => {
   // -------- 6. Branchement selon status ---------------------------------
   if (cart.status === 'completed') {
     // Récupère la durée + prix + display_name du plan
-    const planId = metaPlanId || 'annual'
+    const planId = metaPlanId || 'semestrial'
     const { data: plan } = await adminClient
       .from('pricing_plans')
       .select('display_name, price_xof, duration_months')

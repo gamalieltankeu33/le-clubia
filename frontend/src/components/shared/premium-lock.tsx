@@ -69,20 +69,20 @@ export function PremiumLockedScreen({
         <p className="mx-auto mt-3 max-w-md text-[var(--muted-foreground)]">
           {article === 'cette formation' ? 'Cette formation fait' : 'Cette ressource fait'}{' '}
           partie du programme avancé du Club, accessible uniquement avec un
-          <strong className="text-[var(--foreground)]"> plan 6 mois ou annuel</strong>.
+          <strong className="text-[var(--foreground)]"> plan trimestriel ou semestriel</strong>.
         </p>
 
         <div className="mt-8 grid gap-3 sm:grid-cols-2">
           <PlanTeaser
-            title="6 mois"
+            title="3 mois"
             price="100 €"
-            sub="~17 €/mois"
+            sub="~33 €/mois"
             recommended={false}
           />
           <PlanTeaser
-            title="Annuel"
+            title="6 mois"
             price="150 €"
-            sub="~13 €/mois — meilleure offre"
+            sub="~25 €/mois — meilleure offre"
             recommended
           />
         </div>

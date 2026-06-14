@@ -512,7 +512,7 @@ function ProfilPage() {
               </p>
               <p className="mt-1 text-sm text-[var(--muted-foreground)]">
                 Rejoins Le Club pour débloquer l'accès complet aux 4 piliers.
-                Choisis entre la formule semestrielle ou annuelle.
+                Choisis entre la formule trimestrielle (3 mois) ou semestrielle (6 mois).
               </p>
               <Button asChild className="mt-4">
                 <a href="/#tarif">
@@ -687,10 +687,10 @@ function SubscriptionCard() {
   // Fallback display name si la requête plan échoue ou si plan_id null.
   const planLabel =
     planQuery.data?.display_name ??
-    (planId === 'annual'
-      ? 'Annuel'
-      : planId === 'semestrial'
-        ? '6 mois'
+    (planId === 'semestrial'
+      ? 'Semestriel (6 mois)'
+      : planId === 'trimestrial'
+        ? 'Trimestriel (3 mois)'
         : isLegacy
           ? 'Annuel (ancien tarif)'
           : 'Membre du Club')

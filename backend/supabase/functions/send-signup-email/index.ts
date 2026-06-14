@@ -166,7 +166,7 @@ function renderTemplate(firstName: string) {
               <li>Coaching live mensuel avec experts IA</li>
             </ul>
           </td></tr></table>
-          <p style="margin:16px 0 0;font-size:14px;color:#525252;">Deux formules sans reconduction automatique : <strong>100 €</strong> pour 6 mois ou <strong>150 €</strong> pour 12 mois (la plus avantageuse).</p>
+          <p style="margin:16px 0 0;font-size:14px;color:#525252;">Deux formules sans reconduction automatique : <strong>100 €</strong> pour 3 mois ou <strong>150 €</strong> pour 6 mois (la plus avantageuse).</p>
           <p style="margin:16px 0 0;font-size:13px;color:#737373;">Une question ? Réponds simplement à cet email — on te répondra rapidement.</p>
         </td></tr>
         <tr><td align="center" style="padding:24px 0 0;"><a href="${ctaUrl}" style="display:inline-block;background:#1E40AF;color:#ffffff;text-decoration:none;font-weight:600;font-size:16px;padding:14px 28px;border-radius:9999px;font-family:Inter,Arial,sans-serif;">Choisir mon plan</a></td></tr>
@@ -193,7 +193,7 @@ function renderTemplate(firstName: string) {
     ``,
     `Ton compte vient d'être créé sur Le Club IA. Il ne te reste qu'une dernière étape : choisir ton plan et finaliser ton paiement pour débloquer l'accès complet à la communauté.`,
     ``,
-    `Formules : 100 € pour 6 mois ou 150 € pour 12 mois (la plus avantageuse).`,
+    `Formules : 100 € pour 3 mois ou 150 € pour 6 mois (la plus avantageuse).`,
     ``,
     `Choisir mon plan : ${ctaUrl}`,
     ``,

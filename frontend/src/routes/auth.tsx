@@ -40,13 +40,13 @@ function AuthPage() {
   const [mfaFactorId, setMfaFactorId] = useState<string | null>(null)
   const [mfaCode, setMfaCode] = useState('')
 
-  // Plan choisi sur la landing : passé en query param ?plan=annual|semestrial.
+  // Plan choisi sur la landing : passé en query param ?plan=semestrial|trimestrial.
   // On le mémorise et on l'enregistre dans profiles.desired_plan_id après
   // signup pour que l'admin puisse pré-sélectionner ce plan à l'activation.
   const desiredPlanId = useMemo(() => {
     if (typeof window === 'undefined') return null
     const raw = new URLSearchParams(window.location.search).get('plan')
-    if (raw === 'annual' || raw === 'semestrial') return raw
+    if (raw === 'semestrial' || raw === 'trimestrial') return raw
     return null
   }, [])
 
@@ -275,9 +275,9 @@ function AuthPage() {
           {desiredPlanId && isSignup && (
             <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-[var(--primary)]/10 px-3 py-1.5 text-xs font-medium text-[var(--primary)]">
               <Sparkles className="h-3.5 w-3.5" />
-              {desiredPlanId === 'annual'
-                ? 'Plan choisi : Annuel — 150 €'
-                : 'Plan choisi : 6 mois — 100 €'}
+              {desiredPlanId === 'semestrial'
+                ? 'Plan choisi : Semestriel — 150 €'
+                : 'Plan choisi : Trimestriel — 100 €'}
             </div>
           )}
 
