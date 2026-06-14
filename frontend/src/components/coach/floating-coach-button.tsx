@@ -1,5 +1,4 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { MessageCircle } from 'lucide-react'
 import { useCoachStore } from '@/stores/coach-store'
 
 export function FloatingCoachButton() {
@@ -26,7 +25,13 @@ export function FloatingCoachButton() {
             aria-hidden="true"
             className="absolute inset-0 animate-ping rounded-full bg-[var(--primary)] opacity-20"
           />
-          <MessageCircle className="relative h-6 w-6" />
+          <img
+            src="/brand/icone.svg"
+            alt=""
+            aria-hidden="true"
+            className="relative h-8 w-8"
+            draggable={false}
+          />
         </motion.button>
       )}
     </AnimatePresence>
