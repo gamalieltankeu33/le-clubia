@@ -385,13 +385,13 @@ function AccompagnementPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.1 }}
-              className="mt-8 font-display text-5xl font-black leading-[1.05] tracking-tight sm:text-6xl md:text-7xl lg:text-8xl"
+              className="mt-8 font-display text-5xl font-black leading-[1.05] tracking-tight text-white sm:text-6xl md:text-7xl lg:text-8xl"
             >
-              Construisez un business <br />
-              <span className="bg-gradient-to-r from-white via-[var(--accent)] to-blue-400 bg-clip-text text-transparent">
+              <span className="text-white">Construisez un business</span> <br />
+              <span className="bg-gradient-to-r from-white via-[var(--accent)] to-cyan-400 bg-clip-text text-transparent">
                 rentable
               </span>{' '}
-              grâce à l'IA.
+              <span className="text-white">grâce à l'IA.</span>
             </motion.h1>
 
             {/* Sous-titres */}
