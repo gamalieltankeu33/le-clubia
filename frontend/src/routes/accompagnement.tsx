@@ -34,7 +34,8 @@ import {
   Rocket,
   Sliders,
   Database,
-  Code
+  Code,
+  Workflow
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
