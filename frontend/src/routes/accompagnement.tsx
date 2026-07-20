@@ -1,53 +1,47 @@
-import { useEffect, useState, useMemo } from 'react'
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import { useEffect, useState } from 'react'
+import { createFileRoute, Link } from '@tanstack/react-router'
 import {
-  ArrowLeft,
   ArrowRight,
   Check,
-  CheckCircle,
-  HelpCircle,
-  Info,
+  CheckCircle2,
+  ChevronRight,
+  ChevronLeft,
   Loader2,
   Sparkles,
   User,
   Mail,
   Phone,
   Globe,
-  Briefcase,
   AlertCircle,
-  Calendar,
-  Layers,
-  ChevronRight,
-  ChevronLeft,
-  Settings,
-  TrendingUp,
-  Cpu,
+  ShieldCheck,
   Target,
   Zap,
-  ShieldCheck,
-  Play,
-  Pause,
-  Award,
-  Flame,
   Bot,
   Compass,
   Rocket,
   Sliders,
-  Database,
-  Code,
-  Workflow
+  Workflow,
+  XCircle,
+  HelpCircle,
+  CheckCircle,
+  TrendingUp,
+  Layers,
+  Search,
+  MessageSquare
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
 import confetti from 'canvas-confetti'
 import { BrandLogo } from '@/components/brand-logo'
 import { supabase } from '@/lib/supabase'
+import { DashboardIllustration } from '@/components/landing/dashboard-illustration'
+import { FaqAccordion, type FaqItem } from '@/components/landing/faq-accordion'
 
 export const Route = createFileRoute('/accompagnement')({
   component: AccompagnementPage,
 })
 
-// Options pour les questions à choix multiples
+// Options des questions du formulaire
 const PROJET_TYPES = [
   { value: 'Je veux lancer mon premier business', label: 'Je veux lancer mon premier business' },
   { value: "J'ai déjà un business", label: "J'ai déjà un business" },
@@ -83,110 +77,69 @@ const BUDGET_OPTIONS = [
   { value: 'Plus de 3 000 €', label: 'Plus de 3 000 €' },
 ]
 
-// Données des phases de la méthode (Expérience Jour par Jour / Étape par Étape)
-const METHOD_STEPS = [
+// Questions FAQ
+const FAQ_ITEMS: FaqItem[] = [
   {
-    id: 'step-1',
-    stepNumber: '01',
-    name: 'Clarifier',
-    subtitle: 'Marché, Client, Offre & Promesse',
-    tagline: 'Construire des fondations solides avant d\'écrire la moindre ligne de code ou de prompt.',
-    duration: 'Semaine 1 — Clarté Totale',
-    points: [
-      'Analyse de votre profil & identification de votre angle d\'attaque unique.',
-      'Étude de marché ciblée & définition de l\'Avatar Client idéal.',
-      'Création d\'une offre irrésistible à haute valeur ajoutée.',
-      'Rédaction de votre promesse de vente claire et percutante.'
-    ],
-    mockupType: 'blueprint',
-    previewBadge: 'Phase 1 : Fondations & Offre',
-    stats: [
-      { label: 'Taux de clarté', val: '100%' },
-      { label: 'Livrables', val: 'Feuille de Route' }
-    ]
+    question: "Quelle est la différence entre le Club IA et ce programme d'accompagnement ?",
+    answer: "Le Club IA est une communauté privée autonome avec des formations en libre accès. L'accompagnement premium est un programme intensif sur-mesure dans lequel nous construisons votre business AVEC vous, étape par étape, avec un suivi direct et des automatisations IA configurées pour vous."
   },
   {
-    id: 'step-2',
-    stepNumber: '02',
-    name: 'Construire',
-    subtitle: 'Contenu, Outils & Automatisations IA',
-    tagline: 'Transformer votre savoir-faire en un système automatisé grâce aux meilleurs outils d\'IA.',
-    duration: 'Semaine 2 — Architecture IA',
-    points: [
-      'Création de votre matrice de contenu avec l\'assistance d\'agents IA.',
-      'Mise en place de vos automatisations (Prompts custom, Make, OpenAI API).',
-      'Création de vos produits digitaux ou services packagés.',
-      'Configuration de vos outils d\'acquisition et de capture de leads.'
-    ],
-    mockupType: 'ai-system',
-    previewBadge: 'Phase 2 : Moteur d\'IA & Automatisations',
-    stats: [
-      { label: 'Gain de temps', val: '80%' },
-      { label: 'Automatisations', val: 'Système Opérationnel' }
-    ]
+    question: "Faut-il avoir des compétences techniques en programmation ?",
+    answer: "Non, absolument pas. Nous utilisons des outils d'IA no-code et des architectures pré-construites. Vous n'avez pas besoin de savoir coder pour construire et automatiser votre activité."
   },
   {
-    id: 'step-3',
-    stepNumber: '03',
-    name: 'Lancer',
-    subtitle: 'Acquisition, Ventes & Tunnel',
-    tagline: 'Activer le système d\'acquisition pour générer vos premiers prospects qualifiés et conclure vos ventes.',
-    duration: 'Semaine 3 — Mise sur le Marché',
-    points: [
-      'Déploiement de votre stratégie de contenu d\'attraction.',
-      'Lancement de votre tunnel de conversion optimisé.',
-      'Mise en pratique du script de conversion / diagnostic.',
-      'Génération des premiers prospects qualifiés.'
-    ],
-    mockupType: 'funnel',
-    previewBadge: 'Phase 3 : Tunnel & Premières Ventes',
-    stats: [
-      { label: 'Convertisseurs', val: 'Active' },
-      { label: 'Acquisition', val: 'En direct' }
-    ]
+    question: "Combien de temps faut-il y consacrer chaque semaine ?",
+    answer: "Entre 5 et 10 heures par semaine suffisent pour avancer efficacement. L'objectif est d'optimiser votre temps grâce à l'IA, pas de vous surcharger."
   },
   {
-    id: 'step-4',
-    stepNumber: '04',
-    name: 'Optimiser',
-    subtitle: 'Simplification, Rentabilité & Scaling',
-    tagline: 'Analyser les retours réels, éliminer le superflu et scaler un business rentable et fluide.',
-    duration: 'Semaine 4 & Continu — Évolutivité',
-    points: [
-      'Analyse des conversions et ajustement des messages.',
-      'Délégation des tâches répétitives aux assistants IA.',
-      'Simplification des processus pour maximiser la marge nette.',
-      'Accompagnement continu et ajustements personnalisés.'
-    ],
-    mockupType: 'scaling',
-    previewBadge: 'Phase 4 : Optimisation & Rentrabilité',
-    stats: [
-      { label: 'Efficacité', val: 'Max' },
-      { label: 'Posture', val: 'Fondateur IA' }
-    ]
+    question: "Comment se déroule l'appel stratégique après la candidature ?",
+    answer: "L'appel dure environ 30 minutes. Il s'agit d'un diagnostic 100% objectif de votre projet. Nous analysons si notre accompagnement est la solution optimale pour vous. Il n'y a aucune pression commerciale."
+  },
+  {
+    question: "Que se passe-t-il si mon profil n'est pas retenu pour l'accompagnement ?",
+    answer: "Si nous estimons que ce n'est pas le bon moment ou que votre projet correspond mieux à une autre étape, nous vous orienterons en toute transparence vers le Club IA ou vers des ressources adaptées."
+  }
+]
+
+// Phases de transformation
+const TRANSFORMATION_STEPS = [
+  {
+    num: '01',
+    title: 'Clarifier',
+    subtitle: 'Positionnement • Client • Offre',
+    desc: 'Définir un positionnement unique et une offre irrésistible qui répond à un vrai besoin de marché.',
+    deliverables: ['Audit de profil & compétences', 'Avatar client idéal', 'Promesse de vente à haute valeur']
+  },
+  {
+    num: '02',
+    title: 'Construire',
+    subtitle: 'Contenu • Audience • Automatisation',
+    desc: 'Créer votre système de contenu et déployer vos agents & automatisations IA sur-mesure.',
+    deliverables: ['Matrice de contenu IA', 'Automatisations (Make, OpenAI, Prompts)', 'Produits digitaux ou services packagés']
+  },
+  {
+    num: '03',
+    title: 'Lancer',
+    subtitle: 'Acquisition • Ventes • Tunnel',
+    desc: 'Mettre en ligne votre tunnel d\'acquisition et convertir vos premiers prospects qualifiés.',
+    deliverables: ['Tunnel de conversion prêt-à-vendre', 'Script de diagnostic & vente', 'Premiers prospects engagés']
+  },
+  {
+    num: '04',
+    title: 'Optimiser',
+    subtitle: 'Système • Croissance • Automatisation',
+    desc: 'Simplifier vos opérations pour maximiser la rentabilité et déléguer 80% des tâches répétitives à l\'IA.',
+    deliverables: ['Analyse de performance', 'Délégation totale aux assistants IA', 'Business prêt à scaler']
   }
 ]
 
 function AccompagnementPage() {
-  const navigate = useNavigate()
   const [step, setStep] = useState(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [activeImmersiveStep, setActiveImmersiveStep] = useState(0)
 
-  // Stepper interactif (Notre méthode)
-  const [activeStepIndex, setActiveStepIndex] = useState(0)
-  const [autoPlay, setAutoPlay] = useState(true)
-
-  // Auto-play du Stepper (Inspiration Framer / Elliott Pierret)
-  useEffect(() => {
-    if (!autoPlay) return
-    const timer = setInterval(() => {
-      setActiveStepIndex((prev) => (prev + 1) % METHOD_STEPS.length)
-    }, 6000)
-    return () => clearInterval(timer)
-  }, [autoPlay])
-
-  // Formulaire state
+  // Formulaire State
   const [formData, setFormData] = useState({
     nom: '',
     prenom: '',
@@ -207,12 +160,10 @@ function AccompagnementPage() {
     candidat_raison: '',
   })
 
-  // Gestion des champs text/select/radio
   const handleChange = (field: keyof typeof formData, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
-  // Smooth scroll
   const scrollToSection = (id: string) => {
     const el = document.getElementById(id)
     if (el) {
@@ -220,7 +171,6 @@ function AccompagnementPage() {
     }
   }
 
-  // Validation par étape
   const isStepValid = (currentStep: number) => {
     if (currentStep === 1) {
       return (
@@ -257,7 +207,6 @@ function AccompagnementPage() {
     return false
   }
 
-  // Soumission finale
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!isStepValid(3)) {
@@ -293,22 +242,20 @@ function AccompagnementPage() {
       if (error) throw error
 
       setSubmitted(true)
-      // Confettis de succès !
       confetti({
         particleCount: 150,
         spread: 90,
         origin: { y: 0.6 },
       })
-      toast.success('Votre candidature a été soumise avec succès !')
+      toast.success('Votre candidature a été transmise avec succès !')
     } catch (err: any) {
       console.error('Erreur lors de la soumission de la candidature:', err)
-      toast.error('Erreur lors de la soumission de votre candidature. Veuillez réessayer.')
+      toast.error('Erreur lors de l\'envoi. Veuillez réessayer.')
     } finally {
       setIsSubmitting(false)
     }
   }
 
-  // Scroll automatique au haut du formulaire quand on change d'étape
   useEffect(() => {
     if (step > 1 && !submitted) {
       const formEl = document.getElementById('qualification-form-section')
@@ -318,237 +265,369 @@ function AccompagnementPage() {
     }
   }, [step])
 
-  const activeMethod = METHOD_STEPS[activeStepIndex]
-
   return (
-    <div className="relative min-h-screen overflow-x-hidden bg-[#030712] text-white selection:bg-[var(--accent)] selection:text-black">
-      {/* Halos cinématiques et grilles dynamiques de fond */}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute -top-48 left-1/2 h-[1100px] w-[1100px] -translate-x-1/2 rounded-full bg-gradient-to-b from-[#0F1E4D]/40 via-[var(--accent)]/10 to-transparent blur-[160px]" />
-        <div className="absolute right-[-10%] top-[30%] h-[700px] w-[700px] rounded-full bg-[var(--accent)]/10 blur-[150px]" />
-        <div className="absolute left-[-10%] top-[60%] h-[800px] w-[800px] rounded-full bg-[var(--primary)]/20 blur-[160px]" />
-        {/* Fine grille en overlay */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:4rem_4rem]" />
-      </div>
-
-      {/* Header premium */}
-      <header className="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-[#030712]/85 backdrop-blur-2xl transition-all duration-300">
-        <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6">
-          <Link to="/" className="flex items-center gap-3">
-            <BrandLogo size="md" variant="inverse" asLink={false} />
-            <span className="font-display text-lg font-bold tracking-tight text-white">Le Club IA</span>
+    <div className="min-h-screen bg-[#FAFAFA] text-[#111111] antialiased selection:bg-indigo-500 selection:text-white">
+      {/* Header Premium SaaS */}
+      <header className="fixed inset-x-0 top-0 z-50 border-b border-gray-200/60 bg-[#FAFAFA]/80 backdrop-blur-xl">
+        <div className="mx-auto flex h-20 max-w-[1100px] items-center justify-between px-6">
+          <Link to="/" className="flex items-center gap-3 transition-opacity hover:opacity-90">
+            <BrandLogo size="md" variant="primary" asLink={false} />
+            <span className="font-display text-base font-bold tracking-tight text-gray-900">
+              Le Club IA
+            </span>
           </Link>
 
           <nav className="flex items-center gap-6 sm:gap-8">
             <Link
               to="/"
-              className="text-sm font-medium text-gray-400 transition-colors hover:text-white"
+              className="text-xs font-semibold text-gray-500 transition-colors hover:text-gray-900"
             >
-              Le Club IA
+              Accueil
             </Link>
             <button
-              onClick={() => scrollToSection('qualifier')}
-              className="hidden text-sm font-medium text-gray-400 transition-colors hover:text-white sm:inline-block"
+              onClick={() => scrollToSection('transformation')}
+              className="hidden text-xs font-semibold text-gray-500 transition-colors hover:text-gray-900 sm:inline-block"
             >
-              Candidater
+              Programme
             </button>
-            <Link
-              to="/auth"
-              className="rounded-full bg-white/10 border border-white/15 px-5 py-2 text-xs font-semibold text-white transition-all hover:bg-white/20 hover:border-white/30"
+            <button
+              onClick={() => scrollToSection('processus')}
+              className="hidden text-xs font-semibold text-gray-500 transition-colors hover:text-gray-900 sm:inline-block"
             >
-              Espace Membre
-            </Link>
+              Processus
+            </button>
+            <button
+              onClick={() => scrollToSection('faq')}
+              className="hidden text-xs font-semibold text-gray-500 transition-colors hover:text-gray-900 sm:inline-block"
+            >
+              FAQ
+            </button>
+            <button
+              onClick={() => scrollToSection('qualifier')}
+              className="rounded-full bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 px-5 py-2 text-xs font-bold text-white shadow-md shadow-indigo-500/20 transition-all hover:scale-105 hover:shadow-indigo-500/30"
+            >
+              Candidater au programme
+            </button>
           </nav>
         </div>
       </header>
 
       <main className="pt-20">
         {/* ================= HERO SECTION ================= */}
-        <section className="relative px-6 py-20 lg:py-32">
-          <div className="mx-auto max-w-5xl text-center">
-            {/* Tagline d'élite avec animation pulsing */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="inline-flex items-center gap-2.5 rounded-full border border-[var(--accent)]/30 bg-[var(--accent)]/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-[var(--accent)] shadow-sm shadow-[var(--accent)]/20"
-            >
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--accent)] opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--accent)]" />
-              </span>
-              Accompagnement Business Premium 1-on-1 & Cohorte
-            </motion.div>
+        <section className="relative overflow-hidden px-6 py-24 lg:py-32">
+          {/* Accent glow de fond */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute -top-40 left-1/2 h-[700px] w-[700px] -translate-x-1/2 rounded-full bg-gradient-to-b from-blue-500/10 via-indigo-500/10 to-transparent blur-3xl"
+          />
 
-            {/* Titre Principal */}
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="mt-8 font-display text-5xl font-black leading-[1.05] tracking-tight text-white sm:text-6xl md:text-7xl lg:text-8xl"
-            >
-              <span className="text-white">Construisez un business</span> <br />
-              <span className="bg-gradient-to-r from-white via-[var(--accent)] to-cyan-400 bg-clip-text text-transparent">
-                rentable
-              </span>{' '}
-              <span className="text-white">grâce à l'IA.</span>
-            </motion.h1>
-
-            {/* Sous-titres */}
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="mx-auto mt-8 max-w-3xl text-xl leading-relaxed text-gray-300 sm:text-2xl"
-            >
-              Passez de l'idée à un véritable business accompagné, étape par étape.
-              Nous vous aidons à transformer vos compétences, vos idées ou votre expertise en un business moderne grâce à l'IA.
-            </motion.p>
-
-            {/* Note d'impact */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
-              className="mx-auto mt-10 max-w-2xl rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-sm text-gray-300 backdrop-blur-md"
-            >
-              ⚡ <span className="font-bold text-white">Vous ne repartez pas avec une simple formation.</span> Vous repartez avec un plan clair, un système automatisé et un business opérationnel que vous construisez avec nous.
-            </motion.div>
-
-            {/* CTA Hero */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.4 }}
-              className="mt-12 flex flex-col items-center justify-center gap-4 sm:flex-row"
-            >
-              <button
-                onClick={() => scrollToSection('qualifier')}
-                className="group relative flex items-center gap-3 rounded-full bg-white px-9 py-4 text-base font-bold text-black transition-all hover:scale-105 hover:bg-gray-100 hover:shadow-xl hover:shadow-blue-500/20"
-              >
-                Candidatez à l'accompagnement
-                <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
-              </button>
-            </motion.div>
-
-            {/* Barre de stats / garanties */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.5 }}
-              className="mt-16 grid grid-cols-2 gap-4 border-t border-white/10 pt-10 sm:grid-cols-4"
-            >
-              {[
-                { label: 'Accompagnement', val: '100% Personnalisé' },
-                { label: 'Méthode', val: '0 Théorie, 100% Action' },
-                { label: 'Parcours', val: '4 Phases Structurées' },
-                { label: 'Objectif', val: 'Système Opérationnel' },
-              ].map((stat, idx) => (
-                <div key={idx} className="p-3 text-center">
-                  <div className="font-display text-lg font-extrabold text-white sm:text-xl">{stat.val}</div>
-                  <div className="mt-1 text-xs text-gray-400 font-medium">{stat.label}</div>
-                </div>
-              ))}
-            </motion.div>
-          </div>
-        </section>
-
-        {/* ================= CE PROGRAMME EST FAIT POUR VOUS SI ================= */}
-        <section className="border-y border-white/10 bg-white/[0.01] px-6 py-20">
-          <div className="mx-auto max-w-4xl">
-            <div className="text-center">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-500/10 px-3 py-1 text-xs font-semibold text-blue-400">
-                <Target className="h-3.5 w-3.5" />
-                Qualification du profil
-              </span>
-              <h2 className="mt-4 font-display text-3xl font-bold sm:text-4xl">
-                Ce programme est peut-être fait pour vous si...
-              </h2>
-            </div>
-            <div className="mt-12 grid gap-5 sm:grid-cols-2">
-              {[
-                "Vous voulez lancer votre premier business grâce à l'IA.",
-                "Vous avez envie de créer une activité qui génère des revenus.",
-                "Vous consommez beaucoup de contenu mais vous passez rarement à l'action.",
-                "Vous cherchez un accompagnement pour construire un vrai système.",
-                "Vous voulez aller beaucoup plus vite en évitant les erreurs."
-              ].map((item, idx) => (
-                <div
-                  key={idx}
-                  className="flex items-start gap-4 rounded-2xl border border-white/10 bg-white/[0.02] p-5 backdrop-blur-md transition-all hover:border-[var(--accent)]/40 hover:bg-white/[0.04]"
+          <div className="mx-auto max-w-[1100px]">
+            <div className="grid gap-12 lg:grid-cols-12 lg:items-center">
+              {/* Gauche : Textes */}
+              <div className="lg:col-span-7">
+                <motion.div
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
+                  className="inline-flex items-center gap-2 rounded-full border border-indigo-200/80 bg-indigo-50/70 px-3.5 py-1 text-[11px] font-bold uppercase tracking-widest text-indigo-700 shadow-sm"
                 >
-                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--accent)]/15 text-[var(--accent)]">
-                    <Check className="h-4 w-4" />
-                  </div>
-                  <p className="text-sm font-medium text-gray-300 leading-relaxed">{item}</p>
-                </div>
-              ))}
+                  <span className="h-1.5 w-1.5 rounded-full bg-indigo-600 animate-pulse" />
+                  Accompagnement Business Premium
+                </motion.div>
+
+                <motion.h1
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.1 }}
+                  className="mt-6 font-display text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl lg:text-6xl leading-[1.08]"
+                >
+                  Construisez un business{' '}
+                  <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 bg-clip-text text-transparent">
+                    rentable
+                  </span>{' '}
+                  grâce à l'IA.
+                </motion.h1>
+
+                <motion.p
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.2 }}
+                  className="mt-6 text-base leading-relaxed text-gray-600 sm:text-lg"
+                >
+                  Passez de l'idée à un véritable business accompagné étape par étape.
+                  Nous vous aidons à transformer vos compétences, vos idées ou votre expertise en un business moderne grâce à l'IA.
+                </motion.p>
+
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.3 }}
+                  className="mt-6 space-y-2 border-l-2 border-indigo-600/80 pl-4 text-sm font-semibold text-gray-800"
+                >
+                  <p>Vous ne repartez pas avec une simple formation.</p>
+                  <p className="text-indigo-600 font-bold">
+                    Vous repartez avec un business construit avec nous.
+                  </p>
+                </motion.div>
+
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.4 }}
+                  className="mt-10 flex flex-col items-start gap-4 sm:flex-row sm:items-center"
+                >
+                  <button
+                    onClick={() => scrollToSection('qualifier')}
+                    className="group inline-flex items-center gap-3 rounded-full bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 px-8 py-4 text-sm font-bold text-white shadow-xl shadow-indigo-500/25 transition-all hover:scale-105 hover:shadow-indigo-500/35"
+                  >
+                    Candidater au programme
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  </button>
+
+                  <span className="text-xs text-gray-500 font-medium">
+                    ⚡ Places limitées • Sélection sur dossier
+                  </span>
+                </motion.div>
+              </div>
+
+              {/* Droite : Illustration SaaS Dashboard */}
+              <div className="lg:col-span-5">
+                <DashboardIllustration />
+              </div>
             </div>
           </div>
         </section>
 
-        {/* ================= LE PROBLÈME VS LA SOLUTION ================= */}
-        <section className="px-6 py-20 lg:py-28">
-          <div className="mx-auto max-w-5xl">
-            <div className="text-center">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-red-500/10 px-3 py-1 text-xs font-semibold text-red-400">
+        {/* ================= SECTION PROBLÈME ================= */}
+        <section className="border-t border-gray-200/60 bg-white px-6 py-24 lg:py-32">
+          <div className="mx-auto max-w-[1100px]">
+            <div className="mx-auto max-w-3xl text-center">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-rose-100/80 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-rose-700">
                 <AlertCircle className="h-3.5 w-3.5" />
                 Le Constat Brutal
               </span>
-              <h2 className="mt-4 font-display text-4xl font-extrabold sm:text-5xl">
-                Le Problème
+              <h2 className="mt-4 font-display text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl">
+                Pourquoi la majorité des personnes n'arrivent jamais à construire un business avec l'IA ?
               </h2>
-              <p className="mx-auto mt-4 max-w-2xl text-lg text-gray-300">
-                Aujourd'hui, il est facile d'apprendre l'IA. <br />
-                <span className="font-bold text-white">Mais apprendre l'IA ne construit pas un business.</span>
+            </div>
+
+            <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {[
+                { title: "Trop d'informations", desc: "Surchargé de vidéos, d'articles et d'actualités contradictoires sans savoir par quoi commencer." },
+                { title: "Trop d'outils", desc: "Tester 50 applications IA par semaine sans jamais finaliser une seule mise en production." },
+                { title: "Aucun plan", desc: "Naviguer à vue jour après jour sans feuille de route claire ni objectifs intermédiaires." },
+                { title: "Beaucoup de théorie", desc: "Comprendre les principes du Prompt Engineering mais ne rien appliquer concrètement." },
+                { title: "Peu d'exécution", desc: "Rester bloqué au stade de l'idée par manque de soutien et de responsabilisation." }
+              ].map((prob, idx) => (
+                <motion.div
+                  key={idx}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: idx * 0.08 }}
+                  className="rounded-2xl border border-gray-200/80 bg-[#FAFAFA] p-6 shadow-sm transition-all hover:bg-white hover:shadow-md hover:border-gray-300"
+                >
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-rose-100 text-rose-600 font-bold text-sm">
+                    ✕
+                  </div>
+                  <h3 className="mt-4 font-display text-lg font-bold text-gray-900">
+                    {prob.title}
+                  </h3>
+                  <p className="mt-2 text-xs leading-relaxed text-gray-600">
+                    {prob.desc}
+                  </p>
+                </motion.div>
+              ))}
+
+              {/* Carte de conclusion remarquable */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+                className="flex flex-col justify-center rounded-2xl border border-indigo-200 bg-gradient-to-br from-indigo-600 to-violet-700 p-6 text-white shadow-xl shadow-indigo-500/20 sm:col-span-2 lg:col-span-1"
+              >
+                <span className="text-xs font-bold uppercase tracking-wider text-indigo-200">
+                  Le diagnostic réel
+                </span>
+                <h3 className="mt-2 font-display text-xl font-extrabold leading-snug">
+                  Le problème n'est pas l'IA. <br />
+                  Le problème est l'absence d'un système.
+                </h3>
+                <p className="mt-3 text-xs text-indigo-100 leading-relaxed">
+                  C'est précisément la structure et l'exécution que nous vous apportons.
+                </p>
+              </motion.div>
+            </div>
+          </div>
+        </section>
+
+        {/* ================= SECTION TRANSFORMATION (TIMELINE PREMIUM) ================= */}
+        <section id="transformation" className="px-6 py-24 lg:py-32">
+          <div className="mx-auto max-w-[1100px]">
+            <div className="mx-auto max-w-3xl text-center">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-100/80 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-indigo-700">
+                <Workflow className="h-3.5 w-3.5" />
+                La Feuille de Route
+              </span>
+              <h2 className="mt-4 font-display text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl">
+                Ce que nous construisons ensemble.
+              </h2>
+              <p className="mt-4 text-base text-gray-600">
+                Un parcours fluide en 4 étapes claires pour passer de l'idée à une entreprise rentable.
               </p>
             </div>
 
-            <div className="mt-14 grid gap-8 lg:grid-cols-2">
-              {/* Sans méthode */}
-              <div className="rounded-3xl border border-red-500/20 bg-gradient-to-b from-[#1C0A0E] to-[#0A0305] p-8 shadow-2xl">
-                <div className="flex items-center justify-between border-b border-red-500/20 pb-4">
-                  <h3 className="font-display text-xl font-bold text-red-400">Sans méthode & Seul</h3>
-                  <span className="rounded-full bg-red-500/20 px-3 py-1 text-xs font-bold text-red-400">Spirale de la distraction</span>
+            <div className="mt-16 grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+              {TRANSFORMATION_STEPS.map((stepItem, idx) => (
+                <motion.div
+                  key={stepItem.num}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: idx * 0.1 }}
+                  className="group relative rounded-2xl border border-gray-200/80 bg-white p-6 shadow-sm transition-all hover:scale-[1.02] hover:shadow-xl hover:shadow-indigo-500/10 hover:border-indigo-200"
+                >
+                  <div className="flex items-center justify-between border-b border-gray-100 pb-4">
+                    <span className="font-display text-2xl font-black text-indigo-600">
+                      Étape {stepItem.num}
+                    </span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                      Phase {idx + 1}
+                    </span>
+                  </div>
+
+                  <h3 className="mt-4 font-display text-xl font-bold text-gray-900">
+                    {stepItem.title}
+                  </h3>
+                  <div className="mt-1 text-xs font-semibold text-indigo-600">
+                    {stepItem.subtitle}
+                  </div>
+
+                  <p className="mt-3 text-xs leading-relaxed text-gray-600">
+                    {stepItem.desc}
+                  </p>
+
+                  <div className="mt-6 space-y-2 border-t border-gray-100 pt-4">
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                      Livrables :
+                    </div>
+                    {stepItem.deliverables.map((deliv, dIdx) => (
+                      <div key={dIdx} className="flex items-center gap-2 text-xs text-gray-700 font-medium">
+                        <Check className="h-3.5 w-3.5 text-indigo-600 shrink-0" />
+                        <span>{deliv}</span>
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ================= SECTION RÉSULTATS ================= */}
+        <section className="border-t border-gray-200/60 bg-white px-6 py-24 lg:py-32">
+          <div className="mx-auto max-w-[1100px]">
+            <div className="mx-auto max-w-3xl text-center">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100/80 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-emerald-700">
+                <CheckCircle2 className="h-3.5 w-3.5" />
+                Résultats Garantis
+              </span>
+              <h2 className="mt-4 font-display text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl">
+                À la fin du programme, vous repartez avec :
+              </h2>
+            </div>
+
+            <div className="mt-16 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+              {[
+                { title: "Une offre claire", desc: "Packagée, prête à être vendue au juste prix.", icon: Target },
+                { title: "Un positionnement", desc: "Distinction nette face à la concurrence.", icon: Sparkles },
+                { title: "Une stratégie de contenu", desc: "Système de création assisté par IA.", icon: Compass },
+                { title: "Un système d'acquisition", desc: "Tunnel d'attraction et de conversion.", icon: Zap },
+                { title: "Vos automatisations IA", desc: "Agents configurés pour vos opérations.", icon: Bot },
+                { title: "Votre feuille de route", desc: "Plan d'action clair pour les 12 prochains mois.", icon: Layers },
+                { title: "Votre business construit", desc: "Une entreprise moderne fonctionnelle.", icon: Rocket },
+                { title: "Un accompagnement", desc: "Suivi continu et réponses à toutes vos questions.", icon: ShieldCheck },
+              ].map((res, idx) => {
+                const IconComp = res.icon
+                return (
+                  <motion.div
+                    key={idx}
+                    initial={{ opacity: 0, y: 15 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.4, delay: idx * 0.05 }}
+                    className="flex items-start gap-3.5 rounded-2xl border border-gray-200/80 bg-[#FAFAFA] p-5 shadow-sm transition-all hover:bg-white hover:shadow-md hover:border-gray-300"
+                  >
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
+                      <IconComp className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <h3 className="font-display text-sm font-bold text-gray-900">
+                        {res.title}
+                      </h3>
+                      <p className="mt-1 text-xs text-gray-600 leading-relaxed">
+                        {res.desc}
+                      </p>
+                    </div>
+                  </motion.div>
+                )
+              })}
+            </div>
+          </div>
+        </section>
+
+        {/* ================= SECTION POUR QUI ================= */}
+        <section className="px-6 py-24 lg:py-32">
+          <div className="mx-auto max-w-[1100px]">
+            <div className="grid gap-8 md:grid-cols-2">
+              {/* ✅ Fait pour vous si */}
+              <div className="rounded-3xl border border-emerald-200/80 bg-white p-8 shadow-xl shadow-emerald-500/5">
+                <div className="flex items-center gap-3 border-b border-gray-100 pb-5">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 font-bold">
+                    ✓
+                  </div>
+                  <h3 className="font-display text-xl font-bold text-gray-900">
+                    Ce programme est fait pour vous si :
+                  </h3>
                 </div>
+
                 <div className="mt-6 space-y-4">
                   {[
-                    "Vous regardez des dizaines de vidéos sans avancer.",
-                    "Vous testez des outils sans stratégie globale.",
-                    "Vous accumulez des connaissances théoriques.",
-                    "Vous essayez des prompts au hasard sans résultats.",
-                    "Votre projet stagne et vous perdez votre motivation."
+                    "Vous voulez créer un business grâce à l'IA.",
+                    "Vous êtes prêt à passer à l'action.",
+                    "Vous cherchez un accompagnement.",
+                    "Vous voulez accélérer."
                   ].map((text, idx) => (
-                    <div key={idx} className="flex items-start gap-3">
-                      <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-red-500/20 text-red-400 text-xs font-bold mt-0.5">
-                        ✕
-                      </div>
-                      <span className="text-sm text-gray-400">{text}</span>
+                    <div key={idx} className="flex items-center gap-3">
+                      <Check className="h-4 w-4 text-emerald-600 shrink-0" />
+                      <span className="text-sm font-semibold text-gray-800">{text}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* Avec l'accompagnement */}
-              <div className="rounded-3xl border border-[var(--accent)]/30 bg-gradient-to-b from-[#0F1E4D]/80 to-[#030712] p-8 shadow-2xl relative overflow-hidden">
-                <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-[var(--accent)]/20 blur-2xl" />
-                <div className="flex items-center justify-between border-b border-white/10 pb-4">
-                  <h3 className="font-display text-xl font-bold text-white">Avec l'Accompagnement Premium</h3>
-                  <span className="rounded-full bg-[var(--accent)]/20 px-3 py-1 text-xs font-bold text-[var(--accent)]">Système d'Exécution</span>
+              {/* ❌ Pas fait pour vous si */}
+              <div className="rounded-3xl border border-rose-200/80 bg-white p-8 shadow-xl shadow-rose-500/5">
+                <div className="flex items-center gap-3 border-b border-gray-100 pb-5">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-rose-100 text-rose-600 font-bold">
+                    ✕
+                  </div>
+                  <h3 className="font-display text-xl font-bold text-gray-900">
+                    Ce programme n'est pas fait pour vous si :
+                  </h3>
                 </div>
+
                 <div className="mt-6 space-y-4">
                   {[
-                    "Une méthode claire pas à pas de A à Z.",
-                    "Un plan d'action hebdomadaire sans devinette.",
-                    "Un accompagnement & retour régulier sur votre travail.",
-                    "Des automatisations IA sur-mesure installées.",
-                    "Un business concrètement lancé sur le marché."
+                    "Vous cherchez une méthode miracle.",
+                    "Vous ne souhaitez pas exécuter.",
+                    "Vous voulez uniquement apprendre ChatGPT.",
+                    "Vous cherchez une formation passive."
                   ].map((text, idx) => (
-                    <div key={idx} className="flex items-start gap-3">
-                      <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[var(--accent)]/20 text-[var(--accent)] text-xs font-bold mt-0.5">
-                        ✓
-                      </div>
-                      <span className="text-sm text-gray-200 font-medium">{text}</span>
+                    <div key={idx} className="flex items-center gap-3">
+                      <XCircle className="h-4 w-4 text-rose-500 shrink-0" />
+                      <span className="text-sm font-medium text-gray-600">{text}</span>
                     </div>
                   ))}
                 </div>
@@ -557,330 +636,196 @@ function AccompagnementPage() {
           </div>
         </section>
 
-        {/* ================= CE QUE NOUS CONSTRUISONS ENSEMBLE ================= */}
-        <section className="border-t border-white/10 bg-white/[0.005] px-6 py-20">
-          <div className="mx-auto max-w-5xl text-center">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--accent)]/10 px-3 py-1 text-xs font-semibold text-[var(--accent)]">
-              <Workflow className="h-3.5 w-3.5" />
-              Livrables concréts
-            </span>
-            <h2 className="mt-4 font-display text-3xl font-bold sm:text-4xl lg:text-5xl">
-              Ce que nous construisons ensemble
-            </h2>
-            <p className="mx-auto mt-4 max-w-2xl text-gray-300">
-              Pendant cet accompagnement, nous travaillons ensemble pour construire votre activité. Concrètement, nous allons :
-            </p>
+        {/* ================= SECTION MÉTHODE IMMERSIVE (APPLE-STYLE SCROLL / STEPPER) ================= */}
+        <section className="border-t border-gray-200/60 bg-white px-6 py-24 lg:py-32">
+          <div className="mx-auto max-w-[1100px]">
+            <div className="mx-auto max-w-3xl text-center">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-100/80 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-indigo-700">
+                <Sliders className="h-3.5 w-3.5" />
+                Progression Immersive
+              </span>
+              <h2 className="mt-4 font-display text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl">
+                Suivez votre progression étape par étape.
+              </h2>
+              <p className="mt-4 text-base text-gray-600">
+                Visualisez votre avancée dans le programme comme si vous y étiez.
+              </p>
+            </div>
 
-            <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {[
-                { icon: Target, title: "1. Positionnement", desc: "Définir votre positionnement unique et rentable." },
-                { icon: Sparkles, title: "2. Idée de Business", desc: "Trouver l'idée adaptée à vos compétences." },
-                { icon: Briefcase, title: "3. Offre Irrésistible", desc: "Créer une offre packagée qui répond à un vrai besoin." },
-                { icon: Compass, title: "4. Stratégie de Contenu", desc: "Attirer naturellement vos futurs clients." },
-                { icon: Zap, title: "5. Système d'Acquisition", desc: "Mettre en place votre tunnel de conversion." },
-                { icon: Cpu, title: "6. Automatisations IA", desc: "Déléguer les tâches répétitives à des agents IA." },
-                { icon: Database, title: "7. Produits Digitaux", desc: "Créer vos premiers services ou offres." },
-                { icon: Rocket, title: "8. Lancement Officiel", desc: "Lancer concrètement votre activité." }
-              ].map((item, idx) => {
-                const IconComponent = item.icon
+            {/* Selector Buttons */}
+            <div className="mt-12 flex justify-center gap-2 overflow-x-auto pb-2">
+              {TRANSFORMATION_STEPS.map((s, idx) => {
+                const isActive = activeImmersiveStep === idx
                 return (
-                  <div
-                    key={idx}
-                    className="group relative rounded-2xl border border-white/10 bg-white/[0.02] p-6 text-left backdrop-blur-md transition-all duration-300 hover:scale-[1.02] hover:border-[var(--accent)]/40 hover:bg-white/[0.05]"
+                  <button
+                    key={s.num}
+                    type="button"
+                    onClick={() => setActiveImmersiveStep(idx)}
+                    className={`rounded-full px-5 py-2.5 text-xs font-bold transition-all ${
+                      isActive
+                        ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
                   >
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 text-[var(--accent)] transition-colors group-hover:bg-[var(--accent)] group-hover:text-black">
-                      <IconComponent className="h-5 w-5" />
-                    </div>
-                    <h4 className="mt-4 font-display text-base font-bold text-white">{item.title}</h4>
-                    <p className="mt-2 text-xs text-gray-400 leading-relaxed">{item.desc}</p>
-                  </div>
+                    Étape {s.num} : {s.title}
+                  </button>
                 )
               })}
             </div>
 
-            <div className="mt-12 inline-flex items-center gap-3 rounded-2xl border border-[var(--accent)]/30 bg-[var(--accent)]/[0.05] px-6 py-4 text-sm font-semibold text-[var(--accent)] shadow-lg shadow-[var(--accent)]/5">
-              🎯 <span className="text-white">Notre objectif n'est pas que vous connaissiez mieux l'IA. Notre objectif est que vous construisiez un business.</span>
-            </div>
-          </div>
-        </section>
-
-        {/* ================= NOTRE MÉTHODE (EXPÉRIENCE INTERACTIVE INSPIRÉE D'ELLIOTT PIERRET) ================= */}
-        <section className="px-6 py-20 lg:py-28 relative">
-          <div className="mx-auto max-w-6xl">
-            <div className="text-center">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--accent)]/10 px-3 py-1 text-xs font-semibold text-[var(--accent)]">
-                <Sliders className="h-3.5 w-3.5" />
-                Le Parcours d'Accompagnement
-              </span>
-              <h2 className="mt-4 font-display text-4xl font-extrabold sm:text-5xl">
-                Notre Méthode en 4 Phases
-              </h2>
-              <p className="mt-4 text-gray-300">
-                Cliquez ou parcourez les étapes pour découvrir exactement ce que nous accomplissons ensemble à chaque phase.
-              </p>
-
-              {/* Toggle Auto-play */}
-              <div className="mt-6 inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs text-gray-400">
-                <span>Défilement automatique</span>
-                <button
-                  type="button"
-                  onClick={() => setAutoPlay(!autoPlay)}
-                  className={`flex h-5 w-9 items-center rounded-full p-0.5 transition-colors ${
-                    autoPlay ? 'bg-[var(--accent)]' : 'bg-white/20'
-                  }`}
+            {/* Dynamic Step Display */}
+            <div className="mt-8">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeImmersiveStep}
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -15 }}
+                  transition={{ duration: 0.4 }}
+                  className="rounded-3xl border border-gray-200/80 bg-[#FAFAFA] p-8 shadow-xl"
                 >
-                  <div
-                    className={`h-4 w-4 rounded-full bg-black transition-transform ${
-                      autoPlay ? 'translate-x-4' : 'translate-x-0'
-                    }`}
-                  />
-                </button>
-              </div>
-            </div>
-
-            {/* Composant Stepper Interactif */}
-            <div className="mt-16 grid gap-8 lg:grid-cols-12 lg:items-start">
-              {/* Colonne gauche : Liste des étapes */}
-              <div className="lg:col-span-5 space-y-3">
-                {METHOD_STEPS.map((stepItem, idx) => {
-                  const isActive = idx === activeStepIndex
-                  return (
-                    <button
-                      key={stepItem.id}
-                      type="button"
-                      onClick={() => {
-                        setActiveStepIndex(idx)
-                        setAutoPlay(false)
-                      }}
-                      className={`group relative flex w-full items-center justify-between rounded-2xl border p-5 text-left transition-all duration-300 ${
-                        isActive
-                          ? 'border-[var(--accent)] bg-gradient-to-r from-[#0F1E4D] via-[#0A1435] to-[#030712] shadow-xl shadow-[var(--accent)]/10'
-                          : 'border-white/10 bg-white/[0.02] hover:border-white/20 hover:bg-white/[0.04]'
-                      }`}
-                    >
-                      <div className="flex items-center gap-4">
-                        <span className={`font-display text-2xl font-black ${
-                          isActive ? 'text-[var(--accent)]' : 'text-gray-600 group-hover:text-gray-400'
-                        }`}>
-                          {stepItem.stepNumber}
-                        </span>
-                        <div>
-                          <div className={`font-display text-lg font-bold ${isActive ? 'text-white' : 'text-gray-300'}`}>
-                            {stepItem.name}
+                  <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
+                    <div className="space-y-4 lg:max-w-md">
+                      <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                        Phase 0{activeImmersiveStep + 1}
+                      </span>
+                      <h3 className="font-display text-3xl font-extrabold text-gray-900">
+                        {TRANSFORMATION_STEPS[activeImmersiveStep].title}
+                      </h3>
+                      <p className="text-sm text-gray-600 leading-relaxed">
+                        {TRANSFORMATION_STEPS[activeImmersiveStep].desc}
+                      </p>
+                      <div className="space-y-2 pt-2">
+                        {TRANSFORMATION_STEPS[activeImmersiveStep].deliverables.map((item, i) => (
+                          <div key={i} className="flex items-center gap-2 text-xs font-semibold text-gray-800">
+                            <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                            <span>{item}</span>
                           </div>
-                          <div className="text-xs text-gray-400">{stepItem.subtitle}</div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm flex-1 max-w-lg">
+                      <div className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">
+                        Aperçu de la phase
+                      </div>
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50 border border-gray-100 text-xs font-semibold text-gray-800">
+                          <span>Statut du programme :</span>
+                          <span className="text-indigo-600 font-bold">En progression (Étape {activeImmersiveStep + 1}/4)</span>
+                        </div>
+                        <div className="h-2 w-full rounded-full bg-gray-200 overflow-hidden">
+                          <div
+                            className="h-full bg-gradient-to-r from-blue-600 to-indigo-600 transition-all duration-500"
+                            style={{ width: `${((activeImmersiveStep + 1) / 4) * 100}%` }}
+                          />
                         </div>
                       </div>
-
-                      <ChevronRight className={`h-5 w-5 transition-transform ${
-                        isActive ? 'text-[var(--accent)] translate-x-1' : 'text-gray-600'
-                      }`} />
-
-                      {/* Barre de progression animée pour l'élément actif */}
-                      {isActive && autoPlay && (
-                        <motion.div
-                          key={`progress-${idx}`}
-                          initial={{ width: '0%' }}
-                          animate={{ width: '100%' }}
-                          transition={{ duration: 6, ease: 'linear' }}
-                          className="absolute bottom-0 left-0 h-0.5 rounded-full bg-[var(--accent)]"
-                        />
-                      )}
-                    </button>
-                  )
-                })}
-              </div>
-
-              {/* Colonne droite : Carte détaillée dynamique (Framer Motion) */}
-              <div className="lg:col-span-7">
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={activeMethod.id}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    transition={{ duration: 0.4 }}
-                    className="relative rounded-3xl border border-white/15 bg-gradient-to-br from-[#0B1536] via-[#060D24] to-[#030712] p-8 shadow-2xl backdrop-blur-xl"
-                  >
-                    {/* Header carte */}
-                    <div className="flex items-center justify-between border-b border-white/10 pb-5">
-                      <span className="rounded-full bg-[var(--accent)]/15 px-3.5 py-1 text-xs font-bold text-[var(--accent)] uppercase tracking-wider">
-                        {activeMethod.previewBadge}
-                      </span>
-                      <span className="text-xs font-semibold text-gray-400">
-                        {activeMethod.duration}
-                      </span>
                     </div>
-
-                    {/* Titre & Description */}
-                    <h3 className="mt-6 font-display text-3xl font-extrabold text-white">
-                      Étape {activeMethod.stepNumber} — {activeMethod.name}
-                    </h3>
-                    <p className="mt-2 text-sm leading-relaxed text-gray-300">
-                      {activeMethod.tagline}
-                    </p>
-
-                    {/* Points d'action */}
-                    <div className="mt-8 space-y-3">
-                      <div className="text-xs font-bold uppercase tracking-wider text-gray-400">Objectifs & Livrables :</div>
-                      {activeMethod.points.map((pt, pIdx) => (
-                        <div key={pIdx} className="flex items-start gap-3 rounded-xl bg-white/5 p-3.5 border border-white/5">
-                          <Check className="h-4 w-4 shrink-0 text-[var(--accent)] mt-0.5" />
-                          <span className="text-xs text-gray-200 font-medium leading-relaxed">{pt}</span>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Preview Widget simulé */}
-                    <div className="mt-8 rounded-2xl bg-black/40 p-5 border border-white/10 flex items-center justify-between">
-                      {activeMethod.stats.map((st, sIdx) => (
-                        <div key={sIdx} className="text-center flex-1 border-r border-white/10 last:border-r-0">
-                          <div className="text-xs text-gray-400">{st.label}</div>
-                          <div className="mt-1 font-display text-base font-bold text-[var(--accent)]">{st.val}</div>
-                        </div>
-                      ))}
-                    </div>
-                  </motion.div>
-                </AnimatePresence>
-              </div>
+                  </div>
+                </motion.div>
+              </AnimatePresence>
             </div>
           </div>
         </section>
 
-        {/* ================= LIVRABLES & ANTI-PERSONA ================= */}
-        <section className="border-t border-white/10 bg-white/[0.005] px-6 py-20">
-          <div className="mx-auto max-w-5xl">
-            <div className="grid gap-8 lg:grid-cols-2">
-              {/* Vous repartez avec */}
-              <div className="rounded-3xl border border-white/10 bg-[#081028] p-8 shadow-2xl backdrop-blur-md">
-                <h3 className="font-display text-2xl font-bold text-white flex items-center gap-2">
-                  <CheckCircle className="h-6 w-6 text-[var(--accent)]" />
-                  Vous repartez avec :
-                </h3>
-                <div className="mt-8 space-y-3.5">
-                  {[
-                    "Une offre claire et vendable.",
-                    "Un positionnement de marché unique.",
-                    "Une stratégie de contenu prêt-à-publier.",
-                    "Votre système d'acquisition automatisé.",
-                    "Vos agents & automatisations IA configurés.",
-                    "Votre feuille de route d'exécution.",
-                    "Les outils adaptés à votre business.",
-                    "Un accompagnement personnalisé continu."
-                  ].map((text, idx) => (
-                    <div key={idx} className="flex items-center gap-3">
-                      <div className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--accent)]/20 text-[var(--accent)]">
-                        <Check className="h-3.5 w-3.5" />
-                      </div>
-                      <span className="text-sm text-gray-200 font-medium">{text}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Pas fait pour vous si */}
-              <div className="rounded-3xl border border-red-500/20 bg-[#1A0A0F] p-8 shadow-2xl backdrop-blur-md">
-                <h3 className="font-display text-2xl font-bold text-red-400 flex items-center gap-2">
-                  <AlertCircle className="h-6 w-6 text-red-400" />
-                  Ce programme n'est PAS pour vous si...
-                </h3>
-                <div className="mt-8 space-y-4">
-                  {[
-                    "Vous cherchez une méthode miracle ou de l'argent facile.",
-                    "Vous voulez gagner de l'argent sans travailler.",
-                    "Vous souhaitez simplement apprendre des prompts ChatGPT basiques.",
-                    "Vous n'êtes pas prêt à passer concrètement à l'action."
-                  ].map((text, idx) => (
-                    <div key={idx} className="flex items-start gap-3">
-                      <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-red-500/20 text-red-400 font-bold text-xs mt-0.5">
-                        ✕
-                      </div>
-                      <span className="text-sm text-gray-300 font-medium leading-relaxed">{text}</span>
-                    </div>
-                  ))}
-                </div>
-                <div className="mt-8 rounded-xl bg-white/5 p-4 text-xs text-gray-400 text-center border border-white/5">
-                  ⚠️ Nous travaillons uniquement avec des personnes déterminées qui veulent réellement construire.
-                </div>
-              </div>
+        {/* ================= SECTION PROCESSUS ================= */}
+        <section id="processus" className="px-6 py-24 lg:py-32">
+          <div className="mx-auto max-w-[1100px]">
+            <div className="mx-auto max-w-3xl text-center">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-100/80 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-blue-700">
+                <ShieldCheck className="h-3.5 w-3.5" />
+                Transparence & Confiance
+              </span>
+              <h2 className="mt-4 font-display text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl">
+                Comment rejoindre le programme ?
+              </h2>
+              <p className="mt-4 text-base text-gray-600">
+                Un processus simple, sans aucune pression commerciale.
+              </p>
             </div>
-          </div>
-        </section>
 
-        {/* ================= COMMENT REJOINDRE ================= */}
-        <section className="px-6 py-20 lg:py-28">
-          <div className="mx-auto max-w-4xl text-center">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-500/10 px-3 py-1 text-xs font-semibold text-blue-400">
-              <Calendar className="h-3.5 w-3.5" />
-              Processus d'Admission
-            </span>
-            <h2 className="mt-4 font-display text-3xl font-bold sm:text-4xl">
-              Comment rejoindre l'accompagnement ?
-            </h2>
-            <p className="mt-4 text-gray-300">
-              Un processus simple et sélectif pour vous proposer la solution adaptée.
-            </p>
-
-            <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-4 text-left">
+            <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {[
-                { num: "01", title: "Candidature", desc: "Remplissez le formulaire de qualification en bas de page." },
-                { num: "02", title: "Analyse", desc: "Nous étudions votre profil et votre projet sous 24h à 48h." },
-                { num: "03", title: "Appel", desc: "Si retenu, nous vous invitons à un appel stratégique gratuit." },
-                { num: "04", title: "Orientation", desc: "Recommandation de la solution la plus adaptée à vos objectifs." }
-              ].map((stepItem, idx) => (
-                <div key={idx} className="rounded-2xl border border-white/10 bg-[#091129] p-6 backdrop-blur-md">
-                  <div className="font-display text-xs font-bold text-[var(--accent)] uppercase tracking-wider">Étape {stepItem.num}</div>
-                  <h4 className="mt-2 font-display text-lg font-bold text-white">{stepItem.title}</h4>
-                  <p className="mt-3 text-xs text-gray-400 leading-relaxed">{stepItem.desc}</p>
+                { step: "01", title: "Vous candidatez", desc: "Remplissez le formulaire de qualification en bas de page." },
+                { step: "02", title: "Nous analysons", desc: "Étude attentive de votre profil et de votre projet sous 24h à 48h." },
+                { step: "03", title: "Appel stratégique", desc: "Échange de 30 min basé sur le diagnostic et la faisabilité." },
+                { step: "04", title: "Intégration", desc: "Si retenu, vous rejoignez le programme. Sinon, orientation vers le Club IA." }
+              ].map((p, idx) => (
+                <div key={idx} className="rounded-2xl border border-gray-200/80 bg-white p-6 shadow-sm">
+                  <span className="font-display text-xs font-bold uppercase tracking-wider text-indigo-600">
+                    Étape {p.step}
+                  </span>
+                  <h3 className="mt-2 font-display text-lg font-bold text-gray-900">
+                    {p.title}
+                  </h3>
+                  <p className="mt-2 text-xs leading-relaxed text-gray-600">
+                    {p.desc}
+                  </p>
                 </div>
               ))}
             </div>
 
-            <div className="mt-12">
-              <button
-                onClick={() => scrollToSection('qualifier')}
-                className="inline-flex items-center gap-3 rounded-full bg-white px-9 py-4 text-base font-bold text-black transition-all hover:scale-105 hover:bg-gray-100"
-              >
-                Candidatez à l'accompagnement
-                <ArrowRight className="h-5 w-5" />
-              </button>
+            <div className="mt-12 text-center">
+              <div className="inline-flex items-center gap-2 rounded-2xl border border-gray-200 bg-white px-5 py-3 text-xs font-semibold text-gray-700 shadow-sm">
+                💡 <span className="text-gray-900 font-bold">Aucune pression commerciale.</span> Notre objectif est uniquement de valider si nous pouvons réellement vous aider à réussir.
+              </div>
             </div>
           </div>
         </section>
 
-        {/* ================= FORMULAIRE DE QUALIFICATION ================= */}
-        <section id="qualifier" className="border-t border-white/10 bg-[#020612] px-6 py-20 lg:py-28">
-          <div className="mx-auto max-w-3xl" id="qualification-form-section">
-            <div className="text-center">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--accent)]/15 px-3 py-1 text-xs font-semibold text-[var(--accent)]">
-                <Target className="h-3.5 w-3.5" />
-                Candidature Ouverte
+        {/* ================= SECTION FAQ ================= */}
+        <section id="faq" className="border-t border-gray-200/60 bg-white px-6 py-24 lg:py-32">
+          <div className="mx-auto max-w-[1100px]">
+            <div className="mx-auto max-w-3xl text-center">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-gray-700">
+                <HelpCircle className="h-3.5 w-3.5" />
+                Questions Fréquentes
               </span>
-              <h2 className="mt-4 font-display text-4xl font-black sm:text-5xl">
-                Candidatez à l'accompagnement
+              <h2 className="mt-4 font-display text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl">
+                Tout ce que vous devez savoir.
               </h2>
-              <p className="mt-4 text-gray-400">
-                Prenez 5 minutes pour répondre sincèrement. Ce formulaire nous permet de sélectionner les candidats ayant les meilleures chances de réussite.
+            </div>
+
+            <div className="mt-16 mx-auto max-w-3xl">
+              <FaqAccordion items={FAQ_ITEMS} />
+            </div>
+          </div>
+        </section>
+
+        {/* ================= FORMULAIRE PREMIUM (SAAS INTERFACE) ================= */}
+        <section id="qualifier" className="px-6 py-24 lg:py-32">
+          <div className="mx-auto max-w-[1100px]" id="qualification-form-section">
+            <div className="mx-auto max-w-3xl text-center">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-100/80 px-3.5 py-1 text-[11px] font-bold uppercase tracking-wider text-indigo-700">
+                <Target className="h-3.5 w-3.5" />
+                Candidature Sélective
+              </span>
+              <h2 className="mt-4 font-display text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl">
+                Candidater au programme
+              </h2>
+              <p className="mt-4 text-base text-gray-600">
+                Prenez 5 minutes pour compléter ce formulaire. Il nous permet de préparer votre diagnostic avant notre échange.
               </p>
             </div>
 
-            <div className="mt-12 rounded-3xl border border-white/15 bg-white/[0.02] p-6 sm:p-10 shadow-2xl backdrop-blur-2xl">
+            <div className="mt-14 mx-auto max-w-2xl rounded-3xl border border-gray-200/90 bg-white p-8 sm:p-12 shadow-2xl shadow-indigo-500/5">
               <AnimatePresence mode="wait">
                 {!submitted ? (
                   <form onSubmit={handleSubmit} className="space-y-8">
-                    {/* Indicateur de Progression */}
+                    {/* Progress indicator */}
                     <div>
-                      <div className="flex items-center justify-between text-xs text-gray-400">
+                      <div className="flex items-center justify-between text-xs text-gray-500 font-semibold">
                         <span>Étape {step} sur 3</span>
-                        <span className="font-bold text-white">
-                          {step === 1 && "Coordonnées de contact"}
-                          {step === 2 && "Votre projet & expérience"}
-                          {step === 3 && "Objectifs & capacité d'investissement"}
+                        <span className="font-bold text-gray-900">
+                          {step === 1 && "Coordonnées"}
+                          {step === 2 && "Projet & Expérience"}
+                          {step === 3 && "Engagement & Budget"}
                         </span>
                       </div>
-                      <div className="mt-3 h-2 w-full rounded-full bg-white/10">
+                      <div className="mt-3 h-2 w-full rounded-full bg-gray-100 overflow-hidden">
                         <div
-                          className="h-full rounded-full bg-gradient-to-r from-blue-500 via-[var(--accent)] to-cyan-400 transition-all duration-500"
+                          className="h-full rounded-full bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 transition-all duration-500"
                           style={{ width: `${(step / 3) * 100}%` }}
                         />
                       </div>
@@ -890,18 +835,20 @@ function AccompagnementPage() {
                     {step === 1 && (
                       <motion.div
                         key="step-1"
-                        initial={{ opacity: 0, x: 20 }}
+                        initial={{ opacity: 0, x: 15 }}
                         animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -20 }}
+                        exit={{ opacity: 0, x: -15 }}
                         className="space-y-6"
                       >
-                        <h3 className="font-display text-xl font-bold border-b border-white/10 pb-3">1. Informations personnelles</h3>
-                        
+                        <h3 className="font-display text-lg font-bold text-gray-900 border-b border-gray-100 pb-3">
+                          1. Vos coordonnées
+                        </h3>
+
                         <div className="grid gap-6 sm:grid-cols-2">
                           <div>
-                            <label className="block text-xs font-bold uppercase tracking-wider text-gray-300 mb-2">Prénom *</label>
+                            <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">Prénom *</label>
                             <div className="relative">
-                              <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-gray-500">
+                              <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-gray-400">
                                 <User className="h-4 w-4" />
                               </span>
                               <input
@@ -909,16 +856,16 @@ function AccompagnementPage() {
                                 required
                                 value={formData.prenom}
                                 onChange={(e) => handleChange('prenom', e.target.value)}
-                                className="w-full rounded-xl border border-white/15 bg-white/5 py-3.5 pl-10 pr-4 text-sm text-white placeholder-gray-500 focus:border-[var(--accent)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30"
+                                className="w-full rounded-xl border border-gray-200 bg-[#FAFAFA] py-3.5 pl-10 pr-4 text-sm text-gray-900 placeholder-gray-400 focus:border-indigo-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                                 placeholder="Votre prénom"
                               />
                             </div>
                           </div>
 
                           <div>
-                            <label className="block text-xs font-bold uppercase tracking-wider text-gray-300 mb-2">Nom *</label>
+                            <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">Nom *</label>
                             <div className="relative">
-                              <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-gray-500">
+                              <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-gray-400">
                                 <User className="h-4 w-4" />
                               </span>
                               <input
@@ -926,7 +873,7 @@ function AccompagnementPage() {
                                 required
                                 value={formData.nom}
                                 onChange={(e) => handleChange('nom', e.target.value)}
-                                className="w-full rounded-xl border border-white/15 bg-white/5 py-3.5 pl-10 pr-4 text-sm text-white placeholder-gray-500 focus:border-[var(--accent)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30"
+                                className="w-full rounded-xl border border-gray-200 bg-[#FAFAFA] py-3.5 pl-10 pr-4 text-sm text-gray-900 placeholder-gray-400 focus:border-indigo-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                                 placeholder="Votre nom"
                               />
                             </div>
@@ -934,9 +881,9 @@ function AccompagnementPage() {
                         </div>
 
                         <div>
-                          <label className="block text-xs font-bold uppercase tracking-wider text-gray-300 mb-2">Adresse Email *</label>
+                          <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">Adresse Email *</label>
                           <div className="relative">
-                            <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-gray-500">
+                            <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-gray-400">
                               <Mail className="h-4 w-4" />
                             </span>
                             <input
@@ -944,7 +891,7 @@ function AccompagnementPage() {
                               required
                               value={formData.email}
                               onChange={(e) => handleChange('email', e.target.value)}
-                              className="w-full rounded-xl border border-white/15 bg-white/5 py-3.5 pl-10 pr-4 text-sm text-white placeholder-gray-500 focus:border-[var(--accent)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30"
+                              className="w-full rounded-xl border border-gray-200 bg-[#FAFAFA] py-3.5 pl-10 pr-4 text-sm text-gray-900 placeholder-gray-400 focus:border-indigo-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                               placeholder="votre.email@exemple.com"
                             />
                           </div>
@@ -952,9 +899,9 @@ function AccompagnementPage() {
 
                         <div className="grid gap-6 sm:grid-cols-2">
                           <div>
-                            <label className="block text-xs font-bold uppercase tracking-wider text-gray-300 mb-2">Téléphone (avec indicatif) *</label>
+                            <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">Téléphone (avec indicatif) *</label>
                             <div className="relative">
-                              <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-gray-500">
+                              <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-gray-400">
                                 <Phone className="h-4 w-4" />
                               </span>
                               <input
@@ -962,16 +909,16 @@ function AccompagnementPage() {
                                 required
                                 value={formData.telephone}
                                 onChange={(e) => handleChange('telephone', e.target.value)}
-                                className="w-full rounded-xl border border-white/15 bg-white/5 py-3.5 pl-10 pr-4 text-sm text-white placeholder-gray-500 focus:border-[var(--accent)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30"
+                                className="w-full rounded-xl border border-gray-200 bg-[#FAFAFA] py-3.5 pl-10 pr-4 text-sm text-gray-900 placeholder-gray-400 focus:border-indigo-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                                 placeholder="+33 6 12 34 56 78"
                               />
                             </div>
                           </div>
 
                           <div>
-                            <label className="block text-xs font-bold uppercase tracking-wider text-gray-300 mb-2">Pays de résidence *</label>
+                            <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">Pays de résidence *</label>
                             <div className="relative">
-                              <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-gray-500">
+                              <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-gray-400">
                                 <Globe className="h-4 w-4" />
                               </span>
                               <input
@@ -979,7 +926,7 @@ function AccompagnementPage() {
                                 required
                                 value={formData.pays}
                                 onChange={(e) => handleChange('pays', e.target.value)}
-                                className="w-full rounded-xl border border-white/15 bg-white/5 py-3.5 pl-10 pr-4 text-sm text-white placeholder-gray-500 focus:border-[var(--accent)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30"
+                                className="w-full rounded-xl border border-gray-200 bg-[#FAFAFA] py-3.5 pl-10 pr-4 text-sm text-gray-900 placeholder-gray-400 focus:border-indigo-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                                 placeholder="France, Sénégal, Canada..."
                               />
                             </div>
@@ -992,15 +939,17 @@ function AccompagnementPage() {
                     {step === 2 && (
                       <motion.div
                         key="step-2"
-                        initial={{ opacity: 0, x: 20 }}
+                        initial={{ opacity: 0, x: 15 }}
                         animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -20 }}
+                        exit={{ opacity: 0, x: -15 }}
                         className="space-y-6"
                       >
-                        <h3 className="font-display text-xl font-bold border-b border-white/10 pb-3">2. Votre projet & situation</h3>
+                        <h3 className="font-display text-lg font-bold text-gray-900 border-b border-gray-100 pb-3">
+                          2. Votre projet
+                        </h3>
 
                         <div>
-                          <label className="block text-xs font-bold uppercase tracking-wider text-gray-300 mb-3">Quel est votre projet aujourd'hui ? *</label>
+                          <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-3">Quel est votre projet aujourd'hui ? *</label>
                           <div className="grid gap-3 sm:grid-cols-2">
                             {PROJET_TYPES.map((option) => (
                               <button
@@ -1009,17 +958,10 @@ function AccompagnementPage() {
                                 onClick={() => handleChange('projet_type', option.value)}
                                 className={`flex items-center gap-3 rounded-xl border p-4 text-left text-sm transition-all ${
                                   formData.projet_type === option.value
-                                    ? 'border-[var(--accent)] bg-[var(--accent)]/15 text-white font-bold'
-                                    : 'border-white/10 bg-white/5 text-gray-300 hover:bg-white/10'
+                                    ? 'border-indigo-600 bg-indigo-50/60 font-bold text-indigo-900 shadow-sm'
+                                    : 'border-gray-200 bg-[#FAFAFA] text-gray-700 hover:bg-gray-100'
                                 }`}
                               >
-                                <span className={`h-4.5 w-4.5 rounded-full border flex items-center justify-center shrink-0 ${
-                                  formData.projet_type === option.value
-                                    ? 'border-[var(--accent)] bg-[var(--accent)]'
-                                    : 'border-gray-500'
-                                }`}>
-                                  {formData.projet_type === option.value && <span className="h-2 w-2 rounded-full bg-black" />}
-                                </span>
                                 {option.label}
                               </button>
                             ))}
@@ -1027,7 +969,7 @@ function AccompagnementPage() {
                         </div>
 
                         <div>
-                          <label className="block text-xs font-bold uppercase tracking-wider text-gray-300 mb-2">
+                          <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">
                             Que souhaitez-vous construire grâce à l'IA ? *
                           </label>
                           <textarea
@@ -1035,41 +977,41 @@ function AccompagnementPage() {
                             rows={3}
                             value={formData.projet_ia}
                             onChange={(e) => handleChange('projet_ia', e.target.value)}
-                            className="w-full rounded-xl border border-white/15 bg-white/5 p-4 text-sm text-white placeholder-gray-500 focus:border-[var(--accent)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30"
-                            placeholder="Décrivez en quelques phrases le produit, le service ou l'activité automatisée que vous imaginez..."
+                            className="w-full rounded-xl border border-gray-200 bg-[#FAFAFA] p-4 text-sm text-gray-900 placeholder-gray-400 focus:border-indigo-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                            placeholder="Décrivez l'activité, le produit ou le service automatisé..."
                           />
                         </div>
 
                         <div>
-                          <label className="block text-xs font-bold uppercase tracking-wider text-gray-300 mb-2">
+                          <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">
+                            Quel est votre principal blocage ? *
+                          </label>
+                          <textarea
+                            required
+                            rows={2}
+                            value={formData.projet_blocage}
+                            onChange={(e) => handleChange('projet_blocage', e.target.value)}
+                            className="w-full rounded-xl border border-gray-200 bg-[#FAFAFA] p-4 text-sm text-gray-900 placeholder-gray-400 focus:border-indigo-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                            placeholder="Le manque de temps, la technique, l'acquisition client..."
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">
                             Pourquoi souhaitez-vous lancer ce projet maintenant ? *
                           </label>
                           <textarea
                             required
-                            rows={3}
+                            rows={2}
                             value={formData.projet_raison}
                             onChange={(e) => handleChange('projet_raison', e.target.value)}
-                            className="w-full rounded-xl border border-white/15 bg-white/5 p-4 text-sm text-white placeholder-gray-500 focus:border-[var(--accent)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30"
-                            placeholder="Motivation personnelle, transition de carrière, opportunité..."
+                            className="w-full rounded-xl border border-gray-200 bg-[#FAFAFA] p-4 text-sm text-gray-900 placeholder-gray-400 focus:border-indigo-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                            placeholder="Motivation personnelle, transition professionnelle..."
                           />
                         </div>
 
                         <div>
-                          <label className="block text-xs font-bold uppercase tracking-wider text-gray-300 mb-2">
-                            Quel est aujourd'hui votre plus grand blocage ? *
-                          </label>
-                          <textarea
-                            required
-                            rows={3}
-                            value={formData.projet_blocage}
-                            onChange={(e) => handleChange('projet_blocage', e.target.value)}
-                            className="w-full rounded-xl border border-white/15 bg-white/5 p-4 text-sm text-white placeholder-gray-500 focus:border-[var(--accent)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30"
-                            placeholder="Manque de temps, technique, acquisition clients, clarté..."
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-xs font-bold uppercase tracking-wider text-gray-300 mb-3">
+                          <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-3">
                             Avez-vous déjà essayé de lancer un business ? *
                           </label>
                           <div className="flex gap-4">
@@ -1081,10 +1023,10 @@ function AccompagnementPage() {
                                 key={opt.label}
                                 type="button"
                                 onClick={() => handleChange('deja_essaie', opt.value)}
-                                className={`flex-1 rounded-xl border p-4 text-center text-sm transition-all font-bold ${
+                                className={`flex-1 rounded-xl border p-4 text-center text-sm font-bold transition-all ${
                                   formData.deja_essaie === opt.value
-                                    ? 'border-[var(--accent)] bg-[var(--accent)]/15 text-white'
-                                    : 'border-white/10 bg-white/5 text-gray-400 hover:bg-white/10'
+                                    ? 'border-indigo-600 bg-indigo-50/60 text-indigo-900'
+                                    : 'border-gray-200 bg-[#FAFAFA] text-gray-700 hover:bg-gray-100'
                                 }`}
                               >
                                 {opt.label}
@@ -1099,7 +1041,7 @@ function AccompagnementPage() {
                             animate={{ opacity: 1, height: 'auto' }}
                             className="space-y-2"
                           >
-                            <label className="block text-xs font-bold uppercase tracking-wider text-gray-300 mb-2">
+                            <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">
                               Expliquez-nous rapidement ce que vous avez essayé *
                             </label>
                             <textarea
@@ -1107,14 +1049,14 @@ function AccompagnementPage() {
                               rows={2}
                               value={formData.deja_essaie_details}
                               onChange={(e) => handleChange('deja_essaie_details', e.target.value)}
-                              className="w-full rounded-xl border border-white/15 bg-white/5 p-4 text-sm text-white placeholder-gray-500 focus:border-[var(--accent)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30"
-                              placeholder="Quel business, quels résultats, pourquoi cela n'a pas marché ?"
+                              className="w-full rounded-xl border border-gray-200 bg-[#FAFAFA] p-4 text-sm text-gray-900 placeholder-gray-400 focus:border-indigo-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                              placeholder="Quel projet, quels résultats obtenus ?"
                             />
                           </motion.div>
                         )}
 
                         <div>
-                          <label className="block text-xs font-bold uppercase tracking-wider text-gray-300 mb-3">Où en êtes-vous actuellement ? *</label>
+                          <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-3">Où en êtes-vous aujourd'hui ? *</label>
                           <div className="grid gap-3 sm:grid-cols-2">
                             {STATUTS_ACTUELS.map((option) => (
                               <button
@@ -1123,17 +1065,10 @@ function AccompagnementPage() {
                                 onClick={() => handleChange('statut_actuel', option.value)}
                                 className={`flex items-center gap-3 rounded-xl border p-4 text-left text-sm transition-all ${
                                   formData.statut_actuel === option.value
-                                    ? 'border-[var(--accent)] bg-[var(--accent)]/15 text-white font-bold'
-                                    : 'border-white/10 bg-white/5 text-gray-300 hover:bg-white/10'
+                                    ? 'border-indigo-600 bg-indigo-50/60 font-bold text-indigo-900 shadow-sm'
+                                    : 'border-gray-200 bg-[#FAFAFA] text-gray-700 hover:bg-gray-100'
                                 }`}
                               >
-                                <span className={`h-4.5 w-4.5 rounded-full border flex items-center justify-center shrink-0 ${
-                                  formData.statut_actuel === option.value
-                                    ? 'border-[var(--accent)] bg-[var(--accent)]'
-                                    : 'border-gray-500'
-                                }`}>
-                                  {formData.statut_actuel === option.value && <span className="h-2 w-2 rounded-full bg-black" />}
-                                </span>
                                 {option.label}
                               </button>
                             ))}
@@ -1142,20 +1077,22 @@ function AccompagnementPage() {
                       </motion.div>
                     )}
 
-                    {/* ÉTAPE 3 : OBJECTIFS & BUDGET */}
+                    {/* ÉTAPE 3 : ENGAGEMENT & BUDGET */}
                     {step === 3 && (
                       <motion.div
                         key="step-3"
-                        initial={{ opacity: 0, x: 20 }}
+                        initial={{ opacity: 0, x: 15 }}
                         animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -20 }}
+                        exit={{ opacity: 0, x: -15 }}
                         className="space-y-6"
                       >
-                        <h3 className="font-display text-xl font-bold border-b border-white/10 pb-3">3. Engagement & Budget</h3>
+                        <h3 className="font-display text-lg font-bold text-gray-900 border-b border-gray-100 pb-3">
+                          3. Engagement & Budget
+                        </h3>
 
                         <div>
-                          <label className="block text-xs font-bold uppercase tracking-wider text-gray-300 mb-3">
-                            Combien d'heures pouvez-vous consacrer chaque semaine à votre projet ? *
+                          <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-3">
+                            Combien d'heures pouvez-vous consacrer chaque semaine ? *
                           </label>
                           <div className="grid gap-3 sm:grid-cols-2">
                             {HEURES_SEMAINE_OPTIONS.map((option) => (
@@ -1165,17 +1102,10 @@ function AccompagnementPage() {
                                 onClick={() => handleChange('heures_semaine', option.value)}
                                 className={`flex items-center gap-3 rounded-xl border p-4 text-left text-sm transition-all ${
                                   formData.heures_semaine === option.value
-                                    ? 'border-[var(--accent)] bg-[var(--accent)]/15 text-white font-bold'
-                                    : 'border-white/10 bg-white/5 text-gray-300 hover:bg-white/10'
+                                    ? 'border-indigo-600 bg-indigo-50/60 font-bold text-indigo-900 shadow-sm'
+                                    : 'border-gray-200 bg-[#FAFAFA] text-gray-700 hover:bg-gray-100'
                                 }`}
                               >
-                                <span className={`h-4.5 w-4.5 rounded-full border flex items-center justify-center shrink-0 ${
-                                  formData.heures_semaine === option.value
-                                    ? 'border-[var(--accent)] bg-[var(--accent)]'
-                                    : 'border-gray-500'
-                                }`}>
-                                  {formData.heures_semaine === option.value && <span className="h-2 w-2 rounded-full bg-black" />}
-                                </span>
                                 {option.label}
                               </button>
                             ))}
@@ -1183,22 +1113,22 @@ function AccompagnementPage() {
                         </div>
 
                         <div>
-                          <label className="block text-xs font-bold uppercase tracking-wider text-gray-300 mb-2">
+                          <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">
                             Quel est votre objectif dans les 12 prochains mois ? *
                           </label>
                           <textarea
                             required
-                            rows={3}
+                            rows={2}
                             value={formData.objectif_12m}
                             onChange={(e) => handleChange('objectif_12m', e.target.value)}
-                            className="w-full rounded-xl border border-white/15 bg-white/5 p-4 text-sm text-white placeholder-gray-500 focus:border-[var(--accent)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30"
-                            placeholder="Objectif financier, quitter votre emploi actuel, nombre de clients..."
+                            className="w-full rounded-xl border border-gray-200 bg-[#FAFAFA] p-4 text-sm text-gray-900 placeholder-gray-400 focus:border-indigo-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                            placeholder="Objectif de chiffre d'affaires, autonomie, nombre de clients..."
                           />
                         </div>
 
                         <div>
-                          <label className="block text-xs font-bold uppercase tracking-wider text-gray-300 mb-3">
-                            Si nous pensons pouvoir vous aider, êtes-vous prêt à investir dans un accompagnement ? *
+                          <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-3">
+                            Êtes-vous prêt à investir dans un accompagnement si nous pensons pouvoir vous aider ? *
                           </label>
                           <div className="grid gap-3 sm:grid-cols-3">
                             {PRET_INVESTIR_OPTIONS.map((option) => (
@@ -1208,8 +1138,8 @@ function AccompagnementPage() {
                                 onClick={() => handleChange('pret_investir', option.value)}
                                 className={`rounded-xl border p-4 text-center text-sm transition-all ${
                                   formData.pret_investir === option.value
-                                    ? 'border-[var(--accent)] bg-[var(--accent)]/15 text-white font-bold'
-                                    : 'border-white/10 bg-white/5 text-gray-300 hover:bg-white/10'
+                                    ? 'border-indigo-600 bg-indigo-50/60 font-bold text-indigo-900 shadow-sm'
+                                    : 'border-gray-200 bg-[#FAFAFA] text-gray-700 hover:bg-gray-100'
                                 }`}
                               >
                                 {option.label}
@@ -1219,8 +1149,8 @@ function AccompagnementPage() {
                         </div>
 
                         <div>
-                          <label className="block text-xs font-bold uppercase tracking-wider text-gray-300 mb-3">
-                            Quel budget êtes-vous prêt à investir pour construire votre business ? *
+                          <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-3">
+                            Quel budget êtes-vous prêt à investir ? *
                           </label>
                           <div className="grid gap-3 sm:grid-cols-2">
                             {BUDGET_OPTIONS.map((option) => (
@@ -1230,17 +1160,10 @@ function AccompagnementPage() {
                                 onClick={() => handleChange('budget', option.value)}
                                 className={`flex items-center gap-3 rounded-xl border p-4 text-left text-sm transition-all ${
                                   formData.budget === option.value
-                                    ? 'border-[var(--accent)] bg-[var(--accent)]/15 text-white font-bold'
-                                    : 'border-white/10 bg-white/5 text-gray-300 hover:bg-white/10'
+                                    ? 'border-indigo-600 bg-indigo-50/60 font-bold text-indigo-900 shadow-sm'
+                                    : 'border-gray-200 bg-[#FAFAFA] text-gray-700 hover:bg-gray-100'
                                 }`}
                               >
-                                <span className={`h-4.5 w-4.5 rounded-full border flex items-center justify-center shrink-0 ${
-                                  formData.budget === option.value
-                                    ? 'border-[var(--accent)] bg-[var(--accent)]'
-                                    : 'border-gray-500'
-                                }`}>
-                                  {formData.budget === option.value && <span className="h-2 w-2 rounded-full bg-black" />}
-                                </span>
                                 {option.label}
                               </button>
                             ))}
@@ -1248,28 +1171,28 @@ function AccompagnementPage() {
                         </div>
 
                         <div>
-                          <label className="block text-xs font-bold uppercase tracking-wider text-gray-300 mb-2">
-                            Pourquoi pensez-vous être un bon candidat pour cet accompagnement ? *
+                          <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">
+                            Pourquoi pensez-vous être un bon candidat ? *
                           </label>
                           <textarea
                             required
                             rows={3}
                             value={formData.candidat_raison}
                             onChange={(e) => handleChange('candidat_raison', e.target.value)}
-                            className="w-full rounded-xl border border-white/15 bg-white/5 p-4 text-sm text-white placeholder-gray-500 focus:border-[var(--accent)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30"
-                            placeholder="Décrivez votre rigueur, votre détermination et pourquoi nous devrions vous sélectionner..."
+                            className="w-full rounded-xl border border-gray-200 bg-[#FAFAFA] p-4 text-sm text-gray-900 placeholder-gray-400 focus:border-indigo-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                            placeholder="Décrivez votre niveau de détermination et votre motivation..."
                           />
                         </div>
                       </motion.div>
                     )}
 
                     {/* Navigation du formulaire */}
-                    <div className="flex justify-between border-t border-white/10 pt-6">
+                    <div className="flex justify-between border-t border-gray-100 pt-6">
                       {step > 1 ? (
                         <button
                           type="button"
                           onClick={() => setStep((s) => s - 1)}
-                          className="flex items-center gap-2 text-sm font-bold text-gray-400 hover:text-white transition-colors"
+                          className="flex items-center gap-2 text-xs font-bold text-gray-500 hover:text-gray-900 transition-colors"
                         >
                           <ChevronLeft className="h-4 w-4" />
                           Retour
@@ -1283,7 +1206,7 @@ function AccompagnementPage() {
                           type="button"
                           disabled={!isStepValid(step)}
                           onClick={() => setStep((s) => s + 1)}
-                          className="flex items-center gap-2 rounded-full bg-white px-7 py-3 text-sm font-bold text-black transition-all hover:bg-gray-100 disabled:opacity-40 disabled:hover:bg-white"
+                          className="flex items-center gap-2 rounded-full bg-gray-900 px-7 py-3 text-xs font-bold text-white transition-all hover:bg-black disabled:opacity-40"
                         >
                           Continuer
                           <ChevronRight className="h-4 w-4" />
@@ -1292,16 +1215,16 @@ function AccompagnementPage() {
                         <button
                           type="submit"
                           disabled={!isStepValid(3) || isSubmitting}
-                          className="flex items-center gap-2 rounded-full bg-gradient-to-r from-[var(--accent)] via-blue-500 to-indigo-500 px-9 py-3.5 text-sm font-bold text-black transition-all hover:scale-105 disabled:opacity-40"
+                          className="flex items-center gap-2 rounded-full bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 px-9 py-3.5 text-xs font-bold text-white shadow-lg shadow-indigo-500/25 transition-all hover:scale-105 disabled:opacity-40"
                         >
                           {isSubmitting ? (
                             <>
                               <Loader2 className="h-4 w-4 animate-spin" />
-                              Envoi en cours...
+                              Envoi de votre dossier...
                             </>
                           ) : (
                             <>
-                              Soumettre ma candidature
+                              Candidater au programme
                               <CheckCircle className="h-4 w-4" />
                             </>
                           )}
@@ -1310,47 +1233,42 @@ function AccompagnementPage() {
                     </div>
                   </form>
                 ) : (
-                  // SUCCESS SCREEN
+                  /* Success View */
                   <motion.div
                     key="success"
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="text-center py-12 space-y-6"
+                    className="py-8 text-center space-y-6"
                   >
-                    <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400">
-                      <Check className="h-10 w-10" />
+                    <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+                      <Check className="h-8 w-8" />
                     </div>
-                    
-                    <h3 className="font-display text-3xl font-extrabold text-white">Candidature Reçue !</h3>
-                    
-                    <p className="mx-auto max-w-lg text-gray-300 leading-relaxed">
-                      Félicitations, <span className="font-bold text-white">{formData.prenom}</span>. Votre dossier a été transmis à notre équipe pour analyse.
+
+                    <h3 className="font-display text-2xl font-bold text-gray-900">
+                      Candidature Transmise !
+                    </h3>
+
+                    <p className="text-sm text-gray-600 leading-relaxed max-w-md mx-auto">
+                      Merci <strong className="text-gray-900">{formData.prenom}</strong>. Votre dossier a été enregistré et notre équipe étudie vos réponses sous 24h à 48h.
                     </p>
 
-                    <div className="mx-auto max-w-md rounded-2xl bg-white/[0.03] p-6 text-left border border-white/10 space-y-4 backdrop-blur-md">
-                      <h4 className="text-xs font-bold text-white uppercase tracking-wider">Prochaines étapes :</h4>
-                      <div className="space-y-3.5 text-xs text-gray-300">
-                        <div className="flex gap-3">
-                          <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[var(--accent)]/20 text-[var(--accent)] font-bold">1</span>
-                          <span><strong>Analyse de votre dossier</strong> : Notre équipe étudie vos réponses sous 24h à 48h.</span>
-                        </div>
-                        <div className="flex gap-3">
-                          <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[var(--accent)]/20 text-[var(--accent)] font-bold">2</span>
-                          <span><strong>Invitation à l'appel stratégique</strong> : Si votre profil est retenu, vous recevrez un lien personnalisé par email.</span>
-                        </div>
-                        <div className="flex gap-3">
-                          <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[var(--accent)]/20 text-[var(--accent)] font-bold">3</span>
-                          <span><strong>Diagnostic & Feuille de Route</strong> : Échange de 30 min pour valider la faisabilité de votre projet.</span>
-                        </div>
+                    <div className="rounded-2xl border border-gray-100 bg-[#FAFAFA] p-6 text-left text-xs text-gray-600 space-y-3">
+                      <div className="font-bold text-gray-900 uppercase tracking-wider">Prochaines étapes :</div>
+                      <div className="flex items-start gap-2">
+                        <span className="font-bold text-indigo-600">1.</span>
+                        <span>Analyse de faisabilité de votre projet.</span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <span className="font-bold text-indigo-600">2.</span>
+                        <span>Invitation à un appel stratégique de 30 min (sans pression commerciale).</span>
                       </div>
                     </div>
 
-                    <div className="pt-6">
+                    <div className="pt-4">
                       <Link
                         to="/"
-                        className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-white/20"
+                        className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-6 py-2.5 text-xs font-bold text-gray-800 shadow-sm transition-all hover:bg-gray-50"
                       >
-                        <ArrowLeft className="h-4 w-4" />
                         Retour à l'accueil
                       </Link>
                     </div>
@@ -1362,13 +1280,13 @@ function AccompagnementPage() {
         </section>
       </main>
 
-      {/* Footer minimaliste */}
-      <footer className="border-t border-white/10 bg-[#020510] py-12 text-center text-xs text-gray-500">
-        <div className="mx-auto max-w-6xl px-6 space-y-4">
-          <div className="flex justify-center gap-6 font-medium">
-            <Link to="/cgu" className="hover:text-white transition-colors">CGU</Link>
-            <Link to="/confidentialite" className="hover:text-white transition-colors">Confidentialité</Link>
-            <Link to="/mentions-legales" className="hover:text-white transition-colors">Mentions Légales</Link>
+      {/* Footer Minimaliste */}
+      <footer className="border-t border-gray-200/60 bg-white py-12 text-center text-xs text-gray-500">
+        <div className="mx-auto max-w-[1100px] px-6 space-y-4">
+          <div className="flex justify-center gap-6 font-semibold text-gray-600">
+            <Link to="/cgu" className="hover:text-gray-900 transition-colors">CGU</Link>
+            <Link to="/confidentialite" className="hover:text-gray-900 transition-colors">Confidentialité</Link>
+            <Link to="/mentions-legales" className="hover:text-gray-900 transition-colors">Mentions Légales</Link>
           </div>
           <p>© {new Date().getFullYear()} Leclub.ia — Tous droits réservés.</p>
         </div>
