@@ -18,7 +18,7 @@ function CheckoutPage() {
   const [loading, setLoading] = useState(false)
 
   // Récupère le plan depuis l'URL (?plan=annual|semestrial)
-  const planId = new URLSearchParams(window.location.search).get('plan') as 'semestrial' | 'trimestrial' | null
+  const planId = new URLSearchParams(window.location.search).get('plan') as 'semestrial' | 'trimestrial' | 'annual' | null
 
   async function handlePayment() {
     if (!user || !planId) {
@@ -72,7 +72,7 @@ function CheckoutPage() {
             Finalise ton inscription
           </h1>
           <p className="mt-3 text-[var(--muted-foreground)]">
-            Tu as choisi le <strong className="text-[var(--foreground)] uppercase">{planId === 'semestrial' ? 'Plan Master (6 mois)' : 'Plan Progress (3 mois)'}</strong>.
+            Tu as choisi le <strong className="text-[var(--foreground)] uppercase">{planId === 'annual' ? 'Plan Premium (12 mois)' : planId === 'semestrial' ? 'Plan Master (6 mois)' : 'Plan Progress (3 mois)'}</strong>.
             Prêt à propulser ton potentiel avec l'IA ?
           </p>
 

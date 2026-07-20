@@ -20,6 +20,15 @@ export const Route = createFileRoute('/abonnement')({
 // Fallback si la RPC ne répond pas — garde l'UI utilisable même hors-ligne.
 const FALLBACK_PLANS: PublicPricingPlan[] = [
   {
+    id: 'trimestrial',
+    display_name: 'Plan Progress',
+    price_xof: 100,
+    duration_months: 3,
+    is_recommended: false,
+    description: 'Idéal pour lancer ta transformation IA sur 3 mois.',
+    monthly_price_xof: 33,
+  },
+  {
     id: 'semestrial',
     display_name: 'Plan Master',
     price_xof: 150,
@@ -29,13 +38,13 @@ const FALLBACK_PLANS: PublicPricingPlan[] = [
     monthly_price_xof: 25,
   },
   {
-    id: 'trimestrial',
-    display_name: 'Plan Progress',
-    price_xof: 100,
-    duration_months: 3,
+    id: 'annual',
+    display_name: 'Plan Premium',
+    price_xof: 230,
+    duration_months: 12,
     is_recommended: false,
-    description: 'Idéal pour lancer ta transformation IA sur 3 mois.',
-    monthly_price_xof: 33,
+    description: 'Le meilleur tarif. Maîtrise totale sur 12 mois.',
+    monthly_price_xof: 19,
   },
 ]
 
@@ -92,16 +101,13 @@ function AbonnementPage() {
     return list
   }, [data])
 
-  // Économie réelle du plan annuel vs semestriel sur 12 mois. On la
-  // calcule explicitement par id (et non « le recommandé vs le reste »)
-  // pour rester juste quand le plan trial est dans la liste.
+  // Économie du Plan Premium (12 mois) vs Plan Progress (3 mois) sur 12 mois.
   const savings = useMemo(() => {
-    const annual = plans.find((p) => p.id === 'semestrial')
-    const sem = plans.find((p) => p.id === 'trimestrial')
-    if (!annual || !sem) return null
-    const semFor12Months = (sem.price_xof / sem.duration_months) * 12
-    const annualFor12Months = (annual.price_xof / annual.duration_months) * 12
-    const diff = Math.round(semFor12Months - annualFor12Months)
+    const annualPlan = plans.find((p) => p.id === 'annual')
+    const trimestrial = plans.find((p) => p.id === 'trimestrial')
+    if (!annualPlan || !trimestrial) return null
+    const triFor12 = (trimestrial.price_xof / trimestrial.duration_months) * 12
+    const diff = Math.round(triFor12 - annualPlan.price_xof)
     return diff > 0 ? diff : null
   }, [plans])
 
@@ -196,7 +202,7 @@ function AbonnementPage() {
           {savings && (
             <p className="mt-5 inline-flex items-center gap-2 rounded-full bg-[var(--foreground)] px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-white">
               <span className="h-1.5 w-1.5 rounded-full bg-[var(--accent)]" />
-              {formatXof(savings)} d'économie avec le Plan Master (6 mois)
+              {formatXof(savings)} d'économie avec le Plan Premium (12 mois)
             </p>
           )}
         </div>
@@ -266,15 +272,19 @@ function PlanCard({
   // Copy ghostwriter — chaque pack a son angle d'attaque distinct.
   const tagline = isTrial
     ? 'Goûte au Club sans engagement long.'
-    : isRecommended
-      ? 'La voie de ceux qui ne veulent pas perdre 3 mois.'
-      : "Démarre sans t'engager sur 6 mois."
+    : plan.id === 'annual'
+      ? 'Le meilleur tarif du Club — 19 €/mois seulement.'
+      : isRecommended
+        ? 'La voie de ceux qui ne veulent pas perdre 3 mois.'
+        : "Démarre sans t'engager sur 6 mois."
 
   const ctaLabel = isTrial
     ? 'Démarrer mon essai'
-    : isRecommended
-      ? `Activer mon ${plan.display_name}`
-      : `Choisir ${plan.display_name}`
+    : plan.id === 'annual'
+      ? 'Activer le Plan Premium'
+      : isRecommended
+        ? `Activer mon ${plan.display_name}`
+        : `Choisir ${plan.display_name}`
 
   // Inclusions : trial = idem + note « formations avancées exclues ».
   // C'est la seule différence d'accès — gating géré en Phase 2.

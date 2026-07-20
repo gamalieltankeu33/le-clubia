@@ -46,7 +46,7 @@ function AuthPage() {
   const desiredPlanId = useMemo(() => {
     if (typeof window === 'undefined') return null
     const raw = new URLSearchParams(window.location.search).get('plan')
-    if (raw === 'semestrial' || raw === 'trimestrial') return raw
+    if (raw === 'semestrial' || raw === 'trimestrial' || raw === 'annual') return raw
     return null
   }, [])
 
@@ -275,9 +275,11 @@ function AuthPage() {
           {desiredPlanId && isSignup && (
             <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-[var(--primary)]/10 px-3 py-1.5 text-xs font-medium text-[var(--primary)]">
               <Sparkles className="h-3.5 w-3.5" />
-              {desiredPlanId === 'semestrial'
-                ? 'Plan choisi : Semestriel — 150 €'
-                : 'Plan choisi : Trimestriel — 100 €'}
+              {desiredPlanId === 'annual'
+                ? 'Plan choisi : Premium — 230 €'
+                : desiredPlanId === 'semestrial'
+                  ? 'Plan choisi : Semestriel — 150 €'
+                  : 'Plan choisi : Trimestriel — 100 €'}
             </div>
           )}
 

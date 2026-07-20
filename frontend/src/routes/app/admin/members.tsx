@@ -122,12 +122,14 @@ type Filter =
   | 'active_sub'
   | 'verified'
   | 'admin'
+  | 'plan_premium'
   | 'plan_annual'
   | 'plan_semestrial'
   | 'plan_legacy'
 type SortKey = 'created_at' | 'last_active_at' | 'name'
 
 const PLAN_LABELS: Record<string, string> = {
+  annual: '12 mois',
   semestrial: '6 mois',
   trimestrial: '3 mois',
   legacy_annual: 'Legacy 79k',
@@ -135,13 +137,14 @@ const PLAN_LABELS: Record<string, string> = {
 }
 
 const PLAN_DURATION_MONTHS: Record<string, number> = {
+  annual: 12,
   semestrial: 6,
   trimestrial: 3,
   legacy_annual: 12,
   trial: 1,
 }
 
-type ActivatePlanId = 'semestrial' | 'trimestrial' | 'legacy_annual' | 'trial'
+type ActivatePlanId = 'annual' | 'semestrial' | 'trimestrial' | 'legacy_annual' | 'trial'
 
 function AdminMembersPage() {
   const queryClient = useQueryClient()
@@ -401,6 +404,7 @@ function AdminMembersPage() {
       }
       if (filter === 'verified' && !m.is_verified) return false
       if (filter === 'admin' && m.role !== 'admin') return false
+      if (filter === 'plan_premium' && m.plan_id !== 'annual') return false
       if (filter === 'plan_annual' && m.plan_id !== 'semestrial') return false
       if (filter === 'plan_semestrial' && m.plan_id !== 'trimestrial') return false
       if (filter === 'plan_legacy' && m.plan_id !== 'legacy_annual') return false
@@ -518,8 +522,9 @@ function AdminMembersPage() {
             [
               ['all', 'Tous'],
               ['active_sub', 'Abonnement actif'],
-              ['plan_annual', 'Plan semestriel (6 mois)'],
-              ['plan_semestrial', 'Plan trimestriel (3 mois)'],
+              ['plan_premium', 'Plan Premium (12 mois)'],
+              ['plan_annual', 'Plan Master (6 mois)'],
+              ['plan_semestrial', 'Plan Progress (3 mois)'],
               ['plan_legacy', 'Legacy 79k'],
               ['verified', 'Certifiés'],
               ['admin', 'Admins'],
@@ -833,6 +838,7 @@ function ActivateSubscriptionDialog({
   useEffect(() => {
     if (!member) return
     if (
+      member.plan_id === 'annual' ||
       member.plan_id === 'semestrial' ||
       member.plan_id === 'trimestrial' ||
       member.plan_id === 'legacy_annual' ||
@@ -842,6 +848,7 @@ function ActivateSubscriptionDialog({
       return
     }
     if (
+      member.desired_plan_id === 'annual' ||
       member.desired_plan_id === 'semestrial' ||
       member.desired_plan_id === 'trimestrial'
     ) {
@@ -923,6 +930,14 @@ function ActivateSubscriptionDialog({
               </p>
             )}
 
+            <PlanRadio
+              id="annual"
+              label="Premium — 230 €"
+              hint="12 mois · ~19 €/mois 🏆 Meilleur tarif"
+              checked={selectedPlanId === 'annual'}
+              onChange={() => setSelectedPlanId('annual')}
+              disabled={submitting}
+            />
             <PlanRadio
               id="semestrial"
               label="Semestriel — 150 €"
@@ -1132,7 +1147,7 @@ function AddMemberDialog({
   onClose: () => void
   onConfirm: (input: {
     email: string
-    plan_id: 'semestrial' | 'trimestrial'
+    plan_id: 'annual' | 'semestrial' | 'trimestrial'
     first_name?: string
     last_name?: string
   }) => void
@@ -1141,7 +1156,7 @@ function AddMemberDialog({
   const [email, setEmail] = useState('')
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
-  const [planId, setPlanId] = useState<'semestrial' | 'trimestrial'>('semestrial')
+  const [planId, setPlanId] = useState<'annual' | 'semestrial' | 'trimestrial'>('semestrial')
 
   // Reset form à chaque ouverture
   useEffect(() => {

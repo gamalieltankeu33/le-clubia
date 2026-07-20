@@ -247,7 +247,7 @@ function relanceCopy(stage: number, name: string): Copy {
         heading: 'Ta place est toujours là',
         body: `<p style="margin:0 0 12px;">${hi}</p>
 <p style="margin:0 0 16px;">Pendant que tu hésites, l'IA, elle, n'attend pas. Chaque semaine, les membres du Club prennent une longueur d'avance — sur leur métier, leurs projets, leurs revenus.</p>
-<p style="margin:0;color:#525252;">Deux formules sans reconduction automatique : <strong>100 € / 6 mois</strong> ou <strong>150 € / 12 mois</strong> (la plus avantageuse).</p>`,
+<p style="margin:0;color:#525252;">Deux formules sans reconduction automatique : <strong>100 € / 3 mois</strong> ou <strong>150 € / 6 mois</strong> (la plus avantageuse).</p>`,
         cta: 'Rejoindre le Club',
       }
     case 4:

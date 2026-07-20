@@ -1,7 +1,7 @@
 import { supabase } from './supabase'
 
 export interface MakEtoUCheckoutParams {
-  planId: 'semestrial' | 'trimestrial'
+  planId: 'semestrial' | 'trimestrial' | 'annual'
   email: string
   firstName?: string
   lastName?: string

@@ -46,6 +46,15 @@ const PAYMENT_METHODS = [
 
 const FALLBACK_PLANS: PublicPricingPlan[] = [
   {
+    id: 'annual',
+    display_name: 'Plan Premium',
+    price_xof: 230,
+    duration_months: 12,
+    is_recommended: false,
+    description: 'Le meilleur tarif. Maîtrise totale sur 12 mois.',
+    monthly_price_xof: 19,
+  },
+  {
     id: 'semestrial',
     display_name: 'Plan Master',
     price_xof: 150,
@@ -82,12 +91,11 @@ export function PricingCard() {
   }, [data])
 
   const savings = useMemo(() => {
-    const recommended = plans.find((p) => p.is_recommended)
-    const other = plans.find((p) => !p.is_recommended)
-    if (!recommended || !other) return null
-    const otherFor12Months = (other.price_xof / other.duration_months) * 12
-    const recommendedFor12Months = (recommended.price_xof / recommended.duration_months) * 12
-    const diff = Math.round(otherFor12Months - recommendedFor12Months)
+    const annualPlan = plans.find((p) => p.id === 'annual')
+    const trimestrial = plans.find((p) => p.id === 'trimestrial')
+    if (!annualPlan || !trimestrial) return null
+    const triFor12 = (trimestrial.price_xof / trimestrial.duration_months) * 12
+    const diff = Math.round(triFor12 - annualPlan.price_xof)
     return diff > 0 ? diff : null
   }, [plans])
 
@@ -105,14 +113,14 @@ export function PricingCard() {
               Prêt à dominer l'IA ?
             </h2>
             <p className="mx-auto mt-8 max-w-2xl text-lg leading-relaxed text-[var(--muted-foreground)] sm:text-xl">
-              Tout est inclus dans les deux plans. Le Plan Master (6 mois) te
-              fait économiser <span className="font-bold text-[var(--foreground)]">{savings ? formatXof(savings) : '50 €'}</span>.
+              Tout est inclus dans les trois plans. Le Plan Premium (12 mois) te
+              fait économiser <span className="font-bold text-[var(--foreground)]">{savings ? formatXof(savings) : '170 €'}</span> vs 3 mois.
             </p>
           </Reveal>
         </div>
 
-        <div className="mt-14 grid gap-8 lg:grid-cols-2 lg:items-center max-w-5xl mx-auto">
-          {plans.slice(0, 2).map((plan, idx) => (
+        <div className="mt-14 grid gap-8 lg:grid-cols-3 lg:items-center max-w-6xl mx-auto">
+          {plans.map((plan, idx) => (
             <PricingPlanCard
               key={plan.id}
               plan={plan}

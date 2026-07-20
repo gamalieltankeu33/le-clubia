@@ -687,13 +687,15 @@ function SubscriptionCard() {
   // Fallback display name si la requête plan échoue ou si plan_id null.
   const planLabel =
     planQuery.data?.display_name ??
-    (planId === 'semestrial'
-      ? 'Semestriel (6 mois)'
-      : planId === 'trimestrial'
-        ? 'Trimestriel (3 mois)'
-        : isLegacy
-          ? 'Annuel (ancien tarif)'
-          : 'Membre du Club')
+    (planId === 'annual'
+      ? 'Premium (12 mois)'
+      : planId === 'semestrial'
+        ? 'Semestriel (6 mois)'
+        : planId === 'trimestrial'
+          ? 'Trimestriel (3 mois)'
+          : isLegacy
+            ? 'Annuel (ancien tarif)'
+            : 'Membre du Club')
 
   const priceLabel = planQuery.data
     ? `${planQuery.data.price_xof.toLocaleString('fr-FR').replace(/ |\s/g, ' ')} € / ${planQuery.data.duration_months} mois`
