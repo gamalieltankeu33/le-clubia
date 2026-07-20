@@ -50,6 +50,12 @@ export function LandingHeader() {
               Formations
             </a>
             <Link
+              to="/accompagnement"
+              className="hidden text-sm font-medium text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)] sm:inline-block"
+            >
+              Accompagnement Premium
+            </Link>
+            <Link
               to="/auth"
               className="hidden text-sm font-medium text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)] sm:inline-block"
             >

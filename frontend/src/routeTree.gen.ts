@@ -21,6 +21,7 @@ import { Route as CguRouteImport } from './routes/cgu'
 import { Route as CatalogueRouteImport } from './routes/catalogue'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AppRouteImport } from './routes/app'
+import { Route as AccompagnementRouteImport } from './routes/accompagnement'
 import { Route as AbonnementRouteImport } from './routes/abonnement'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CatalogueIndexRouteImport } from './routes/catalogue.index'
@@ -115,6 +116,11 @@ const AuthRoute = AuthRouteImport.update({
 const AppRoute = AppRouteImport.update({
   id: '/app',
   path: '/app',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccompagnementRoute = AccompagnementRouteImport.update({
+  id: '/accompagnement',
+  path: '/accompagnement',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AbonnementRoute = AbonnementRouteImport.update({
@@ -296,6 +302,7 @@ const AppAdminActualitesIdRoute = AppAdminActualitesIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/abonnement': typeof AbonnementRoute
+  '/accompagnement': typeof AccompagnementRoute
   '/app': typeof AppRouteWithChildren
   '/auth': typeof AuthRoute
   '/catalogue': typeof CatalogueRouteWithChildren
@@ -345,6 +352,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/abonnement': typeof AbonnementRoute
+  '/accompagnement': typeof AccompagnementRoute
   '/auth': typeof AuthRoute
   '/cgu': typeof CguRoute
   '/checkout': typeof CheckoutRoute
@@ -392,6 +400,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/abonnement': typeof AbonnementRoute
+  '/accompagnement': typeof AccompagnementRoute
   '/app': typeof AppRouteWithChildren
   '/auth': typeof AuthRoute
   '/catalogue': typeof CatalogueRouteWithChildren
@@ -443,6 +452,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/abonnement'
+    | '/accompagnement'
     | '/app'
     | '/auth'
     | '/catalogue'
@@ -492,6 +502,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/abonnement'
+    | '/accompagnement'
     | '/auth'
     | '/cgu'
     | '/checkout'
@@ -538,6 +549,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/abonnement'
+    | '/accompagnement'
     | '/app'
     | '/auth'
     | '/catalogue'
@@ -588,6 +600,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AbonnementRoute: typeof AbonnementRoute
+  AccompagnementRoute: typeof AccompagnementRoute
   AppRoute: typeof AppRouteWithChildren
   AuthRoute: typeof AuthRoute
   CatalogueRoute: typeof CatalogueRouteWithChildren
@@ -686,6 +699,13 @@ declare module '@tanstack/react-router' {
       path: '/app'
       fullPath: '/app'
       preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/accompagnement': {
+      id: '/accompagnement'
+      path: '/accompagnement'
+      fullPath: '/accompagnement'
+      preLoaderRoute: typeof AccompagnementRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/abonnement': {
@@ -1033,6 +1053,7 @@ const CatalogueRouteWithChildren = CatalogueRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AbonnementRoute: AbonnementRoute,
+  AccompagnementRoute: AccompagnementRoute,
   AppRoute: AppRouteWithChildren,
   AuthRoute: AuthRoute,
   CatalogueRoute: CatalogueRouteWithChildren,

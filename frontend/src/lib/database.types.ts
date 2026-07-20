@@ -64,6 +64,72 @@ export interface ChapterResource {
 export type Database = {
   public: {
     Tables: {
+      accompagnement_candidatures: {
+        Row: {
+          id: string
+          nom: string
+          prenom: string
+          email: string
+          telephone: string
+          pays: string
+          projet_type: string
+          projet_ia: string
+          projet_raison: string
+          projet_blocage: string
+          deja_essaie: boolean
+          deja_essaie_details: string | null
+          statut_actuel: string
+          heures_semaine: string
+          objectif_12m: string
+          pret_investir: string
+          budget: string
+          candidat_raison: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          nom: string
+          prenom: string
+          email: string
+          telephone: string
+          pays: string
+          projet_type: string
+          projet_ia: string
+          projet_raison: string
+          projet_blocage: string
+          deja_essaie: boolean
+          deja_essaie_details?: string | null
+          statut_actuel: string
+          heures_semaine: string
+          objectif_12m: string
+          pret_investir: string
+          budget: string
+          candidat_raison: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          nom?: string
+          prenom?: string
+          email?: string
+          telephone?: string
+          pays?: string
+          projet_type?: string
+          projet_ia?: string
+          projet_raison?: string
+          projet_blocage?: string
+          deja_essaie?: boolean
+          deja_essaie_details?: string | null
+          statut_actuel?: string
+          heures_semaine?: string
+          objectif_12m?: string
+          pret_investir?: string
+          budget?: string
+          candidat_raison?: string
+          created_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           id: string

@@ -32,6 +32,14 @@ export function LandingFooter() {
                 Formations
               </Link>
             </li>
+            <li>
+              <Link
+                to="/accompagnement"
+                className="text-sm text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
+              >
+                Accompagnement Premium
+              </Link>
+            </li>
             <FooterLink href="#piliers">Communauté</FooterLink>
             <FooterLink href="#piliers">Coach IA</FooterLink>
             <FooterLink href="#piliers">Actualités</FooterLink>
