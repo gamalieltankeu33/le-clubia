@@ -163,7 +163,8 @@ export function AccompagnementPage() {
     }
   }
 
-  // Form Multi-Step State
+  // Form & Transformation State
+  const [activeTransformationStep, setActiveTransformationStep] = useState(0)
   const [currentStep, setCurrentStep] = useState(1)
   const [formData, setFormData] = useState<CandidatureFormData>(INITIAL_FORM_DATA)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -433,75 +434,204 @@ export function AccompagnementPage() {
             </p>
           </div>
 
-          <div className="max-w-4xl mx-auto relative pl-6 sm:pl-10 border-l-2 border-zinc-200 space-y-16">
-            
-            {/* Step 1 */}
-            <div className="relative group">
-              <div className="absolute -left-[31px] sm:-left-[47px] top-0 w-8 h-8 rounded-full bg-white border-2 border-blue-600 flex items-center justify-center font-bold text-xs text-blue-600 shadow-xs">
-                1
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start max-w-6xl mx-auto">
+            {/* Timeline Steps Left Column */}
+            <div className="lg:col-span-7 relative pl-6 sm:pl-10 border-l-2 border-zinc-200 space-y-8">
+              
+              {/* Step 1 */}
+              <div
+                onClick={() => setActiveTransformationStep(0)}
+                className={`relative group cursor-pointer transition-all ${
+                  activeTransformationStep === 0 ? 'scale-[1.01]' : 'opacity-80 hover:opacity-100'
+                }`}
+              >
+                <div className={`absolute -left-[31px] sm:-left-[47px] top-0 w-8 h-8 rounded-full bg-white border-2 flex items-center justify-center font-bold text-xs shadow-xs transition-colors ${
+                  activeTransformationStep === 0 ? 'border-blue-600 text-blue-600 ring-4 ring-blue-100' : 'border-zinc-300 text-zinc-500'
+                }`}>
+                  1
+                </div>
+                <div className={`p-6 rounded-2xl border transition-all ${
+                  activeTransformationStep === 0 ? 'bg-white border-blue-600 shadow-md' : 'bg-white/60 border-zinc-200/80 hover:border-zinc-300'
+                }`}>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-mono font-semibold text-blue-600 uppercase tracking-wider">Étape 01</span>
+                    {activeTransformationStep === 0 && <span className="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded font-medium">Actif</span>}
+                  </div>
+                  <h3 className="text-lg font-bold text-zinc-900 mt-1">Clarifier — Positionnement & Angle Unique</h3>
+                  <p className="text-xs text-zinc-600 leading-relaxed mt-2">
+                    Définition précise de votre angle d'attaque, étude du marché cible et validation de la proposition de valeur pour vous détacher de la concurrence.
+                  </p>
+                </div>
               </div>
-              <div className="p-6 sm:p-8 rounded-2xl bg-white border border-zinc-200/80 shadow-2xs space-y-3">
-                <div className="text-xs font-mono font-semibold text-blue-600 uppercase tracking-wider">Étape 01</div>
-                <h3 className="text-xl font-bold text-zinc-900">Clarifier — Positionnement & Angle Unique</h3>
-                <p className="text-xs sm:text-sm text-zinc-600 leading-relaxed">
-                  Définition précise de votre angle d'attaque, étude du marché cible et validation de la proposition de valeur pour vous détacher de la concurrence.
-                </p>
+
+              {/* Step 2 */}
+              <div
+                onClick={() => setActiveTransformationStep(1)}
+                className={`relative group cursor-pointer transition-all ${
+                  activeTransformationStep === 1 ? 'scale-[1.01]' : 'opacity-80 hover:opacity-100'
+                }`}
+              >
+                <div className={`absolute -left-[31px] sm:-left-[47px] top-0 w-8 h-8 rounded-full bg-white border-2 flex items-center justify-center font-bold text-xs shadow-xs transition-colors ${
+                  activeTransformationStep === 1 ? 'border-purple-600 text-purple-600 ring-4 ring-purple-100' : 'border-zinc-300 text-zinc-500'
+                }`}>
+                  2
+                </div>
+                <div className={`p-6 rounded-2xl border transition-all ${
+                  activeTransformationStep === 1 ? 'bg-white border-purple-600 shadow-md' : 'bg-white/60 border-zinc-200/80 hover:border-zinc-300'
+                }`}>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-mono font-semibold text-purple-600 uppercase tracking-wider">Étape 02</span>
+                    {activeTransformationStep === 1 && <span className="text-[10px] bg-purple-50 text-purple-600 px-2 py-0.5 rounded font-medium">Actif</span>}
+                  </div>
+                  <h3 className="text-lg font-bold text-zinc-900 mt-1">Construire — Offre High-Ticket & Tarification</h3>
+                  <p className="text-xs text-zinc-600 leading-relaxed mt-2">
+                    Packaging d'une offre irrésistible haute valeur, définition des livrables et des tarifs permettant une rentabilité dès les premiers clients.
+                  </p>
+                </div>
               </div>
+
+              {/* Step 3 */}
+              <div
+                onClick={() => setActiveTransformationStep(2)}
+                className={`relative group cursor-pointer transition-all ${
+                  activeTransformationStep === 2 ? 'scale-[1.01]' : 'opacity-80 hover:opacity-100'
+                }`}
+              >
+                <div className={`absolute -left-[31px] sm:-left-[47px] top-0 w-8 h-8 rounded-full bg-white border-2 flex items-center justify-center font-bold text-xs shadow-xs transition-colors ${
+                  activeTransformationStep === 2 ? 'border-amber-500 text-amber-600 ring-4 ring-amber-100' : 'border-zinc-300 text-zinc-500'
+                }`}>
+                  3
+                </div>
+                <div className={`p-6 rounded-2xl border transition-all ${
+                  activeTransformationStep === 2 ? 'bg-white border-amber-500 shadow-md' : 'bg-white/60 border-zinc-200/80 hover:border-zinc-300'
+                }`}>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-mono font-semibold text-amber-600 uppercase tracking-wider">Étape 03</span>
+                    {activeTransformationStep === 2 && <span className="text-[10px] bg-amber-50 text-amber-600 px-2 py-0.5 rounded font-medium">Actif</span>}
+                  </div>
+                  <h3 className="text-lg font-bold text-zinc-900 mt-1">Lancer — Stratégie de Contenu & Acquisition</h3>
+                  <p className="text-xs text-zinc-600 leading-relaxed mt-2">
+                    Mise en place de votre funnel d'acquisition et de votre moteur de publication pour attirer des prospects qualifiés chaque semaine.
+                  </p>
+                </div>
+              </div>
+
+              {/* Step 4 */}
+              <div
+                onClick={() => setActiveTransformationStep(3)}
+                className={`relative group cursor-pointer transition-all ${
+                  activeTransformationStep === 3 ? 'scale-[1.01]' : 'opacity-80 hover:opacity-100'
+                }`}
+              >
+                <div className={`absolute -left-[31px] sm:-left-[47px] top-0 w-8 h-8 rounded-full bg-white border-2 flex items-center justify-center font-bold text-xs shadow-xs transition-colors ${
+                  activeTransformationStep === 3 ? 'border-emerald-500 text-emerald-600 ring-4 ring-emerald-100' : 'border-zinc-300 text-zinc-500'
+                }`}>
+                  4
+                </div>
+                <div className={`p-6 rounded-2xl border transition-all ${
+                  activeTransformationStep === 3 ? 'bg-white border-emerald-500 shadow-md' : 'bg-white/60 border-zinc-200/80 hover:border-zinc-300'
+                }`}>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-mono font-semibold text-emerald-600 uppercase tracking-wider">Étape 04</span>
+                    {activeTransformationStep === 3 && <span className="text-[10px] bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded font-medium">Actif</span>}
+                  </div>
+                  <h3 className="text-lg font-bold text-zinc-900 mt-1">Automatiser — Systèmes IA & Agents sur-mesure</h3>
+                  <p className="text-xs text-zinc-600 leading-relaxed mt-2">
+                    Configuration et déploiement de vos workflows autonomes (capture de leads, qualification, génération de contenu, réponses clients).
+                  </p>
+                </div>
+              </div>
+
+              {/* Step 5 */}
+              <div
+                onClick={() => setActiveTransformationStep(4)}
+                className={`relative group cursor-pointer transition-all ${
+                  activeTransformationStep === 4 ? 'scale-[1.01]' : 'opacity-80 hover:opacity-100'
+                }`}
+              >
+                <div className={`absolute -left-[31px] sm:-left-[47px] top-0 w-8 h-8 rounded-full bg-white border-2 flex items-center justify-center font-bold text-xs shadow-xs transition-colors ${
+                  activeTransformationStep === 4 ? 'border-zinc-900 text-zinc-900 ring-4 ring-zinc-200' : 'border-zinc-300 text-zinc-500'
+                }`}>
+                  5
+                </div>
+                <div className={`p-6 rounded-2xl border transition-all ${
+                  activeTransformationStep === 4 ? 'bg-zinc-900 text-white border-zinc-800 shadow-md' : 'bg-white/60 border-zinc-200/80 hover:border-zinc-300'
+                }`}>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-mono font-semibold text-blue-400 uppercase tracking-wider">Étape 05</span>
+                    {activeTransformationStep === 4 && <span className="text-[10px] bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded font-medium">Actif</span>}
+                  </div>
+                  <h3 className={`text-lg font-bold mt-1 ${activeTransformationStep === 4 ? 'text-white' : 'text-zinc-900'}`}>
+                    Développer — Croissance & Autonomie
+                  </h3>
+                  <p className={`text-xs leading-relaxed mt-2 ${activeTransformationStep === 4 ? 'text-zinc-300' : 'text-zinc-600'}`}>
+                    Revue des performances, ajustements et passage à l'échelle pour pérenniser votre activité avec un minimum de temps opérationnel.
+                  </p>
+                </div>
+              </div>
+
             </div>
 
-            {/* Step 2 */}
-            <div className="relative group">
-              <div className="absolute -left-[31px] sm:-left-[47px] top-0 w-8 h-8 rounded-full bg-white border-2 border-purple-600 flex items-center justify-center font-bold text-xs text-purple-600 shadow-xs">
-                2
-              </div>
-              <div className="p-6 sm:p-8 rounded-2xl bg-white border border-zinc-200/80 shadow-2xs space-y-3">
-                <div className="text-xs font-mono font-semibold text-purple-600 uppercase tracking-wider">Étape 02</div>
-                <h3 className="text-xl font-bold text-zinc-900">Construire — Offre High-Ticket & Tarification</h3>
-                <p className="text-xs sm:text-sm text-zinc-600 leading-relaxed">
-                  Packaging d'une offre irrésistible haute valeur, définition des livrables et des tarifs permettant une rentabilité dès les premiers clients.
-                </p>
-              </div>
-            </div>
+            {/* Live Interactive Deliverable Showcase Right Column */}
+            <div className="lg:col-span-5 sticky top-24">
+              <div className="p-6 rounded-2xl bg-white border border-zinc-200 shadow-sm space-y-4">
+                <div className="flex items-center justify-between pb-3 border-b border-zinc-100 text-xs">
+                  <span className="font-mono text-zinc-400 uppercase tracking-wider">Aperçu du Livrable</span>
+                  <span className="text-blue-600 font-semibold">Méthodologie Validée</span>
+                </div>
 
-            {/* Step 3 */}
-            <div className="relative group">
-              <div className="absolute -left-[31px] sm:-left-[47px] top-0 w-8 h-8 rounded-full bg-white border-2 border-amber-500 flex items-center justify-center font-bold text-xs text-amber-600 shadow-xs">
-                3
-              </div>
-              <div className="p-6 sm:p-8 rounded-2xl bg-white border border-zinc-200/80 shadow-2xs space-y-3">
-                <div className="text-xs font-mono font-semibold text-amber-600 uppercase tracking-wider">Étape 03</div>
-                <h3 className="text-xl font-bold text-zinc-900">Lancer — Stratégie de Contenu & Acquisition</h3>
-                <p className="text-xs sm:text-sm text-zinc-600 leading-relaxed">
-                  Mise en place de votre funnel d'acquisition et de votre moteur de publication pour attirer des prospects qualifiés chaque semaine.
-                </p>
-              </div>
-            </div>
-
-            {/* Step 4 */}
-            <div className="relative group">
-              <div className="absolute -left-[31px] sm:-left-[47px] top-0 w-8 h-8 rounded-full bg-white border-2 border-emerald-500 flex items-center justify-center font-bold text-xs text-emerald-600 shadow-xs">
-                4
-              </div>
-              <div className="p-6 sm:p-8 rounded-2xl bg-white border border-zinc-200/80 shadow-2xs space-y-3">
-                <div className="text-xs font-mono font-semibold text-emerald-600 uppercase tracking-wider">Étape 04</div>
-                <h3 className="text-xl font-bold text-zinc-900">Automatiser — Systèmes IA & Agents sur-mesure</h3>
-                <p className="text-xs sm:text-sm text-zinc-600 leading-relaxed">
-                  Configuration et déploiement de vos workflows autonomes (capture de leads, qualification, génération de contenu, réponses clients).
-                </p>
-              </div>
-            </div>
-
-            {/* Step 5 */}
-            <div className="relative group">
-              <div className="absolute -left-[31px] sm:-left-[47px] top-0 w-8 h-8 rounded-full bg-white border-2 border-zinc-900 flex items-center justify-center font-bold text-xs text-zinc-900 shadow-xs">
-                5
-              </div>
-              <div className="p-6 sm:p-8 rounded-2xl bg-zinc-900 text-white border border-zinc-800 shadow-md space-y-3">
-                <div className="text-xs font-mono font-semibold text-blue-400 uppercase tracking-wider">Étape 05</div>
-                <h3 className="text-xl font-bold text-white">Développer — Croissance & Autonomie</h3>
-                <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed">
-                  Revue des performances, ajustements et passage à l'échelle pour pérenniser votre activité avec un minimum de temps opérationnel.
-                </p>
+                <AnimatePresence mode="wait">
+                  {activeTransformationStep === 0 && (
+                    <motion.div
+                      key="step0"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                    >
+                      <PositionnementVisual />
+                    </motion.div>
+                  )}
+                  {activeTransformationStep === 1 && (
+                    <motion.div
+                      key="step1"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                    >
+                      <OffreVisual />
+                    </motion.div>
+                  )}
+                  {activeTransformationStep === 2 && (
+                    <motion.div
+                      key="step2"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                    >
+                      <ContenuVisual />
+                    </motion.div>
+                  )}
+                  {activeTransformationStep === 3 && (
+                    <motion.div
+                      key="step3"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                    >
+                      <AutomatisationsVisual />
+                    </motion.div>
+                  )}
+                  {activeTransformationStep === 4 && (
+                    <motion.div
+                      key="step4"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                    >
+                      <BusinessVisual />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             </div>
 
