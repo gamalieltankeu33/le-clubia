@@ -3,7 +3,6 @@ import { LandingHeader } from '@/components/landing/landing-header'
 import { Hero } from '@/components/landing/hero'
 import { ToolsMarquee } from '@/components/landing/tools-marquee'
 import { FourPillars } from '@/components/landing/four-pillars'
-import { CoachSection } from '@/components/landing/coach-section'
 import { BeyondClub } from '@/components/landing/beyond-club'
 import { Personas } from '@/components/landing/personas'
 import { FeaturedMembers } from '@/components/landing/featured-members'
@@ -28,7 +27,6 @@ function LandingPage() {
           <Hero />
           <ToolsMarquee />
           <FourPillars />
-          <CoachSection />
           <BeyondClub />
           <Personas />
           <FeaturedMembers />
