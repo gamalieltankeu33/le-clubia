@@ -99,6 +99,10 @@ export function PricingCard() {
     return diff > 0 ? diff : null
   }, [plans])
 
+  // Adaptive grid: center properly for 2 or 3 plans
+  const gridCols = plans.length <= 2 ? 'lg:grid-cols-2' : 'lg:grid-cols-3'
+  const gridMaxW = plans.length <= 2 ? 'max-w-4xl' : 'max-w-6xl'
+
   return (
     <section id="tarif" className="relative overflow-hidden bg-white py-16 sm:py-24 lg:py-28">
       <div className="pointer-events-none absolute inset-0 -z-10">
@@ -119,7 +123,7 @@ export function PricingCard() {
           </Reveal>
         </div>
 
-        <div className="mt-14 grid gap-8 lg:grid-cols-3 lg:items-center max-w-6xl mx-auto">
+        <div className={cn('mt-14 grid gap-6 lg:items-stretch mx-auto', gridCols, gridMaxW)}>
           {plans.map((plan, idx) => (
             <PricingPlanCard
               key={plan.id}
@@ -162,80 +166,88 @@ function PricingPlanCard({
     <Reveal direction={recommended ? 'none' : 'up'} delay={delay}>
       <div
         className={cn(
-          'group relative flex h-full flex-col overflow-hidden rounded-[2.5rem] border transition-all duration-700',
+          'group relative flex h-full flex-col overflow-hidden rounded-3xl border transition-all duration-500',
           recommended
-            ? 'border-[var(--primary)] bg-white shadow-[0_64px_96px_-32px_rgba(30,64,175,0.2)] scale-[1.05] z-10'
-            : 'border-[var(--border)] bg-[var(--background)]/50 hover:bg-white hover:shadow-xl',
+            ? 'border-[var(--primary)] bg-white shadow-[0_24px_64px_-16px_rgba(30,64,175,0.15)] ring-1 ring-[var(--primary)]/10'
+            : 'border-[var(--border)] bg-[var(--background)]/50 hover:bg-white hover:shadow-lg hover:border-[var(--border)]',
         )}
       >
+        {/* Badge */}
         {recommended && (
-          <div className="absolute right-8 top-8">
-            <div className="inline-flex items-center gap-2 rounded-full bg-[var(--primary)] px-4 py-1.5 text-[11px] font-bold uppercase tracking-widest text-white">
+          <div className="bg-[var(--primary)] px-8 py-2.5 text-center">
+            <span className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-white">
               <Sparkles className="h-3 w-3" />
               Recommandé
-            </div>
+            </span>
           </div>
         )}
 
-        <div className="flex flex-1 flex-col p-10 sm:p-12">
+        <div className="flex flex-1 flex-col p-8 sm:p-10">
+          {/* Plan name & description */}
           <div>
-            <h3 className="font-display text-3xl font-bold tracking-tight text-[var(--foreground)]">
+            <h3 className="font-display text-2xl font-bold tracking-tight text-[var(--foreground)]">
               {plan.display_name}
             </h3>
-            <p className="mt-4 text-lg text-[var(--muted-foreground)] leading-relaxed">
+            <p className="mt-2 text-sm text-[var(--muted-foreground)] leading-relaxed">
               {plan.description}
             </p>
           </div>
 
-          <div className={cn('mt-10', isLoading && 'animate-pulse')}>
-            <div className="flex items-baseline gap-2">
-              <span className="font-display text-6xl font-bold tracking-tighter text-[var(--foreground)]">
+          {/* Price */}
+          <div className={cn('mt-8', isLoading && 'animate-pulse')}>
+            <div className="flex items-baseline gap-1.5">
+              <span className="font-display text-5xl font-bold tracking-tighter text-[var(--foreground)]">
                 {plan.price_xof.toLocaleString('fr-FR')}
               </span>
-              <span className="text-xl font-bold text-[var(--foreground)]">€</span>
+              <span className="text-lg font-bold text-[var(--muted-foreground)]">€</span>
             </div>
-            <p className="mt-2 text-sm font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">
+            <p className="mt-1.5 text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">
               {plan.duration_months === 12 ? 'Accès 1 an' : `Accès ${plan.duration_months} mois`}
               <span className="mx-2 opacity-30">|</span>
               {plan.monthly_price_xof.toLocaleString('fr-FR')} € / mois
             </p>
           </div>
 
-          <ul className="mt-12 space-y-4">
+          {/* Divider */}
+          <div className="my-8 h-px bg-[var(--border)]" />
+
+          {/* Inclusions */}
+          <ul className="space-y-3 flex-1">
             {INCLUSIONS.map((inc, idx) => (
-              <li key={idx} className="flex items-start gap-4">
+              <li key={idx} className="flex items-start gap-3">
                 <div className={cn(
-                  "mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full",
+                  "mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full",
                   recommended ? "bg-[var(--primary)]/10 text-[var(--primary)]" : "bg-[var(--border)] text-[var(--muted-foreground)]"
                 )}>
-                  <Check className="h-4 w-4" />
+                  <Check className="h-3 w-3" />
                 </div>
-                <span className="text-lg font-medium text-[var(--foreground)]/80 leading-tight">
+                <span className="text-sm font-medium text-[var(--foreground)]/80 leading-snug">
                   {inc.label}
                 </span>
               </li>
             ))}
           </ul>
 
-          <div className="mt-12">
+          {/* CTA */}
+          <div className="mt-8">
             <Link
               to={ctaUrl}
               className={cn(
-                'group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-full py-5 text-lg font-bold transition-all',
+                'group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-2xl py-4 text-sm font-bold transition-all',
                 recommended
-                  ? 'bg-[var(--primary)] text-white shadow-xl shadow-[var(--primary)]/30 hover:scale-[1.02]'
+                  ? 'bg-[var(--primary)] text-white shadow-lg shadow-[var(--primary)]/20 hover:shadow-xl hover:shadow-[var(--primary)]/30'
                   : 'bg-[var(--foreground)] text-white hover:bg-[#1a1a1a]',
               )}
             >
               <span className="relative z-10 flex items-center gap-2">
                 Rejoindre Le Club
-                <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </span>
               {recommended && (
                 <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/15 to-transparent transition-transform duration-1000 group-hover:translate-x-full" />
               )}
             </Link>
-            <p className="mt-4 text-center text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-widest">
+            <p className="mt-3 text-center text-[10px] font-semibold text-[var(--muted-foreground)] uppercase tracking-widest">
               Pas de renouvellement automatique
             </p>
           </div>
