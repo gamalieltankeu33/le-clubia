@@ -431,16 +431,93 @@ export function AccompagnementPage() {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
-   Candidature Modal — 4 étapes
+   Typeform-style Candidature — full-screen, one question at a time
    ═══════════════════════════════════════════════════════════════════════ */
 
+type QuestionType = 'text' | 'email' | 'tel' | 'textarea' | 'choice' | 'yesno'
+
+interface Question {
+  id: string
+  label: string
+  subtitle?: string
+  type: QuestionType
+  placeholder?: string
+  options?: string[]
+  required?: boolean
+  /** If set, this question only shows when the condition is met */
+  showIf?: (f: Record<string, any>) => boolean
+}
+
+const QUESTIONS: Question[] = [
+  { id: 'prenom', label: 'Comment vous appelez-vous ?', subtitle: 'Votre prénom', type: 'text', placeholder: 'Votre prénom', required: true },
+  { id: 'nom', label: 'Et votre nom de famille ?', type: 'text', placeholder: 'Votre nom', required: true },
+  { id: 'email', label: 'Votre adresse email', subtitle: 'Pour vous recontacter', type: 'email', placeholder: 'vous@email.com', required: true },
+  { id: 'telephone', label: 'Votre numéro de téléphone', subtitle: 'WhatsApp de préférence', type: 'tel', placeholder: '+33 6 12 34 56 78', required: true },
+  { id: 'pays', label: 'Dans quel pays êtes-vous ?', type: 'text', placeholder: 'France' },
+  {
+    id: 'projet_type',
+    label: 'Quel est votre projet aujourd\'hui ?',
+    type: 'choice',
+    options: [
+      'Je veux lancer mon premier business.',
+      "J'ai déjà un business.",
+      'Je suis salarié.',
+      'Je suis freelance.',
+      'Autre.',
+    ],
+  },
+  { id: 'projet_ia', label: 'Que souhaitez-vous construire grâce à l\'IA ?', type: 'textarea', placeholder: 'Décrivez en quelques lignes votre idée ou votre projet…', required: true },
+  { id: 'projet_raison', label: 'Pourquoi souhaitez-vous lancer ce projet maintenant ?', type: 'textarea', placeholder: 'Votre motivation principale…', required: true },
+  { id: 'projet_blocage', label: 'Quel est aujourd\'hui votre plus grand blocage ?', type: 'textarea', placeholder: 'Ce qui vous empêche d\'avancer…', required: true },
+  {
+    id: 'deja_essaie',
+    label: 'Avez-vous déjà essayé de lancer un business ?',
+    type: 'yesno',
+  },
+  {
+    id: 'deja_essaie_details',
+    label: 'Expliquez-nous rapidement.',
+    subtitle: 'Ce que vous avez tenté',
+    type: 'textarea',
+    placeholder: 'Décrivez brièvement votre expérience…',
+    showIf: (f) => f.deja_essaie === true,
+  },
+  {
+    id: 'statut_actuel',
+    label: 'Où en êtes-vous actuellement ?',
+    type: 'choice',
+    options: ['Je pars de zéro.', "J'ai une idée.", "J'ai commencé.", "J'ai déjà des clients."],
+  },
+  {
+    id: 'heures_semaine',
+    label: 'Combien d\'heures pouvez-vous consacrer chaque semaine ?',
+    type: 'choice',
+    options: ['Moins de 5 h', '5 à 10 h', '10 à 20 h', 'Plus de 20 h'],
+  },
+  { id: 'objectif_12m', label: 'Quel est votre objectif dans les 12 prochains mois ?', type: 'textarea', placeholder: 'Ce que vous voulez avoir accompli…' },
+  {
+    id: 'pret_investir',
+    label: 'Si nous pouvons vous aider, êtes-vous prêt à investir dans un accompagnement ?',
+    type: 'choice',
+    options: ['Oui', 'Peut-être', 'Non'],
+  },
+  {
+    id: 'budget',
+    label: 'Quel budget êtes-vous prêt à investir ?',
+    type: 'choice',
+    options: ['Moins de 500 €', '500 à 1 500 €', '1 500 à 3 000 €', 'Plus de 3 000 €'],
+  },
+  { id: 'candidat_raison', label: 'Pourquoi pensez-vous être un bon candidat pour cet accompagnement ?', type: 'textarea', placeholder: 'Ce qui fait que vous êtes prêt à passer à l\'action…', required: true },
+]
+
 function CandidatureModal({ onClose }: { onClose: () => void }) {
-  const TOTAL = 4
-  const [step, setStep] = useState(1)
+  const [currentIndex, setCurrentIndex] = useState(0)
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [direction, setDirection] = useState(1) // 1 = forward, -1 = backward
+  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null)
 
-  const [f, setF] = useState({
+  const [f, setF] = useState<Record<string, any>>({
     prenom: '',
     nom: '',
     email: '',
@@ -450,7 +527,7 @@ function CandidatureModal({ onClose }: { onClose: () => void }) {
     projet_ia: '',
     projet_raison: '',
     projet_blocage: '',
-    deja_essaie: false as boolean,
+    deja_essaie: false,
     deja_essaie_details: '',
     statut_actuel: 'Je pars de zéro.',
     heures_semaine: '5 à 10 h',
@@ -460,6 +537,13 @@ function CandidatureModal({ onClose }: { onClose: () => void }) {
     candidat_raison: '',
   })
 
+  // Filter out conditional questions that shouldn't be shown
+  const visibleQuestions = QUESTIONS.filter(q => !q.showIf || q.showIf(f))
+  const totalVisible = visibleQuestions.length
+  const current = visibleQuestions[currentIndex]
+  const isLast = currentIndex === totalVisible - 1
+  const progress = ((currentIndex) / totalVisible) * 100
+
   const set = (k: string, v: any) => setF(p => ({ ...p, [k]: v }))
 
   // Lock scroll
@@ -468,63 +552,98 @@ function CandidatureModal({ onClose }: { onClose: () => void }) {
     return () => { document.body.style.overflow = '' }
   }, [])
 
-  // Escape to close
+  // Auto-focus input on step change
   useEffect(() => {
-    const h = (e: KeyboardEvent) => { if (e.key === 'Escape' && !submitted) onClose() }
-    window.addEventListener('keydown', h)
-    return () => window.removeEventListener('keydown', h)
-  }, [onClose, submitted])
+    const timer = setTimeout(() => {
+      inputRef.current?.focus()
+    }, 400)
+    return () => clearTimeout(timer)
+  }, [currentIndex])
 
-  const next = () => {
-    if (step === 1) {
-      if (!f.prenom.trim() || !f.nom.trim() || !f.email.trim() || !f.telephone.trim()) {
-        toast.error('Veuillez remplir tous les champs.')
-        return
-      }
-      if (!f.email.includes('@')) { toast.error('Email invalide.'); return }
+  // Validate current question
+  const validate = (): boolean => {
+    if (!current) return true
+    const val = f[current.id]
+
+    if (current.type === 'email' && val && !String(val).includes('@')) {
+      toast.error('Adresse email invalide.')
+      return false
     }
-    if (step === 2) {
-      if (!f.projet_ia.trim()) { toast.error('Décrivez ce que vous souhaitez construire.'); return }
-      if (!f.projet_raison.trim()) { toast.error('Expliquez pourquoi maintenant.'); return }
-      if (!f.projet_blocage.trim()) { toast.error('Quel est votre plus grand blocage ?'); return }
+    if (current.required && (val === '' || val === undefined || val === null)) {
+      toast.error('Ce champ est requis.')
+      return false
     }
-    setStep(s => Math.min(s + 1, TOTAL))
+    return true
   }
 
-  const prev = () => setStep(s => Math.max(s - 1, 1))
+  const goNext = () => {
+    if (!validate()) return
 
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!f.candidat_raison.trim()) {
+    if (isLast) {
+      handleSubmit()
+      return
+    }
+
+    setDirection(1)
+    // Find next visible index
+    let nextIdx = currentIndex + 1
+    while (nextIdx < totalVisible) {
+      const q = visibleQuestions[nextIdx]
+      if (!q.showIf || q.showIf(f)) break
+      nextIdx++
+    }
+    setCurrentIndex(Math.min(nextIdx, totalVisible - 1))
+  }
+
+  const goPrev = () => {
+    if (currentIndex === 0) return
+    setDirection(-1)
+    setCurrentIndex(prev => Math.max(prev - 1, 0))
+  }
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !submitted) onClose()
+      if (e.key === 'Enter' && !e.shiftKey && current?.type !== 'textarea') {
+        e.preventDefault()
+        goNext()
+      }
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [currentIndex, f, submitted])
+
+  const handleSubmit = async () => {
+    if (!f.candidat_raison?.trim()) {
       toast.error('Dites-nous pourquoi vous seriez un bon candidat.')
       return
     }
     setSubmitting(true)
     try {
       const { error } = await supabase.from('accompagnement_candidatures').insert([{
-        nom: f.nom.trim(),
-        prenom: f.prenom.trim(),
-        email: f.email.trim().toLowerCase(),
-        telephone: f.telephone.trim(),
-        pays: f.pays.trim(),
+        nom: String(f.nom).trim(),
+        prenom: String(f.prenom).trim(),
+        email: String(f.email).trim().toLowerCase(),
+        telephone: String(f.telephone).trim(),
+        pays: String(f.pays).trim() || 'Non précisé',
         projet_type: f.projet_type,
-        projet_ia: f.projet_ia.trim(),
-        projet_raison: f.projet_raison.trim(),
-        projet_blocage: f.projet_blocage.trim(),
+        projet_ia: String(f.projet_ia).trim(),
+        projet_raison: String(f.projet_raison).trim(),
+        projet_blocage: String(f.projet_blocage).trim(),
         deja_essaie: f.deja_essaie,
-        deja_essaie_details: f.deja_essaie_details.trim() || null,
+        deja_essaie_details: String(f.deja_essaie_details).trim() || null,
         statut_actuel: f.statut_actuel,
         heures_semaine: f.heures_semaine,
-        objectif_12m: f.objectif_12m.trim() || 'Non précisé',
+        objectif_12m: String(f.objectif_12m).trim() || 'Non précisé',
         pret_investir: f.pret_investir,
         budget: f.budget,
-        candidat_raison: f.candidat_raison.trim(),
+        candidat_raison: String(f.candidat_raison).trim(),
         status: 'Nouveau',
       }])
       if (error) throw error
       setSubmitted(true)
-      confetti({ particleCount: 70, spread: 50, origin: { y: 0.5 } })
-      toast.success('Candidature envoyée !')
+      confetti({ particleCount: 80, spread: 60, origin: { y: 0.5 } })
     } catch {
       toast.error('Erreur, veuillez réessayer.')
     } finally {
@@ -532,325 +651,340 @@ function CandidatureModal({ onClose }: { onClose: () => void }) {
     }
   }
 
+  // Animation variants
+  const variants = {
+    enter: (d: number) => ({ y: d > 0 ? 60 : -60, opacity: 0 }),
+    center: { y: 0, opacity: 1 },
+    exit: (d: number) => ({ y: d > 0 ? -60 : 60, opacity: 0 }),
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.25 }}
-      className="fixed inset-0 z-[100] flex items-center justify-center"
-      onClick={(e) => { if (e.target === e.currentTarget && !submitted) onClose() }}
+      className="fixed inset-0 z-[100] bg-white flex flex-col"
     >
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-
-      <motion.div
-        initial={{ opacity: 0, scale: 0.97, y: 16 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.97, y: 16 }}
-        transition={{ duration: 0.35, ease: EASE }}
-        className="relative z-10 w-full max-w-lg mx-4 bg-white rounded-2xl shadow-2xl overflow-hidden max-h-[92vh] flex flex-col"
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 pt-5 pb-3 border-b border-[var(--border)]">
-          <div>
-            <h2 className="text-base font-bold text-[var(--foreground)]">
-              {submitted ? 'Candidature envoyée' : 'Candidature à l\'accompagnement'}
-            </h2>
-            {!submitted && (
-              <p className="text-xs text-[var(--muted-foreground)] mt-0.5">
-                Étape {step}/{TOTAL}
-              </p>
-            )}
-          </div>
+      {/* ── Top bar ── */}
+      <div className="shrink-0 px-5 sm:px-8 pt-5 pb-3 flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <BrandLogo size="sm" asLink={false} />
           {!submitted && (
-            <button onClick={onClose} className="w-8 h-8 rounded-lg bg-[var(--secondary)] hover:bg-[var(--border)] flex items-center justify-center transition-colors cursor-pointer">
-              <X className="w-4 h-4 text-[var(--muted-foreground)]" />
-            </button>
+            <span className="text-xs font-mono text-[var(--muted-foreground)] tracking-wide">
+              {currentIndex + 1} / {totalVisible}
+            </span>
           )}
         </div>
-
-        {/* Progress */}
         {!submitted && (
-          <div className="px-6 pt-3">
-            <div className="h-1 w-full rounded-full bg-[var(--secondary)] overflow-hidden">
-              <motion.div
-                className="h-full bg-[var(--primary)]"
-                animate={{ width: `${(step / TOTAL) * 100}%` }}
-                transition={{ duration: 0.3, ease: EASE }}
-              />
-            </div>
-          </div>
+          <button
+            onClick={onClose}
+            className="w-9 h-9 rounded-xl bg-[var(--secondary)] hover:bg-[var(--border)] flex items-center justify-center transition-colors cursor-pointer"
+          >
+            <X className="w-4 h-4 text-[var(--muted-foreground)]" />
+          </button>
         )}
+      </div>
 
-        {/* Body */}
-        <div className="flex-1 overflow-y-auto px-6 pb-6">
-          <AnimatePresence mode="wait">
-            {submitted ? (
+      {/* ── Progress bar ── */}
+      {!submitted && (
+        <div className="shrink-0 h-1 bg-[var(--secondary)] relative">
+          <motion.div
+            className="absolute inset-y-0 left-0 bg-[var(--primary)]"
+            animate={{ width: `${progress}%` }}
+            transition={{ duration: 0.4, ease: EASE }}
+          />
+        </div>
+      )}
+
+      {/* ── Main content ── */}
+      <div className="flex-1 flex items-center justify-center overflow-hidden">
+        <AnimatePresence mode="wait" custom={direction}>
+          {submitted ? (
+            /* ── Success Screen ── */
+            <motion.div
+              key="success"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, ease: EASE }}
+              className="w-full max-w-md px-6 text-center"
+            >
               <motion.div
-                key="done"
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="pt-8 pb-4 flex flex-col items-center text-center"
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 20, delay: 0.2 }}
+                className="w-20 h-20 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-8"
               >
-                {/* Success Icon */}
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ type: 'spring', stiffness: 300, damping: 20, delay: 0.1 }}
-                  className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mb-5"
-                >
-                  <CheckCircle2 className="w-8 h-8" />
-                </motion.div>
-
-                <h3 className="text-xl font-bold text-[var(--foreground)]">
-                  Merci {f.prenom} !
-                </h3>
-                <p className="mt-2 text-sm text-[var(--muted-foreground)] leading-relaxed max-w-sm">
-                  Votre candidature a bien été enregistrée.
-                </p>
-
-                {/* Next Steps */}
-                <div className="mt-8 w-full space-y-3 text-left">
-                  {[
-                    { num: '1', text: 'Nous analysons votre candidature', done: true },
-                    { num: '2', text: 'Réservez votre appel stratégique maintenant', active: true },
-                    { num: '3', text: 'Échangeons ensemble pendant 30 min' },
-                  ].map((s, i) => (
-                    <div
-                      key={i}
-                      className={`flex items-center gap-3 px-4 py-3 rounded-xl border transition-all ${
-                        s.done
-                          ? 'border-emerald-200 bg-emerald-50/50'
-                          : (s as any).active
-                            ? 'border-[var(--primary)] bg-[var(--primary)]/[0.04] ring-1 ring-[var(--primary)]/10'
-                            : 'border-[var(--border)] bg-[var(--secondary)]/50'
-                      }`}
-                    >
-                      <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 ${
-                        s.done
-                          ? 'bg-emerald-500 text-white'
-                          : (s as any).active
-                            ? 'bg-[var(--primary)] text-white'
-                            : 'bg-[var(--border)] text-[var(--muted-foreground)]'
-                      }`}>
-                        {s.done ? <Check className="w-3.5 h-3.5" /> : s.num}
-                      </div>
-                      <span className={`text-sm font-medium ${
-                        (s as any).active ? 'text-[var(--foreground)]' : 'text-[var(--muted-foreground)]'
-                      }`}>{s.text}</span>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Primary CTA — Calendly */}
-                <motion.a
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
-                  href="https://calendly.com/ghislaintankeu6/nouvelle-reunion"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-8 w-full flex items-center justify-center gap-3 px-6 py-4 bg-[var(--primary)] hover:bg-[var(--primary-light)] text-white rounded-2xl text-base font-bold transition-all shadow-lg shadow-[var(--primary)]/20 group"
-                >
-                  <Calendar className="w-5 h-5" />
-                  <span>Choisir mon créneau maintenant</span>
-                  <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
-                </motion.a>
-
-                <p className="mt-3 text-xs text-[var(--muted-foreground)]">
-                  Appel gratuit · 30 min · Sans engagement
-                </p>
-
-                {/* Close */}
-                <button
-                  onClick={onClose}
-                  className="mt-6 text-sm font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors cursor-pointer"
-                >
-                  Fermer cette fenêtre
-                </button>
+                <CheckCircle2 className="w-10 h-10" />
               </motion.div>
-            ) : (
-              <form onSubmit={submit}>
 
-                {/* ── Étape 1 : Informations ── */}
-                {step === 1 && (
-                  <motion.div key="s1" {...slideIn} className="pt-4 space-y-4">
-                    <p className="text-xs font-bold uppercase tracking-wider text-[var(--muted-foreground)]">Vos informations</p>
-                    <div className="grid grid-cols-2 gap-3">
-                      <Field label="Prénom" value={f.prenom} onChange={v => set('prenom', v)} placeholder="Votre prénom" required />
-                      <Field label="Nom" value={f.nom} onChange={v => set('nom', v)} placeholder="Votre nom" required />
-                    </div>
-                    <Field label="Email" type="email" value={f.email} onChange={v => set('email', v)} placeholder="vous@email.com" required />
-                    <Field label="Téléphone (WhatsApp)" type="tel" value={f.telephone} onChange={v => set('telephone', v)} placeholder="+33 6 12 34 56 78" required />
-                    <Field label="Pays" value={f.pays} onChange={v => set('pays', v)} placeholder="France" />
-                  </motion.div>
+              <motion.h2
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="text-3xl sm:text-4xl font-bold tracking-tight text-[var(--foreground)]"
+              >
+                Merci {f.prenom} !
+              </motion.h2>
+
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+                className="mt-4 text-base text-[var(--muted-foreground)] leading-relaxed"
+              >
+                Votre candidature a été enregistrée.<br />
+                L'étape suivante : réservez votre appel stratégique.
+              </motion.p>
+
+              <motion.a
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.55 }}
+                href="https://calendly.com/ghislaintankeu6/nouvelle-reunion"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-10 w-full flex items-center justify-center gap-3 px-8 py-5 bg-[var(--primary)] hover:bg-[var(--primary-light)] text-white rounded-2xl text-lg font-bold transition-all shadow-lg shadow-[var(--primary)]/20 group"
+              >
+                <Calendar className="w-6 h-6" />
+                <span>Choisir mon créneau</span>
+                <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+              </motion.a>
+
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.7 }}
+                className="mt-4 text-xs text-[var(--muted-foreground)]"
+              >
+                Appel gratuit · 30 min · Sans engagement
+              </motion.p>
+
+              <motion.button
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.8 }}
+                onClick={onClose}
+                className="mt-8 text-sm font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors cursor-pointer"
+              >
+                Fermer
+              </motion.button>
+            </motion.div>
+          ) : current ? (
+            /* ── Question Screen ── */
+            <motion.div
+              key={current.id}
+              custom={direction}
+              variants={variants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{ duration: 0.35, ease: EASE }}
+              className="w-full max-w-xl px-6 sm:px-8"
+            >
+              {/* Question */}
+              <p className="text-xs font-mono text-[var(--primary)] tracking-wider uppercase mb-4">
+                Question {currentIndex + 1}
+              </p>
+              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--foreground)] leading-snug">
+                {current.label}
+              </h2>
+              {current.subtitle && (
+                <p className="mt-2 text-sm text-[var(--muted-foreground)]">{current.subtitle}</p>
+              )}
+
+              {/* Input area */}
+              <div className="mt-8">
+                {/* Text / Email / Tel */}
+                {(current.type === 'text' || current.type === 'email' || current.type === 'tel') && (
+                  <input
+                    ref={inputRef as React.RefObject<HTMLInputElement>}
+                    type={current.type}
+                    value={f[current.id] || ''}
+                    onChange={e => set(current.id, e.target.value)}
+                    placeholder={current.placeholder}
+                    className="w-full bg-transparent border-b-2 border-[var(--border)] focus:border-[var(--primary)] text-xl sm:text-2xl font-medium py-3 outline-none transition-colors placeholder:text-[var(--muted-foreground)]/40"
+                    autoFocus
+                  />
                 )}
 
-                {/* ── Étape 2 : Votre projet ── */}
-                {step === 2 && (
-                  <motion.div key="s2" {...slideIn} className="pt-4 space-y-4">
-                    <p className="text-xs font-bold uppercase tracking-wider text-[var(--muted-foreground)]">Votre projet</p>
-
-                    <div className="space-y-2">
-                      <label className="text-sm font-semibold text-[var(--foreground)]">Quel est votre projet aujourd'hui ?</label>
-                      <div className="space-y-1.5">
-                        {PROJET_TYPES.map(pt => (
-                          <Pill key={pt} selected={f.projet_type === pt} onClick={() => set('projet_type', pt)} label={pt} />
-                        ))}
-                      </div>
-                    </div>
-
-                    <Textarea label="Que souhaitez-vous construire grâce à l'IA ?" value={f.projet_ia} onChange={v => set('projet_ia', v)} placeholder="Décrivez en quelques lignes…" required />
-                    <Textarea label="Pourquoi souhaitez-vous lancer ce projet maintenant ?" value={f.projet_raison} onChange={v => set('projet_raison', v)} placeholder="Votre motivation principale…" required />
-                    <Textarea label="Quel est aujourd'hui votre plus grand blocage ?" value={f.projet_blocage} onChange={v => set('projet_blocage', v)} placeholder="Ce qui vous empêche d'avancer…" required />
-                  </motion.div>
+                {/* Textarea */}
+                {current.type === 'textarea' && (
+                  <textarea
+                    ref={inputRef as React.RefObject<HTMLTextAreaElement>}
+                    rows={3}
+                    value={f[current.id] || ''}
+                    onChange={e => set(current.id, e.target.value)}
+                    placeholder={current.placeholder}
+                    className="w-full bg-transparent border-b-2 border-[var(--border)] focus:border-[var(--primary)] text-lg font-medium py-3 outline-none transition-colors resize-none placeholder:text-[var(--muted-foreground)]/40"
+                    autoFocus
+                  />
                 )}
 
-                {/* ── Étape 3 : Votre situation ── */}
-                {step === 3 && (
-                  <motion.div key="s3" {...slideIn} className="pt-4 space-y-4">
-                    <p className="text-xs font-bold uppercase tracking-wider text-[var(--muted-foreground)]">Votre situation</p>
+                {/* Choice */}
+                {current.type === 'choice' && current.options && (
+                  <div className="space-y-2">
+                    {current.options.map((opt, i) => {
+                      const isSelected = f[current.id] === opt
+                      const letter = String.fromCharCode(65 + i) // A, B, C, D...
+                      return (
+                        <button
+                          key={opt}
+                          type="button"
+                          onClick={() => {
+                            set(current.id, opt)
+                            // Auto-advance after a short delay on choice
+                            setTimeout(() => {
+                              setDirection(1)
+                              setCurrentIndex(prev => Math.min(prev + 1, totalVisible - 1))
+                            }, 300)
+                          }}
+                          className={`w-full flex items-center gap-4 px-5 py-4 rounded-xl border-2 text-left transition-all cursor-pointer group ${
+                            isSelected
+                              ? 'border-[var(--primary)] bg-[var(--primary)]/[0.04]'
+                              : 'border-[var(--border)] hover:border-[var(--primary)]/30 bg-transparent'
+                          }`}
+                        >
+                          <span className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold shrink-0 transition-all ${
+                            isSelected
+                              ? 'bg-[var(--primary)] text-white'
+                              : 'bg-[var(--secondary)] text-[var(--muted-foreground)] group-hover:bg-[var(--primary)]/10'
+                          }`}>
+                            {isSelected ? <Check className="w-4 h-4" /> : letter}
+                          </span>
+                          <span className={`text-base font-medium ${
+                            isSelected ? 'text-[var(--foreground)]' : 'text-[var(--foreground-soft)]'
+                          }`}>{opt}</span>
+                        </button>
+                      )
+                    })}
+                  </div>
+                )}
 
-                    <div className="space-y-2">
-                      <label className="text-sm font-semibold text-[var(--foreground)]">Avez-vous déjà essayé de lancer un business ?</label>
-                      <div className="flex gap-2">
-                        <Pill selected={f.deja_essaie === true} onClick={() => set('deja_essaie', true)} label="Oui" compact />
-                        <Pill selected={f.deja_essaie === false} onClick={() => set('deja_essaie', false)} label="Non" compact />
-                      </div>
-                    </div>
+                {/* Yes/No */}
+                {current.type === 'yesno' && (
+                  <div className="flex gap-3">
+                    {[
+                      { label: 'Oui', value: true },
+                      { label: 'Non', value: false },
+                    ].map(opt => {
+                      const isSelected = f[current.id] === opt.value
+                      return (
+                        <button
+                          key={opt.label}
+                          type="button"
+                          onClick={() => {
+                            set(current.id, opt.value)
+                            setTimeout(() => {
+                              setDirection(1)
+                              setCurrentIndex(prev => Math.min(prev + 1, totalVisible - 1))
+                            }, 300)
+                          }}
+                          className={`flex-1 flex items-center justify-center gap-3 px-6 py-5 rounded-xl border-2 text-lg font-bold transition-all cursor-pointer ${
+                            isSelected
+                              ? 'border-[var(--primary)] bg-[var(--primary)]/[0.04] text-[var(--foreground)]'
+                              : 'border-[var(--border)] text-[var(--muted-foreground)] hover:border-[var(--primary)]/30'
+                          }`}
+                        >
+                          <span className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm shrink-0 transition-all ${
+                            isSelected ? 'bg-[var(--primary)] text-white' : 'bg-[var(--secondary)]'
+                          }`}>
+                            {isSelected ? <Check className="w-4 h-4" /> : opt.label[0]}
+                          </span>
+                          {opt.label}
+                        </button>
+                      )
+                    })}
+                  </div>
+                )}
+              </div>
 
-                    {f.deja_essaie && (
-                      <Textarea label="Expliquez-nous rapidement" value={f.deja_essaie_details} onChange={v => set('deja_essaie_details', v)} placeholder="Ce que vous avez tenté…" />
+              {/* Navigation */}
+              {current.type !== 'choice' && current.type !== 'yesno' && (
+                <div className="mt-8 flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={goNext}
+                    disabled={submitting}
+                    className="inline-flex items-center gap-2 px-7 py-3.5 bg-[var(--primary)] hover:bg-[var(--primary-light)] text-white rounded-xl text-sm font-bold transition-all cursor-pointer disabled:opacity-50"
+                  >
+                    {submitting ? (
+                      <><Loader2 className="w-4 h-4 animate-spin" /> Envoi…</>
+                    ) : isLast ? (
+                      <>Envoyer ma candidature <ArrowRight className="w-4 h-4" /></>
+                    ) : (
+                      <>Continuer <ChevronRight className="w-4 h-4" /></>
                     )}
+                  </button>
 
-                    <div className="space-y-2">
-                      <label className="text-sm font-semibold text-[var(--foreground)]">Où en êtes-vous actuellement ?</label>
-                      <div className="space-y-1.5">
-                        {STATUTS.map(s => (
-                          <Pill key={s} selected={f.statut_actuel === s} onClick={() => set('statut_actuel', s)} label={s} />
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <label className="text-sm font-semibold text-[var(--foreground)]">Heures disponibles par semaine</label>
-                      <div className="grid grid-cols-2 gap-1.5">
-                        {HEURES.map(h => (
-                          <Pill key={h} selected={f.heures_semaine === h} onClick={() => set('heures_semaine', h)} label={h} compact />
-                        ))}
-                      </div>
-                    </div>
-
-                    <Textarea label="Votre objectif dans les 12 prochains mois" value={f.objectif_12m} onChange={v => set('objectif_12m', v)} placeholder="Ce que vous voulez avoir accompli…" />
-                  </motion.div>
-                )}
-
-                {/* ── Étape 4 : Engagement ── */}
-                {step === 4 && (
-                  <motion.div key="s4" {...slideIn} className="pt-4 space-y-4">
-                    <p className="text-xs font-bold uppercase tracking-wider text-[var(--muted-foreground)]">Votre engagement</p>
-
-                    <div className="space-y-2">
-                      <label className="text-sm font-semibold text-[var(--foreground)]">Êtes-vous prêt à investir dans un accompagnement ?</label>
-                      <div className="flex gap-2">
-                        {PRET_OPTIONS.map(p => (
-                          <Pill key={p} selected={f.pret_investir === p} onClick={() => set('pret_investir', p)} label={p} compact />
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <label className="text-sm font-semibold text-[var(--foreground)]">Quel budget êtes-vous prêt à investir ?</label>
-                      <div className="grid grid-cols-2 gap-1.5">
-                        {BUDGETS.map(b => (
-                          <Pill key={b} selected={f.budget === b} onClick={() => set('budget', b)} label={b} compact />
-                        ))}
-                      </div>
-                    </div>
-
-                    <Textarea label="Pourquoi pensez-vous être un bon candidat ?" value={f.candidat_raison} onChange={v => set('candidat_raison', v)} placeholder="Ce qui fait que vous êtes prêt à passer à l'action…" required />
-                  </motion.div>
-                )}
-
-                {/* Nav */}
-                <div className="flex items-center justify-between pt-5 mt-5 border-t border-[var(--border)]">
-                  {step > 1 ? (
-                    <button type="button" onClick={prev} className="inline-flex items-center gap-1 px-4 py-2.5 bg-[var(--secondary)] hover:bg-[var(--border)] rounded-xl text-sm font-medium transition-colors cursor-pointer">
-                      <ChevronLeft className="w-4 h-4" /> Retour
-                    </button>
-                  ) : <div />}
-
-                  {step < TOTAL ? (
-                    <button type="button" onClick={next} className="inline-flex items-center gap-1 px-5 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-light)] text-white rounded-xl text-sm font-semibold transition-colors cursor-pointer">
-                      Suivant <ChevronRight className="w-4 h-4" />
-                    </button>
-                  ) : (
-                    <button type="submit" disabled={submitting} className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--primary)] hover:bg-[var(--primary-light)] text-white rounded-xl text-sm font-bold transition-all cursor-pointer disabled:opacity-50">
-                      {submitting ? (
-                        <><Loader2 className="w-4 h-4 animate-spin" /> Envoi…</>
-                      ) : (
-                        <>Envoyer ma candidature <ArrowRight className="w-4 h-4" /></>
-                      )}
-                    </button>
+                  {current.type !== 'textarea' && (
+                    <span className="text-xs text-[var(--muted-foreground)]">
+                      ou appuyez sur <kbd className="px-1.5 py-0.5 rounded bg-[var(--secondary)] border border-[var(--border)] font-mono text-[10px]">Entrée ↵</kbd>
+                    </span>
                   )}
                 </div>
-              </form>
-            )}
-          </AnimatePresence>
+              )}
+
+              {/* Choice/YesNo also get a continue button for last step or if already selected */}
+              {(current.type === 'choice' || current.type === 'yesno') && isLast && (
+                <div className="mt-8">
+                  <button
+                    type="button"
+                    onClick={goNext}
+                    disabled={submitting}
+                    className="inline-flex items-center gap-2 px-7 py-3.5 bg-[var(--primary)] hover:bg-[var(--primary-light)] text-white rounded-xl text-sm font-bold transition-all cursor-pointer disabled:opacity-50"
+                  >
+                    {submitting ? (
+                      <><Loader2 className="w-4 h-4 animate-spin" /> Envoi…</>
+                    ) : (
+                      <>Envoyer ma candidature <ArrowRight className="w-4 h-4" /></>
+                    )}
+                  </button>
+                </div>
+              )}
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
+      </div>
+
+      {/* ── Bottom nav ── */}
+      {!submitted && (
+        <div className="shrink-0 px-5 sm:px-8 py-4 border-t border-[var(--border)] flex items-center justify-between">
+          <button
+            type="button"
+            onClick={goPrev}
+            disabled={currentIndex === 0}
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer disabled:opacity-30 hover:bg-[var(--secondary)]"
+          >
+            <ChevronLeft className="w-4 h-4" />
+            <span className="hidden sm:inline">Précédent</span>
+          </button>
+
+          <div className="flex items-center gap-1">
+            {visibleQuestions.map((_, i) => (
+              <div
+                key={i}
+                className={`h-1.5 rounded-full transition-all duration-300 ${
+                  i === currentIndex
+                    ? 'w-6 bg-[var(--primary)]'
+                    : i < currentIndex
+                      ? 'w-1.5 bg-[var(--primary)]/40'
+                      : 'w-1.5 bg-[var(--border)]'
+                }`}
+              />
+            ))}
+          </div>
+
+          <button
+            type="button"
+            onClick={goNext}
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer hover:bg-[var(--secondary)]"
+          >
+            <span className="hidden sm:inline">{isLast ? 'Envoyer' : 'Suivant'}</span>
+            <ChevronRight className="w-4 h-4" />
+          </button>
         </div>
-      </motion.div>
+      )}
     </motion.div>
   )
 }
 
-/* ─── Composants partagés ──────────────────────────────────────────── */
-
-function Field({ label, value, onChange, placeholder, type = 'text', required = false }: {
-  label: string; value: string; onChange: (v: string) => void; placeholder?: string; type?: string; required?: boolean
-}) {
-  return (
-    <div className="space-y-1">
-      <label className="text-sm font-semibold text-[var(--foreground)]">{label}</label>
-      <input
-        type={type} value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} required={required}
-        className="w-full px-3.5 py-2.5 rounded-xl bg-[var(--secondary)] border border-[var(--border)] text-sm focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent focus:outline-none transition-all placeholder:text-[var(--muted-foreground)]"
-      />
-    </div>
-  )
-}
-
-function Textarea({ label, value, onChange, placeholder, required = false }: {
-  label: string; value: string; onChange: (v: string) => void; placeholder?: string; required?: boolean
-}) {
-  return (
-    <div className="space-y-1">
-      <label className="text-sm font-semibold text-[var(--foreground)]">{label}</label>
-      <textarea
-        rows={2} value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} required={required}
-        className="w-full px-3.5 py-2.5 rounded-xl bg-[var(--secondary)] border border-[var(--border)] text-sm focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent focus:outline-none transition-all resize-none placeholder:text-[var(--muted-foreground)]"
-      />
-    </div>
-  )
-}
-
-function Pill({ selected, onClick, label, compact = false }: {
-  selected: boolean; onClick: () => void; label: string; compact?: boolean
-}) {
-  return (
-    <button
-      type="button" onClick={onClick}
-      className={`${compact ? 'px-3 py-2 text-xs' : 'px-3.5 py-2.5 text-sm'} rounded-xl border text-left font-medium transition-all cursor-pointer flex items-center justify-between gap-2 ${
-        selected
-          ? 'border-[var(--primary)] bg-[var(--primary)]/[0.05] text-[var(--foreground)] ring-1 ring-[var(--primary)]/20'
-          : 'border-[var(--border)] bg-[var(--card)] text-[var(--foreground-soft)] hover:border-[var(--primary)]/30'
-      }`}
-    >
-      <span>{label}</span>
-      {selected && (
-        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="w-4 h-4 rounded-full bg-[var(--primary)] text-white flex items-center justify-center shrink-0">
-          <Check className="w-2.5 h-2.5" />
-        </motion.div>
-      )}
-    </button>
-  )
-}
