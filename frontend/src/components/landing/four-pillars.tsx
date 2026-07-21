@@ -4,7 +4,6 @@ import {
   Library,
   MessagesSquare,
   Newspaper,
-  type LucideIcon,
 } from 'lucide-react'
 import { Eyebrow } from './eyebrow'
 import { Reveal } from './reveal'
@@ -12,139 +11,196 @@ import { FormationsPreview } from './previews/formations-preview'
 import { CommunityPreview } from './previews/community-preview'
 import { NewsPreview } from './previews/news-preview'
 import { ResourcesPreview } from './previews/resources-preview'
-
 import { Link } from '@tanstack/react-router'
+import { motion } from 'framer-motion'
 
-interface Pillar {
-  icon: LucideIcon
-  title: string
-  description: string
-  anchor: string
-  mockup: React.ReactNode
-  link?: string
-}
-
-const PILLARS: Pillar[] = [
-  {
-    icon: GraduationCap,
-    title: 'Catalogue de formations',
-    description:
-      'Vidéos chapitrées, classées par thématique. Progression suivie, certificats à la clé.',
-    anchor: '#formations',
-    mockup: <FormationsPreview />,
-    link: '/catalogue',
-  },
-  {
-    icon: MessagesSquare,
-    title: 'Communauté active',
-    description:
-      'Un mini-réseau social entre membres : partage tes projets, pose tes questions, échange en français.',
-    anchor: '#tarif',
-    mockup: <CommunityPreview />,
-  },
-  {
-    icon: Newspaper,
-    title: 'Actualités IA',
-    description:
-      "L'agent IA scanne les meilleures sources toutes les 6h et publie un résumé pédagogique en français.",
-    anchor: '#tarif',
-    mockup: <NewsPreview />,
-  },
-  {
-    icon: Library,
-    title: 'Bibliothèque de ressources',
-    description:
-      'Prompts pré-faits, templates, guides PDF et liens vers les meilleurs outils.',
-    anchor: '#tarif',
-    mockup: <ResourcesPreview />,
-  },
-]
+/* ─── Bento grid layout ─────────────────────────────────────────────
+   Desktop (lg):  col 1 = 2/3 wide  |  col 2 = 1/3 wide
+   Row 1: Formations (large) + Community (tall)
+   Row 2: News (medium)     + Resources (medium)
+   ─────────────────────────────────────────────────────────────────── */
 
 export function FourPillars() {
   return (
     <section
       id="piliers"
-      className="relative overflow-clip bg-white py-16 sm:py-24 lg:py-28"
+      className="relative overflow-clip bg-[var(--background)] py-16 sm:py-24 lg:py-28"
     >
-      {/* Background depth halo — masqué sur mobile : sur iOS Safari, un
-          élément absolute avec filter: blur() + overflow-hidden parent
-          fuit hors du clipping (bug WebKit compositing layer), ce qui
-          déportait toute la section vers la droite. Sur ≥768px ça
-          fonctionne correctement, on garde la profondeur visuelle. */}
-      <div className="pointer-events-none absolute left-0 top-1/2 hidden h-[500px] w-[500px] -translate-y-1/2 rounded-full bg-[var(--primary)]/[0.03] blur-[100px] md:block" />
+      {/* subtle glow */}
+      <div className="pointer-events-none absolute left-1/2 top-0 h-[600px] w-[600px] -translate-x-1/2 rounded-full bg-[var(--primary)]/[0.04] blur-[120px]" />
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-3xl text-center">
+
+        {/* ── Header ── */}
+        <div className="mx-auto max-w-2xl text-center">
           <Reveal>
             <Eyebrow className="mb-4">Tout en un</Eyebrow>
-            <h2 className="font-display text-4xl font-bold tracking-tight text-[var(--foreground)] sm:text-5xl lg:text-6xl">
+            <h2 className="font-display text-4xl font-bold tracking-tight text-[var(--foreground)] sm:text-5xl">
               Quatre piliers.{' '}
               <span className="serif-accent">Une expérience complète.</span>
             </h2>
-            <p className="mx-auto mt-8 max-w-2xl text-lg leading-relaxed text-[var(--muted-foreground)] sm:text-xl">
-              Pensé pour que tu maîtrises l'IA en autonomie, sans te disperser
-              dans 15 abonnements différents. Une plateforme unique, optimisée.
+            <p className="mt-5 text-base leading-relaxed text-[var(--muted-foreground)] sm:text-lg">
+              Maîtrise l'IA sans te disperser dans 15 abonnements. Une plateforme, tout inclus.
             </p>
           </Reveal>
         </div>
 
-        <div className="mt-12 grid gap-8 sm:mt-16 md:grid-cols-2">
-          {PILLARS.map((p, i) => (
-            <Reveal
-              key={p.title}
-              delay={i * 0.1}
-              direction={i % 2 === 0 ? 'right' : 'left'}
-              className="min-w-0"
-            >
-              <div className="group relative flex h-full max-w-full min-w-0 flex-col overflow-hidden rounded-3xl border border-[var(--border)] bg-white transition-all duration-700 hover:border-[var(--primary)]/20 hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.08)] sm:rounded-[2.5rem]">
-                <div className="relative z-10 flex flex-col p-6 sm:p-10">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#0A0A0A] text-white shadow-xl shadow-black/10 transition-transform duration-500 group-hover:scale-110 group-hover:bg-[var(--primary)]">
-                    <p.icon className="h-6 w-6" />
-                  </div>
-                  <h3 className="mt-8 font-display text-2xl font-black tracking-tight text-[#0A0A0A] sm:text-4xl">
-                    {p.title}
-                  </h3>
-                  <p className="mt-4 text-base font-medium leading-relaxed text-[#4A4A4A] opacity-70 sm:text-lg">
-                    {p.description}
-                  </p>
+        {/* ── Bento grid ── */}
+        <div className="mt-12 sm:mt-16 grid grid-cols-1 gap-4 lg:grid-cols-3 lg:grid-rows-2">
 
-                  {p.link && (
-                    <Link
-                      to={p.link as any}
-                      className="mt-6 inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest text-[#0A0A0A] transition-all duration-300 group-hover:gap-3 group-hover:text-[var(--primary)]"
-                    >
-                      Voir tout le catalogue
-                      <ArrowRight className="h-4 w-4" />
-                    </Link>
-                  )}
-                </div>
+          {/* ① Formations — large card, spans 2 cols, 1 row */}
+          <Reveal delay={0.05} className="lg:col-span-2 lg:row-span-1">
+            <BentoCard
+              icon={GraduationCap}
+              tag="Formations"
+              title="Catalogue de formations"
+              description="Vidéos chapitrées, classées par thématique. Progression suivie, certificats à la clé."
+              accent
+              cta={<Link to="/catalogue" className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-[var(--primary)] transition-all hover:gap-2.5">Voir le catalogue <ArrowRight className="h-3.5 w-3.5" /></Link>}
+              preview={<FormationsPreview />}
+              horizontal
+            />
+          </Reveal>
 
-                {/* Mockup section - No longer forced to bottom with mt-auto */}
-                <div className="px-4 pb-6 sm:px-8 sm:pb-10">
-                  <div className="relative overflow-hidden rounded-2xl bg-[#F8F9FA] p-4 transition-transform duration-700 group-hover:scale-[1.01]">
-                    {p.mockup}
-                  </div>
-                </div>
-              </div>
-            </Reveal>
-          ))}
+          {/* ② Communauté — tall card, spans 1 col, 2 rows */}
+          <Reveal delay={0.1} className="lg:col-span-1 lg:row-span-2">
+            <BentoCard
+              icon={MessagesSquare}
+              tag="Communauté"
+              title="Communauté active"
+              description="Un mini-réseau social entre membres : partage tes projets, pose tes questions, échange en français."
+              dark
+              preview={<CommunityPreview />}
+              tall
+            />
+          </Reveal>
+
+          {/* ③ Actualités IA — bottom-left */}
+          <Reveal delay={0.15} className="lg:col-span-1">
+            <BentoCard
+              icon={Newspaper}
+              tag="Actualités"
+              title="Actualités IA"
+              description="L'agent IA scanne les meilleures sources toutes les 6h et publie un résumé pédagogique."
+              preview={<NewsPreview />}
+            />
+          </Reveal>
+
+          {/* ④ Bibliothèque — bottom-right (in the 2-col span area) */}
+          <Reveal delay={0.2} className="lg:col-span-1">
+            <BentoCard
+              icon={Library}
+              tag="Ressources"
+              title="Bibliothèque de ressources"
+              description="Prompts pré-faits, templates, guides PDF et liens vers les meilleurs outils."
+              preview={<ResourcesPreview />}
+            />
+          </Reveal>
+
         </div>
 
-        {/* CTA bottom — full-width sur mobile pour booster la conversion,
-            pill centré sur desktop pour rester aéré. */}
-        <Reveal delay={0.5} className="mt-16 sm:mt-20">
+        {/* ── CTA ── */}
+        <Reveal delay={0.4} className="mt-14 sm:mt-16">
           <div className="flex justify-center">
             <Link
               to="/auth"
-              className="group relative inline-flex w-full items-center justify-center gap-3 overflow-hidden rounded-full bg-[#0A0A0A] px-8 py-5 text-base font-black uppercase tracking-widest text-white shadow-xl shadow-black/10 transition-all hover:scale-[1.02] active:scale-[0.98] sm:w-auto sm:px-12 sm:text-sm"
+              className="group relative inline-flex items-center gap-3 overflow-hidden rounded-full bg-[var(--foreground)] px-10 py-4 text-sm font-bold uppercase tracking-widest text-white shadow-xl shadow-black/10 transition-all hover:scale-[1.02] active:scale-[0.98]"
             >
-              <span className="relative z-10">Rejoindre Leclub.ia</span>
-              <ArrowRight className="relative z-10 h-5 w-5 transition-transform group-hover:translate-x-1" />
+              <span className="relative z-10">Rejoindre Le Club IA</span>
+              <ArrowRight className="relative z-10 h-4 w-4 transition-transform group-hover:translate-x-1" />
               <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
             </Link>
           </div>
         </Reveal>
+
       </div>
     </section>
+  )
+}
+
+/* ─── BentoCard ─────────────────────────────────────────────────────── */
+
+interface BentoCardProps {
+  icon: React.ElementType
+  tag: string
+  title: string
+  description: string
+  preview: React.ReactNode
+  accent?: boolean   // blue highlight
+  dark?: boolean     // dark bg
+  horizontal?: boolean // icon/text left, preview right
+  tall?: boolean     // full height (2-row span)
+  cta?: React.ReactNode
+}
+
+function BentoCard({
+  icon: Icon,
+  tag,
+  title,
+  description,
+  preview,
+  accent = false,
+  dark = false,
+  horizontal = false,
+  tall = false,
+  cta,
+}: BentoCardProps) {
+  const bg = dark
+    ? 'bg-[var(--noir)] text-white border-[var(--noir)]'
+    : accent
+      ? 'bg-white border-[var(--primary)]/20'
+      : 'bg-white border-[var(--border)]'
+
+  const tagColor = dark
+    ? 'bg-white/10 text-white/60'
+    : accent
+      ? 'bg-[var(--primary)]/10 text-[var(--primary)]'
+      : 'bg-[var(--secondary)] text-[var(--muted-foreground)]'
+
+  const iconBg = dark
+    ? 'bg-white/10 text-white'
+    : accent
+      ? 'bg-[var(--primary)] text-white'
+      : 'bg-[var(--foreground)] text-white'
+
+  const titleColor = dark ? 'text-white' : 'text-[var(--foreground)]'
+  const descColor  = dark ? 'text-white/50' : 'text-[var(--muted-foreground)]'
+
+  return (
+    <motion.div
+      whileHover={{ y: -2 }}
+      transition={{ duration: 0.25 }}
+      className={`group relative flex h-full ${tall ? 'min-h-[480px]' : ''} ${horizontal ? 'flex-row' : 'flex-col'} overflow-hidden rounded-3xl border ${bg} transition-shadow duration-500 hover:shadow-[0_20px_60px_-10px_rgba(0,0,0,0.1)]`}
+    >
+      {/* Content area */}
+      <div className={`relative z-10 flex flex-col ${horizontal ? 'w-[45%] shrink-0' : ''} p-7 sm:p-8`}>
+        {/* Tag + Icon */}
+        <div className="flex items-center gap-3">
+          <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest ${tagColor}`}>
+            {tag}
+          </span>
+        </div>
+
+        <div className={`mt-5 flex h-10 w-10 items-center justify-center rounded-xl ${iconBg} shadow-sm transition-transform duration-300 group-hover:scale-110`}>
+          <Icon className="h-5 w-5" />
+        </div>
+
+        <h3 className={`mt-4 font-display text-xl font-bold leading-tight tracking-tight ${titleColor} sm:text-2xl`}>
+          {title}
+        </h3>
+        <p className={`mt-2.5 text-sm leading-relaxed ${descColor}`}>
+          {description}
+        </p>
+
+        {cta && <div className="mt-5">{cta}</div>}
+      </div>
+
+      {/* Preview area */}
+      <div className={`relative ${horizontal ? 'flex-1' : 'px-6 pb-6 sm:px-8 sm:pb-8'}`}>
+        <div className={`relative overflow-hidden ${horizontal ? 'h-full rounded-none' : 'rounded-2xl'} ${dark ? 'bg-white/5' : 'bg-[var(--secondary)]'} ${horizontal ? '' : 'p-3'} transition-transform duration-500 group-hover:scale-[1.01]`}>
+          {preview}
+        </div>
+      </div>
+    </motion.div>
   )
 }
