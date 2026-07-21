@@ -29,6 +29,8 @@ import {
   MessageSquare,
   Award,
   Clock,
+  Calendar,
+  CalendarClock,
   Briefcase,
   FileCheck,
   ArrowUpRight
@@ -802,21 +804,53 @@ export function AccompagnementPage() {
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="py-12 text-center space-y-4"
+                className="py-8 text-center space-y-6"
               >
                 <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-xs">
                   <CheckCircle2 className="w-8 h-8" />
                 </div>
-                <h3 className="text-2xl font-bold text-zinc-900">Candidature bien reçue !</h3>
-                <p className="text-xs sm:text-sm text-zinc-600 max-w-md mx-auto leading-relaxed">
-                  Merci <strong>{formData.prenom}</strong>. Notre équipe étudie actuellement votre dossier. Si votre profil correspond, nous vous contacterons sous 24h à 48h pour planifier votre appel stratégique.
-                </p>
-                <div className="pt-4">
+
+                <div className="space-y-2">
+                  <span className="text-xs font-mono uppercase tracking-widest text-emerald-600 font-semibold bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100">
+                    Dossier Validé
+                  </span>
+                  <h3 className="text-2xl sm:text-3xl font-bold text-zinc-900">
+                    Candidature transmise avec succès !
+                  </h3>
+                  <p className="text-xs sm:text-sm text-zinc-600 max-w-lg mx-auto leading-relaxed">
+                    Merci <strong>{formData.prenom}</strong>. Votre dossier a été enregistré. Pour finaliser votre candidature, choisissez dès maintenant un créneau pour votre <strong>Appel Stratégique (30 min)</strong>.
+                  </p>
+                </div>
+
+                {/* Primary CTA & Calendly Container */}
+                <div className="pt-2 space-y-4 max-w-xl mx-auto">
+                  <a
+                    href="https://calendly.com/ghislaintankeu6/nouvelle-reunion"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold transition-all shadow-md hover:shadow-lg group cursor-pointer"
+                  >
+                    <CalendarClock className="w-5 h-5" />
+                    <span>Réserver mon appel stratégique sur Calendly</span>
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </a>
+
+                  {/* Inline Calendly Widget Embed */}
+                  <div className="mt-6 rounded-xl border border-zinc-200 bg-white overflow-hidden shadow-xs h-[520px]">
+                    <iframe
+                      src="https://calendly.com/ghislaintankeu6/nouvelle-reunion?embed_domain=leclubia.com&embed_type=Inline"
+                      className="w-full h-full border-none"
+                      title="Réservation Calendly"
+                    />
+                  </div>
+                </div>
+
+                <div className="pt-4 border-t border-zinc-200/80">
                   <Link
                     to="/"
-                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-zinc-900 text-white rounded-lg text-xs font-semibold hover:bg-zinc-800 transition-all"
+                    className="inline-flex items-center gap-2 text-xs text-zinc-500 hover:text-zinc-800 transition-colors"
                   >
-                    <span>Retourner à l'accueil</span>
+                    <span>Retourner à la page d'accueil</span>
                   </Link>
                 </div>
               </motion.div>
