@@ -45,6 +45,7 @@ import { Route as AppAdminMembersRouteImport } from './routes/app/admin/members'
 import { Route as AppAdminInsightsRouteImport } from './routes/app/admin/insights'
 import { Route as AppAdminEventsRouteImport } from './routes/app/admin/events'
 import { Route as AppAdminClassementRouteImport } from './routes/app/admin/classement'
+import { Route as AppAdminCandidaturesRouteImport } from './routes/app/admin/candidatures'
 import { Route as AppAdminAuditLogRouteImport } from './routes/app/admin/audit-log'
 import { Route as AppActualitesSlugRouteImport } from './routes/app/actualites/$slug'
 import { Route as AppAdminRessourcesIndexRouteImport } from './routes/app/admin/ressources/index'
@@ -238,6 +239,11 @@ const AppAdminClassementRoute = AppAdminClassementRouteImport.update({
   path: '/classement',
   getParentRoute: () => AppAdminRoute,
 } as any)
+const AppAdminCandidaturesRoute = AppAdminCandidaturesRouteImport.update({
+  id: '/candidatures',
+  path: '/candidatures',
+  getParentRoute: () => AppAdminRoute,
+} as any)
 const AppAdminAuditLogRoute = AppAdminAuditLogRouteImport.update({
   id: '/audit-log',
   path: '/audit-log',
@@ -325,6 +331,7 @@ export interface FileRoutesByFullPath {
   '/catalogue/': typeof CatalogueIndexRoute
   '/app/actualites/$slug': typeof AppActualitesSlugRoute
   '/app/admin/audit-log': typeof AppAdminAuditLogRoute
+  '/app/admin/candidatures': typeof AppAdminCandidaturesRoute
   '/app/admin/classement': typeof AppAdminClassementRoute
   '/app/admin/events': typeof AppAdminEventsRoute
   '/app/admin/insights': typeof AppAdminInsightsRoute
@@ -372,6 +379,7 @@ export interface FileRoutesByTo {
   '/catalogue': typeof CatalogueIndexRoute
   '/app/actualites/$slug': typeof AppActualitesSlugRoute
   '/app/admin/audit-log': typeof AppAdminAuditLogRoute
+  '/app/admin/candidatures': typeof AppAdminCandidaturesRoute
   '/app/admin/classement': typeof AppAdminClassementRoute
   '/app/admin/events': typeof AppAdminEventsRoute
   '/app/admin/insights': typeof AppAdminInsightsRoute
@@ -423,6 +431,7 @@ export interface FileRoutesById {
   '/catalogue/': typeof CatalogueIndexRoute
   '/app/actualites/$slug': typeof AppActualitesSlugRoute
   '/app/admin/audit-log': typeof AppAdminAuditLogRoute
+  '/app/admin/candidatures': typeof AppAdminCandidaturesRoute
   '/app/admin/classement': typeof AppAdminClassementRoute
   '/app/admin/events': typeof AppAdminEventsRoute
   '/app/admin/insights': typeof AppAdminInsightsRoute
@@ -475,6 +484,7 @@ export interface FileRouteTypes {
     | '/catalogue/'
     | '/app/actualites/$slug'
     | '/app/admin/audit-log'
+    | '/app/admin/candidatures'
     | '/app/admin/classement'
     | '/app/admin/events'
     | '/app/admin/insights'
@@ -522,6 +532,7 @@ export interface FileRouteTypes {
     | '/catalogue'
     | '/app/actualites/$slug'
     | '/app/admin/audit-log'
+    | '/app/admin/candidatures'
     | '/app/admin/classement'
     | '/app/admin/events'
     | '/app/admin/insights'
@@ -572,6 +583,7 @@ export interface FileRouteTypes {
     | '/catalogue/'
     | '/app/actualites/$slug'
     | '/app/admin/audit-log'
+    | '/app/admin/candidatures'
     | '/app/admin/classement'
     | '/app/admin/events'
     | '/app/admin/insights'
@@ -869,6 +881,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAdminClassementRouteImport
       parentRoute: typeof AppAdminRoute
     }
+    '/app/admin/candidatures': {
+      id: '/app/admin/candidatures'
+      path: '/candidatures'
+      fullPath: '/app/admin/candidatures'
+      preLoaderRoute: typeof AppAdminCandidaturesRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
     '/app/admin/audit-log': {
       id: '/app/admin/audit-log'
       path: '/audit-log'
@@ -958,6 +977,7 @@ declare module '@tanstack/react-router' {
 
 interface AppAdminRouteChildren {
   AppAdminAuditLogRoute: typeof AppAdminAuditLogRoute
+  AppAdminCandidaturesRoute: typeof AppAdminCandidaturesRoute
   AppAdminClassementRoute: typeof AppAdminClassementRoute
   AppAdminEventsRoute: typeof AppAdminEventsRoute
   AppAdminInsightsRoute: typeof AppAdminInsightsRoute
@@ -977,6 +997,7 @@ interface AppAdminRouteChildren {
 
 const AppAdminRouteChildren: AppAdminRouteChildren = {
   AppAdminAuditLogRoute: AppAdminAuditLogRoute,
+  AppAdminCandidaturesRoute: AppAdminCandidaturesRoute,
   AppAdminClassementRoute: AppAdminClassementRoute,
   AppAdminEventsRoute: AppAdminEventsRoute,
   AppAdminInsightsRoute: AppAdminInsightsRoute,

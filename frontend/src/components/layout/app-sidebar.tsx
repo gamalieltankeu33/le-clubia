@@ -1,5 +1,6 @@
 import { Link, useLocation, useNavigate } from '@tanstack/react-router'
 import {
+  Briefcase,
   CalendarDays,
   GraduationCap,
   LayoutDashboard,
@@ -29,6 +30,12 @@ interface AdminNavItem {
 
 const ADMIN_NAV_ITEMS: AdminNavItem[] = [
   { to: '/app/admin', label: 'Tableau de bord', icon: LayoutDashboard },
+  {
+    to: '/app/admin/candidatures',
+    label: 'Candidatures',
+    icon: Briefcase,
+    matchPrefix: '/app/admin/candidatures',
+  },
   {
     to: '/app/admin/formations',
     label: 'Formations',

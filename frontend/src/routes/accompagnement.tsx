@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import {
   ArrowRight,
@@ -12,209 +12,104 @@ import {
   Mail,
   Phone,
   Globe,
-  AlertCircle,
   ShieldCheck,
-  Target,
   Zap,
   Bot,
-  Compass,
   Rocket,
-  Sliders,
-  Workflow,
-  XCircle,
-  HelpCircle,
   TrendingUp,
-  Layers,
-  Search,
-  MessageSquare,
-  Award,
-  Clock,
   Calendar,
   CalendarClock,
   Briefcase,
-  FileCheck,
-  ArrowUpRight
+  Target,
+  Clock,
+  X
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
 import confetti from 'canvas-confetti'
 import { BrandLogo } from '@/components/brand-logo'
 import { supabase } from '@/lib/supabase'
-import { AccompagnementHeroDashboard } from '@/components/landing/mockups/accompagnement-hero-dashboard'
-import {
-  OffreVisual,
-  PositionnementVisual,
-  ContenuVisual,
-  AcquisitionVisual,
-  SystemeVisual,
-  AutomatisationsVisual,
-  BusinessVisual
-} from '@/components/landing/mockups/accompagnement-grid-visuals'
 
 export const Route = createFileRoute('/accompagnement')({
   component: AccompagnementPage,
 })
 
-// Types et Options du Formulaire de Candidature
-interface CandidatureFormData {
-  nom: string
-  prenom: string
-  email: string
-  telephone: string
-  pays: string
-  projet_type: string
-  projet_ia: string
-  projet_raison: string
-  projet_blocage: string
-  deja_essaie: boolean
-  deja_essaie_details: string
-  statut_actuel: string
-  heures_semaine: string
-  objectif_12m: string
-  pret_investir: string
-  budget: string
-  candidat_raison: string
-}
-
-const INITIAL_FORM_DATA: CandidatureFormData = {
-  nom: '',
-  prenom: '',
-  email: '',
-  telephone: '',
-  pays: 'France',
-  projet_type: 'Je veux lancer mon premier business',
-  projet_ia: '',
-  projet_raison: '',
-  projet_blocage: '',
-  deja_essaie: false,
-  deja_essaie_details: '',
-  statut_actuel: 'Je pars de zéro',
-  heures_semaine: '5 à 10 h',
-  objectif_12m: '',
-  pret_investir: 'Oui',
-  budget: '1 500 à 3 000 €',
-  candidat_raison: ''
-}
-
+// Options de qualification simples et ludiques
 const PROJET_TYPES = [
-  'Je veux lancer mon premier business',
-  "J'ai déjà un business en cours",
-  'Je suis indépendant / freelance',
-  'Je suis salarié et souhaite me reconvertir',
-  'Autre projet d\'entreprise'
+  { id: 'premier_business', label: 'Lancer mon premier business', desc: 'Je veux démarrer sur de bonnes bases' },
+  { id: 'developper_existant', label: 'Développer un business existant', desc: 'Je veux structurer et accélérer ma croissance' },
+  { id: 'freelance_scale', label: 'Activité Freelance / Indépendant', desc: 'Je veux passer d\'une prestation de temps à une offre scalable' },
+  { id: 'reconversion', label: 'Salarié en reconversion', desc: 'Je prépare ma transition vers l\'entrepreneuriat' }
 ]
 
 const STATUTS_ACTUELS = [
-  'Je pars de zéro',
-  "J'ai une idée mais aucun système",
-  "J'ai déjà commencé à tester des outils",
-  "J'ai déjà des premiers clients / du chiffre d'affaires"
+  { id: 'zero', label: 'Je pars de zéro', desc: 'Idée au stade de réflexion' },
+  { id: 'idee_test', label: 'J\'ai une idée & je teste des outils', desc: 'Premières expérimentations IA' },
+  { id: 'lancement', label: 'Projet en cours de lancement', desc: 'Offre ou produit en cours de création' },
+  { id: 'clients', label: 'J\'ai déjà mes premiers clients', desc: 'Revenus en cours, besoin de système' }
 ]
 
 const HEURES_SEMAINE_OPTIONS = [
-  'moins de 5 h / semaine',
   '5 à 10 h / semaine',
   '10 à 20 h / semaine',
-  'plus de 20 h / semaine (plein temps)'
+  'Plus de 20 h / semaine'
 ]
 
 const PRET_INVESTIR_OPTIONS = [
-  'Oui, tout à fait prêt à passer à l\'action',
-  'Peut-être, selon l\'échange et la faisabilité',
-  'Non, pas d\'investissement prévu pour le moment'
-]
-
-const BUDGET_OPTIONS = [
-  'Moins de 500 €',
-  '500 à 1 500 €',
-  '1 500 à 3 000 €',
-  'Plus de 3 000 €'
-]
-
-const FAQ_ITEMS = [
-  {
-    question: "Quelle est la différence entre le Club IA et cet accompagnement ?",
-    answer: "Le Club IA est une communauté privée autonome avec des cours et des ressources en libre accès. L'Accompagnement Premium est un programme intensif sur-mesure dans lequel nous construisons votre business AVEC vous, étape par étape, avec un suivi individuel et des automatisations IA configurées sur-mesure."
-  },
-  {
-    question: "Faut-il avoir des compétences techniques ou savoir coder ?",
-    answer: "Absolument pas. Nous privilégions les architectures no-code et les agents IA configurés sans programmation complexe. Vous apprenez à piloter et maintenir vos systèmes en toute autonomie."
-  },
-  {
-    question: "Combien de temps faut-il y consacrer par semaine ?",
-    answer: "Entre 5 et 10 heures par semaine suffisent amplement pour avancer. L'objectif de l'IA est justement d'automatiser le superflu pour vous concentrer uniquement sur la haute valeur ajoutée."
-  },
-  {
-    question: "Comment se déroule l'appel stratégique après la candidature ?",
-    answer: "L'appel dure environ 30 minutes. C'est une séance de diagnostic 100% objective de votre projet. Nous analysons la viabilité de votre idée et si nous pouvons réellement vous aider. Il n'y a aucune pression commerciale."
-  },
-  {
-    question: "Que se passe-t-il si mon profil n'est pas retenu ?",
-    answer: "Si nous estimons que ce n'est pas le bon moment ou que le programme n'est pas adapté à votre niveau actuel, nous vous orienterons en toute transparence vers des ressources ou des étapes préalables adaptées."
-  }
+  'Oui, prêt à passer à l\'action dès maintenant',
+  'Oui, si le projet est validé lors de l\'appel',
+  'Je souhaite juste des informations pour le moment'
 ]
 
 export function AccompagnementPage() {
-  // Navigation & Scroll State
   const scrollToForm = () => {
-    const el = document.getElementById('formulaire-candidature')
+    const el = document.getElementById('formulaire-qualification')
     if (el) {
       el.scrollIntoView({ behavior: 'smooth' })
     }
   }
 
-  // Form & Transformation State
-  const [activeTransformationStep, setActiveTransformationStep] = useState(0)
+  // Onboarding Quiz State (3 steps)
   const [currentStep, setCurrentStep] = useState(1)
-  const [formData, setFormData] = useState<CandidatureFormData>(INITIAL_FORM_DATA)
+  const [formData, setFormData] = useState({
+    prenom: '',
+    nom: '',
+    email: '',
+    telephone: '',
+    pays: 'France',
+    projet_type: 'Lancer mon premier business',
+    statut_actuel: 'Je pars de zéro',
+    projet_ia: '',
+    projet_blocage: '',
+    heures_semaine: '5 à 10 h / semaine',
+    pret_investir: 'Oui, prêt à passer à l\'action dès maintenant'
+  })
+
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
-  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0)
 
-  const handleInputChange = (field: keyof CandidatureFormData, value: any) => {
+  const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }))
   }
 
-  const validateStep = (step: number) => {
-    if (step === 1) {
-      if (!formData.nom.trim() || !formData.prenom.trim() || !formData.email.trim() || !formData.telephone.trim()) {
-        toast.error('Veuillez remplir votre nom, prénom, email et téléphone.')
-        return false
+  const nextStep = () => {
+    if (currentStep === 1) {
+      if (!formData.prenom.trim() || !formData.nom.trim() || !formData.email.trim() || !formData.telephone.trim()) {
+        toast.error('Veuillez remplir vos coordonnées (Prénom, Nom, Email, Téléphone)')
+        return
       }
       if (!formData.email.includes('@')) {
         toast.error('Veuillez saisir une adresse email valide.')
-        return false
+        return
       }
     }
-    if (step === 2) {
+    if (currentStep === 2) {
       if (!formData.projet_ia.trim()) {
-        toast.error('Veuillez préciser ce que vous souhaitez construire.')
-        return false
+        toast.error('Veuillez décrire brièvement ce que vous souhaitez construire.')
+        return
       }
     }
-    if (step === 3) {
-      if (!formData.projet_blocage.trim()) {
-        toast.error('Veuillez indiquer votre principal blocage.')
-        return false
-      }
-      if (!formData.projet_raison.trim()) {
-        toast.error('Veuillez expliquer pourquoi maintenant.')
-        return false
-      }
-    }
-    if (step === 4) {
-      if (!formData.candidat_raison.trim()) {
-        toast.error('Veuillez expliquer pourquoi vous pensez être un bon candidat.')
-        return false
-      }
-    }
-    return true
-  }
-
-  const nextStep = () => {
-    if (validateStep(currentStep)) {
-      setCurrentStep(prev => Math.min(prev + 1, 4))
-    }
+    setCurrentStep(prev => Math.min(prev + 1, 3))
   }
 
   const prevStep = () => {
@@ -223,8 +118,6 @@ export function AccompagnementPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!validateStep(4)) return
-
     setIsSubmitting(true)
 
     try {
@@ -239,33 +132,27 @@ export function AccompagnementPage() {
             pays: formData.pays.trim(),
             projet_type: formData.projet_type,
             projet_ia: formData.projet_ia.trim(),
-            projet_raison: formData.projet_raison.trim(),
-            projet_blocage: formData.projet_blocage.trim(),
-            deja_essaie: formData.deja_essaie,
-            deja_essaie_details: formData.deja_essaie ? formData.deja_essaie_details.trim() : null,
+            projet_raison: 'Souhait de lancement / développement grâce à l\'IA',
+            projet_blocage: formData.projet_blocage.trim() || 'Besoin de méthode et de système',
+            deja_essaie: false,
             statut_actuel: formData.statut_actuel,
             heures_semaine: formData.heures_semaine,
-            objectif_12m: formData.objectif_12m.trim(),
+            objectif_12m: 'Construire un business pérenne',
             pret_investir: formData.pret_investir,
-            budget: formData.budget,
-            candidat_raison: formData.candidat_raison.trim(),
+            budget: 'Accompagnement sur-mesure',
+            candidat_raison: 'Candidat motivé à passer à l\'action',
+            status: 'Nouveau'
           }
         ])
 
-      if (error) {
-        throw error
-      }
+      if (error) throw error
 
       setIsSubmitted(true)
-      confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: { y: 0.6 }
-      })
-      toast.success('Votre candidature a été transmise avec succès !')
+      confetti({ particleCount: 90, spread: 60, origin: { y: 0.6 } })
+      toast.success('Qualification enregistrée !')
     } catch (err: any) {
-      console.error('Erreur candidature:', err)
-      toast.error('Une erreur est survenue lors de la transmission. Veuillez réessayer.')
+      console.error('Erreur soumission:', err)
+      toast.error('Une erreur est survenue. Veuillez réessayer.')
     } finally {
       setIsSubmitting(false)
     }
@@ -273,9 +160,9 @@ export function AccompagnementPage() {
 
   return (
     <div className="min-h-screen bg-[#FAFAFA] text-[#111111] font-sans selection:bg-blue-600 selection:text-white antialiased">
-      {/* Top Navbar */}
+      {/* Navigation Header */}
       <header className="sticky top-0 z-50 bg-[#FAFAFA]/90 backdrop-blur-md border-b border-zinc-200/60">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
             <BrandLogo className="h-6 w-auto" />
             <span className="text-xs font-mono tracking-wider uppercase bg-zinc-900 text-white px-2 py-0.5 rounded">
@@ -283,583 +170,106 @@ export function AccompagnementPage() {
             </span>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-8 text-xs font-medium text-zinc-600">
-            <a href="#probleme" className="hover:text-zinc-900 transition-colors">Le Problème</a>
-            <a href="#transformation" className="hover:text-zinc-900 transition-colors">La Transformation</a>
-            <a href="#construisez" className="hover:text-zinc-900 transition-colors">Ce Que Vous Construisez</a>
-            <a href="#pour-qui" className="hover:text-zinc-900 transition-colors">Pour Qui ?</a>
-            <a href="#processus" className="hover:text-zinc-900 transition-colors">Processus</a>
-            <a href="#faq" className="hover:text-zinc-900 transition-colors">FAQ</a>
-          </nav>
-
           <button
             onClick={scrollToForm}
-            className="px-4 py-2 bg-[#111111] hover:bg-zinc-800 text-white rounded-lg text-xs font-semibold transition-all shadow-xs hover:shadow-md cursor-pointer"
+            className="px-4 py-2 bg-[#111111] hover:bg-zinc-800 text-white rounded-lg text-xs font-semibold transition-all shadow-xs cursor-pointer"
           >
-            Candidater au programme
+            Réserver un appel
           </button>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="relative pt-16 pb-24 lg:pt-28 lg:pb-36 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
-            
-            {/* Hero Left Content */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-              className="lg:col-span-6 space-y-6 text-left"
+      <section className="pt-16 pb-20 lg:pt-24 lg:pb-28">
+        <div className="max-w-4xl mx-auto px-4 text-center space-y-6">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 border border-blue-100 text-blue-700 text-xs font-medium">
+            <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse" />
+            <span>Accompagnement Sur-Mesure • Places Limitées</span>
+          </div>
+
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-[#111111] leading-[1.1]">
+            Construisez un business moderne grâce à l'IA.
+          </h1>
+
+          <p className="text-base sm:text-lg text-zinc-600 font-normal leading-relaxed max-w-2xl mx-auto">
+            Nous vous accompagnons pas à pas pour transformer vos compétences, vos idées ou votre expertise en un véritable business structuré et automatisé.
+          </p>
+
+          <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <button
+              onClick={scrollToForm}
+              className="w-full sm:w-auto px-8 py-4 bg-[#111111] hover:bg-zinc-800 text-white rounded-xl text-sm font-bold transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer group"
             >
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-100 border border-zinc-200 text-zinc-800 text-xs font-medium">
-                <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse" />
-                <span>Accompagnement Sur-Mesure • Places Limitées</span>
-              </div>
+              <span>Vérifier mon éligibilité & Réserver un appel</span>
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </button>
+          </div>
 
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-[#111111] leading-[1.08]">
-                Construisez un business rentable grâce à l'IA.
-              </h1>
-
-              <p className="text-base sm:text-lg text-zinc-600 font-normal leading-relaxed max-w-xl">
-                Nous vous accompagnons pour transformer une idée, une compétence ou une expertise en un business moderne. Vous ne repartez pas avec une simple formation. Vous repartez avec un business construit avec nous.
-              </p>
-
-              <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
-                <button
-                  onClick={scrollToForm}
-                  className="px-6 py-3.5 bg-[#111111] hover:bg-zinc-800 text-white rounded-xl text-sm font-semibold transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer group"
-                >
-                  <span>Candidater au programme</span>
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </button>
-
-                <div className="flex items-center gap-2 text-xs text-zinc-500 justify-center sm:justify-start">
-                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                  <span>Sélection sur dossier & entretien</span>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Hero Right Mockup Showcase */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.96, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-              className="lg:col-span-6 w-full"
-            >
-              <AccompagnementHeroDashboard />
-            </motion.div>
-
+          <div className="pt-2 flex items-center justify-center gap-6 text-xs text-zinc-500">
+            <span className="flex items-center gap-1.5">
+              <ShieldCheck className="w-4 h-4 text-emerald-600" />
+              <span>Diagnostic gratuit de 30 min</span>
+            </span>
+            <span className="flex items-center gap-1.5">
+              <CheckCircle2 className="w-4 h-4 text-blue-600" />
+              <span>Aucune obligation d'achat</span>
+            </span>
           </div>
         </div>
       </section>
 
-      {/* Section: Le Problème */}
-      <section id="probleme" className="py-24 lg:py-32 bg-white border-y border-zinc-200/80">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-3xl mx-auto text-center space-y-4 mb-16">
+      {/* Section: Les 4 Étapes du Programme */}
+      <section className="py-20 bg-white border-y border-zinc-200/80">
+        <div className="max-w-5xl mx-auto px-4 space-y-12">
+          <div className="text-center space-y-3">
             <span className="text-xs font-mono uppercase tracking-widest text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
-              Le Problème
+              La Méthode
             </span>
-            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-[#111111]">
-              Apprendre l'IA ne suffit pas à construire un business.
-            </h2>
-            <p className="text-zinc-600 text-base leading-relaxed">
-              Aujourd'hui, il est facile d'apprendre l'IA. Mais apprendre l'IA ne construit pas un business. Vous regardez des vidéos, vous testez des outils, vous accumulez des connaissances… mais votre projet n'avance pas. Ce qui manque n'est pas un nouvel outil. C'est une méthode, un système et un accompagnement.
+            <h2 className="text-3xl font-bold text-[#111111]">Comment nous construisons votre business.</h2>
+            <p className="text-xs sm:text-sm text-zinc-600 max-w-xl mx-auto">
+              Un processus clair en 4 étapes pour passer de la réflexion à l'action.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-            {/* Card 1: Le piège de la connaissance passive */}
-            <div className="p-8 rounded-2xl bg-[#FAFAFA] border border-zinc-200 space-y-4 hover:border-zinc-300 transition-colors">
-              <div className="w-10 h-10 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center">
-                <XCircle className="w-5 h-5" />
-              </div>
-              <h3 className="text-lg font-bold text-zinc-900">Le piège de la connaissance passive</h3>
-              <ul className="space-y-3 text-xs text-zinc-600">
-                <li className="flex items-start gap-2">
-                  <span className="text-rose-500 font-bold">•</span>
-                  <span>Accumulation infinie de vidéos YouTube et de prompts inutiles.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-rose-500 font-bold">•</span>
-                  <span>Aucun système d'acquisition de clients ni offre claire.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-rose-500 font-bold">•</span>
-                  <span>Sentiment d'être débordé par la vitesse des nouveaux outils.</span>
-                </li>
-              </ul>
-            </div>
-
-            {/* Card 2: Le système d'exécution guidée */}
-            <div className="p-8 rounded-2xl bg-zinc-900 text-white border border-zinc-800 space-y-4 shadow-lg">
-              <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center">
-                <CheckCircle2 className="w-5 h-5" />
-              </div>
-              <h3 className="text-lg font-bold text-white">Le système d'exécution guidée</h3>
-              <ul className="space-y-3 text-xs text-zinc-300">
-                <li className="flex items-start gap-2">
-                  <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                  <span>Une offre positionnée sur un marché prêt à payer.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                  <span>Des automatisations IA configurées spécifiquement pour votre business.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                  <span>Un accompagnement pas à pas avec des experts pour franchir chaque blocage.</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Section: La Transformation (Vertical Timeline) */}
-      <section id="transformation" className="py-24 lg:py-36 bg-[#FAFAFA]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-3xl mx-auto text-center space-y-4 mb-20">
-            <span className="text-xs font-mono uppercase tracking-widest text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100">
-              La Transformation
-            </span>
-            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-[#111111]">
-              Ce que nous construisons ensemble.
-            </h2>
-            <p className="text-zinc-600 text-base">
-              À la fin du programme, vous repartez avec un business structuré, un plan clair et un système que vous êtes capable de faire évoluer en autonomie.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start max-w-6xl mx-auto">
-            {/* Timeline Steps Left Column */}
-            <div className="lg:col-span-7 relative pl-6 sm:pl-10 border-l-2 border-zinc-200 space-y-8">
-              
-              {/* Step 1 */}
-              <div
-                onClick={() => setActiveTransformationStep(0)}
-                className={`relative group cursor-pointer transition-all ${
-                  activeTransformationStep === 0 ? 'scale-[1.01]' : 'opacity-80 hover:opacity-100'
-                }`}
-              >
-                <div className={`absolute -left-[31px] sm:-left-[47px] top-0 w-8 h-8 rounded-full bg-white border-2 flex items-center justify-center font-bold text-xs shadow-xs transition-colors ${
-                  activeTransformationStep === 0 ? 'border-blue-600 text-blue-600 ring-4 ring-blue-100' : 'border-zinc-300 text-zinc-500'
-                }`}>
-                  1
-                </div>
-                <div className={`p-6 rounded-2xl border transition-all ${
-                  activeTransformationStep === 0 ? 'bg-white border-blue-600 shadow-md' : 'bg-white/60 border-zinc-200/80 hover:border-zinc-300'
-                }`}>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-mono font-semibold text-blue-600 uppercase tracking-wider">Étape 01</span>
-                    {activeTransformationStep === 0 && <span className="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded font-medium">Actif</span>}
-                  </div>
-                  <h3 className="text-lg font-bold text-zinc-900 mt-1">Clarifier — Positionnement & Angle Unique</h3>
-                  <p className="text-xs text-zinc-600 leading-relaxed mt-2">
-                    Définition précise de votre angle d'attaque, étude du marché cible et validation de la proposition de valeur pour vous détacher de la concurrence.
-                  </p>
-                </div>
-              </div>
-
-              {/* Step 2 */}
-              <div
-                onClick={() => setActiveTransformationStep(1)}
-                className={`relative group cursor-pointer transition-all ${
-                  activeTransformationStep === 1 ? 'scale-[1.01]' : 'opacity-80 hover:opacity-100'
-                }`}
-              >
-                <div className={`absolute -left-[31px] sm:-left-[47px] top-0 w-8 h-8 rounded-full bg-white border-2 flex items-center justify-center font-bold text-xs shadow-xs transition-colors ${
-                  activeTransformationStep === 1 ? 'border-purple-600 text-purple-600 ring-4 ring-purple-100' : 'border-zinc-300 text-zinc-500'
-                }`}>
-                  2
-                </div>
-                <div className={`p-6 rounded-2xl border transition-all ${
-                  activeTransformationStep === 1 ? 'bg-white border-purple-600 shadow-md' : 'bg-white/60 border-zinc-200/80 hover:border-zinc-300'
-                }`}>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-mono font-semibold text-purple-600 uppercase tracking-wider">Étape 02</span>
-                    {activeTransformationStep === 1 && <span className="text-[10px] bg-purple-50 text-purple-600 px-2 py-0.5 rounded font-medium">Actif</span>}
-                  </div>
-                  <h3 className="text-lg font-bold text-zinc-900 mt-1">Construire — Offre High-Ticket & Tarification</h3>
-                  <p className="text-xs text-zinc-600 leading-relaxed mt-2">
-                    Packaging d'une offre irrésistible haute valeur, définition des livrables et des tarifs permettant une rentabilité dès les premiers clients.
-                  </p>
-                </div>
-              </div>
-
-              {/* Step 3 */}
-              <div
-                onClick={() => setActiveTransformationStep(2)}
-                className={`relative group cursor-pointer transition-all ${
-                  activeTransformationStep === 2 ? 'scale-[1.01]' : 'opacity-80 hover:opacity-100'
-                }`}
-              >
-                <div className={`absolute -left-[31px] sm:-left-[47px] top-0 w-8 h-8 rounded-full bg-white border-2 flex items-center justify-center font-bold text-xs shadow-xs transition-colors ${
-                  activeTransformationStep === 2 ? 'border-amber-500 text-amber-600 ring-4 ring-amber-100' : 'border-zinc-300 text-zinc-500'
-                }`}>
-                  3
-                </div>
-                <div className={`p-6 rounded-2xl border transition-all ${
-                  activeTransformationStep === 2 ? 'bg-white border-amber-500 shadow-md' : 'bg-white/60 border-zinc-200/80 hover:border-zinc-300'
-                }`}>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-mono font-semibold text-amber-600 uppercase tracking-wider">Étape 03</span>
-                    {activeTransformationStep === 2 && <span className="text-[10px] bg-amber-50 text-amber-600 px-2 py-0.5 rounded font-medium">Actif</span>}
-                  </div>
-                  <h3 className="text-lg font-bold text-zinc-900 mt-1">Lancer — Stratégie de Contenu & Acquisition</h3>
-                  <p className="text-xs text-zinc-600 leading-relaxed mt-2">
-                    Mise en place de votre funnel d'acquisition et de votre moteur de publication pour attirer des prospects qualifiés chaque semaine.
-                  </p>
-                </div>
-              </div>
-
-              {/* Step 4 */}
-              <div
-                onClick={() => setActiveTransformationStep(3)}
-                className={`relative group cursor-pointer transition-all ${
-                  activeTransformationStep === 3 ? 'scale-[1.01]' : 'opacity-80 hover:opacity-100'
-                }`}
-              >
-                <div className={`absolute -left-[31px] sm:-left-[47px] top-0 w-8 h-8 rounded-full bg-white border-2 flex items-center justify-center font-bold text-xs shadow-xs transition-colors ${
-                  activeTransformationStep === 3 ? 'border-emerald-500 text-emerald-600 ring-4 ring-emerald-100' : 'border-zinc-300 text-zinc-500'
-                }`}>
-                  4
-                </div>
-                <div className={`p-6 rounded-2xl border transition-all ${
-                  activeTransformationStep === 3 ? 'bg-white border-emerald-500 shadow-md' : 'bg-white/60 border-zinc-200/80 hover:border-zinc-300'
-                }`}>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-mono font-semibold text-emerald-600 uppercase tracking-wider">Étape 04</span>
-                    {activeTransformationStep === 3 && <span className="text-[10px] bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded font-medium">Actif</span>}
-                  </div>
-                  <h3 className="text-lg font-bold text-zinc-900 mt-1">Automatiser — Systèmes IA & Agents sur-mesure</h3>
-                  <p className="text-xs text-zinc-600 leading-relaxed mt-2">
-                    Configuration et déploiement de vos workflows autonomes (capture de leads, qualification, génération de contenu, réponses clients).
-                  </p>
-                </div>
-              </div>
-
-              {/* Step 5 */}
-              <div
-                onClick={() => setActiveTransformationStep(4)}
-                className={`relative group cursor-pointer transition-all ${
-                  activeTransformationStep === 4 ? 'scale-[1.01]' : 'opacity-80 hover:opacity-100'
-                }`}
-              >
-                <div className={`absolute -left-[31px] sm:-left-[47px] top-0 w-8 h-8 rounded-full bg-white border-2 flex items-center justify-center font-bold text-xs shadow-xs transition-colors ${
-                  activeTransformationStep === 4 ? 'border-zinc-900 text-zinc-900 ring-4 ring-zinc-200' : 'border-zinc-300 text-zinc-500'
-                }`}>
-                  5
-                </div>
-                <div className={`p-6 rounded-2xl border transition-all ${
-                  activeTransformationStep === 4 ? 'bg-zinc-900 text-white border-zinc-800 shadow-md' : 'bg-white/60 border-zinc-200/80 hover:border-zinc-300'
-                }`}>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-mono font-semibold text-blue-400 uppercase tracking-wider">Étape 05</span>
-                    {activeTransformationStep === 4 && <span className="text-[10px] bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded font-medium">Actif</span>}
-                  </div>
-                  <h3 className={`text-lg font-bold mt-1 ${activeTransformationStep === 4 ? 'text-white' : 'text-zinc-900'}`}>
-                    Développer — Croissance & Autonomie
-                  </h3>
-                  <p className={`text-xs leading-relaxed mt-2 ${activeTransformationStep === 4 ? 'text-zinc-300' : 'text-zinc-600'}`}>
-                    Revue des performances, ajustements et passage à l'échelle pour pérenniser votre activité avec un minimum de temps opérationnel.
-                  </p>
-                </div>
-              </div>
-
-            </div>
-
-            {/* Live Interactive Deliverable Showcase Right Column */}
-            <div className="lg:col-span-5 sticky top-24">
-              <div className="p-6 rounded-2xl bg-white border border-zinc-200 shadow-sm space-y-4">
-                <div className="flex items-center justify-between pb-3 border-b border-zinc-100 text-xs">
-                  <span className="font-mono text-zinc-400 uppercase tracking-wider">Aperçu du Livrable</span>
-                  <span className="text-blue-600 font-semibold">Méthodologie Validée</span>
-                </div>
-
-                <AnimatePresence mode="wait">
-                  {activeTransformationStep === 0 && (
-                    <motion.div
-                      key="step0"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                    >
-                      <PositionnementVisual />
-                    </motion.div>
-                  )}
-                  {activeTransformationStep === 1 && (
-                    <motion.div
-                      key="step1"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                    >
-                      <OffreVisual />
-                    </motion.div>
-                  )}
-                  {activeTransformationStep === 2 && (
-                    <motion.div
-                      key="step2"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                    >
-                      <ContenuVisual />
-                    </motion.div>
-                  )}
-                  {activeTransformationStep === 3 && (
-                    <motion.div
-                      key="step3"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                    >
-                      <AutomatisationsVisual />
-                    </motion.div>
-                  )}
-                  {activeTransformationStep === 4 && (
-                    <motion.div
-                      key="step4"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                    >
-                      <BusinessVisual />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </section>
-
-      {/* Section: Ce Que Vous Construisez (7 Cards Grid) */}
-      <section id="construisez" className="py-24 lg:py-36 bg-white border-y border-zinc-200/80">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-3xl mx-auto text-center space-y-4 mb-16">
-            <span className="text-xs font-mono uppercase tracking-widest text-purple-600 bg-purple-50 px-3 py-1 rounded-full border border-purple-100">
-              Écosystème Produit
-            </span>
-            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-[#111111]">
-              Les 7 piliers de votre business IA.
-            </h2>
-            <p className="text-zinc-600 text-base">
-              Chaque module est conçu pour bâtir un actif tangible et mesurable dans votre entreprise.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             
-            {/* Card 1 */}
-            <div className="p-6 rounded-2xl bg-[#FAFAFA] border border-zinc-200/80 space-y-4 hover:shadow-sm transition-all">
-              <OffreVisual />
-              <h3 className="font-bold text-base text-zinc-900">1. Votre Offre</h3>
-              <p className="text-xs text-zinc-600">
-                Une proposition irrésistible clarifiée, packagée et prête à être vendue à des clients cibles.
-              </p>
-            </div>
-
-            {/* Card 2 */}
-            <div className="p-6 rounded-2xl bg-[#FAFAFA] border border-zinc-200/80 space-y-4 hover:shadow-sm transition-all">
-              <PositionnementVisual />
-              <h3 className="font-bold text-base text-zinc-900">2. Votre Positionnement</h3>
-              <p className="text-xs text-zinc-600">
-                Un message différenciant qui vous extrait instantanément de la masse des concurrents.
-              </p>
-            </div>
-
-            {/* Card 3 */}
-            <div className="p-6 rounded-2xl bg-[#FAFAFA] border border-zinc-200/80 space-y-4 hover:shadow-sm transition-all">
-              <ContenuVisual />
-              <h3 className="font-bold text-base text-zinc-900">3. Votre Contenu</h3>
-              <p className="text-xs text-zinc-600">
-                Une machine à produire du contenu d'autorité régulier sans y passer des heures.
-              </p>
-            </div>
-
-            {/* Card 4 */}
-            <div className="p-6 rounded-2xl bg-[#FAFAFA] border border-zinc-200/80 space-y-4 hover:shadow-sm transition-all">
-              <AcquisitionVisual />
-              <h3 className="font-bold text-base text-zinc-900">4. Votre Acquisition</h3>
-              <p className="text-xs text-zinc-600">
-                Un tunnel de conversion automatisé qui filtre et qualifie les prospects avant l'appel.
-              </p>
-            </div>
-
-            {/* Card 5 */}
-            <div className="p-6 rounded-2xl bg-[#FAFAFA] border border-zinc-200/80 space-y-4 hover:shadow-sm transition-all">
-              <SystemeVisual />
-              <h3 className="font-bold text-base text-zinc-900">5. Votre Système</h3>
-              <p className="text-xs text-zinc-600">
-                Une architecture de gestion opérationnelle centralisée et connectée en no-code.
-              </p>
-            </div>
-
-            {/* Card 6 */}
-            <div className="p-6 rounded-2xl bg-[#FAFAFA] border border-zinc-200/80 space-y-4 hover:shadow-sm transition-all">
-              <AutomatisationsVisual />
-              <h3 className="font-bold text-base text-zinc-900">6. Vos Automatisations</h3>
-              <p className="text-xs text-zinc-600">
-                Des agents IA personnalisés qui prennent en charge les tâches répétitives.
-              </p>
-            </div>
-
-            {/* Card 7 (Full Span on LG) */}
-            <div className="md:col-span-2 lg:col-span-3 p-6 rounded-2xl bg-zinc-900 text-white border border-zinc-800 space-y-4">
-              <BusinessVisual />
-              <h3 className="font-bold text-base text-white">7. Votre Business en Autonomie</h3>
-              <p className="text-xs text-zinc-400 max-w-2xl">
-                Un modèle économique structuré qui génère des revenus prédictibles et vous laisse le contrôle total de votre temps.
-              </p>
-            </div>
-
-          </div>
-        </div>
-      </section>
-
-      {/* Section: Pour Qui ? (Matrix) */}
-      <section id="pour-qui" className="py-24 lg:py-36 bg-[#FAFAFA]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-3xl mx-auto text-center space-y-4 mb-16">
-            <span className="text-xs font-mono uppercase tracking-widest text-zinc-600 bg-zinc-200/60 px-3 py-1 rounded-full">
-              Sélection & Exigence
-            </span>
-            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-[#111111]">
-              Est-ce fait pour vous ?
-            </h2>
-            <p className="text-zinc-600 text-base">
-              Nous sélectionnons rigoureusement les candidats pour garantir 100% de réussite.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-            
-            {/* Column A: Programme Idéal */}
-            <div className="p-8 rounded-2xl bg-white border border-zinc-200 shadow-2xs space-y-6">
-              <div className="flex items-center gap-3 pb-4 border-b border-zinc-100">
-                <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-sm">
-                  ✓
-                </div>
-                <h3 className="text-lg font-bold text-zinc-900">Le programme est idéal si :</h3>
-              </div>
-
-              <ul className="space-y-4 text-xs sm:text-sm text-zinc-700">
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>Vous souhaitez construire un vrai business sérieux et pérenne avec l'IA.</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>Vous disposez d'au moins 5 heures par semaine à consacrer à l'exécution.</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>Vous êtes prêt à investir sur vous-même pour accélérer vos résultats.</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>Vous valorisez un accompagnement personnalisé plutôt que des cours génériques.</span>
-                </li>
-              </ul>
-            </div>
-
-            {/* Column B: Non Adapté */}
-            <div className="p-8 rounded-2xl bg-white border border-zinc-200 shadow-2xs space-y-6">
-              <div className="flex items-center gap-3 pb-4 border-b border-zinc-100">
-                <div className="w-8 h-8 rounded-full bg-rose-100 text-rose-700 flex items-center justify-center font-bold text-sm">
-                  ✕
-                </div>
-                <h3 className="text-lg font-bold text-zinc-900">Ce programme n'est PAS pour vous si :</h3>
-              </div>
-
-              <ul className="space-y-4 text-xs sm:text-sm text-zinc-700">
-                <li className="flex items-start gap-3">
-                  <XCircle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
-                  <span>Vous cherchez une formule magique "enrichissement rapide sans travail".</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <XCircle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
-                  <span>Vous souhaitez uniquement consommer des vidéos sans passer à l'action.</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <XCircle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
-                  <span>Vous n'avez aucun temps ni budget à investir dans votre projet.</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <XCircle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
-                  <span>Vous refusez d'appliquer les recommandations du coach.</span>
-                </li>
-              </ul>
-            </div>
-
-          </div>
-        </div>
-      </section>
-
-      {/* Section: Processus de Candidature */}
-      <section id="processus" className="py-24 lg:py-36 bg-white border-y border-zinc-200/80">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-3xl mx-auto text-center space-y-4 mb-20">
-            <span className="text-xs font-mono uppercase tracking-widest text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
-              Le Parcours Candidat
-            </span>
-            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-[#111111]">
-              Processus de candidature simple & transparent.
-            </h2>
-            <p className="text-zinc-600 text-base">
-              Une démarche claire en 4 étapes pour valider notre alignement.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto relative">
-            
-            {/* Step 1 */}
-            <div className="p-6 rounded-2xl bg-[#FAFAFA] border border-zinc-200 space-y-3 relative">
-              <div className="w-8 h-8 rounded-lg bg-[#111111] text-white flex items-center justify-center font-mono font-bold text-xs">
+            <div className="p-6 rounded-2xl bg-[#FAFAFA] border border-zinc-200 space-y-3">
+              <div className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-xs">
                 01
               </div>
-              <h3 className="font-bold text-zinc-900 text-base">Vous candidatez</h3>
-              <p className="text-xs text-zinc-600">
-                Vous remplissez le formulaire détaillé ci-dessous pour présenter votre profil et vos objectifs.
+              <h3 className="font-bold text-zinc-900 text-sm">Clarifier</h3>
+              <p className="text-xs text-zinc-600 leading-relaxed">
+                Définition de votre offre haute valeur et de votre positionnement unique sur le marché.
               </p>
             </div>
 
-            {/* Step 2 */}
-            <div className="p-6 rounded-2xl bg-[#FAFAFA] border border-zinc-200 space-y-3 relative">
-              <div className="w-8 h-8 rounded-lg bg-[#111111] text-white flex items-center justify-center font-mono font-bold text-xs">
+            <div className="p-6 rounded-2xl bg-[#FAFAFA] border border-zinc-200 space-y-3">
+              <div className="w-8 h-8 rounded-lg bg-purple-600 text-white flex items-center justify-center font-bold text-xs">
                 02
               </div>
-              <h3 className="font-bold text-zinc-900 text-base">Analyse du dossier</h3>
-              <p className="text-xs text-zinc-600">
-                Notre équipe étudie votre projet sous 24h à 48h pour vérifier le potentiel et la faisabilité.
+              <h3 className="font-bold text-zinc-900 text-sm">Construire</h3>
+              <p className="text-xs text-zinc-600 leading-relaxed">
+                Création de vos outils, de votre présence et de votre système de captation de prospects.
               </p>
             </div>
 
-            {/* Step 3 */}
-            <div className="p-6 rounded-2xl bg-[#FAFAFA] border border-zinc-200 space-y-3 relative">
-              <div className="w-8 h-8 rounded-lg bg-[#111111] text-white flex items-center justify-center font-mono font-bold text-xs">
+            <div className="p-6 rounded-2xl bg-[#FAFAFA] border border-zinc-200 space-y-3">
+              <div className="w-8 h-8 rounded-lg bg-amber-500 text-white flex items-center justify-center font-bold text-xs">
                 03
               </div>
-              <h3 className="font-bold text-zinc-900 text-base">Appel stratégique</h3>
-              <p className="text-xs text-zinc-600">
-                Échange individuel de 30 minutes pour approfondir vos besoins et valider l'accompagnement.
+              <h3 className="font-bold text-zinc-900 text-sm">Lancer</h3>
+              <p className="text-xs text-zinc-600 leading-relaxed">
+                Mise en place de la stratégie d'acquisition pour générer vos premiers échanges qualifiés.
               </p>
             </div>
 
-            {/* Step 4 */}
-            <div className="p-6 rounded-2xl bg-zinc-900 text-white border border-zinc-800 space-y-3 relative">
-              <div className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-mono font-bold text-xs">
+            <div className="p-6 rounded-2xl bg-zinc-900 text-white border border-zinc-800 space-y-3">
+              <div className="w-8 h-8 rounded-lg bg-emerald-500 text-white flex items-center justify-center font-bold text-xs">
                 04
               </div>
-              <h3 className="font-bold text-white text-base">Admission ou Orientation</h3>
-              <p className="text-xs text-zinc-300">
-                Si validé, vous rejoignez le programme. Sinon, nous vous orientons vers la solution adaptée.
+              <h3 className="font-bold text-white text-sm">Automatiser</h3>
+              <p className="text-xs text-zinc-300 leading-relaxed">
+                Configuration d'agents IA autonomes pour gérer les tâches répétitives au quotidien.
               </p>
             </div>
 
@@ -867,121 +277,64 @@ export function AccompagnementPage() {
         </div>
       </section>
 
-      {/* Section: FAQ */}
-      <section id="faq" className="py-24 lg:py-32 bg-[#FAFAFA]">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-          <div className="text-center space-y-3">
-            <span className="text-xs font-mono uppercase tracking-widest text-zinc-600 bg-zinc-200/60 px-3 py-1 rounded-full">
-              Questions Fréquentes
-            </span>
-            <h2 className="text-3xl font-bold text-[#111111]">Toutes les réponses à vos questions.</h2>
-          </div>
-
-          <div className="space-y-4">
-            {FAQ_ITEMS.map((item, idx) => {
-              const isOpen = openFaqIndex === idx
-              return (
-                <div
-                  key={idx}
-                  className="rounded-xl bg-white border border-zinc-200 overflow-hidden transition-all"
-                >
-                  <button
-                    onClick={() => setOpenFaqIndex(isOpen ? null : idx)}
-                    className="w-full p-5 text-left font-semibold text-sm text-zinc-900 flex items-center justify-between gap-4 cursor-pointer hover:bg-zinc-50"
-                  >
-                    <span>{item.question}</span>
-                    <ChevronRight className={`w-4 h-4 text-zinc-400 transition-transform ${isOpen ? 'rotate-90 text-zinc-900' : ''}`} />
-                  </button>
-                  <AnimatePresence>
-                    {isOpen && (
-                      <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
-                        exit={{ opacity: 0, height: 0 }}
-                        className="px-5 pb-5 text-xs text-zinc-600 leading-relaxed border-t border-zinc-100 pt-3"
-                      >
-                        {item.answer}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* Section: Formulaire de Candidature SaaS */}
-      <section id="formulaire-candidature" className="py-24 lg:py-36 bg-white border-t border-zinc-200">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+      {/* Section: Qualification & Booking Form */}
+      <section id="formulaire-qualification" className="py-20 bg-[#FAFAFA]">
+        <div className="max-w-2xl mx-auto px-4 space-y-8">
           
           <div className="text-center space-y-3">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-100 text-xs font-mono uppercase tracking-wider">
-              Dossier de Candidature
-            </div>
-            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-[#111111]">
-              Posez votre candidature au programme.
+            <span className="text-xs font-mono uppercase tracking-widest text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100">
+              Formulaire de Qualification
+            </span>
+            <h2 className="text-3xl font-bold text-[#111111]">
+              Réservez votre appel stratégique.
             </h2>
             <p className="text-xs sm:text-sm text-zinc-600">
-              Complétez ce formulaire avec précision. Temps estimé : 3 minutes.
+              Répondez à ces quelques questions simples (1 min) pour accéder à l'agenda de réservation.
             </p>
           </div>
 
-          {/* Form Card Container */}
-          <div className="p-6 sm:p-10 rounded-2xl bg-[#FAFAFA] border border-zinc-200 shadow-sm relative overflow-hidden">
+          {/* Quiz Container */}
+          <div className="p-6 sm:p-8 rounded-2xl bg-white border border-zinc-200 shadow-sm relative">
             
             {isSubmitted ? (
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="py-8 text-center space-y-6"
+                className="py-6 text-center space-y-6"
               >
-                <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-xs">
-                  <CheckCircle2 className="w-8 h-8" />
+                <div className="w-14 h-14 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
+                  <CheckCircle2 className="w-7 h-7" />
                 </div>
 
                 <div className="space-y-2">
-                  <span className="text-xs font-mono uppercase tracking-widest text-emerald-600 font-semibold bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100">
-                    Dossier Validé
-                  </span>
-                  <h3 className="text-2xl sm:text-3xl font-bold text-zinc-900">
-                    Candidature transmise avec succès !
+                  <h3 className="text-2xl font-bold text-zinc-900">
+                    Merci {formData.prenom} ! Vos réponses sont enregistrées.
                   </h3>
-                  <p className="text-xs sm:text-sm text-zinc-600 max-w-lg mx-auto leading-relaxed">
-                    Merci <strong>{formData.prenom}</strong>. Votre dossier a été enregistré. Pour finaliser votre candidature, choisissez dès maintenant un créneau pour votre <strong>Appel Stratégique (30 min)</strong>.
+                  <p className="text-xs sm:text-sm text-zinc-600 max-w-md mx-auto leading-relaxed">
+                    Choisissez dès maintenant un créneau dans l'agenda ci-dessous pour fixer votre <strong>Appel Stratégique Gratuit (30 min)</strong>.
                   </p>
                 </div>
 
-                {/* Primary CTA & Calendly Container */}
-                <div className="pt-2 space-y-4 max-w-xl mx-auto">
+                {/* Primary CTA & Calendly Embedding */}
+                <div className="space-y-4 pt-2">
                   <a
                     href="https://calendly.com/ghislaintankeu6/nouvelle-reunion"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold transition-all shadow-md hover:shadow-lg group cursor-pointer"
+                    className="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm group cursor-pointer"
                   >
-                    <CalendarClock className="w-5 h-5" />
-                    <span>Réserver mon appel stratégique sur Calendly</span>
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    <CalendarClock className="w-4 h-4" />
+                    <span>Ouvrir l'agenda Calendly en grand</span>
+                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                   </a>
 
-                  {/* Inline Calendly Widget Embed */}
-                  <div className="mt-6 rounded-xl border border-zinc-200 bg-white overflow-hidden shadow-xs h-[520px]">
+                  <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden h-[540px]">
                     <iframe
                       src="https://calendly.com/ghislaintankeu6/nouvelle-reunion?embed_domain=leclubia.com&embed_type=Inline"
                       className="w-full h-full border-none"
-                      title="Réservation Calendly"
+                      title="Réservation d'appel Calendly"
                     />
                   </div>
-                </div>
-
-                <div className="pt-4 border-t border-zinc-200/80">
-                  <Link
-                    to="/"
-                    className="inline-flex items-center gap-2 text-xs text-zinc-500 hover:text-zinc-800 transition-colors"
-                  >
-                    <span>Retourner à la page d'accueil</span>
-                  </Link>
                 </div>
               </motion.div>
             ) : (
@@ -990,20 +343,19 @@ export function AccompagnementPage() {
                 {/* Progress Bar */}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-xs font-mono text-zinc-500">
-                    <span>Étape {currentStep} sur 4</span>
-                    <span>{currentStep * 25}% complété</span>
+                    <span>Étape {currentStep} sur 3</span>
+                    <span>{Math.round((currentStep / 3) * 100)}% complété</span>
                   </div>
-                  <div className="h-2 w-full rounded-full bg-zinc-200 overflow-hidden">
+                  <div className="h-1.5 w-full rounded-full bg-zinc-100 overflow-hidden">
                     <motion.div
                       className="h-full bg-blue-600"
-                      initial={{ width: '25%' }}
-                      animate={{ width: `${currentStep * 25}%` }}
+                      animate={{ width: `${(currentStep / 3) * 100}%` }}
                       transition={{ duration: 0.3 }}
                     />
                   </div>
                 </div>
 
-                {/* STEP 1: Identification */}
+                {/* STEP 1: Vos Coordonnées */}
                 {currentStep === 1 && (
                   <motion.div
                     initial={{ opacity: 0, x: 10 }}
@@ -1011,128 +363,96 @@ export function AccompagnementPage() {
                     exit={{ opacity: 0, x: -10 }}
                     className="space-y-4"
                   >
-                    <h3 className="text-base font-bold text-zinc-900 border-b border-zinc-200 pb-2">
-                      1. Identité & Coordonnées
+                    <h3 className="text-sm font-bold text-zinc-900 border-b border-zinc-100 pb-2">
+                      1. Vos Coordonnées
                     </h3>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-zinc-700">Nom *</label>
-                        <input
-                          type="text"
-                          value={formData.nom}
-                          onChange={e => handleInputChange('nom', e.target.value)}
-                          placeholder="Dupont"
-                          className="w-full px-3 py-2 rounded-lg bg-white border border-zinc-300 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none"
-                          required
-                        />
-                      </div>
-
-                      <div className="space-y-1.5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="space-y-1">
                         <label className="text-xs font-semibold text-zinc-700">Prénom *</label>
                         <input
                           type="text"
                           value={formData.prenom}
                           onChange={e => handleInputChange('prenom', e.target.value)}
                           placeholder="Jean"
-                          className="w-full px-3 py-2 rounded-lg bg-white border border-zinc-300 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none"
+                          className="w-full px-3 py-2 rounded-lg bg-zinc-50 border border-zinc-200 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none"
+                          required
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-xs font-semibold text-zinc-700">Nom *</label>
+                        <input
+                          type="text"
+                          value={formData.nom}
+                          onChange={e => handleInputChange('nom', e.target.value)}
+                          placeholder="Dupont"
+                          className="w-full px-3 py-2 rounded-lg bg-zinc-50 border border-zinc-200 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none"
                           required
                         />
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-zinc-700">Email professionnel *</label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <label className="text-xs font-semibold text-zinc-700">Email *</label>
                         <input
                           type="email"
                           value={formData.email}
                           onChange={e => handleInputChange('email', e.target.value)}
-                          placeholder="jean.dupont@exemple.com"
-                          className="w-full px-3 py-2 rounded-lg bg-white border border-zinc-300 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none"
+                          placeholder="jean@exemple.com"
+                          className="w-full px-3 py-2 rounded-lg bg-zinc-50 border border-zinc-200 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none"
                           required
                         />
                       </div>
 
-                      <div className="space-y-1.5">
+                      <div className="space-y-1">
                         <label className="text-xs font-semibold text-zinc-700">Téléphone (WhatsApp) *</label>
                         <input
                           type="tel"
                           value={formData.telephone}
                           onChange={e => handleInputChange('telephone', e.target.value)}
                           placeholder="+33 6 12 34 56 78"
-                          className="w-full px-3 py-2 rounded-lg bg-white border border-zinc-300 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none"
+                          className="w-full px-3 py-2 rounded-lg bg-zinc-50 border border-zinc-200 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none"
                           required
                         />
                       </div>
                     </div>
-
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-zinc-700">Pays de résidence</label>
-                      <input
-                        type="text"
-                        value={formData.pays}
-                        onChange={e => handleInputChange('pays', e.target.value)}
-                        placeholder="France, Belgique, Suisse, Canada..."
-                        className="w-full px-3 py-2 rounded-lg bg-white border border-zinc-300 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none"
-                      />
-                    </div>
                   </motion.div>
                 )}
 
-                {/* STEP 2: Projet */}
+                {/* STEP 2: Votre Projet */}
                 {currentStep === 2 && (
                   <motion.div
                     initial={{ opacity: 0, x: 10 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -10 }}
-                    className="space-y-5"
+                    className="space-y-4"
                   >
-                    <h3 className="text-base font-bold text-zinc-900 border-b border-zinc-200 pb-2">
-                      2. Votre Projet & Vision
+                    <h3 className="text-sm font-bold text-zinc-900 border-b border-zinc-100 pb-2">
+                      2. Votre Projet
                     </h3>
 
                     <div className="space-y-2">
-                      <label className="text-xs font-semibold text-zinc-700">Quel est votre projet principal ? *</label>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <label className="text-xs font-semibold text-zinc-700">Quel est votre objectif principal ?</label>
+                      <div className="grid grid-cols-1 gap-2">
                         {PROJET_TYPES.map(pt => {
-                          const isSelected = formData.projet_type === pt
+                          const isSelected = formData.projet_type === pt.label
                           return (
                             <button
-                              key={pt}
+                              key={pt.id}
                               type="button"
-                              onClick={() => handleInputChange('projet_type', pt)}
-                              className={`p-3 rounded-xl border text-left text-xs font-medium transition-all flex items-center justify-between cursor-pointer ${
+                              onClick={() => handleInputChange('projet_type', pt.label)}
+                              className={`p-3 rounded-xl border text-left text-xs transition-all flex items-center justify-between cursor-pointer ${
                                 isSelected
-                                  ? 'border-blue-600 bg-blue-50/80 text-blue-900 shadow-xs'
+                                  ? 'border-blue-600 bg-blue-50/80 font-semibold text-blue-900'
                                   : 'border-zinc-200 bg-white text-zinc-700 hover:border-zinc-300'
                               }`}
                             >
-                              <span>{pt}</span>
-                              {isSelected && <CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0 ml-2" />}
-                            </button>
-                          )
-                        })}
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <label className="text-xs font-semibold text-zinc-700">Où en êtes-vous actuellement ? *</label>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        {STATUTS_ACTUELS.map(st => {
-                          const isSelected = formData.statut_actuel === st
-                          return (
-                            <button
-                              key={st}
-                              type="button"
-                              onClick={() => handleInputChange('statut_actuel', st)}
-                              className={`p-3 rounded-xl border text-left text-xs font-medium transition-all flex items-center justify-between cursor-pointer ${
-                                isSelected
-                                  ? 'border-blue-600 bg-blue-50/80 text-blue-900 shadow-xs'
-                                  : 'border-zinc-200 bg-white text-zinc-700 hover:border-zinc-300'
-                              }`}
-                            >
-                              <span>{st}</span>
+                              <div>
+                                <div className="font-semibold">{pt.label}</div>
+                                <div className="text-[10px] text-zinc-500 font-normal">{pt.desc}</div>
+                              </div>
                               {isSelected && <CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0 ml-2" />}
                             </button>
                           )
@@ -1141,20 +461,20 @@ export function AccompagnementPage() {
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-zinc-700">Que souhaitez-vous construire précisément grâce à l'IA ? *</label>
+                      <label className="text-xs font-semibold text-zinc-700">Que souhaitez-vous construire précisément ? *</label>
                       <textarea
-                        rows={3}
+                        rows={2}
                         value={formData.projet_ia}
                         onChange={e => handleInputChange('projet_ia', e.target.value)}
-                        placeholder="Décrivez votre idée, vos compétences ou votre service envisagé..."
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-zinc-300 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none"
+                        placeholder="Ex: Un service d'automatisation IA, une offre de conseil, une agence, etc..."
+                        className="w-full px-3 py-2 rounded-lg bg-zinc-50 border border-zinc-200 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none"
                         required
                       />
                     </div>
                   </motion.div>
                 )}
 
-                {/* STEP 3: Expérience & Blocages */}
+                {/* STEP 3: Engagement */}
                 {currentStep === 3 && (
                   <motion.div
                     initial={{ opacity: 0, x: 10 }}
@@ -1162,73 +482,13 @@ export function AccompagnementPage() {
                     exit={{ opacity: 0, x: -10 }}
                     className="space-y-4"
                   >
-                    <h3 className="text-base font-bold text-zinc-900 border-b border-zinc-200 pb-2">
-                      3. Vos Enjeux & Freins
-                    </h3>
-
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-zinc-700">Quel est votre principal blocage aujourd'hui ? *</label>
-                      <textarea
-                        rows={2}
-                        value={formData.projet_blocage}
-                        onChange={e => handleInputChange('projet_blocage', e.target.value)}
-                        placeholder="Manque de méthode, d'offre, d'acquisition, difficulté technique..."
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-zinc-300 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none"
-                        required
-                      />
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-zinc-700">Pourquoi souhaitez-vous vous lancer maintenant ? *</label>
-                      <textarea
-                        rows={2}
-                        value={formData.projet_raison}
-                        onChange={e => handleInputChange('projet_raison', e.target.value)}
-                        placeholder="Pourquoi ce projet est-il prioritaire pour vous aujourd'hui ?"
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-zinc-300 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none"
-                        required
-                      />
-                    </div>
-
-                    <div className="space-y-2 pt-2">
-                      <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-zinc-700">
-                        <input
-                          type="checkbox"
-                          checked={formData.deja_essaie}
-                          onChange={e => handleInputChange('deja_essaie', e.target.checked)}
-                          className="rounded text-blue-600 focus:ring-blue-500 w-4 h-4 cursor-pointer"
-                        />
-                        <span>Avez-vous déjà essayé d'autres formations ou accompagnements par le passé ?</span>
-                      </label>
-
-                      {formData.deja_essaie && (
-                        <input
-                          type="text"
-                          value={formData.deja_essaie_details}
-                          onChange={e => handleInputChange('deja_essaie_details', e.target.value)}
-                          placeholder="Précisez rapidement ce que vous avez testé et pourquoi cela n'a pas suffi..."
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-zinc-300 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none"
-                        />
-                      )}
-                    </div>
-                  </motion.div>
-                )}
-
-                {/* STEP 4: Engagement */}
-                {currentStep === 4 && (
-                  <motion.div
-                    initial={{ opacity: 0, x: 10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -10 }}
-                    className="space-y-5"
-                  >
-                    <h3 className="text-base font-bold text-zinc-900 border-b border-zinc-200 pb-2">
-                      4. Engagement & Candidature
+                    <h3 className="text-sm font-bold text-zinc-900 border-b border-zinc-100 pb-2">
+                      3. Votre Engagement
                     </h3>
 
                     <div className="space-y-2">
-                      <label className="text-xs font-semibold text-zinc-700">Temps disponible chaque semaine ? *</label>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <label className="text-xs font-semibold text-zinc-700">Temps disponible chaque semaine ?</label>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                         {HEURES_SEMAINE_OPTIONS.map(h => {
                           const isSelected = formData.heures_semaine === h
                           return (
@@ -1236,14 +496,13 @@ export function AccompagnementPage() {
                               key={h}
                               type="button"
                               onClick={() => handleInputChange('heures_semaine', h)}
-                              className={`p-3 rounded-xl border text-left text-xs font-medium transition-all flex items-center justify-between cursor-pointer ${
+                              className={`p-2.5 rounded-lg border text-center text-xs font-medium transition-all cursor-pointer ${
                                 isSelected
-                                  ? 'border-blue-600 bg-blue-50/80 text-blue-900 shadow-xs'
+                                  ? 'border-blue-600 bg-blue-50/80 text-blue-900 font-bold'
                                   : 'border-zinc-200 bg-white text-zinc-700 hover:border-zinc-300'
                               }`}
                             >
                               <span>{h}</span>
-                              {isSelected && <CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0 ml-2" />}
                             </button>
                           )
                         })}
@@ -1251,30 +510,7 @@ export function AccompagnementPage() {
                     </div>
 
                     <div className="space-y-2">
-                      <label className="text-xs font-semibold text-zinc-700">Quel budget êtes-vous prêt à investir ? *</label>
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                        {BUDGET_OPTIONS.map(b => {
-                          const isSelected = formData.budget === b
-                          return (
-                            <button
-                              key={b}
-                              type="button"
-                              onClick={() => handleInputChange('budget', b)}
-                              className={`p-2.5 rounded-xl border text-center text-xs font-semibold transition-all cursor-pointer ${
-                                isSelected
-                                  ? 'border-blue-600 bg-blue-50/80 text-blue-900 shadow-xs'
-                                  : 'border-zinc-200 bg-white text-zinc-700 hover:border-zinc-300'
-                              }`}
-                            >
-                              <span>{b}</span>
-                            </button>
-                          )
-                        })}
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <label className="text-xs font-semibold text-zinc-700">Êtes-vous prêt à investir dans un accompagnement si nous retenons votre dossier ? *</label>
+                      <label className="text-xs font-semibold text-zinc-700">Êtes-vous prêt à passer à l'action si votre profil est retenu ?</label>
                       <div className="grid grid-cols-1 gap-2">
                         {PRET_INVESTIR_OPTIONS.map(pi => {
                           const isSelected = formData.pret_investir === pi
@@ -1283,9 +519,9 @@ export function AccompagnementPage() {
                               key={pi}
                               type="button"
                               onClick={() => handleInputChange('pret_investir', pi)}
-                              className={`p-3 rounded-xl border text-left text-xs font-medium transition-all flex items-center justify-between cursor-pointer ${
+                              className={`p-3 rounded-xl border text-left text-xs transition-all flex items-center justify-between cursor-pointer ${
                                 isSelected
-                                  ? 'border-blue-600 bg-blue-50/80 text-blue-900 shadow-xs'
+                                  ? 'border-blue-600 bg-blue-50/80 font-semibold text-blue-900'
                                   : 'border-zinc-200 bg-white text-zinc-700 hover:border-zinc-300'
                               }`}
                             >
@@ -1296,39 +532,16 @@ export function AccompagnementPage() {
                         })}
                       </div>
                     </div>
-
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-zinc-700">Objectif de chiffre d'affaires dans les 12 prochains mois ?</label>
-                      <input
-                        type="text"
-                        value={formData.objectif_12m}
-                        onChange={e => handleInputChange('objectif_12m', e.target.value)}
-                        placeholder="Ex: 5 000 € / mois, 100 000 € / an..."
-                        className="w-full px-3 py-2 rounded-lg bg-white border border-zinc-300 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none"
-                      />
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-zinc-700">Pourquoi pensez-vous être le bon candidat pour ce programme ? *</label>
-                      <textarea
-                        rows={3}
-                        value={formData.candidat_raison}
-                        onChange={e => handleInputChange('candidat_raison', e.target.value)}
-                        placeholder="Exprimez votre motivation et votre détermination à exécuter les actions..."
-                        className="w-full px-3 py-2 rounded-lg bg-white border border-zinc-300 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none"
-                        required
-                      />
-                    </div>
                   </motion.div>
                 )}
 
-                {/* Form Buttons Navigation */}
-                <div className="flex items-center justify-between pt-4 border-t border-zinc-200">
+                {/* Form Navigation Buttons */}
+                <div className="flex items-center justify-between pt-4 border-t border-zinc-100">
                   {currentStep > 1 ? (
                     <button
                       type="button"
                       onClick={prevStep}
-                      className="px-4 py-2 bg-zinc-200 hover:bg-zinc-300 text-zinc-800 rounded-lg text-xs font-semibold transition-all flex items-center gap-1 cursor-pointer"
+                      className="px-4 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-lg text-xs font-semibold transition-all flex items-center gap-1 cursor-pointer"
                     >
                       <ChevronLeft className="w-4 h-4" />
                       <span>Précédent</span>
@@ -1337,13 +550,13 @@ export function AccompagnementPage() {
                     <div />
                   )}
 
-                  {currentStep < 4 ? (
+                  {currentStep < 3 ? (
                     <button
                       type="button"
                       onClick={nextStep}
                       className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold transition-all shadow-xs flex items-center gap-1 cursor-pointer ml-auto"
                     >
-                      <span>Étape suivante</span>
+                      <span>Suivant</span>
                       <ChevronRight className="w-4 h-4" />
                     </button>
                   ) : (
@@ -1355,11 +568,11 @@ export function AccompagnementPage() {
                       {isSubmitting ? (
                         <>
                           <Loader2 className="w-4 h-4 animate-spin text-blue-400" />
-                          <span>Transmission en cours...</span>
+                          <span>Validation...</span>
                         </>
                       ) : (
                         <>
-                          <span>Envoyer ma candidature</span>
+                          <span>Accéder à la prise de rendez-vous</span>
                           <Check className="w-4 h-4 text-emerald-400" />
                         </>
                       )}
@@ -1375,16 +588,9 @@ export function AccompagnementPage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="py-12 bg-[#FAFAFA] border-t border-zinc-200 text-center text-xs text-zinc-500">
-        <div className="max-w-7xl mx-auto px-4 space-y-3">
-          <p>© {new Date().getFullYear()} Le Club IA — Accompagnement Business Premium. Tous droits réservés.</p>
-          <div className="flex items-center justify-center gap-6 text-zinc-400">
-            <Link to="/mentions-legales" className="hover:text-zinc-700">Mentions Légales</Link>
-            <Link to="/confidentialite" className="hover:text-zinc-700">Confidentialité</Link>
-            <Link to="/cgu" className="hover:text-zinc-700">CGU</Link>
-          </div>
-        </div>
+      {/* Simple Footer */}
+      <footer className="py-8 bg-white border-t border-zinc-200 text-center text-xs text-zinc-400">
+        <p>© {new Date().getFullYear()} Le Club IA — Accompagnement Business Premium. Tous droits réservés.</p>
       </footer>
     </div>
   )
