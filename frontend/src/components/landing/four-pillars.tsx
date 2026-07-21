@@ -3,20 +3,16 @@ import {
   MessagesSquare,
   Newspaper,
   Library,
-  Sparkles,
-  Award,
   ArrowRight,
   Play,
   CheckCircle2,
-  Zap,
 } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
 import { Reveal } from './reveal'
 import { Eyebrow } from './eyebrow'
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   LES 4 PILIERS DU CLUB IA (+ 2 FORCES COMPLÉMENTAIRES) — DESIGN HAUT DE GAMME CLAIR
-   S'intègre parfaitement avec le reste de la page (fond blanc/écru, cartes épurées)
+   LES 4 PILIERS DU CLUB IA (GRILLE 2x2 ÉPURÉE SUR FOND CLAIR)
    ───────────────────────────────────────────────────────────────────────────── */
 
 interface PillarCardProps {
@@ -34,7 +30,7 @@ export function FourPillars() {
       id="piliers"
       className="relative overflow-hidden bg-[var(--background)] py-20 sm:py-28 lg:py-32"
     >
-      {/* Halo de fond subtil — bleu ciel & bloomberg très doux */}
+      {/* Halo de fond subtil */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 -z-10"
@@ -42,7 +38,7 @@ export function FourPillars() {
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 h-[500px] w-[800px] rounded-full bg-gradient-to-b from-[#3B82F6]/[0.05] via-transparent to-transparent blur-[120px]" />
       </div>
 
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         
         {/* En-tête de section */}
         <div className="mx-auto max-w-3xl text-center">
@@ -62,8 +58,8 @@ export function FourPillars() {
           </Reveal>
         </div>
 
-        {/* Grille 3x2 de cartes */}
-        <div className="mt-14 sm:mt-20 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {/* Grille 2x2 des 4 piliers */}
+        <div className="mt-14 sm:mt-20 grid grid-cols-1 gap-6 md:grid-cols-2">
           
           {/* 1. Catalogue de formations */}
           <Reveal delay={0.05}>
@@ -107,30 +103,10 @@ export function FourPillars() {
             />
           </Reveal>
 
-          {/* 5. Coach IA 24/7 */}
-          <Reveal delay={0.25}>
-            <PillarCard
-              badge="ASSISTANT IA DÉDIÉ"
-              title="Coach IA 24/7"
-              description="Un agent spécialisé répond à tes questions techniques et débloque tes workflows à tout moment."
-              graphic={<CoachPreviewGraphic />}
-            />
-          </Reveal>
-
-          {/* 6. Certification & Progression */}
-          <Reveal delay={0.3}>
-            <PillarCard
-              badge="SUIVI & CERTIFICATS"
-              title="Progression & Certificats"
-              description="Valide tes acquis au fur et à mesure avec des badges et certificats officiels Club IA."
-              graphic={<CertificatePreviewGraphic />}
-            />
-          </Reveal>
-
         </div>
 
         {/* CTA bas de section */}
-        <Reveal delay={0.4} className="mt-16 sm:mt-20">
+        <Reveal delay={0.3} className="mt-16 sm:mt-20">
           <div className="flex justify-center">
             <Link
               to="/auth"
@@ -148,15 +124,15 @@ export function FourPillars() {
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   CARTE INDIVIDUELLE (Fond blanc, bordure sobre, survol doux)
+   CARTE INDIVIDUELLE
    ───────────────────────────────────────────────────────────────────────────── */
 
 function PillarCard({ badge, title, description, graphic, link, linkText }: PillarCardProps) {
   return (
     <div className="group relative flex h-full flex-col overflow-hidden rounded-[2rem] border border-[var(--border)] bg-white p-3 transition-all duration-500 hover:border-[#3B82F6]/30 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.07)]">
       
-      {/* Zone de prévisualisation supérieure (style grille épurée) */}
-      <div className="relative h-52 sm:h-56 w-full overflow-hidden rounded-[1.4rem] border border-zinc-200/70 bg-zinc-50/80 p-4 flex items-center justify-center">
+      {/* Zone de prévisualisation supérieure */}
+      <div className="relative h-56 sm:h-64 w-full overflow-hidden rounded-[1.4rem] border border-zinc-200/70 bg-zinc-50/80 p-4 flex items-center justify-center">
         
         {/* Motifs de grille subtils */}
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,#0000000a_1px,transparent_1px),linear-gradient(to_bottom,#0000000a_1px,transparent_1px)] bg-[size:20px_20px]" />
@@ -168,13 +144,13 @@ function PillarCard({ badge, title, description, graphic, link, linkText }: Pill
         </div>
 
         {/* Badge pill noir épuré */}
-        <div className="absolute bottom-3 left-1/2 z-20 -translate-x-1/2 whitespace-nowrap rounded-lg bg-[#0A0A0A] px-3.5 py-1.5 text-[10px] font-extrabold tracking-widest text-white uppercase shadow-md transition-transform duration-300 group-hover:scale-105">
+        <div className="absolute bottom-3.5 left-1/2 z-20 -translate-x-1/2 whitespace-nowrap rounded-lg bg-[#0A0A0A] px-3.5 py-1.5 text-[10px] font-extrabold tracking-widest text-white uppercase shadow-md transition-transform duration-300 group-hover:scale-105">
           {badge}
         </div>
       </div>
 
       {/* Contenu texte */}
-      <div className="relative z-10 flex flex-1 flex-col p-5 sm:p-6">
+      <div className="relative z-10 flex flex-1 flex-col p-6 sm:p-7">
         <h3 className="font-display text-2xl font-bold tracking-tight text-[#0A0A0A] group-hover:text-[#2563EB] transition-colors">
           {title}
         </h3>
@@ -198,12 +174,12 @@ function PillarCard({ badge, title, description, graphic, link, linkText }: Pill
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   APERÇUS GRAPHIQUES ÉPURÉS & LUMINEUX (Bleu Bloomberg & Accent Bleu Ciel)
+   APERÇUS GRAPHIQUES
    ───────────────────────────────────────────────────────────────────────────── */
 
 function FormationsPreviewGraphic() {
   return (
-    <div className="relative w-full max-w-[230px] rounded-xl border border-zinc-200 bg-white p-2.5 shadow-lg transition-transform duration-500 group-hover:scale-105">
+    <div className="relative w-full max-w-[250px] rounded-xl border border-zinc-200 bg-white p-2.5 shadow-lg transition-transform duration-500 group-hover:scale-105">
       <div className="mb-2 flex items-center justify-between border-b border-zinc-100 pb-1.5 px-1">
         <div className="flex items-center gap-1.5">
           <div className="h-2 w-2 rounded-full bg-red-400" />
@@ -253,7 +229,7 @@ function CommunityPreviewGraphic() {
 
 function NewsPreviewGraphic() {
   return (
-    <div className="relative w-full max-w-[220px] rounded-xl border border-zinc-200 bg-white p-3 shadow-lg transition-transform duration-500 group-hover:scale-105">
+    <div className="relative w-full max-w-[240px] rounded-xl border border-zinc-200 bg-white p-3 shadow-lg transition-transform duration-500 group-hover:scale-105">
       <div className="flex items-center justify-between border-b border-zinc-100 pb-2 mb-2">
         <div className="flex items-center gap-1.5">
           <Newspaper className="h-3.5 w-3.5 text-[#2563EB]" />
@@ -292,42 +268,6 @@ function ResourcesPreviewGraphic() {
             <div className="mt-1 h-1.5 w-12 rounded bg-white/50" />
           </div>
         </div>
-      </div>
-    </div>
-  )
-}
-
-function CoachPreviewGraphic() {
-  return (
-    <div className="relative w-full max-w-[220px] transition-transform duration-500 group-hover:scale-105">
-      <div className="rounded-xl border border-zinc-200 bg-white p-3 shadow-lg flex flex-col gap-2">
-        <div className="flex items-start gap-2">
-          <div className="h-5 w-5 shrink-0 rounded-full bg-zinc-200 flex items-center justify-center text-[9px] font-bold text-zinc-700">
-            U
-          </div>
-          <div className="rounded-xl rounded-tl-none bg-zinc-100 px-2.5 py-1 text-[10px] text-zinc-700">
-            Quel prompt pour générer ce visuel ?
-          </div>
-        </div>
-
-        <div className="flex items-start gap-2 justify-end">
-          <div className="rounded-xl rounded-tr-none bg-[#0F1E4D] px-2.5 py-1 text-[10px] text-white shadow-sm">
-            Voici la structure exacte à copier ⚡
-          </div>
-          <div className="h-5 w-5 shrink-0 rounded-full bg-[#2563EB] flex items-center justify-center text-white">
-            <Sparkles className="h-3 w-3" />
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function CertificatePreviewGraphic() {
-  return (
-    <div className="relative flex items-center justify-center h-full w-full">
-      <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl border border-blue-200 bg-gradient-to-br from-[#0F1E4D] to-[#2563EB] text-white shadow-xl transition-transform duration-500 group-hover:scale-110">
-        <Award className="h-8 w-8 text-[#60A5FA]" />
       </div>
     </div>
   )
