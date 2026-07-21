@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import {
   ArrowRight,
+  Calendar,
   Check,
   CheckCircle2,
   ChevronRight,
@@ -589,38 +590,84 @@ function CandidatureModal({ onClose }: { onClose: () => void }) {
                 key="done"
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="pt-6 space-y-5"
+                className="pt-8 pb-4 flex flex-col items-center text-center"
               >
-                <div className="text-center space-y-3">
-                  <div className="w-12 h-12 rounded-2xl bg-[var(--primary)] text-white flex items-center justify-center mx-auto">
-                    <CheckCircle2 className="w-6 h-6" />
-                  </div>
-                  <h3 className="text-lg font-bold">Merci {f.prenom} !</h3>
-                  <p className="text-sm text-[var(--muted-foreground)] leading-relaxed">
-                    Votre candidature a bien été enregistrée. Si votre profil correspond, nous vous inviterons à un appel stratégique de 30 minutes.
-                  </p>
+                {/* Success Icon */}
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: 'spring', stiffness: 300, damping: 20, delay: 0.1 }}
+                  className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mb-5"
+                >
+                  <CheckCircle2 className="w-8 h-8" />
+                </motion.div>
+
+                <h3 className="text-xl font-bold text-[var(--foreground)]">
+                  Merci {f.prenom} !
+                </h3>
+                <p className="mt-2 text-sm text-[var(--muted-foreground)] leading-relaxed max-w-sm">
+                  Votre candidature a bien été enregistrée.
+                </p>
+
+                {/* Next Steps */}
+                <div className="mt-8 w-full space-y-3 text-left">
+                  {[
+                    { num: '1', text: 'Nous analysons votre candidature', done: true },
+                    { num: '2', text: 'Réservez votre appel stratégique maintenant', active: true },
+                    { num: '3', text: 'Échangeons ensemble pendant 30 min' },
+                  ].map((s, i) => (
+                    <div
+                      key={i}
+                      className={`flex items-center gap-3 px-4 py-3 rounded-xl border transition-all ${
+                        s.done
+                          ? 'border-emerald-200 bg-emerald-50/50'
+                          : (s as any).active
+                            ? 'border-[var(--primary)] bg-[var(--primary)]/[0.04] ring-1 ring-[var(--primary)]/10'
+                            : 'border-[var(--border)] bg-[var(--secondary)]/50'
+                      }`}
+                    >
+                      <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 ${
+                        s.done
+                          ? 'bg-emerald-500 text-white'
+                          : (s as any).active
+                            ? 'bg-[var(--primary)] text-white'
+                            : 'bg-[var(--border)] text-[var(--muted-foreground)]'
+                      }`}>
+                        {s.done ? <Check className="w-3.5 h-3.5" /> : s.num}
+                      </div>
+                      <span className={`text-sm font-medium ${
+                        (s as any).active ? 'text-[var(--foreground)]' : 'text-[var(--muted-foreground)]'
+                      }`}>{s.text}</span>
+                    </div>
+                  ))}
                 </div>
 
-                {/* Calendly */}
-                <div className="rounded-xl border border-[var(--border)] overflow-hidden bg-white" style={{ height: 480 }}>
-                  <iframe
-                    src="https://calendly.com/ghislaintankeu6/nouvelle-reunion?embed_domain=leclubia.com&embed_type=Inline"
-                    className="w-full h-full border-none"
-                    title="Réservation Calendly"
-                  />
-                </div>
+                {/* Primary CTA — Calendly */}
+                <motion.a
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                  href="https://calendly.com/ghislaintankeu6/nouvelle-reunion"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-8 w-full flex items-center justify-center gap-3 px-6 py-4 bg-[var(--primary)] hover:bg-[var(--primary-light)] text-white rounded-2xl text-base font-bold transition-all shadow-lg shadow-[var(--primary)]/20 group"
+                >
+                  <Calendar className="w-5 h-5" />
+                  <span>Choisir mon créneau maintenant</span>
+                  <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+                </motion.a>
 
-                <div className="text-center">
-                  <a
-                    href="https://calendly.com/ghislaintankeu6/nouvelle-reunion"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--primary)] hover:underline"
-                  >
-                    Ouvrir Calendly dans un nouvel onglet
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </a>
-                </div>
+                <p className="mt-3 text-xs text-[var(--muted-foreground)]">
+                  Appel gratuit · 30 min · Sans engagement
+                </p>
+
+                {/* Close */}
+                <button
+                  onClick={onClose}
+                  className="mt-6 text-sm font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors cursor-pointer"
+                >
+                  Fermer cette fenêtre
+                </button>
               </motion.div>
             ) : (
               <form onSubmit={submit}>
