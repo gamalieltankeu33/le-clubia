@@ -956,36 +956,58 @@ export function AccompagnementPage() {
                     initial={{ opacity: 0, x: 10 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -10 }}
-                    className="space-y-4"
+                    className="space-y-5"
                   >
                     <h3 className="text-base font-bold text-zinc-900 border-b border-zinc-200 pb-2">
                       2. Votre Projet & Vision
                     </h3>
 
-                    <div className="space-y-1.5">
+                    <div className="space-y-2">
                       <label className="text-xs font-semibold text-zinc-700">Quel est votre projet principal ? *</label>
-                      <select
-                        value={formData.projet_type}
-                        onChange={e => handleInputChange('projet_type', e.target.value)}
-                        className="w-full px-3 py-2 rounded-lg bg-white border border-zinc-300 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none"
-                      >
-                        {PROJET_TYPES.map(pt => (
-                          <option key={pt} value={pt}>{pt}</option>
-                        ))}
-                      </select>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {PROJET_TYPES.map(pt => {
+                          const isSelected = formData.projet_type === pt
+                          return (
+                            <button
+                              key={pt}
+                              type="button"
+                              onClick={() => handleInputChange('projet_type', pt)}
+                              className={`p-3 rounded-xl border text-left text-xs font-medium transition-all flex items-center justify-between cursor-pointer ${
+                                isSelected
+                                  ? 'border-blue-600 bg-blue-50/80 text-blue-900 shadow-xs'
+                                  : 'border-zinc-200 bg-white text-zinc-700 hover:border-zinc-300'
+                              }`}
+                            >
+                              <span>{pt}</span>
+                              {isSelected && <CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0 ml-2" />}
+                            </button>
+                          )
+                        })}
+                      </div>
                     </div>
 
-                    <div className="space-y-1.5">
+                    <div className="space-y-2">
                       <label className="text-xs font-semibold text-zinc-700">Où en êtes-vous actuellement ? *</label>
-                      <select
-                        value={formData.statut_actuel}
-                        onChange={e => handleInputChange('statut_actuel', e.target.value)}
-                        className="w-full px-3 py-2 rounded-lg bg-white border border-zinc-300 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none"
-                      >
-                        {STATUTS_ACTUELS.map(st => (
-                          <option key={st} value={st}>{st}</option>
-                        ))}
-                      </select>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {STATUTS_ACTUELS.map(st => {
+                          const isSelected = formData.statut_actuel === st
+                          return (
+                            <button
+                              key={st}
+                              type="button"
+                              onClick={() => handleInputChange('statut_actuel', st)}
+                              className={`p-3 rounded-xl border text-left text-xs font-medium transition-all flex items-center justify-between cursor-pointer ${
+                                isSelected
+                                  ? 'border-blue-600 bg-blue-50/80 text-blue-900 shadow-xs'
+                                  : 'border-zinc-200 bg-white text-zinc-700 hover:border-zinc-300'
+                              }`}
+                            >
+                              <span>{st}</span>
+                              {isSelected && <CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0 ml-2" />}
+                            </button>
+                          )
+                        })}
+                      </div>
                     </div>
 
                     <div className="space-y-1.5">
@@ -995,7 +1017,7 @@ export function AccompagnementPage() {
                         value={formData.projet_ia}
                         onChange={e => handleInputChange('projet_ia', e.target.value)}
                         placeholder="Décrivez votre idée, vos compétences ou votre service envisagé..."
-                        className="w-full px-3 py-2 rounded-lg bg-white border border-zinc-300 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-zinc-300 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none"
                         required
                       />
                     </div>
@@ -1021,7 +1043,7 @@ export function AccompagnementPage() {
                         value={formData.projet_blocage}
                         onChange={e => handleInputChange('projet_blocage', e.target.value)}
                         placeholder="Manque de méthode, d'offre, d'acquisition, difficulté technique..."
-                        className="w-full px-3 py-2 rounded-lg bg-white border border-zinc-300 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-zinc-300 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none"
                         required
                       />
                     </div>
@@ -1033,7 +1055,7 @@ export function AccompagnementPage() {
                         value={formData.projet_raison}
                         onChange={e => handleInputChange('projet_raison', e.target.value)}
                         placeholder="Pourquoi ce projet est-il prioritaire pour vous aujourd'hui ?"
-                        className="w-full px-3 py-2 rounded-lg bg-white border border-zinc-300 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-zinc-300 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none"
                         required
                       />
                     </div>
@@ -1044,7 +1066,7 @@ export function AccompagnementPage() {
                           type="checkbox"
                           checked={formData.deja_essaie}
                           onChange={e => handleInputChange('deja_essaie', e.target.checked)}
-                          className="rounded text-blue-600 focus:ring-blue-500 w-4 h-4"
+                          className="rounded text-blue-600 focus:ring-blue-500 w-4 h-4 cursor-pointer"
                         />
                         <span>Avez-vous déjà essayé d'autres formations ou accompagnements par le passé ?</span>
                       </label>
@@ -1055,7 +1077,7 @@ export function AccompagnementPage() {
                           value={formData.deja_essaie_details}
                           onChange={e => handleInputChange('deja_essaie_details', e.target.value)}
                           placeholder="Précisez rapidement ce que vous avez testé et pourquoi cela n'a pas suffi..."
-                          className="w-full px-3 py-2 rounded-lg bg-white border border-zinc-300 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none"
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-zinc-300 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none"
                         />
                       )}
                     </div>
@@ -1068,51 +1090,81 @@ export function AccompagnementPage() {
                     initial={{ opacity: 0, x: 10 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -10 }}
-                    className="space-y-4"
+                    className="space-y-5"
                   >
                     <h3 className="text-base font-bold text-zinc-900 border-b border-zinc-200 pb-2">
                       4. Engagement & Candidature
                     </h3>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-zinc-700">Temps disponible chaque semaine ? *</label>
-                        <select
-                          value={formData.heures_semaine}
-                          onChange={e => handleInputChange('heures_semaine', e.target.value)}
-                          className="w-full px-3 py-2 rounded-lg bg-white border border-zinc-300 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none"
-                        >
-                          {HEURES_SEMAINE_OPTIONS.map(h => (
-                            <option key={h} value={h}>{h}</option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-zinc-700">Quel budget êtes-vous prêt à investir ? *</label>
-                        <select
-                          value={formData.budget}
-                          onChange={e => handleInputChange('budget', e.target.value)}
-                          className="w-full px-3 py-2 rounded-lg bg-white border border-zinc-300 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none"
-                        >
-                          {BUDGET_OPTIONS.map(b => (
-                            <option key={b} value={b}>{b}</option>
-                          ))}
-                        </select>
+                    <div className="space-y-2">
+                      <label className="text-xs font-semibold text-zinc-700">Temps disponible chaque semaine ? *</label>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {HEURES_SEMAINE_OPTIONS.map(h => {
+                          const isSelected = formData.heures_semaine === h
+                          return (
+                            <button
+                              key={h}
+                              type="button"
+                              onClick={() => handleInputChange('heures_semaine', h)}
+                              className={`p-3 rounded-xl border text-left text-xs font-medium transition-all flex items-center justify-between cursor-pointer ${
+                                isSelected
+                                  ? 'border-blue-600 bg-blue-50/80 text-blue-900 shadow-xs'
+                                  : 'border-zinc-200 bg-white text-zinc-700 hover:border-zinc-300'
+                              }`}
+                            >
+                              <span>{h}</span>
+                              {isSelected && <CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0 ml-2" />}
+                            </button>
+                          )
+                        })}
                       </div>
                     </div>
 
-                    <div className="space-y-1.5">
+                    <div className="space-y-2">
+                      <label className="text-xs font-semibold text-zinc-700">Quel budget êtes-vous prêt à investir ? *</label>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        {BUDGET_OPTIONS.map(b => {
+                          const isSelected = formData.budget === b
+                          return (
+                            <button
+                              key={b}
+                              type="button"
+                              onClick={() => handleInputChange('budget', b)}
+                              className={`p-2.5 rounded-xl border text-center text-xs font-semibold transition-all cursor-pointer ${
+                                isSelected
+                                  ? 'border-blue-600 bg-blue-50/80 text-blue-900 shadow-xs'
+                                  : 'border-zinc-200 bg-white text-zinc-700 hover:border-zinc-300'
+                              }`}
+                            >
+                              <span>{b}</span>
+                            </button>
+                          )
+                        })}
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
                       <label className="text-xs font-semibold text-zinc-700">Êtes-vous prêt à investir dans un accompagnement si nous retenons votre dossier ? *</label>
-                      <select
-                        value={formData.pret_investir}
-                        onChange={e => handleInputChange('pret_investir', e.target.value)}
-                        className="w-full px-3 py-2 rounded-lg bg-white border border-zinc-300 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none"
-                      >
-                        {PRET_INVESTIR_OPTIONS.map(pi => (
-                          <option key={pi} value={pi}>{pi}</option>
-                        ))}
-                      </select>
+                      <div className="grid grid-cols-1 gap-2">
+                        {PRET_INVESTIR_OPTIONS.map(pi => {
+                          const isSelected = formData.pret_investir === pi
+                          return (
+                            <button
+                              key={pi}
+                              type="button"
+                              onClick={() => handleInputChange('pret_investir', pi)}
+                              className={`p-3 rounded-xl border text-left text-xs font-medium transition-all flex items-center justify-between cursor-pointer ${
+                                isSelected
+                                  ? 'border-blue-600 bg-blue-50/80 text-blue-900 shadow-xs'
+                                  : 'border-zinc-200 bg-white text-zinc-700 hover:border-zinc-300'
+                              }`}
+                            >
+                              <span>{pi}</span>
+                              {isSelected && <CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0 ml-2" />}
+                            </button>
+                          )
+                        })}
+                      </div>
                     </div>
 
                     <div className="space-y-1.5">
