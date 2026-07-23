@@ -36,6 +36,10 @@ interface CheckoutBody {
   email: string
   firstName?: string
   lastName?: string
+  phone?: {
+    number: string
+    country_code: string
+  }
   redirectURL?: string
   meta?: Record<string, unknown>
 }
@@ -153,6 +157,10 @@ serve(async (req: Request) => {
     email: body.email,
     first_name: body.firstName || 'Membre',
     last_name: body.lastName || 'Le Club IA',
+    phone: body.phone || {
+      number: '0700000000',
+      country_code: 'CI',
+    },
     redirect_url: body.redirectURL,
     custom_metadata: {
       ...(body.meta || {}),
