@@ -30,7 +30,7 @@ ALTER TABLE public.accompagnement_candidatures ENABLE ROW LEVEL SECURITY;
 -- Autorise l'insertion pour tout le monde (public / anonyme et authentifié)
 CREATE POLICY "Anyone can insert applications"
   ON public.accompagnement_candidatures
-  FOR INSERT
+  FOR INSERTreg
   WITH CHECK (true);
 
 -- Autorise la consultation uniquement pour les administrateurs

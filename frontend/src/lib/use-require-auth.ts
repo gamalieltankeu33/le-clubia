@@ -46,7 +46,7 @@ export function useRequireAuth(opts: RequireAuthOptions = {}): boolean {
         subscription?.status === 'active' || subscription?.status === 'trialing'
       // Au retour de paiement (?payment=success) la subscription locale
       // n'a pas encore été refresh : on laisse passer pour que le
-      // PaymentSuccessHandler puisse vérifier le panier Maketou. Si la
+      // PaymentSuccessHandler puisse vérifier la transaction Chariow. Si la
       // vérif échoue, le user repassera sur cette guard au prochain
       // render et sera redirigé proprement.
       const isPaymentReturn =

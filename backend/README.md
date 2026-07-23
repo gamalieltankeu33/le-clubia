@@ -84,44 +84,35 @@ renvoie un **503** explicite ("Coach IA temporairement indisponible").
 
 ---
 
-## Paiement Maketou (Mobile Money Afrique)
+## Paiement Chariow
 
-Le paiement est branché via [Maketou](https://api.maketou.net) — passerelle
-Mobile Money africaine (Orange Money, Wave, MTN Money, Moov Money).
-**Deux plans** sont gérés :
+Le paiement est branché via [Chariow](https://chariow.com) — passerelle de paiement supportant les cartes bancaires, les crypto-monnaies et les solutions de Mobile Money (Orange Money, Wave, MTN Money, Moov Money).
+**Deux plans** sont principalement gérés :
 
-- `annual` — 99 000 FCFA / 12 mois (recommandé)
-- `semestrial` — 69 000 FCFA / 6 mois
-
-L'API Maketou ne supporte **qu'un produit par panier**, donc on crée
-**deux produits dans le dashboard Maketou** (un par plan) et on les
-mappe en variables d'env (`MAKETOU_PRODUCT_ID_ANNUAL` /
-`MAKETOU_PRODUCT_ID_SEMESTRIAL`).
+- `semestrial` — Plan Master (6 mois)
+- `trimestrial` — Plan Progress (3 mois)
 
 ### Edge Functions
 
 | Fonction | Rôle |
 | --- | --- |
-| `maketou-checkout` | Crée le panier Maketou + insère une `subscription` en `incomplete` avec le `cart_id`. Renvoie l'URL de paiement. |
-| `maketou-verify`   | Au retour `?payment=success`, vérifie le panier Maketou et active la `subscription` si `status='completed'`. |
-
-> Maketou **ne fournit pas de webhook** : la vérification se fait à la
-> main via `GET /api/v1/stores/cart/{cartId}` au retour de paiement.
+| `chariow-checkout` | Crée la transaction Chariow + insère une `subscription` en `incomplete` avec le `transaction_id`. Renvoie l'URL de paiement. |
+| `chariow-verify`   | Au retour `?payment=success`, vérifie la transaction Chariow et active la `subscription` si `status` est complété. |
 
 ### Secrets à configurer
 
 | Clé | Valeur |
 | --- | --- |
-| `MAKETOU_API_KEY` | Dashboard Maketou → boutique → Autres → Clés API |
-| `MAKETOU_PRODUCT_ID_ANNUAL` | Produit "Plan Master Annuel" → Partager → Identifiant public |
-| `MAKETOU_PRODUCT_ID_SEMESTRIAL` | Produit "Plan Progress 6 mois" → Partager → Identifiant public |
+| `CHARIOW_API_KEY` | Dashboard Chariow → Développeurs → Clés API |
+| `CHARIOW_PRODUCT_ID_TRIMESTRIAL` | Produit "Plan Progress" (3 mois) → data-product-id |
+| `CHARIOW_PRODUCT_ID_SEMESTRIAL` | Produit "Plan Master" (6 mois) → data-product-id |
 
 Configuration via CLI :
 
 ```bash
-supabase secrets set MAKETOU_API_KEY=mkt_...
-supabase secrets set MAKETOU_PRODUCT_ID_ANNUAL=...
-supabase secrets set MAKETOU_PRODUCT_ID_SEMESTRIAL=...
+supabase secrets set CHARIOW_API_KEY=sk_...
+supabase secrets set CHARIOW_PRODUCT_ID_TRIMESTRIAL=prd_...
+supabase secrets set CHARIOW_PRODUCT_ID_SEMESTRIAL=prd_...
 ```
 
 Ou via le dashboard : Project Settings → Edge Functions → Manage secrets.
@@ -130,12 +121,11 @@ Ou via le dashboard : Project Settings → Edge Functions → Manage secrets.
 
 ```bash
 cd backend
-supabase functions deploy maketou-checkout
-supabase functions deploy maketou-verify
+supabase functions deploy chariow-checkout
+supabase functions deploy chariow-verify
 ```
 
 ### Migration DB associée
 
-`0040_maketou_payment.sql` ajoute la colonne `subscriptions.maketou_cart_id`.
-À appliquer **avant** de tester le paiement (sinon `maketou-checkout`
-échouera à l'insert).
+`0062_add_chariow_transaction_id.sql` ajoute la colonne `subscriptions.chariow_transaction_id`.
+À appliquer **avant** de tester le paiement (sinon `chariow-checkout` échouera à l'insert).

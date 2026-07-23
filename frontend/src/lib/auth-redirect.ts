@@ -40,7 +40,7 @@ export function nextRouteAfterAuth(
     return '/abonnement'
   }
 
-  // ── 2. Membre (ou admin) : onboarding puis dashboard ───────────────
+  // ── 2. Membre (ou admin) : onboarding puis communauté ──────────────
   if (!profile.onboarding_completed) return '/onboarding'
-  return '/app/dashboard'
+  return '/app/communaute'
 }

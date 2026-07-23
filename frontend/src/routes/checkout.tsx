@@ -4,7 +4,7 @@ import { ArrowLeft, Loader2, Lock, ShieldCheck } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { BrandLogo } from '@/components/brand-logo'
 import { useAuthStore } from '@/stores/auth-store'
-import { createMakEtoUCheckout } from '@/lib/maketou'
+import { createChariowCheckout } from '@/lib/chariow'
 import { toast } from 'sonner'
 
 export const Route = createFileRoute('/checkout')({
@@ -17,8 +17,8 @@ function CheckoutPage() {
   const profile = useAuthStore((s) => s.profile)
   const [loading, setLoading] = useState(false)
 
-  // Récupère le plan depuis l'URL (?plan=annual|semestrial)
-  const planId = new URLSearchParams(window.location.search).get('plan') as 'semestrial' | 'trimestrial' | 'annual' | null
+  // Récupère le plan depuis l'URL (?plan=annual|semestrial|trimestrial|trial)
+  const planId = new URLSearchParams(window.location.search).get('plan') as 'semestrial' | 'trimestrial' | 'annual' | 'trial' | null
 
   async function handlePayment() {
     if (!user || !planId) {
@@ -28,10 +28,9 @@ function CheckoutPage() {
 
     setLoading(true)
     try {
-      // On passe une redirectURL "template" — l'edge function y injecte
-      // `&cart=<cartId>` à la volée pour qu'au retour le handler puisse
-      // vérifier le bon panier côté Maketou.
-      const { url } = await createMakEtoUCheckout({
+      // On transmet la redirectURL — Chariow y renverra le client après
+      // validation de la transaction.
+      const { url } = await createChariowCheckout({
         planId,
         email: user.email!,
         firstName: profile?.first_name || '',
@@ -72,7 +71,15 @@ function CheckoutPage() {
             Finalise ton inscription
           </h1>
           <p className="mt-3 text-[var(--muted-foreground)]">
-            Tu as choisi le <strong className="text-[var(--foreground)] uppercase">{planId === 'annual' ? 'Plan Premium (12 mois)' : planId === 'semestrial' ? 'Plan Master (6 mois)' : 'Plan Progress (3 mois)'}</strong>.
+            Tu as choisi le <strong className="text-[var(--foreground)] uppercase">
+              {planId === 'annual'
+                ? 'Plan Premium (12 mois)'
+                : planId === 'semestrial'
+                ? 'Plan Master (6 mois)'
+                : planId === 'trimestrial'
+                ? 'Plan Progress (3 mois)'
+                : 'Plan Découverte (1 mois)'}
+            </strong>.
             Prêt à propulser ton potentiel avec l'IA ?
           </p>
 
@@ -94,7 +101,7 @@ function CheckoutPage() {
 
             <p className="flex items-center justify-center gap-1.5 text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-widest">
               <Lock className="h-3.5 w-3.5" />
-              Paiement 100% sécurisé via MakEtoU
+              Paiement 100% sécurisé via Chariow
             </p>
           </div>
 

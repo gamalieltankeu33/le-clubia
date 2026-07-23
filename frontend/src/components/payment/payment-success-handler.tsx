@@ -20,13 +20,13 @@ export function PaymentSuccessHandler() {
     if (!isSuccess) return
     handled.current = true
 
-    const cartId = params.get('cart') || params.get('cartId') || null
+    const cartId = params.get('cart') || params.get('cartId') || params.get('sale_id') || params.get('transaction_id') || null
 
     const verifyPayment = async () => {
       const id = toast.loading('Vérification de ton paiement...')
 
       try {
-        const { data, error } = await supabase.functions.invoke('maketou-verify', {
+        const { data, error } = await supabase.functions.invoke('chariow-verify', {
           body: { userId: user.id, cartId },
         })
 
@@ -45,11 +45,13 @@ export function PaymentSuccessHandler() {
           await refreshUserData()
 
           // Onboarding pas encore fait → on l'envoie tout de suite remplir
-          // son profil avant d'accéder au dashboard. Sinon il reste sur la
-          // page courante (typiquement /app/dashboard).
+          // son profil avant d'accéder au dashboard. Sinon il est redirigé
+          // directement dans la communauté.
           const profile = useAuthStore.getState().profile
           if (profile && !profile.onboarding_completed) {
             navigate({ to: '/onboarding' })
+          } else {
+            navigate({ to: '/app/communaute' })
           }
         } else if (data?.status === 'pending') {
           toast.info(
@@ -71,11 +73,13 @@ export function PaymentSuccessHandler() {
           { id },
         )
       } finally {
-        // Nettoyer l'URL (retire payment, cart, cartId)
+        // Nettoyer l'URL (retire payment, cart, cartId, sale_id, transaction_id)
         const cleanUrl = new URL(window.location.href)
         cleanUrl.searchParams.delete('payment')
         cleanUrl.searchParams.delete('cart')
         cleanUrl.searchParams.delete('cartId')
+        cleanUrl.searchParams.delete('sale_id')
+        cleanUrl.searchParams.delete('transaction_id')
         window.history.replaceState({}, '', cleanUrl.pathname + cleanUrl.search)
       }
     }

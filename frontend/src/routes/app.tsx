@@ -9,7 +9,7 @@ export const Route = createFileRoute('/app')({
 
 function AppLayout() {
   // requireMember:true verrouille toute la zone /app/* derrière un
-  // abonnement actif (Maketou). Les admins et le retour de paiement
+  // abonnement actif (Chariow). Les admins et le retour de paiement
   // (?payment=success) sont gérés en bypass dans useRequireAuth.
   // PaymentSuccessHandler est désormais monté à la racine
   // (__root.tsx) pour survivre aux redirections.
