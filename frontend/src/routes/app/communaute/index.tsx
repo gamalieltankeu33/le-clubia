@@ -7,10 +7,12 @@ import {
 } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
 import {
+  Image,
   Loader2,
   MessageSquare,
   Pencil,
   Sparkles,
+  Video,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -163,27 +165,52 @@ function CommunityFeedPage() {
       </motion.div>
 
       {/* Composer entrypoint */}
-      <button
-        type="button"
-        onClick={() => setComposerOpen(true)}
-        className="mt-8 flex w-full items-center gap-3 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-4 text-left transition-colors hover:border-[var(--primary)]/30 hover:shadow-sm"
-      >
-        <AvatarDisplay
-          avatarUrl={profile?.avatar_url}
-          firstName={profile?.first_name}
-          lastName={profile?.last_name}
-          email={user?.email}
-          isVerified={profile?.is_verified ?? false}
-          size="md"
-        />
-        <span className="flex-1 text-sm text-[var(--muted-foreground)]">
-          Quoi de neuf, {firstName}&nbsp;?
-        </span>
-        <span className="hidden items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3 py-1.5 text-xs font-medium text-[var(--primary-foreground)] sm:inline-flex">
-          <Pencil className="h-3.5 w-3.5" />
-          Publier
-        </span>
-      </button>
+      <div className="mt-8 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-4 shadow-sm">
+        <button
+          type="button"
+          onClick={() => setComposerOpen(true)}
+          className="flex w-full items-center gap-3 text-left focus:outline-none group"
+        >
+          <AvatarDisplay
+            avatarUrl={profile?.avatar_url}
+            firstName={profile?.first_name}
+            lastName={profile?.last_name}
+            email={user?.email}
+            isVerified={profile?.is_verified ?? false}
+            size="md"
+          />
+          <div className="flex-1 rounded-full bg-[var(--secondary)]/50 px-4 py-2.5 text-sm text-[var(--muted-foreground)] transition-colors group-hover:bg-[var(--secondary)]">
+            Partager quelque chose avec la communauté...
+          </div>
+        </button>
+
+        <div className="mt-3.5 flex items-center justify-between border-t border-[var(--border)]/60 pt-3 px-1">
+          <button
+            type="button"
+            onClick={() => setComposerOpen(true)}
+            className="flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold text-[var(--muted-foreground)] hover:bg-[var(--secondary)]/60 hover:text-[var(--foreground)] transition-colors"
+          >
+            <Image className="h-4.5 w-4.5 text-sky-500" />
+            <span>Photo / Image</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setComposerOpen(true)}
+            className="flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold text-[var(--muted-foreground)] hover:bg-[var(--secondary)]/60 hover:text-[var(--foreground)] transition-colors"
+          >
+            <Video className="h-4.5 w-4.5 text-rose-500" />
+            <span>Vidéo</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setComposerOpen(true)}
+            className="flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold text-[var(--muted-foreground)] hover:bg-[var(--secondary)]/60 hover:text-[var(--foreground)] transition-colors"
+          >
+            <Pencil className="h-4 w-4 text-violet-500" />
+            <span>Rédiger</span>
+          </button>
+        </div>
+      </div>
 
       <PullToRefresh
         onRefresh={async () => {

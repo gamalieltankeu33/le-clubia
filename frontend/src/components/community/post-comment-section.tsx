@@ -235,6 +235,8 @@ export function PostCommentSection({
     staleTime: 15_000,
   })
 
+  const [showAllComments, setShowAllComments] = useState(false)
+
   // ---------------------------------------------------------------------------
   // Mutation : ajouter un commentaire (root ou réponse)
   // ---------------------------------------------------------------------------
@@ -510,19 +512,32 @@ export function PostCommentSection({
           <p className="py-4 text-center text-sm text-[var(--muted-foreground)]">
             Sois le premier à commenter.
           </p>
-        ) : (
-          <ul className="space-y-6">
-            <AnimatePresence initial={false}>
-              {rootCommentsQuery.data?.map((c) => (
-                <motion.li
-                  key={c.id}
-                  layout
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: c.isPending ? 0.55 : 1, y: 0 }}
-                  exit={{ opacity: 0, y: -8, transition: { duration: 0.15 } }}
-                  transition={{ duration: 0.25, ease: 'easeOut' }}
-                  id={`comment-${c.id}`}
+        ) : (() => {
+          const comments = rootCommentsQuery.data ?? []
+          const hasManyComments = comments.length > 3
+          const displayedComments = hasManyComments && !showAllComments ? comments.slice(-3) : comments
+          return (
+            <div>
+              {hasManyComments && !showAllComments && (
+                <button
+                  type="button"
+                  onClick={() => setShowAllComments(true)}
+                  className="w-full text-left text-xs font-semibold text-[var(--primary)] hover:underline py-1.5 px-1 mb-3 flex items-center gap-1.5"
                 >
+                  <span>Voir les {comments.length - 3} commentaires précédents</span>
+                </button>
+              )}
+              <ul className="space-y-6">
+                <AnimatePresence initial={false}>
+                  {displayedComments.map((c) => (
+                    <motion.li
+                      key={c.id}
+                      initial={{ opacity: 0, y: 12 }}
+                      animate={{ opacity: c.isPending ? 0.55 : 1, y: 0 }}
+                      exit={{ opacity: 0, y: -8, transition: { duration: 0.15 } }}
+                      transition={{ duration: 0.25, ease: 'easeOut' }}
+                      id={`comment-${c.id}`}
+                    >
                   <CommentItem
                     comment={c}
                     canDelete={
@@ -546,8 +561,10 @@ export function PostCommentSection({
               ))}
             </AnimatePresence>
           </ul>
-        )}
-      </div>
+        </div>
+      )
+    })()}
+  </div>
 
       <ConfirmDialog />
     </section>
@@ -621,11 +638,11 @@ function CommentItem({
         />
       </Link>
       <div className="min-w-0 flex-1">
-        <div className="rounded-2xl bg-[var(--secondary)] px-4 py-2.5">
+        <div className="rounded-2xl border border-[var(--border)]/40 bg-[var(--card)] px-4 py-2.5 shadow-sm">
           <Link
             to="/app/membres/$userId"
             params={{ userId: comment.user_id }}
-            className="inline-flex items-center gap-1 text-xs font-semibold hover:underline"
+            className="inline-flex items-center gap-1 text-xs font-semibold hover:underline text-[var(--primary)]"
           >
             {fullName}
             {comment.author?.is_verified && (
@@ -722,7 +739,6 @@ function CommentItem({
                         return (
                           <motion.li
                             key={reply.id}
-                            layout
                             initial={{ opacity: 0, x: -8 }}
                             animate={{
                               opacity: reply.isPending ? 0.55 : 1,
@@ -754,11 +770,11 @@ function CommentItem({
                               />
                             </Link>
                             <div className="min-w-0 flex-1">
-                              <div className="rounded-2xl bg-[var(--secondary)] px-3 py-2">
+                              <div className="rounded-2xl border border-[var(--border)]/45 bg-[var(--card)] px-3.5 py-2 shadow-sm">
                                 <Link
                                   to="/app/membres/$userId"
                                   params={{ userId: reply.user_id }}
-                                  className="inline-flex items-center gap-1 text-xs font-semibold hover:underline"
+                                  className="inline-flex items-center gap-1 text-xs font-semibold hover:underline text-[var(--primary)]"
                                 >
                                   {replyName}
                                   {reply.author?.is_verified && (
@@ -1037,7 +1053,7 @@ function ComposerEditor({
   return (
     <EditorContent
       editor={editor}
-      className="comment-editor min-h-12 rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm leading-relaxed focus-within:border-[var(--ring)] focus-within:ring-2 focus-within:ring-[var(--ring)]/40 [&_.ProseMirror]:min-h-9 [&_.ProseMirror]:outline-none [&_.ProseMirror_p]:m-0 [&_.ProseMirror_p+p]:mt-2 [&_.ProseMirror_p.is-editor-empty:first-child::before]:pointer-events-none [&_.ProseMirror_p.is-editor-empty:first-child::before]:float-left [&_.ProseMirror_p.is-editor-empty:first-child::before]:h-0 [&_.ProseMirror_p.is-editor-empty:first-child::before]:text-[var(--muted-foreground)] [&_.ProseMirror_p.is-editor-empty:first-child::before]:content-[attr(data-placeholder)]"
+      className="comment-editor min-h-12 rounded-xl border border-[var(--border)] bg-[var(--card)] px-3 py-2.5 text-sm leading-relaxed focus-within:border-[var(--primary)]/70 focus-within:ring-2 focus-within:ring-[var(--primary)]/10 [&_.ProseMirror]:min-h-9 [&_.ProseMirror]:outline-none [&_.ProseMirror_p]:m-0 [&_.ProseMirror_p+p]:mt-2 [&_.ProseMirror_p.is-editor-empty:first-child::before]:pointer-events-none [&_.ProseMirror_p.is-editor-empty:first-child::before]:float-left [&_.ProseMirror_p.is-editor-empty:first-child::before]:h-0 [&_.ProseMirror_p.is-editor-empty:first-child::before]:text-[var(--muted-foreground)] [&_.ProseMirror_p.is-editor-empty:first-child::before]:content-[attr(data-placeholder)]"
     />
   )
 }

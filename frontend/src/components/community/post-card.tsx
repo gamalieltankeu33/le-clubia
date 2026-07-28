@@ -268,22 +268,34 @@ export function PostCard({
         </div>
       )}
 
-      {/* Aperçu likeurs façon LinkedIn : 3 avatars + "X likes" cliquable.
-          Caché automatiquement si count === 0. */}
-      {count > 0 && (
-        <div className="mt-3 flex items-center">
-          <PostLikersPreview
-            postId={post.id}
-            count={count}
-            liked={liked}
-            onClick={() => setLikersOpen(true)}
-          />
+      {/* Barre de stats réactions & commentaires façon LinkedIn */}
+      {(count > 0 || post.comments_count > 0) && (
+        <div className="mt-3 flex items-center justify-between text-xs text-[var(--muted-foreground)]">
+          <div>
+            {count > 0 && (
+              <PostLikersPreview
+                postId={post.id}
+                count={count}
+                liked={liked}
+                onClick={() => setLikersOpen(true)}
+              />
+            )}
+          </div>
+          {post.comments_count > 0 && (
+            <button
+              type="button"
+              onClick={handleCommentClick}
+              className="hover:text-[var(--primary)] hover:underline"
+              data-no-navigate
+            >
+              {post.comments_count} {post.comments_count > 1 ? 'commentaires' : 'commentaire'}
+            </button>
+          )}
         </div>
       )}
 
-      <footer className="mt-3 flex items-center gap-1 border-t border-[var(--border)] pt-3">
-        {/* Bouton icône cœur : like / unlike — optimistic, jamais de
-            loader visible. aria-pressed reflète l'état du cache. */}
+      <footer className="mt-3 flex items-center gap-2 border-t border-[var(--border)] pt-2.5">
+        {/* Bouton Like */}
         <button
           type="button"
           aria-label={liked ? 'Retirer mon like' : 'Liker'}
@@ -295,13 +307,10 @@ export function PostCard({
             toggle()
           }}
           className={cn(
-            'inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm transition-all duration-150 disabled:cursor-not-allowed disabled:opacity-50',
+            'flex-1 inline-flex items-center justify-center gap-2 rounded-xl py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50',
             liked
-              ? 'text-red-500'
-              : 'text-[var(--muted-foreground)] hover:bg-[var(--secondary)] hover:text-[var(--foreground)]',
-            // Pas de visuel "loader" : pendant la mutation on garde
-            // l'apparence normale, juste un léger fade pour signaler
-            // l'état pending sans bloquer l'UI.
+              ? 'text-red-500 hover:bg-red-50/50'
+              : 'text-[var(--muted-foreground)] hover:bg-[var(--secondary)]/60 hover:text-[var(--foreground)]',
             pendingLike && 'opacity-90',
           )}
         >
@@ -314,30 +323,35 @@ export function PostCard({
           >
             <Heart
               className={cn(
-                'h-4 w-4 transition-colors',
+                'h-4.5 w-4.5 transition-colors',
                 liked && 'fill-red-500 text-red-500',
               )}
             />
           </motion.span>
+          <span>J'aime</span>
         </button>
 
-        <ActionButton
-          ariaLabel={
-            commentsOpen ? 'Masquer les commentaires' : 'Voir les commentaires'
-          }
-          active={commentsOpen}
-          activeClass="text-[var(--primary)]"
+        {/* Bouton Commenter */}
+        <button
+          type="button"
+          aria-label={commentsOpen ? 'Masquer les commentaires' : 'Voir les commentaires'}
+          data-no-navigate
           onClick={handleCommentClick}
+          className={cn(
+            'flex-1 inline-flex items-center justify-center gap-2 rounded-xl py-2 text-sm font-medium transition-colors',
+            commentsOpen
+              ? 'text-[var(--primary)] bg-[var(--secondary)]/60'
+              : 'text-[var(--muted-foreground)] hover:bg-[var(--secondary)]/60 hover:text-[var(--foreground)]',
+          )}
         >
           <MessageCircle
             className={cn(
-              'h-4 w-4',
+              'h-4.5 w-4.5',
               commentsOpen && 'fill-[var(--primary)]/15',
             )}
           />
-          <span className="tabular-nums">{post.comments_count}</span>
-        </ActionButton>
-
+          <span>Commenter</span>
+        </button>
       </footer>
     </div>
 
@@ -351,7 +365,7 @@ export function PostCard({
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.25, ease: 'easeOut' }}
-              className="overflow-hidden border-t border-[var(--border)] bg-[var(--secondary)]/30"
+              className="overflow-hidden border-t border-[var(--border)] bg-[var(--secondary)]/45"
               data-no-navigate
               onClick={(e) => e.stopPropagation()}
             >
