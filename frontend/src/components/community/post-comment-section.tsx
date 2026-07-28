@@ -333,6 +333,7 @@ export function PostCommentSection({
         ...previous,
         tempComment,
       ])
+      setShowAllComments(true)
       return { previous, bumped: true }
     },
     onError: (err, input, ctx) => {
@@ -381,6 +382,7 @@ export function PostCommentSection({
         queryClient.invalidateQueries({ queryKey: rootQueryKey })
       } else {
         queryClient.invalidateQueries({ queryKey: rootQueryKey })
+        setShowAllComments(true)
       }
       queryClient.invalidateQueries({ queryKey: ['community-post', postId] })
       queryClient.invalidateQueries({ queryKey: ['community-feed'] })
@@ -514,19 +516,11 @@ export function PostCommentSection({
           </p>
         ) : (() => {
           const comments = rootCommentsQuery.data ?? []
-          const hasManyComments = comments.length > 3
-          const displayedComments = hasManyComments && !showAllComments ? comments.slice(-3) : comments
+          const hasManyComments = comments.length > 2
+          const displayedComments = hasManyComments && !showAllComments ? comments.slice(0, 2) : comments
+          const remainingCount = comments.length - 2
           return (
             <div>
-              {hasManyComments && !showAllComments && (
-                <button
-                  type="button"
-                  onClick={() => setShowAllComments(true)}
-                  className="w-full text-left text-xs font-semibold text-[var(--primary)] hover:underline py-1.5 px-1 mb-3 flex items-center gap-1.5"
-                >
-                  <span>Voir les {comments.length - 3} commentaires précédents</span>
-                </button>
-              )}
               <ul className="space-y-6">
                 <AnimatePresence initial={false}>
                   {displayedComments.map((c) => (
@@ -538,32 +532,45 @@ export function PostCommentSection({
                       transition={{ duration: 0.25, ease: 'easeOut' }}
                       id={`comment-${c.id}`}
                     >
-                  <CommentItem
-                    comment={c}
-                    canDelete={
-                      !c.isPending && (c.user_id === user?.id || isAdmin)
-                    }
-                    onDelete={() => handleDelete(c, null)}
-                    onSubmitReply={(payload) =>
-                      addMutation.mutate({
-                        content: payload.html,
-                        mentionIds: payload.mentionIds,
-                        parent_comment_id: c.id,
-                      })
-                    }
-                    onDeleteReply={(reply) => handleDelete(reply, c.id)}
-                    submittingReply={addMutation.isPending}
-                    deletingReply={deleteMutation.isPending}
-                    currentUserId={user?.id}
-                    isAdmin={isAdmin}
-                  />
-                </motion.li>
-              ))}
-            </AnimatePresence>
-          </ul>
-        </div>
-      )
-    })()}
+                      <CommentItem
+                        comment={c}
+                        canDelete={
+                          !c.isPending && (c.user_id === user?.id || isAdmin)
+                        }
+                        onDelete={() => handleDelete(c, null)}
+                        onSubmitReply={(payload) =>
+                          addMutation.mutate({
+                            content: payload.html,
+                            mentionIds: payload.mentionIds,
+                            parent_comment_id: c.id,
+                          })
+                        }
+                        onDeleteReply={(reply) => handleDelete(reply, c.id)}
+                        submittingReply={addMutation.isPending}
+                        deletingReply={deleteMutation.isPending}
+                        currentUserId={user?.id}
+                        isAdmin={isAdmin}
+                      />
+                    </motion.li>
+                  ))}
+                </AnimatePresence>
+              </ul>
+              {hasManyComments && !showAllComments && (
+                <button
+                  type="button"
+                  onClick={() => setShowAllComments(true)}
+                  className="w-full text-left text-xs font-semibold text-[var(--primary)] hover:underline py-1.5 px-1 mt-4 flex items-center gap-1.5"
+                >
+                  <span>
+                    {remainingCount === 1
+                      ? "Voir l'autre commentaire"
+                      : `Voir les ${remainingCount} autres commentaires`}
+                  </span>
+                </button>
+              )}
+            </div>
+          )
+        })()}
   </div>
 
       <ConfirmDialog />
