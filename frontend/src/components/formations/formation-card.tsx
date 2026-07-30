@@ -5,6 +5,7 @@ import {
   GraduationCap,
   Lock,
   PlayCircle,
+  Users,
 } from 'lucide-react'
 import type { Formation } from '@/lib/database.types'
 import {
@@ -27,6 +28,8 @@ export interface FormationCardData extends Formation {
   progress_percent?: number
   /** L'utilisateur a-t-il au moins une row dans user_formation_progress ? */
   has_started?: boolean
+  is_enrolled?: boolean
+  participants_count?: number
 }
 
 export function FormationCard({ formation }: { formation: FormationCardData }) {
@@ -101,6 +104,12 @@ export function FormationCard({ formation }: { formation: FormationCardData }) {
               {formation.chapter_count} chapitre
               {formation.chapter_count > 1 ? 's' : ''}
             </span>
+            {formation.participants_count !== undefined && formation.participants_count > 0 && (
+              <span className="inline-flex items-center gap-1">
+                <Users className="h-3.5 w-3.5" />
+                {formation.participants_count} apprenant{formation.participants_count > 1 ? 's' : ''}
+              </span>
+            )}
           </div>
 
           {/* Tube de progression style Skool — toujours visible */}

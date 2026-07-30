@@ -30,6 +30,8 @@ interface FormationWithProgressRow extends Formation {
   completed_chapters: number
   progress_percent: number
   has_started: boolean
+  is_enrolled: boolean
+  participants_count: number
 }
 
 async function fetchFormationsWithProgress(): Promise<FormationCardData[]> {
@@ -44,6 +46,8 @@ async function fetchFormationsWithProgress(): Promise<FormationCardData[]> {
     completed_count: row.completed_chapters,
     progress_percent: row.progress_percent,
     has_started: row.has_started,
+    is_enrolled: row.is_enrolled,
+    participants_count: row.participants_count,
   }))
 }
 

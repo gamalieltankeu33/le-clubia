@@ -15,6 +15,7 @@ import {
   Loader2,
   PlayCircle,
   Star,
+  Users,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -121,6 +122,45 @@ function FormationDetailPage() {
     enabled: Boolean(userId && formation?.id),
     staleTime: 30_000,
   })
+
+  const enrollmentQuery = useQuery({
+    queryKey: ['formation-enrollment', userId, formation?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('formation_enrollments')
+        .select('*')
+        .eq('user_id', userId!)
+        .eq('formation_id', formation!.id)
+        .maybeSingle()
+      if (error) throw error
+      return data !== null
+    },
+    enabled: Boolean(userId && formation?.id),
+    staleTime: 30_000,
+  })
+
+  const enrollmentsCountQuery = useQuery({
+    queryKey: ['formation-enrollments-count', formation?.id],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from('formation_enrollments')
+        .select('*', { count: 'exact', head: true })
+        .eq('formation_id', formation!.id)
+      if (error) throw error
+      return count ?? 0
+    },
+    enabled: Boolean(formation?.id),
+    staleTime: 30_000,
+  })
+
+  const isEnrolled = enrollmentQuery.data ?? false
+  const enrollmentsCount = enrollmentsCountQuery.data ?? 0
+  const profile = useAuthStore((s) => s.profile)
+  const isAdmin = profile?.role === 'admin'
+  const canAccess = isEnrolled || isAdmin
+
+  // Calculate total participants count
+  const participantsCount = (formation?.base_participants_count ?? 0) + enrollmentsCount
 
   // Charge stats coach à l'arrivée sur la page + set context
   useEffect(() => {
@@ -505,6 +545,12 @@ function FormationDetailPage() {
               <GraduationCap className="h-4 w-4" />
               {LEVEL_LABELS[formation.level]}
             </span>
+            {participantsCount > 0 && (
+              <span className="inline-flex items-center gap-1.5">
+                <Users className="h-4 w-4" />
+                {participantsCount} apprenant{participantsCount > 1 ? 's' : ''}
+              </span>
+            )}
           </div>
 
           {totalChapters > 0 && (
@@ -550,6 +596,15 @@ function FormationDetailPage() {
               Cette formation n'a pas encore de chapitres.
             </p>
           </div>
+        ) : !canAccess ? (
+          <EnrollmentSection
+            formationId={formation.id}
+            userId={userId}
+            onEnrolled={() => {
+              void enrollmentQuery.refetch()
+              void enrollmentsCountQuery.refetch()
+            }}
+          />
         ) : (
           <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-[35%_1fr]">
             {/* Colonne gauche : liste chapitres */}
@@ -783,5 +838,123 @@ function NotFoundState() {
         </Link>
       </Button>
     </div>
+  )
+}
+
+function EnrollmentSection({
+  formationId,
+  userId,
+  onEnrolled,
+}: {
+  formationId: string
+  userId: string | undefined
+  onEnrolled: () => void
+}) {
+  const profile = useAuthStore((s) => s.profile)
+  const refreshUserData = useAuthStore((s) => s.refreshUserData)
+  const [firstName, setFirstName] = useState(profile?.first_name ?? '')
+  const [loading, setLoading] = useState(false)
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!userId) {
+      toast.error("Tu dois être connecté pour t'inscrire.")
+      return
+    }
+
+    const trimmedName = firstName.trim()
+    if (!trimmedName) {
+      toast.error("S'il te plaît, entre ton prénom pour continuer.")
+      return
+    }
+
+    setLoading(true)
+    try {
+      // 1. Update first_name in profile if it changed or wasn't set
+      if (profile?.first_name !== trimmedName) {
+        const { error: profileErr } = await supabase
+          .from('profiles')
+          .update({ first_name: trimmedName })
+          .eq('id', userId)
+
+        if (profileErr) throw profileErr
+        await refreshUserData()
+      }
+
+      // 2. Insert into formation_enrollments
+      const { error: enrollErr } = await supabase
+        .from('formation_enrollments')
+        .insert({
+          user_id: userId,
+          formation_id: formationId,
+        })
+
+      if (enrollErr) throw enrollErr
+
+      toast.success('Inscription réussie ! Profite bien de ta formation 🎉')
+      onEnrolled()
+    } catch (err) {
+      console.error(err)
+      toast.error("Une erreur est survenue lors de l'inscription. Réessaye.")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, ease: 'easeOut' }}
+      className="mx-auto mt-10 max-w-xl rounded-2xl border border-[var(--border)] bg-[var(--card)] p-8 shadow-lg text-center relative overflow-hidden"
+    >
+      {/* Visual background accents */}
+      <div className="absolute -right-20 -top-20 h-40 w-40 rounded-full bg-[var(--primary)]/5 blur-3xl pointer-events-none" />
+      <div className="absolute -left-20 -bottom-20 h-40 w-40 rounded-full bg-[var(--bleu-ciel)]/10 blur-3xl pointer-events-none" />
+
+      <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--primary)]/5 text-[var(--primary)] mb-6 ring-8 ring-[var(--primary)]/5">
+        <GraduationCap className="h-7 w-7 animate-pulse" />
+      </span>
+
+      <h2 className="font-display text-2xl font-bold tracking-tight text-[var(--foreground)]">
+        Débloque cette formation
+      </h2>
+      
+      <p className="mt-3 text-[var(--muted-foreground)] text-sm leading-relaxed max-w-sm mx-auto">
+        Rejoins les autres membres du Club IA et accède immédiatement à tous les chapitres, leçons vidéo et ressources exclusives.
+      </p>
+
+      <form onSubmit={handleSubmit} className="mt-8 space-y-4 max-w-sm mx-auto">
+        <div className="space-y-1.5 text-left">
+          <label htmlFor="first_name" className="text-xs font-semibold uppercase tracking-wider text-[var(--muted-foreground)] ml-1">
+            Ton prénom
+          </label>
+          <input
+            id="first_name"
+            type="text"
+            required
+            placeholder="Ex: Joel"
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+            className="w-full rounded-xl border border-[var(--border)] bg-[var(--card)] px-4 py-3 text-sm font-medium transition-all focus:border-[var(--primary)]/40 focus:outline-none focus:ring-4 focus:ring-[var(--primary)]/5 hover:border-[var(--muted-foreground)]/30"
+          />
+        </div>
+
+        <Button
+          type="submit"
+          className="w-full py-6 rounded-xl bg-[var(--primary)] text-white font-semibold transition-all hover:bg-[var(--primary-light)] active:scale-[0.98] shadow-sm flex items-center justify-center gap-2 group"
+          disabled={loading}
+        >
+          {loading ? (
+            <Loader2 className="h-5 w-5 animate-spin" />
+          ) : (
+            <>
+              Commencer la formation
+              <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+            </>
+          )}
+        </Button>
+      </form>
+    </motion.div>
   )
 }

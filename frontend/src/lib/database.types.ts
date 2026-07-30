@@ -313,6 +313,7 @@ export type Database = {
           duration_minutes: number
           is_published: boolean
           is_premium: boolean
+          base_participants_count: number
           created_at: string
           updated_at: string
         }
@@ -327,6 +328,7 @@ export type Database = {
           duration_minutes?: number
           is_published?: boolean
           is_premium?: boolean
+          base_participants_count?: number
           created_at?: string
           updated_at?: string
         }
@@ -341,6 +343,7 @@ export type Database = {
           duration_minutes?: number
           is_published?: boolean
           is_premium?: boolean
+          base_participants_count?: number
           created_at?: string
           updated_at?: string
         }
@@ -451,6 +454,27 @@ export type Database = {
           progress_percent?: number
           created_at?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      formation_enrollments: {
+        Row: {
+          id: string
+          user_id: string
+          formation_id: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          formation_id: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          formation_id?: string
+          created_at?: string
         }
         Relationships: []
       }
