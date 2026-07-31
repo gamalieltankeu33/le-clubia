@@ -356,13 +356,13 @@ export function WeeklyChallenges() {
                 )}
               >
                 <div>
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
                     <span className={cn('inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold', vis.badge)}>
                       <IconComp className="h-3.5 w-3.5" />
                       {t.title}
                     </span>
                     
-                    <span className="text-[10px] font-bold text-[var(--muted-foreground)] flex items-center gap-1">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-[var(--secondary)]/40 px-2.5 py-0.5 text-[10px] font-semibold text-[var(--muted-foreground)] border border-[var(--border)] shrink-0">
                       <Users className="h-3 w-3" />
                       {t.participant_count ?? 0} {Number(t.participant_count) > 1 ? 'apprenants' : 'apprenant'}
                     </span>
