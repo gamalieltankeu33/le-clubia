@@ -41,6 +41,8 @@ interface RawPost {
   likes_count: number
   comments_count: number
   is_pinned: boolean
+  challenge_week_number: number | null
+  challenge_project_name: string | null
   created_at: string
 }
 
@@ -81,6 +83,8 @@ export async function hydratePosts(
       likes_count: p.likes_count,
       comments_count: p.comments_count,
       is_pinned: Boolean(p.is_pinned),
+      challenge_week_number: p.challenge_week_number,
+      challenge_project_name: p.challenge_project_name,
       created_at: p.created_at,
       author: author
         ? {
@@ -117,7 +121,7 @@ export async function fetchFeedPage(
   const { data, error } = await supabase
     .from('posts')
     .select(
-      'id, user_id, content, image_url, link_url, hashtags, likes_count, comments_count, is_pinned, created_at',
+      'id, user_id, content, image_url, link_url, hashtags, likes_count, comments_count, is_pinned, challenge_week_number, challenge_project_name, created_at',
     )
     .order('is_pinned', { ascending: false })
     .order('created_at', { ascending: false })
@@ -141,7 +145,7 @@ export async function fetchPostById(
   const { data, error } = await supabase
     .from('posts')
     .select(
-      'id, user_id, content, image_url, link_url, hashtags, likes_count, comments_count, is_pinned, created_at',
+      'id, user_id, content, image_url, link_url, hashtags, likes_count, comments_count, is_pinned, challenge_week_number, challenge_project_name, created_at',
     )
     .eq('id', postId)
     .maybeSingle()
@@ -161,7 +165,7 @@ export async function fetchUserPosts(
   const { data, error } = await supabase
     .from('posts')
     .select(
-      'id, user_id, content, image_url, link_url, hashtags, likes_count, comments_count, is_pinned, created_at',
+      'id, user_id, content, image_url, link_url, hashtags, likes_count, comments_count, is_pinned, challenge_week_number, challenge_project_name, created_at',
     )
     .eq('user_id', userId)
     .order('created_at', { ascending: false })
