@@ -53,7 +53,7 @@ Le Club IA devient plus qu''une plateforme de formation.
 Il devient un véritable accélérateur de projets.
 
 Les premiers Challenges arrivent très bientôt. Préparez-vous à passer à l''action. 💙',
-  'general',
+  'news',
   'Ghislain Tankeu',
   true,
   now()
