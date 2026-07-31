@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -6,7 +6,6 @@ import { format } from 'date-fns'
 import { fr } from 'date-fns/locale/fr'
 import {
   CalendarDays,
-  CheckCircle2,
   Edit,
   ExternalLink,
   Loader2,
@@ -35,8 +34,16 @@ interface TaskItem {
   optional: boolean
 }
 
+interface ChallengeTrack {
+  id: string
+  key: string
+  title: string
+  description: string | null
+}
+
 interface ChallengeWeek {
   id: string
+  track_id: string
   week_number: number
   title: string
   description: string
@@ -59,54 +66,91 @@ interface SubmissionWithProfile {
     last_name: string | null
     avatar_url: string | null
   } | null
+  challenge_weeks: {
+    week_number: number
+    title: string
+    challenge_tracks: {
+      title: string
+    } | null
+  } | null
 }
 
 function AdminChallengesPage() {
   const queryClient = useQueryClient()
   const { confirm, ConfirmDialog } = useConfirm()
+  
+  // Navigation tabs
   const [activeTab, setActiveTab] = useState<'challenges' | 'submissions'>('challenges')
+
+  // Selected track filter
+  const [selectedTrackId, setSelectedTrackId] = useState<string>('')
 
   // Edit / Create Modal State
   const [modalOpen, setModalOpen] = useState(false)
   const [editingChallenge, setEditingChallenge] = useState<ChallengeWeek | null>(null)
   
   // Form fields
+  const [trackId, setTrackId] = useState('')
   const [weekNumber, setWeekNumber] = useState<number>(1)
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [tasks, setTasks] = useState<TaskItem[]>([])
   const [isActive, setIsActive] = useState(true)
 
-  // 1. Query Challenges
-  const challengesQuery = useQuery<ChallengeWeek[]>({
-    queryKey: ['admin-challenge-weeks'],
+  // 1. Query Tracks
+  const tracksQuery = useQuery<ChallengeTrack[]>({
+    queryKey: ['admin-challenge-tracks'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('challenge_weeks')
+        .from('challenge_tracks')
         .select('*')
-        .order('week_number', { ascending: true })
+        .order('created_at', { ascending: true })
       if (error) throw error
       return data ?? []
     },
   })
 
-  // 2. Query Submissions
+  // Set default selected track
+  useEffect(() => {
+    if (tracksQuery.data && tracksQuery.data.length > 0 && !selectedTrackId) {
+      setSelectedTrackId(tracksQuery.data[0].id)
+    }
+  }, [tracksQuery.data, selectedTrackId])
+
+  // 2. Query Challenges (Filtered by Track)
+  const challengesQuery = useQuery<ChallengeWeek[]>({
+    queryKey: ['admin-challenge-weeks', selectedTrackId],
+    queryFn: async () => {
+      if (!selectedTrackId) return []
+      const { data, error } = await supabase
+        .from('challenge_weeks')
+        .select('*')
+        .eq('track_id', selectedTrackId)
+        .order('week_number', { ascending: true })
+      if (error) throw error
+      return data ?? []
+    },
+    enabled: !!selectedTrackId,
+  })
+
+  // 3. Query Submissions
   const submissionsQuery = useQuery<SubmissionWithProfile[]>({
     queryKey: ['admin-challenge-submissions'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('challenge_submissions')
-        .select('*, profiles(first_name, last_name, avatar_url)')
+        .select('*, profiles(first_name, last_name, avatar_url), challenge_weeks(week_number, title, challenge_tracks(title))')
         .order('created_at', { ascending: false })
       if (error) throw error
       return (data as any) ?? []
     },
   })
 
-  // 3. Mutate Challenge
+  // 4. Mutate Challenge
   const upsertMutation = useMutation({
     mutationFn: async () => {
       const payload = {
+        track_id: trackId,
         week_number: Number(weekNumber),
         title: title.trim(),
         description: description.trim(),
@@ -157,6 +201,7 @@ function AdminChallengesPage() {
   const openEditModal = (c: ChallengeWeek | null) => {
     if (c) {
       setEditingChallenge(c)
+      setTrackId(c.track_id)
       setWeekNumber(c.week_number)
       setTitle(c.title)
       setDescription(c.description)
@@ -164,7 +209,7 @@ function AdminChallengesPage() {
       setIsActive(c.is_active)
     } else {
       setEditingChallenge(null)
-      // Suggest next week number
+      setTrackId(selectedTrackId)
       const nextNum = challengesQuery.data?.length 
         ? Math.max(...challengesQuery.data.map(w => w.week_number)) + 1 
         : 1
@@ -227,6 +272,7 @@ function AdminChallengesPage() {
 
         <Button
           type="button"
+          disabled={!selectedTrackId}
           onClick={() => openEditModal(null)}
           className="bg-[var(--or)] text-[var(--noir)] hover:bg-[var(--or-light)] rounded-xl flex items-center gap-2 font-semibold shadow-sm shrink-0 md:self-end"
         >
@@ -248,7 +294,7 @@ function AdminChallengesPage() {
           )}
         >
           <CalendarDays className="h-4.5 w-4.5" />
-          Liste des Défis ({challengesQuery.data?.length ?? 0})
+          Défis par Parcours
         </button>
         <button
           type="button"
@@ -268,14 +314,33 @@ function AdminChallengesPage() {
       <div className="mt-6">
         {/* Tab 1: Challenges List */}
         {activeTab === 'challenges' && (
-          <div className="space-y-4">
+          <div className="space-y-6">
+            {/* Track filter selector selector */}
+            <div className="flex flex-wrap gap-2">
+              {tracksQuery.data?.map((track) => (
+                <button
+                  key={track.id}
+                  type="button"
+                  onClick={() => setSelectedTrackId(track.id)}
+                  className={cn(
+                    'px-4 py-2 rounded-xl text-xs font-semibold border transition-all',
+                    selectedTrackId === track.id
+                      ? 'bg-[var(--secondary)] border-[var(--or)] text-[var(--or-deep)]'
+                      : 'border-[var(--border)] bg-[var(--card)] text-[var(--muted-foreground)] hover:border-[var(--muted-foreground)]/30'
+                  )}
+                >
+                  {track.title}
+                </button>
+              ))}
+            </div>
+
             {challengesQuery.isLoading ? (
               <div className="flex h-48 items-center justify-center">
                 <Loader2 className="h-8 w-8 animate-spin text-[var(--or-deep)]" />
               </div>
             ) : challengesQuery.data?.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-[var(--border)] p-12 text-center text-[var(--muted-foreground)]">
-                Aucun défi configuré pour le moment.
+                Aucun défi configuré pour ce parcours.
               </div>
             ) : (
               <div className="grid gap-4 sm:grid-cols-2">
@@ -313,7 +378,7 @@ function AdminChallengesPage() {
                           Checklist ({c.tasks?.length ?? 0} tâches)
                         </span>
                         <ul className="mt-1.5 space-y-1">
-                          {c.tasks?.slice(0, 3).map((t, idx) => (
+                          {c.tasks?.slice(0, 3).map((t) => (
                             <li key={t.id} className="text-xs text-[var(--foreground)] truncate flex items-center gap-1.5">
                               <span className="h-1.5 w-1.5 rounded-full bg-gray-400 shrink-0" />
                               <span className={cn(t.optional && 'opacity-60 text-gray-500')}>
@@ -377,7 +442,7 @@ function AdminChallengesPage() {
                     <tr className="border-b border-[var(--border)] bg-gray-50/50 text-xs font-bold uppercase tracking-wider text-[var(--muted-foreground)]">
                       <th className="p-4">Membre</th>
                       <th className="p-4">Projet</th>
-                      <th className="p-4">Challenge</th>
+                      <th className="p-4">Parcours / Défi</th>
                       <th className="p-4">Livrable</th>
                       <th className="p-4">Soumission</th>
                       <th className="p-4 text-right">Actions</th>
@@ -386,7 +451,8 @@ function AdminChallengesPage() {
                   <tbody className="divide-y divide-[var(--border)]/60 text-sm">
                     {submissionsQuery.data?.map((s) => {
                       const submissionDate = format(new Date(s.created_at), 'dd MMM yyyy HH:mm', { locale: fr })
-                      const week = challengesQuery.data?.find((w) => w.id === s.challenge_week_id)
+                      const trackTitle = s.challenge_weeks?.challenge_tracks?.title ?? '?'
+                      const weekNum = s.challenge_weeks?.week_number ?? '?'
 
                       return (
                         <tr key={s.id} className="hover:bg-gray-50/40">
@@ -405,9 +471,12 @@ function AdminChallengesPage() {
                           </td>
                           <td className="p-4 font-medium">{s.project_name}</td>
                           <td className="p-4">
-                            <span className="inline-flex items-center rounded-md bg-[var(--or)]/10 px-2 py-0.5 text-xs font-semibold text-[var(--or-deep)]">
-                              Semaine {week?.week_number ?? '?'}
-                            </span>
+                            <div className="flex flex-col">
+                              <span className="text-xs font-bold text-[var(--primary)]">{trackTitle}</span>
+                              <span className="text-[10px] text-[var(--muted-foreground)] font-semibold mt-0.5">
+                                Semaine {weekNum} : {s.challenge_weeks?.title}
+                              </span>
+                            </div>
                           </td>
                           <td className="p-4">
                             {s.deliverable_url ? (
@@ -484,6 +553,22 @@ function AdminChallengesPage() {
                 </div>
 
                 <div className="mt-4 space-y-4">
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold uppercase tracking-wider text-[var(--muted-foreground)]">
+                      Parcours associé
+                    </label>
+                    <select
+                      value={trackId}
+                      onChange={(e) => setTrackId(e.target.value)}
+                      className="w-full rounded-xl border border-[var(--border)] bg-[var(--card)] px-4 py-3 text-sm font-medium transition-all focus:border-[var(--primary)]/40 focus:outline-none focus:ring-4 focus:ring-[var(--primary)]/5 hover:border-[var(--muted-foreground)]/30"
+                    >
+                      <option value="" disabled>Sélectionner un parcours...</option>
+                      {tracksQuery.data?.map((t) => (
+                        <option key={t.id} value={t.id}>{t.title}</option>
+                      ))}
+                    </select>
+                  </div>
+
                   <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1">
                       <label className="text-xs font-bold uppercase tracking-wider text-[var(--muted-foreground)]">
@@ -512,7 +597,7 @@ function AdminChallengesPage() {
 
                   <div className="space-y-1">
                     <label className="text-xs font-bold uppercase tracking-wider text-[var(--muted-foreground)]">
-                      Consignes (Format Markdown accepté)
+                      Consignes (Format Markdown)
                     </label>
                     <textarea
                       rows={5}

@@ -150,6 +150,7 @@ export type Database = {
           points: number
           guides_seen: string[]
           member_number: number
+          active_challenge_track_id: string | null
           created_at: string
           updated_at: string
         }
@@ -172,6 +173,7 @@ export type Database = {
           points?: number
           guides_seen?: string[]
           member_number?: number
+          active_challenge_track_id?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -194,6 +196,7 @@ export type Database = {
           points?: number
           guides_seen?: string[]
           member_number?: number
+          active_challenge_track_id?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -526,9 +529,34 @@ export type Database = {
         }
         Relationships: []
       }
+      challenge_tracks: {
+        Row: {
+          id: string
+          key: string
+          title: string
+          description: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          key: string
+          title: string
+          description?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          key?: string
+          title?: string
+          description?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
       challenge_weeks: {
         Row: {
           id: string
+          track_id: string
           week_number: number
           title: string
           description: string
@@ -539,6 +567,7 @@ export type Database = {
         }
         Insert: {
           id?: string
+          track_id: string
           week_number: number
           title: string
           description: string
@@ -549,6 +578,7 @@ export type Database = {
         }
         Update: {
           id?: string
+          track_id?: string
           week_number?: number
           title?: string
           description?: string

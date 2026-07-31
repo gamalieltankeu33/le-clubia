@@ -4,13 +4,15 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   Check,
   ChevronRight,
+  Code,
   ExternalLink,
-  GraduationCap,
-  Info,
+  Globe,
   Loader2,
-  Lock,
+  Package,
+  Settings,
   Sparkles,
   Trophy,
+  Video,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { supabase } from '@/lib/supabase'
@@ -18,6 +20,7 @@ import { useAuthStore } from '@/stores/auth-store'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { MarkdownRenderer } from '@/components/coach/markdown-renderer'
+import { useConfirm } from '@/hooks/use-confirm'
 import { cn } from '@/lib/utils'
 
 interface TaskItem {
@@ -26,8 +29,16 @@ interface TaskItem {
   optional: boolean
 }
 
+interface ChallengeTrack {
+  id: string
+  key: string
+  title: string
+  description: string
+}
+
 interface ChallengeWeek {
   id: string
+  track_id: string
   week_number: number
   title: string
   description: string
@@ -51,6 +62,8 @@ export function WeeklyChallenges() {
   const queryClient = useQueryClient()
   const user = useAuthStore((s) => s.user)
   const profile = useAuthStore((s) => s.profile)
+  const refreshUserData = useAuthStore((s) => s.refreshUserData)
+  const { confirm, ConfirmDialog } = useConfirm()
 
   const [selectedWeekNum, setSelectedWeekNum] = useState<number>(1)
   const [projectName, setProjectName] = useState('')
@@ -58,21 +71,37 @@ export function WeeklyChallenges() {
   const [description, setDescription] = useState('')
   const [checkedTasks, setCheckedTasks] = useState<Record<string, boolean>>({})
 
-  // 1. Fetch challenge weeks
-  const weeksQuery = useQuery<ChallengeWeek[]>({
-    queryKey: ['challenge-weeks'],
+  // 1. Fetch challenge tracks
+  const tracksQuery = useQuery<ChallengeTrack[]>({
+    queryKey: ['challenge-tracks'],
     queryFn: async () => {
+      const { data, error } = await supabase
+        .from('challenge_tracks')
+        .select('*')
+      if (error) throw error
+      return data ?? []
+    },
+    staleTime: 24 * 60 * 60 * 1000, // tracks rarely change
+  })
+
+  // 2. Fetch challenge weeks (for active track)
+  const weeksQuery = useQuery<ChallengeWeek[]>({
+    queryKey: ['challenge-weeks', profile?.active_challenge_track_id],
+    queryFn: async () => {
+      if (!profile?.active_challenge_track_id) return []
       const { data, error } = await supabase
         .from('challenge_weeks')
         .select('*')
+        .eq('track_id', profile.active_challenge_track_id)
         .order('week_number', { ascending: true })
       if (error) throw error
       return data ?? []
     },
+    enabled: !!profile?.active_challenge_track_id,
     staleTime: 10 * 60 * 1000,
   })
 
-  // 2. Fetch submissions
+  // 3. Fetch submissions
   const submissionsQuery = useQuery<ChallengeSubmission[]>({
     queryKey: ['challenge-submissions', user?.id],
     queryFn: async () => {
@@ -87,16 +116,17 @@ export function WeeklyChallenges() {
     staleTime: 30_000,
   })
 
+  const tracks = tracksQuery.data ?? []
   const weeks = weeksQuery.data ?? []
   const submissions = submissionsQuery.data ?? []
 
+  const activeTrack = tracks.find((t) => t.id === profile?.active_challenge_track_id)
   const activeWeek = weeks.find((w) => w.week_number === selectedWeekNum)
   const activeSubmission = submissions.find((s) => s.challenge_week_id === activeWeek?.id)
 
   // Pre-fill project name from user's last submission if any
   useEffect(() => {
     if (submissions.length > 0 && !projectName) {
-      // Find the most recent submission and extract project_name
       const sorted = [...submissions].sort(
         (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
       )
@@ -115,7 +145,7 @@ export function WeeklyChallenges() {
       }
       setCheckedTasks(dbChecked)
     } else {
-      const storageKey = `leclubia-challenge-w${activeWeek.week_number}-tasks`
+      const storageKey = `leclubia-challenge-w${activeWeek.week_number}-t${activeWeek.track_id}-tasks`
       try {
         const stored = localStorage.getItem(storageKey)
         if (stored) {
@@ -130,25 +160,44 @@ export function WeeklyChallenges() {
   }, [activeWeek, activeSubmission])
 
   const toggleTask = (taskId: string) => {
-    if (activeSubmission) return // cannot toggle if already submitted
+    if (activeSubmission) return
 
     const newChecked = { ...checkedTasks, [taskId]: !checkedTasks[taskId] }
     setCheckedTasks(newChecked)
 
     if (activeWeek) {
-      const storageKey = `leclubia-challenge-w${activeWeek.week_number}-tasks`
+      const storageKey = `leclubia-challenge-w${activeWeek.week_number}-t${activeWeek.track_id}-tasks`
       localStorage.setItem(storageKey, JSON.stringify(newChecked))
     }
   }
 
-  // 3. Submit Challenge Mutation
+  // 4. Select Track Mutation
+  const selectTrackMutation = useMutation({
+    mutationFn: async (trackId: string | null) => {
+      if (!user?.id) return
+      const { error } = await supabase
+        .from('profiles')
+        .update({ active_challenge_track_id: trackId })
+        .eq('id', user.id)
+      if (error) throw error
+      await refreshUserData()
+    },
+    onSuccess: () => {
+      setSelectedWeekNum(1)
+      queryClient.invalidateQueries({ queryKey: ['challenge-weeks'] })
+    },
+    onError: () => {
+      toast.error("Impossible d'activer le parcours. Réessaye.")
+    },
+  })
+
+  // 5. Submit Challenge Mutation
   const submitMutation = useMutation({
     mutationFn: async () => {
       if (!user?.id || !activeWeek) return
 
       const checkedTaskIds = Object.keys(checkedTasks).filter((k) => checkedTasks[k])
       
-      // Validation check: mandatory tasks must be checked
       const mandatoryTasks = activeWeek.tasks.filter((t) => !t.optional)
       const missingMandatory = mandatoryTasks.filter((t) => !checkedTasks[t.id])
       if (missingMandatory.length > 0) {
@@ -199,7 +248,6 @@ export function WeeklyChallenges() {
     },
     onSuccess: () => {
       toast.success("Challenge validé ! +20 points obtenus 🎉")
-      // Invalidate queries to refresh state
       queryClient.invalidateQueries({ queryKey: ['challenge-submissions'] })
       queryClient.invalidateQueries({ queryKey: ['community-feed'] })
       queryClient.invalidateQueries({ queryKey: ['my-points'] })
@@ -211,13 +259,26 @@ export function WeeklyChallenges() {
     },
   })
 
+  const handleTrackChange = async () => {
+    const ok = await confirm({
+      title: "Changer de parcours ?",
+      description: "Tu pourras revenir en arrière ou choisir un autre parcours. Tes soumissions déjà validées resteront enregistrées en base de données.",
+      confirmLabel: "Changer",
+      variant: "default"
+    })
+    if (ok) {
+      selectTrackMutation.mutate(null)
+    }
+  }
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (submitMutation.isPending) return
     submitMutation.mutate()
   }
 
-  if (weeksQuery.isLoading) {
+  // Loader if fetching
+  if (tracksQuery.isLoading || (profile?.active_challenge_track_id && weeksQuery.isLoading)) {
     return (
       <div className="flex h-64 items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-[var(--primary)]" />
@@ -225,9 +286,107 @@ export function WeeklyChallenges() {
     )
   }
 
+  // Onboarding Onboarding Track Selector UI
+  if (!profile?.active_challenge_track_id) {
+    const trackVisuals: Record<string, { icon: any, color: string, badge: string }> = {
+      'produit-digital': {
+        icon: Package,
+        color: 'border-blue-500/20 bg-blue-50/5 hover:border-blue-500/50',
+        badge: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400'
+      },
+      'micro-saas': {
+        icon: Code,
+        color: 'border-[var(--or)]/20 bg-[var(--or)]/5 hover:border-[var(--or)]/50',
+        badge: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400'
+      },
+      'site-internet': {
+        icon: Globe,
+        color: 'border-sky-500/20 bg-sky-50/5 hover:border-sky-500/50',
+        badge: 'bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-400'
+      },
+      'video-ia': {
+        icon: Video,
+        color: 'border-rose-500/20 bg-rose-50/5 hover:border-rose-500/50',
+        badge: 'bg-rose-100 text-rose-800 dark:bg-rose-900/30 dark:text-rose-400'
+      }
+    }
+
+    return (
+      <div className="mt-8 space-y-8">
+        <div className="text-center max-w-lg mx-auto">
+          <h2 className="font-display text-lg font-bold">Sélectionne ton parcours d'action</h2>
+          <p className="text-xs text-[var(--muted-foreground)] mt-2">
+            Choisis la formation sur laquelle tu veux te focaliser. Chaque parcours propose 12 épreuves précises pour concevoir, construire et lancer ton projet.
+          </p>
+        </div>
+
+        <div className="grid gap-6 sm:grid-cols-2">
+          {tracks.map((t) => {
+            const vis = trackVisuals[t.key] || { icon: Sparkles, color: 'border-gray-200', badge: 'bg-gray-100' }
+            const IconComp = vis.icon
+
+            return (
+              <div
+                key={t.id}
+                className={cn(
+                  'rounded-2xl border p-6 flex flex-col justify-between transition-all duration-200 hover:shadow-sm relative overflow-hidden',
+                  vis.color
+                )}
+              >
+                <div>
+                  <span className={cn('inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold', vis.badge)}>
+                    <IconComp className="h-3.5 w-3.5" />
+                    {t.title}
+                  </span>
+                  
+                  <p className="text-xs text-[var(--muted-foreground)] mt-4 leading-relaxed">
+                    {t.description}
+                  </p>
+                </div>
+
+                <Button
+                  type="button"
+                  disabled={selectTrackMutation.isPending}
+                  onClick={() => selectTrackMutation.mutate(t.id)}
+                  className="mt-6 w-full py-5 rounded-xl bg-[var(--primary)] text-white font-semibold transition-all hover:bg-[var(--primary-light)] text-xs flex items-center justify-center gap-1.5"
+                >
+                  {selectTrackMutation.isPending ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <>
+                      Démarrer ce parcours
+                      <ChevronRight className="h-3.5 w-3.5" />
+                    </>
+                  )}
+                </Button>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    )
+  }
+
+  // Active track Dashboard UI
   return (
     <div className="mt-8 space-y-6">
-      {/* 8-Week horizontal selector */}
+      {/* Track Header / Reset bar */}
+      <div className="flex items-center justify-between rounded-xl border border-[var(--border)] bg-[var(--secondary)]/30 px-4 py-2.5 text-xs">
+        <span className="font-semibold text-[var(--foreground)] flex items-center gap-1.5">
+          <Trophy className="h-4 w-4 text-[var(--or-deep)]" />
+          Parcours actif : <strong className="text-[var(--primary)]">{activeTrack?.title}</strong>
+        </span>
+        <button
+          type="button"
+          onClick={handleTrackChange}
+          className="flex items-center gap-1 font-bold text-[var(--muted-foreground)] hover:text-red-500 transition-colors"
+        >
+          <Settings className="h-3.5 w-3.5" />
+          Changer
+        </button>
+      </div>
+
+      {/* 12-Week horizontal selector */}
       <div className="flex items-center gap-2 overflow-x-auto pb-3 scrollbar-thin scrollbar-thumb-gray-200">
         {weeks.map((w) => {
           const isSubmitted = submissions.some((s) => s.challenge_week_id === w.id)
@@ -417,7 +576,7 @@ export function WeeklyChallenges() {
                     <Input
                       id="project_name"
                       required
-                      placeholder="Ex: SaaS Facturation IA"
+                      placeholder="Ex: Mon SaaS IA"
                       value={projectName}
                       onChange={(e) => setProjectName(e.target.value)}
                     />
@@ -471,6 +630,8 @@ export function WeeklyChallenges() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <ConfirmDialog />
     </div>
   )
 }
