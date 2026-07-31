@@ -43,6 +43,12 @@ const ADMIN_NAV_ITEMS: AdminNavItem[] = [
     matchPrefix: '/app/admin/formations',
   },
   {
+    to: '/app/admin/challenges',
+    label: 'Challenges',
+    icon: Trophy,
+    matchPrefix: '/app/admin/challenges',
+  },
+  {
     to: '/app/admin/ressources',
     label: 'Ressources',
     icon: Library,

@@ -31,6 +31,7 @@ import { Route as AppProfilRouteImport } from './routes/app/profil'
 import { Route as AppEventsRouteImport } from './routes/app/events'
 import { Route as AppDashboardRouteImport } from './routes/app/dashboard'
 import { Route as AppClassementRouteImport } from './routes/app/classement'
+import { Route as AppChallengesRouteImport } from './routes/app/challenges'
 import { Route as AppAdminRouteImport } from './routes/app/admin'
 import { Route as AppRessourcesIndexRouteImport } from './routes/app/ressources/index'
 import { Route as AppFormationsIndexRouteImport } from './routes/app/formations/index'
@@ -45,6 +46,7 @@ import { Route as AppAdminMembersRouteImport } from './routes/app/admin/members'
 import { Route as AppAdminInsightsRouteImport } from './routes/app/admin/insights'
 import { Route as AppAdminEventsRouteImport } from './routes/app/admin/events'
 import { Route as AppAdminClassementRouteImport } from './routes/app/admin/classement'
+import { Route as AppAdminChallengesRouteImport } from './routes/app/admin/challenges'
 import { Route as AppAdminCandidaturesRouteImport } from './routes/app/admin/candidatures'
 import { Route as AppAdminAuditLogRouteImport } from './routes/app/admin/audit-log'
 import { Route as AppActualitesSlugRouteImport } from './routes/app/actualites/$slug'
@@ -169,6 +171,11 @@ const AppClassementRoute = AppClassementRouteImport.update({
   path: '/classement',
   getParentRoute: () => AppRoute,
 } as any)
+const AppChallengesRoute = AppChallengesRouteImport.update({
+  id: '/challenges',
+  path: '/challenges',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppAdminRoute = AppAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -237,6 +244,11 @@ const AppAdminEventsRoute = AppAdminEventsRouteImport.update({
 const AppAdminClassementRoute = AppAdminClassementRouteImport.update({
   id: '/classement',
   path: '/classement',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminChallengesRoute = AppAdminChallengesRouteImport.update({
+  id: '/challenges',
+  path: '/challenges',
   getParentRoute: () => AppAdminRoute,
 } as any)
 const AppAdminCandidaturesRoute = AppAdminCandidaturesRouteImport.update({
@@ -322,6 +334,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/app/admin': typeof AppAdminRouteWithChildren
+  '/app/challenges': typeof AppChallengesRoute
   '/app/classement': typeof AppClassementRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/events': typeof AppEventsRoute
@@ -332,6 +345,7 @@ export interface FileRoutesByFullPath {
   '/app/actualites/$slug': typeof AppActualitesSlugRoute
   '/app/admin/audit-log': typeof AppAdminAuditLogRoute
   '/app/admin/candidatures': typeof AppAdminCandidaturesRoute
+  '/app/admin/challenges': typeof AppAdminChallengesRoute
   '/app/admin/classement': typeof AppAdminClassementRoute
   '/app/admin/events': typeof AppAdminEventsRoute
   '/app/admin/insights': typeof AppAdminInsightsRoute
@@ -370,6 +384,7 @@ export interface FileRoutesByTo {
   '/onboarding': typeof OnboardingRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
+  '/app/challenges': typeof AppChallengesRoute
   '/app/classement': typeof AppClassementRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/events': typeof AppEventsRoute
@@ -380,6 +395,7 @@ export interface FileRoutesByTo {
   '/app/actualites/$slug': typeof AppActualitesSlugRoute
   '/app/admin/audit-log': typeof AppAdminAuditLogRoute
   '/app/admin/candidatures': typeof AppAdminCandidaturesRoute
+  '/app/admin/challenges': typeof AppAdminChallengesRoute
   '/app/admin/classement': typeof AppAdminClassementRoute
   '/app/admin/events': typeof AppAdminEventsRoute
   '/app/admin/insights': typeof AppAdminInsightsRoute
@@ -422,6 +438,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/app/admin': typeof AppAdminRouteWithChildren
+  '/app/challenges': typeof AppChallengesRoute
   '/app/classement': typeof AppClassementRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/events': typeof AppEventsRoute
@@ -432,6 +449,7 @@ export interface FileRoutesById {
   '/app/actualites/$slug': typeof AppActualitesSlugRoute
   '/app/admin/audit-log': typeof AppAdminAuditLogRoute
   '/app/admin/candidatures': typeof AppAdminCandidaturesRoute
+  '/app/admin/challenges': typeof AppAdminChallengesRoute
   '/app/admin/classement': typeof AppAdminClassementRoute
   '/app/admin/events': typeof AppAdminEventsRoute
   '/app/admin/insights': typeof AppAdminInsightsRoute
@@ -475,6 +493,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/app/admin'
+    | '/app/challenges'
     | '/app/classement'
     | '/app/dashboard'
     | '/app/events'
@@ -485,6 +504,7 @@ export interface FileRouteTypes {
     | '/app/actualites/$slug'
     | '/app/admin/audit-log'
     | '/app/admin/candidatures'
+    | '/app/admin/challenges'
     | '/app/admin/classement'
     | '/app/admin/events'
     | '/app/admin/insights'
@@ -523,6 +543,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/reset-password'
     | '/signup'
+    | '/app/challenges'
     | '/app/classement'
     | '/app/dashboard'
     | '/app/events'
@@ -533,6 +554,7 @@ export interface FileRouteTypes {
     | '/app/actualites/$slug'
     | '/app/admin/audit-log'
     | '/app/admin/candidatures'
+    | '/app/admin/challenges'
     | '/app/admin/classement'
     | '/app/admin/events'
     | '/app/admin/insights'
@@ -574,6 +596,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/app/admin'
+    | '/app/challenges'
     | '/app/classement'
     | '/app/dashboard'
     | '/app/events'
@@ -584,6 +607,7 @@ export interface FileRouteTypes {
     | '/app/actualites/$slug'
     | '/app/admin/audit-log'
     | '/app/admin/candidatures'
+    | '/app/admin/challenges'
     | '/app/admin/classement'
     | '/app/admin/events'
     | '/app/admin/insights'
@@ -783,6 +807,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppClassementRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/challenges': {
+      id: '/app/challenges'
+      path: '/challenges'
+      fullPath: '/app/challenges'
+      preLoaderRoute: typeof AppChallengesRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/admin': {
       id: '/app/admin'
       path: '/admin'
@@ -879,6 +910,13 @@ declare module '@tanstack/react-router' {
       path: '/classement'
       fullPath: '/app/admin/classement'
       preLoaderRoute: typeof AppAdminClassementRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/app/admin/challenges': {
+      id: '/app/admin/challenges'
+      path: '/challenges'
+      fullPath: '/app/admin/challenges'
+      preLoaderRoute: typeof AppAdminChallengesRouteImport
       parentRoute: typeof AppAdminRoute
     }
     '/app/admin/candidatures': {
@@ -978,6 +1016,7 @@ declare module '@tanstack/react-router' {
 interface AppAdminRouteChildren {
   AppAdminAuditLogRoute: typeof AppAdminAuditLogRoute
   AppAdminCandidaturesRoute: typeof AppAdminCandidaturesRoute
+  AppAdminChallengesRoute: typeof AppAdminChallengesRoute
   AppAdminClassementRoute: typeof AppAdminClassementRoute
   AppAdminEventsRoute: typeof AppAdminEventsRoute
   AppAdminInsightsRoute: typeof AppAdminInsightsRoute
@@ -998,6 +1037,7 @@ interface AppAdminRouteChildren {
 const AppAdminRouteChildren: AppAdminRouteChildren = {
   AppAdminAuditLogRoute: AppAdminAuditLogRoute,
   AppAdminCandidaturesRoute: AppAdminCandidaturesRoute,
+  AppAdminChallengesRoute: AppAdminChallengesRoute,
   AppAdminClassementRoute: AppAdminClassementRoute,
   AppAdminEventsRoute: AppAdminEventsRoute,
   AppAdminInsightsRoute: AppAdminInsightsRoute,
@@ -1021,6 +1061,7 @@ const AppAdminRouteWithChildren = AppAdminRoute._addFileChildren(
 
 interface AppRouteChildren {
   AppAdminRoute: typeof AppAdminRouteWithChildren
+  AppChallengesRoute: typeof AppChallengesRoute
   AppClassementRoute: typeof AppClassementRoute
   AppDashboardRoute: typeof AppDashboardRoute
   AppEventsRoute: typeof AppEventsRoute
@@ -1039,6 +1080,7 @@ interface AppRouteChildren {
 
 const AppRouteChildren: AppRouteChildren = {
   AppAdminRoute: AppAdminRouteWithChildren,
+  AppChallengesRoute: AppChallengesRoute,
   AppClassementRoute: AppClassementRoute,
   AppDashboardRoute: AppDashboardRoute,
   AppEventsRoute: AppEventsRoute,
