@@ -75,12 +75,24 @@ interface SubmissionWithProfile {
   } | null
 }
 
+interface ChallengeParticipant {
+  user_id: string
+  first_name: string | null
+  last_name: string | null
+  email: string
+  avatar_url: string | null
+  active_challenge_track_id: string | null
+  active_track_title: string | null
+  validated_weeks_count: number
+  last_activity_at: string | null
+}
+
 function AdminChallengesPage() {
   const queryClient = useQueryClient()
   const { confirm, ConfirmDialog } = useConfirm()
   
   // Navigation tabs
-  const [activeTab, setActiveTab] = useState<'challenges' | 'submissions'>('challenges')
+  const [activeTab, setActiveTab] = useState<'challenges' | 'submissions' | 'participants'>('challenges')
 
   // Selected track filter
   const [selectedTrackId, setSelectedTrackId] = useState<string>('')
@@ -146,7 +158,20 @@ function AdminChallengesPage() {
     },
   })
 
-  // 4. Mutate Challenge
+  // 4. Query Engaged Participants
+  const participantsQuery = useQuery<ChallengeParticipant[]>({
+    queryKey: ['admin-challenge-participants'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('admin_challenge_participants')
+        .select('*')
+        .order('last_activity_at', { ascending: false, nullsFirst: false })
+      if (error) throw error
+      return (data as any) ?? []
+    },
+  })
+
+  // 5. Mutate Challenge
   const upsertMutation = useMutation({
     mutationFn: async () => {
       const payload = {
@@ -306,8 +331,21 @@ function AdminChallengesPage() {
               : 'border-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)]'
           )}
         >
-          <Users className="h-4.5 w-4.5" />
+          <MessageSquare className="h-4.5 w-4.5" />
           Soumissions membres ({submissionsQuery.data?.length ?? 0})
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab('participants')}
+          className={cn(
+            'pb-3.5 text-sm font-semibold border-b-2 transition-all flex items-center gap-2',
+            activeTab === 'participants'
+              ? 'border-[var(--or-deep)] text-[var(--foreground)]'
+              : 'border-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)]'
+          )}
+        >
+          <Users className="h-4.5 w-4.5" />
+          Membres engagés ({participantsQuery.data?.length ?? 0})
         </button>
       </div>
 
@@ -509,6 +547,79 @@ function AdminChallengesPage() {
                               </Button>
                             )}
                           </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Tab 3: Engaged Members list */}
+        {activeTab === 'participants' && (
+          <div className="space-y-4">
+            {participantsQuery.isLoading ? (
+              <div className="flex h-48 items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-[var(--or-deep)]" />
+              </div>
+            ) : participantsQuery.data?.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-[var(--border)] p-12 text-center text-[var(--muted-foreground)]">
+                Aucun membre engagé dans les challenges pour le moment.
+              </div>
+            ) : (
+              <div className="overflow-x-auto rounded-2xl border border-[var(--border)] bg-[var(--card)] shadow-sm">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-[var(--border)] bg-gray-50/50 text-xs font-bold uppercase tracking-wider text-[var(--muted-foreground)]">
+                      <th className="p-4">Membre</th>
+                      <th className="p-4">Parcours Actif</th>
+                      <th className="p-4">Progression</th>
+                      <th className="p-4">Dernière Activité</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[var(--border)]/60 text-sm">
+                    {participantsQuery.data?.map((p) => {
+                      const activityDate = p.last_activity_at
+                        ? format(new Date(p.last_activity_at), 'dd MMM yyyy HH:mm', { locale: fr })
+                        : 'Aucune soumission'
+                      
+                      return (
+                        <tr key={p.user_id} className="hover:bg-gray-50/40">
+                          <td className="p-4">
+                            <div className="flex flex-col">
+                              <div className="flex items-center gap-2.5">
+                                <AvatarDisplay
+                                  avatarUrl={p.avatar_url}
+                                  firstName={p.first_name}
+                                  lastName={p.last_name}
+                                  size="sm"
+                                />
+                                <span className="font-semibold text-[var(--foreground)]">
+                                  {[p.first_name, p.last_name].filter(Boolean).join(' ') || 'Membre'}
+                                </span>
+                              </div>
+                              <span className="text-[10px] text-[var(--muted-foreground)] pl-9 mt-0.5">{p.email}</span>
+                            </div>
+                          </td>
+                          <td className="p-4">
+                            {p.active_track_title ? (
+                              <span className="inline-flex items-center rounded-lg bg-[var(--primary)]/10 px-2.5 py-0.5 text-xs font-bold text-[var(--primary)]">
+                                {p.active_track_title}
+                              </span>
+                            ) : (
+                              <span className="text-[var(--muted-foreground)] italic text-xs">Aucun parcours actif</span>
+                            )}
+                          </td>
+                          <td className="p-4">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-bold text-[var(--foreground)]">
+                                {p.validated_weeks_count} épreuve{p.validated_weeks_count > 1 ? 's' : ''} validée{p.validated_weeks_count > 1 ? 's' : ''}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="p-4 text-xs text-[var(--muted-foreground)]">{activityDate}</td>
                         </tr>
                       )
                     })}

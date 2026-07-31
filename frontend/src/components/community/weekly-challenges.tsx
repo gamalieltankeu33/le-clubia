@@ -34,6 +34,7 @@ interface ChallengeTrack {
   key: string
   title: string
   description: string
+  participant_count?: number
 }
 
 interface ChallengeWeek {
@@ -76,12 +77,11 @@ export function WeeklyChallenges() {
     queryKey: ['challenge-tracks'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('challenge_tracks')
-        .select('*')
+        .rpc('get_challenge_tracks_with_stats')
       if (error) throw error
-      return data ?? []
+      return (data as any) ?? []
     },
-    staleTime: 24 * 60 * 60 * 1000, // tracks rarely change
+    staleTime: 5 * 60 * 1000,
   })
 
   // 2. Fetch challenge weeks (for active track)
@@ -319,6 +319,16 @@ export function WeeklyChallenges() {
         icon: Video,
         color: 'border-rose-500/20 bg-rose-50/5 hover:border-rose-500/50',
         badge: 'bg-rose-100 text-rose-800 dark:bg-rose-900/30 dark:text-rose-400'
+      },
+      'produit-express': {
+        icon: Trophy,
+        color: 'border-purple-500/20 bg-purple-50/5 hover:border-purple-500/50',
+        badge: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400'
+      },
+      'communaute-contenu': {
+        icon: Users,
+        color: 'border-emerald-500/20 bg-emerald-50/5 hover:border-emerald-500/50',
+        badge: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400'
       }
     }
 
@@ -327,7 +337,7 @@ export function WeeklyChallenges() {
         <div className="text-center max-w-lg mx-auto">
           <h2 className="font-display text-lg font-bold">Sélectionne ton parcours d'action</h2>
           <p className="text-xs text-[var(--muted-foreground)] mt-2">
-            Choisis la formation sur laquelle tu veux te focaliser. Chaque parcours propose 12 épreuves précises pour concevoir, construire et lancer ton projet.
+            Choisis la formation sur laquelle tu veux te focaliser. Chaque parcours propose des épreuves précises pour concevoir, construire et lancer ton projet.
           </p>
         </div>
 
@@ -345,10 +355,17 @@ export function WeeklyChallenges() {
                 )}
               >
                 <div>
-                  <span className={cn('inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold', vis.badge)}>
-                    <IconComp className="h-3.5 w-3.5" />
-                    {t.title}
-                  </span>
+                  <div className="flex items-center justify-between">
+                    <span className={cn('inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold', vis.badge)}>
+                      <IconComp className="h-3.5 w-3.5" />
+                      {t.title}
+                    </span>
+                    
+                    <span className="text-[10px] font-bold text-[var(--muted-foreground)] flex items-center gap-1">
+                      <Users className="h-3 w-3" />
+                      {t.participant_count ?? 0} {Number(t.participant_count) > 1 ? 'apprenants' : 'apprenant'}
+                    </span>
+                  </div>
                   
                   <p className="text-xs text-[var(--muted-foreground)] mt-4 leading-relaxed">
                     {t.description}
