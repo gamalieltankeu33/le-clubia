@@ -232,7 +232,7 @@ export function WeeklyChallenges() {
       if (postErr) throw postErr
 
       // B. Create the submission record
-      const { error: subErr } = await supabase
+      const { data: subData, error: subErr } = await supabase
         .from('challenge_submissions')
         .insert({
           user_id: user.id,
@@ -243,8 +243,19 @@ export function WeeklyChallenges() {
           post_id: post.id,
           completed_tasks: checkedTaskIds,
         })
+        .select('id')
+        .single()
 
       if (subErr) throw subErr
+
+      // C. Trigger the email notification edge function (non-blocking)
+      void supabase.functions
+        .invoke('notify-admin-challenge', {
+          body: { submission_id: subData.id }
+        })
+        .catch((err) => {
+          console.warn('[WeeklyChallenges] notify-admin-challenge invocation failed:', err)
+        })
     },
     onSuccess: () => {
       toast.success("Challenge validé ! +20 points obtenus 🎉")
