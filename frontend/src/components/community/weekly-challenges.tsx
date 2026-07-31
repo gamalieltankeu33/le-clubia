@@ -12,6 +12,7 @@ import {
   Settings,
   Sparkles,
   Trophy,
+  Users,
   Video,
 } from 'lucide-react'
 import { toast } from 'sonner'
