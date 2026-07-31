@@ -47,6 +47,8 @@ export interface FeedPost {
   likes_count: number
   comments_count: number
   is_pinned: boolean
+  challenge_week_number: number | null
+  challenge_project_name: string | null
   created_at: string
   author: {
     id: string
@@ -136,6 +138,19 @@ export function PostCard({
         <div className="mb-4 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[var(--emerald-deep)]">
           <Pin className="h-3.5 w-3.5 fill-[var(--emerald)]/15" />
           Épinglé par Le Club
+        </div>
+      )}
+      {post.challenge_week_number && (
+        <div className="mb-4 flex flex-wrap items-center gap-2">
+          <span className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)]/10 px-2.5 py-1 text-xs font-semibold text-[var(--primary)] ring-1 ring-[var(--primary)]/10">
+            <span className="flex h-2 w-2 rounded-full bg-[var(--accent)] animate-pulse" />
+            Challenge Semaine {post.challenge_week_number}
+          </span>
+          {post.challenge_project_name && (
+            <span className="inline-flex items-center rounded-lg bg-[var(--accent)]/10 px-2.5 py-1 text-xs font-semibold text-[var(--bleu-ciel-deep)] ring-1 ring-[var(--accent)]/20">
+              Projet : {post.challenge_project_name}
+            </span>
+          )}
         </div>
       )}
       <header className="flex items-start gap-3">

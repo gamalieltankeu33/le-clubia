@@ -489,6 +489,8 @@ export type Database = {
           likes_count: number
           comments_count: number
           is_pinned: boolean
+          challenge_week_number: number | null
+          challenge_project_name: string | null
           created_at: string
           updated_at: string
         }
@@ -502,6 +504,8 @@ export type Database = {
           likes_count?: number
           comments_count?: number
           is_pinned?: boolean
+          challenge_week_number?: number | null
+          challenge_project_name?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -515,8 +519,79 @@ export type Database = {
           likes_count?: number
           comments_count?: number
           is_pinned?: boolean
+          challenge_week_number?: number | null
+          challenge_project_name?: string | null
           created_at?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      challenge_weeks: {
+        Row: {
+          id: string
+          week_number: number
+          title: string
+          description: string
+          tasks: any
+          is_active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          week_number: number
+          title: string
+          description: string
+          tasks?: any
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          week_number?: number
+          title?: string
+          description?: string
+          tasks?: any
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      challenge_submissions: {
+        Row: {
+          id: string
+          user_id: string
+          challenge_week_id: string
+          project_name: string
+          deliverable_url: string | null
+          deliverable_description: string
+          post_id: string | null
+          completed_tasks: any
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          challenge_week_id: string
+          project_name: string
+          deliverable_url?: string | null
+          deliverable_description: string
+          post_id?: string | null
+          completed_tasks?: any
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          challenge_week_id?: string
+          project_name?: string
+          deliverable_url?: string | null
+          deliverable_description?: string
+          post_id?: string | null
+          completed_tasks?: any
+          created_at?: string
         }
         Relationships: []
       }

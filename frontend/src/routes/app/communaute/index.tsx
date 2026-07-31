@@ -25,8 +25,10 @@ import { CommunityStatsPill } from '@/components/community/community-stats-pill'
 import { FeedSkeleton } from '@/components/community/feed-skeleton'
 import { EmptyState } from '@/components/shared/empty-state'
 import { PullToRefresh } from '@/components/shared/pull-to-refresh'
+import { WeeklyChallenges } from '@/components/community/weekly-challenges'
 import { htmlToPlainText } from '@/lib/sanitize-html'
 import { useConfirm } from '@/hooks/use-confirm'
+import { cn } from '@/lib/utils'
 
 // PostComposerModal embarque Tiptap (~120 kB). On le lazy-load pour ne le
 // télécharger qu'au moment où l'utilisateur clique "Créer un post".
@@ -49,6 +51,7 @@ function CommunityFeedPage() {
   const [composerOpen, setComposerOpen] = useState(false)
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
   const { confirm, ConfirmDialog } = useConfirm()
+  const [activeTab, setActiveTab] = useState<'feed' | 'challenge'>('feed')
 
   const feed = useInfiniteQuery({
     queryKey: ['community-feed', user?.id ?? null],
@@ -164,101 +167,135 @@ function CommunityFeedPage() {
         </p>
       </motion.div>
 
-      {/* Composer entrypoint */}
-      <div className="mt-8 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-4 shadow-sm">
+      {/* Navigation Tabs */}
+      <div className="mt-6 flex border-b border-[var(--border)]">
         <button
           type="button"
-          onClick={() => setComposerOpen(true)}
-          className="flex w-full items-center gap-3 text-left focus:outline-none group"
+          onClick={() => setActiveTab('feed')}
+          className={cn(
+            'flex-1 pb-3 text-sm font-semibold border-b-2 transition-all',
+            activeTab === 'feed'
+              ? 'border-[var(--primary)] text-[var(--foreground)]'
+              : 'border-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)]'
+          )}
         >
-          <AvatarDisplay
-            avatarUrl={profile?.avatar_url}
-            firstName={profile?.first_name}
-            lastName={profile?.last_name}
-            email={user?.email}
-            isVerified={profile?.is_verified ?? false}
-            size="md"
-          />
-          <div className="flex-1 rounded-full bg-[var(--secondary)]/50 px-4 py-2.5 text-sm text-[var(--muted-foreground)] transition-colors group-hover:bg-[var(--secondary)]">
-            Partager quelque chose avec la communauté...
-          </div>
+          💬 Fil d'actualité
         </button>
-
-        <div className="mt-3.5 flex items-center justify-between border-t border-[var(--border)]/60 pt-3 px-1">
-          <button
-            type="button"
-            onClick={() => setComposerOpen(true)}
-            className="flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold text-[var(--muted-foreground)] hover:bg-[var(--secondary)]/60 hover:text-[var(--foreground)] transition-colors"
-          >
-            <Image className="h-4.5 w-4.5 text-sky-500" />
-            <span>Photo / Image</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setComposerOpen(true)}
-            className="flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold text-[var(--muted-foreground)] hover:bg-[var(--secondary)]/60 hover:text-[var(--foreground)] transition-colors"
-          >
-            <Video className="h-4.5 w-4.5 text-rose-500" />
-            <span>Vidéo</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setComposerOpen(true)}
-            className="flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold text-[var(--muted-foreground)] hover:bg-[var(--secondary)]/60 hover:text-[var(--foreground)] transition-colors"
-          >
-            <Pencil className="h-4 w-4 text-violet-500" />
-            <span>Rédiger</span>
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={() => setActiveTab('challenge')}
+          className={cn(
+            'flex-1 pb-3 text-sm font-semibold border-b-2 transition-all flex items-center justify-center gap-1.5',
+            activeTab === 'challenge'
+              ? 'border-[var(--primary)] text-[var(--foreground)]'
+              : 'border-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)]'
+          )}
+        >
+          🎯 Challenge de la semaine
+        </button>
       </div>
 
-      <PullToRefresh
-        onRefresh={async () => {
-          await feed.refetch()
-        }}
-        className="mt-8"
-      >
-        {feed.isLoading ? (
-          <FeedSkeleton count={3} />
-        ) : feed.isError ? (
-          <ErrorBox onRetry={() => feed.refetch()} />
-        ) : allPosts.length === 0 ? (
-          <EmptyFeed onOpen={() => setComposerOpen(true)} />
-        ) : (
-          <div className="space-y-4">
-            {allPosts.map((p) => (
-              <PostCard
-                key={p.id}
-                post={p}
-                currentUserId={user?.id ?? null}
-                isAdmin={isAdmin}
-                onDelete={handleDelete}
-                pendingDelete={pendingDeleteId === p.id}
+      {activeTab === 'feed' ? (
+        <>
+          {/* Composer entrypoint */}
+          <div className="mt-8 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-4 shadow-sm">
+            <button
+              type="button"
+              onClick={() => setComposerOpen(true)}
+              className="flex w-full items-center gap-3 text-left focus:outline-none group"
+            >
+              <AvatarDisplay
+                avatarUrl={profile?.avatar_url}
+                firstName={profile?.first_name}
+                lastName={profile?.last_name}
+                email={user?.email}
+                isVerified={profile?.is_verified ?? false}
+                size="md"
               />
-            ))}
+              <div className="flex-1 rounded-full bg-[var(--secondary)]/50 px-4 py-2.5 text-sm text-[var(--muted-foreground)] transition-colors group-hover:bg-[var(--secondary)]">
+                Partager quelque chose avec la communauté...
+              </div>
+            </button>
 
-            {feed.hasNextPage && (
-              <div className="flex justify-center pt-4">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => feed.fetchNextPage()}
-                  disabled={feed.isFetchingNextPage}
-                >
-                  {feed.isFetchingNextPage ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      Chargement…
-                    </>
-                  ) : (
-                    'Charger plus'
-                  )}
-                </Button>
+            <div className="mt-3.5 flex items-center justify-between border-t border-[var(--border)]/60 pt-3 px-1">
+              <button
+                type="button"
+                onClick={() => setComposerOpen(true)}
+                className="flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold text-[var(--muted-foreground)] hover:bg-[var(--secondary)]/60 hover:text-[var(--foreground)] transition-colors"
+              >
+                <Image className="h-4.5 w-4.5 text-sky-500" />
+                <span>Photo / Image</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setComposerOpen(true)}
+                className="flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold text-[var(--muted-foreground)] hover:bg-[var(--secondary)]/60 hover:text-[var(--foreground)] transition-colors"
+              >
+                <Video className="h-4.5 w-4.5 text-rose-500" />
+                <span>Vidéo</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setComposerOpen(true)}
+                className="flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold text-[var(--muted-foreground)] hover:bg-[var(--secondary)]/60 hover:text-[var(--foreground)] transition-colors"
+              >
+                <Pencil className="h-4 w-4 text-violet-500" />
+                <span>Rédiger</span>
+              </button>
+            </div>
+          </div>
+
+          <PullToRefresh
+            onRefresh={async () => {
+              await feed.refetch()
+            }}
+            className="mt-8"
+          >
+            {feed.isLoading ? (
+              <FeedSkeleton count={3} />
+            ) : feed.isError ? (
+              <ErrorBox onRetry={() => feed.refetch()} />
+            ) : allPosts.length === 0 ? (
+              <EmptyFeed onOpen={() => setComposerOpen(true)} />
+            ) : (
+              <div className="space-y-4">
+                {allPosts.map((p) => (
+                  <PostCard
+                    key={p.id}
+                    post={p}
+                    currentUserId={user?.id ?? null}
+                    isAdmin={isAdmin}
+                    onDelete={handleDelete}
+                    pendingDelete={pendingDeleteId === p.id}
+                  />
+                ))}
+
+                {feed.hasNextPage && (
+                  <div className="flex justify-center pt-4">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => feed.fetchNextPage()}
+                      disabled={feed.isFetchingNextPage}
+                    >
+                      {feed.isFetchingNextPage ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Chargement…
+                        </>
+                      ) : (
+                        'Charger plus'
+                      )}
+                    </Button>
+                  </div>
+                )}
               </div>
             )}
-          </div>
-        )}
-      </PullToRefresh>
+          </PullToRefresh>
+        </>
+      ) : (
+        <WeeklyChallenges />
+      )}
 
       {/* Suspense fallback rendu via null : le modal n'a pas besoin de
           fallback visible — il s'ouvre quand l'utilisateur clique le bouton.
