@@ -351,7 +351,7 @@ export function WeeklyChallenges() {
               <div
                 key={t.id}
                 className={cn(
-                  'rounded-2xl border p-6 flex flex-col justify-between transition-all duration-200 hover:shadow-sm relative overflow-hidden',
+                  'rounded-2xl border p-5 sm:p-6 flex flex-col justify-between transition-all duration-200 hover:shadow-sm relative overflow-hidden',
                   vis.color
                 )}
               >
@@ -458,7 +458,7 @@ export function WeeklyChallenges() {
             className="space-y-6"
           >
             {/* Challenge Consigne Header */}
-            <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm relative overflow-hidden">
+            <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 sm:p-6 shadow-sm relative overflow-hidden">
               <div className="absolute -right-12 -top-12 h-24 w-24 rounded-full bg-[var(--primary)]/5 blur-xl pointer-events-none" />
               
               <div className="flex items-center gap-2">
@@ -478,7 +478,7 @@ export function WeeklyChallenges() {
             </div>
 
             {/* Checklist tasks section */}
-            <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
+            <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 sm:p-6 shadow-sm">
               <h3 className="font-display text-sm font-bold uppercase tracking-wider text-[var(--muted-foreground)]">
                 Tâches à accomplir
               </h3>
@@ -493,7 +493,7 @@ export function WeeklyChallenges() {
                       disabled={Boolean(activeSubmission)}
                       onClick={() => toggleTask(task.id)}
                       className={cn(
-                        'flex w-full items-start gap-3 rounded-xl border p-4 text-left transition-all',
+                        'flex w-full items-start gap-3 rounded-xl border p-3.5 sm:p-4 text-left transition-all',
                         isChecked
                           ? 'border-emerald-500/30 bg-emerald-50/10'
                           : 'border-[var(--border)] bg-[var(--card)] hover:border-[var(--muted-foreground)]/30',
@@ -526,7 +526,7 @@ export function WeeklyChallenges() {
 
             {/* Submission card or Form */}
             {activeSubmission ? (
-              <div className="rounded-2xl border border-emerald-500/20 bg-emerald-50/5 p-6 shadow-sm relative overflow-hidden">
+              <div className="rounded-2xl border border-emerald-500/20 bg-emerald-50/5 p-5 sm:p-6 shadow-sm relative overflow-hidden">
                 <div className="absolute -right-16 -top-16 h-36 w-36 rounded-full bg-emerald-500/10 blur-2xl pointer-events-none" />
                 
                 <div className="flex items-center gap-3">
@@ -583,7 +583,7 @@ export function WeeklyChallenges() {
                 </div>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm space-y-4">
+              <form onSubmit={handleSubmit} className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 sm:p-6 shadow-sm space-y-4">
                 <div className="flex items-center gap-2.5">
                   <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--primary)]/5 text-[var(--primary)]">
                     <Sparkles className="h-4 w-4" />

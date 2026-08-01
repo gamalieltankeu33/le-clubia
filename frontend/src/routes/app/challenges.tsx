@@ -9,7 +9,7 @@ export const Route = createFileRoute('/app/challenges')({
 
 function ChallengesPage() {
   return (
-    <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6 lg:py-14">
+    <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:py-14">
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
