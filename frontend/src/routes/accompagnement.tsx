@@ -392,11 +392,6 @@ interface Question {
 }
 
 const QUESTIONS: Question[] = [
-  { id: 'prenom', label: 'Quel est votre prénom ?', type: 'text', placeholder: 'Votre prénom', required: true },
-  { id: 'nom', label: 'Quel est votre nom de famille ?', type: 'text', placeholder: 'Votre nom', required: true },
-  { id: 'email', label: 'Quelle est votre adresse email ?', subtitle: 'Pour vous envoyer le rapport d\'analyse complet', type: 'email', placeholder: 'vous@email.com', required: true },
-  { id: 'telephone', label: 'Votre numéro de téléphone (WhatsApp)', subtitle: 'Pour échanger en direct si votre profil est qualifié', type: 'tel', placeholder: '+33 6 12 34 56 78', required: true },
-  { id: 'pays', label: 'Dans quel pays résidez-vous ?', subtitle: 'Exemple : France, Canada, Belgique...', type: 'text', placeholder: 'France', required: true },
   {
     id: 'experience',
     label: 'Quelle est votre expérience actuelle en business ?',
@@ -461,7 +456,12 @@ const QUESTIONS: Question[] = [
       'E-commerce ou application SaaS avec IA.',
       'Je n\'ai pas encore d\'idée claire.'
     ]
-  }
+  },
+  { id: 'prenom', label: 'Quel est votre prénom ?', type: 'text', placeholder: 'Votre prénom', required: true },
+  { id: 'nom', label: 'Quel est votre nom de famille ?', type: 'text', placeholder: 'Votre nom', required: true },
+  { id: 'email', label: 'Quelle est votre adresse email ?', subtitle: 'Pour vous envoyer le rapport d\'analyse complet', type: 'email', placeholder: 'vous@email.com', required: true },
+  { id: 'telephone', label: 'Votre numéro de téléphone (WhatsApp)', subtitle: 'Pour échanger en direct si votre profil est qualifié', type: 'tel', placeholder: '+33 6 12 34 56 78', required: true },
+  { id: 'pays', label: 'Dans quel pays résidez-vous ?', subtitle: 'Exemple : France, Canada, Belgique...', type: 'text', placeholder: 'France', required: true }
 ]
 
 function CircularScore({ score, color }: { score: number; color: string }) {
