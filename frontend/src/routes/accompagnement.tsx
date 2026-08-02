@@ -9,6 +9,12 @@ import {
   ChevronLeft,
   Loader2,
   X,
+  MessageSquare,
+  TrendingUp,
+  Award,
+  Sparkles,
+  Mail,
+  ShieldCheck,
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
@@ -101,7 +107,7 @@ export function AccompagnementPage() {
             className="cta-black group relative overflow-hidden px-5 py-2.5 text-sm cursor-pointer"
           >
             <span className="relative z-10 flex items-center gap-2">
-              Candidater
+              Lancer le diagnostic
               <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
             </span>
             <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
@@ -117,24 +123,23 @@ export function AccompagnementPage() {
 
         <div className="mx-auto max-w-3xl px-5 sm:px-6">
           <motion.p {...fadeUp(0.05)} className="eyebrow mb-6">
-            Accompagnement sur-mesure
+            Diagnostic Business IA
           </motion.p>
 
           <motion.h1 {...fadeUp(0.12)} className="font-display text-[2.2rem] sm:text-4xl lg:text-5xl font-bold leading-[1.05] tracking-tight">
-            Construisez un business rentable{' '}
+            Découvrez votre potentiel business{' '}
             <span className="serif-accent">grâce à l'IA.</span>
           </motion.h1>
 
           <motion.div {...fadeUp(0.22)} className="mt-6 space-y-4 text-base sm:text-lg leading-relaxed text-[var(--muted-foreground)]">
             <p>
-              Passez de l'idée à un véritable business — accompagné, étape par étape.
+              Évaluez vos compétences, vos objectifs et votre préparation entrepreneuriale en 3 minutes.
             </p>
             <p>
-              Nous vous aidons à transformer vos compétences, vos idées ou votre expertise en un business moderne grâce à l'IA.
+              Ce diagnostic rapide et interactif analyse votre psychologie d'entrepreneur, détermine votre score d'éligibilité et vous fournit un plan d'action personnalisé envoyé directement par e-mail.
             </p>
             <p className="text-[var(--foreground)] font-medium">
-              Vous ne repartez pas avec une simple formation.<br />
-              Vous repartez avec un plan clair, un système et un business que vous construisez avec nous.
+              Notre objectif est d'identifier si vous êtes prêt à lancer un business sérieux grâce à l'IA et de vous proposer la meilleure orientation.
             </p>
           </motion.div>
 
@@ -144,34 +149,34 @@ export function AccompagnementPage() {
               className="cta-black cta-black-xl group relative overflow-hidden px-8 py-4 cursor-pointer"
             >
               <span className="relative z-10 flex items-center gap-2">
-                Candidater à l'accompagnement
+                Lancer mon diagnostic IA
                 <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
               </span>
               <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent transition-transform duration-1000 group-hover:translate-x-full" />
             </button>
             <p className="mt-3 text-xs uppercase tracking-wide font-medium text-[var(--muted-foreground)]">
-              Appel stratégique gratuit · 30 min · Sans engagement
+              Diagnostic 100% gratuit · Analyse instantanée · Rapport envoyé par mail
             </p>
           </motion.div>
         </div>
       </section>
 
-      {/* ── Ce programme est fait pour vous si… ── */}
+      {/* ── Ce diagnostic est fait pour vous si… ── */}
       <section className="py-14 sm:py-16 border-t border-[var(--border)]">
         <div className="mx-auto max-w-3xl px-5 sm:px-6">
           <Reveal>
             <h2 className="font-display text-2xl sm:text-3xl font-bold tracking-tight">
-              Ce programme est peut-être fait pour vous si…
+              Ce diagnostic gratuit est fait pour vous si…
             </h2>
           </Reveal>
 
           <div className="mt-8 space-y-3">
             {[
-              "Vous voulez lancer votre premier business grâce à l'IA.",
-              "Vous avez envie de créer une activité qui génère des revenus.",
-              "Vous consommez beaucoup de contenu mais vous passez rarement à l'action.",
-              "Vous cherchez un accompagnement pour construire un vrai système.",
-              "Vous voulez aller beaucoup plus vite en évitant les erreurs.",
+              "Vous voulez valider la viabilité de votre idée de business grâce à l'IA.",
+              "Vous souhaitez comprendre vos blocages actuels pour passer à l'action.",
+              "Vous cherchez à savoir si vous êtes éligible à un accompagnement sur-mesure.",
+              "Vous voulez obtenir une note précise sur votre profil psychologique d'entrepreneur.",
+              "Vous cherchez un plan clair et structuré pour lancer votre activité.",
             ].map((text, i) => (
               <Reveal key={i} delay={i * 0.06}>
                 <div className="flex items-start gap-3 py-3 px-4 rounded-xl border border-[var(--border)] bg-[var(--card)] transition-all hover:border-[var(--primary)]/20">
@@ -215,10 +220,10 @@ export function AccompagnementPage() {
         <div className="mx-auto max-w-3xl px-5 sm:px-6">
           <Reveal>
             <h2 className="font-display text-2xl sm:text-3xl font-bold tracking-tight">
-              Ce que nous construisons ensemble
+              Si vous êtes qualifié(e) : Ce que nous construisons ensemble
             </h2>
             <p className="mt-4 text-base text-[var(--muted-foreground)] leading-relaxed">
-              Pendant cet accompagnement, nous travaillons ensemble pour construire votre activité. Concrètement, nous allons :
+              Pour les profils les plus sérieux détectés par le diagnostic, nous proposons un accompagnement premium où nous travaillons ensemble pour construire votre activité. Concrètement, nous allons :
             </p>
           </Reveal>
 
@@ -290,85 +295,21 @@ export function AccompagnementPage() {
         </div>
       </section>
 
-      {/* ── Vous repartez avec ── */}
+      {/* ── Comment fonctionne le diagnostic ? ── */}
       <section className="py-14 sm:py-16 border-t border-[var(--border)]">
         <div className="mx-auto max-w-3xl px-5 sm:px-6">
           <Reveal>
             <h2 className="font-display text-2xl sm:text-3xl font-bold tracking-tight">
-              Vous repartez avec
-            </h2>
-          </Reveal>
-
-          <Reveal delay={0.1}>
-            <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {[
-                "Une offre claire",
-                "Un positionnement",
-                "Une stratégie de contenu",
-                "Votre système d'acquisition",
-                "Vos automatisations IA",
-                "Votre feuille de route",
-                "Les outils adaptés à votre business",
-                "Un accompagnement personnalisé",
-              ].map((item, i) => (
-                <div key={i} className="flex items-center gap-3 py-3 px-4 rounded-xl border border-[var(--border)] bg-[var(--card)]">
-                  <CheckCircle2 className="w-4 h-4 text-[var(--primary)] shrink-0" />
-                  <span className="text-sm font-medium text-[var(--foreground)]">{item}</span>
-                </div>
-              ))}
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* ── Ce programme n'est PAS fait pour vous si… ── */}
-      <section className="py-14 sm:py-16 bg-[var(--secondary)]">
-        <div className="mx-auto max-w-3xl px-5 sm:px-6">
-          <Reveal>
-            <h2 className="font-display text-2xl sm:text-3xl font-bold tracking-tight">
-              Ce programme n'est <span className="text-red-500">PAS</span> fait pour vous si…
-            </h2>
-          </Reveal>
-
-          <Reveal delay={0.1}>
-            <div className="mt-8 space-y-2.5">
-              {[
-                'Vous cherchez une méthode miracle.',
-                "Vous voulez gagner de l'argent sans travailler.",
-                'Vous souhaitez simplement apprendre ChatGPT.',
-                "Vous n'êtes pas prêt à passer à l'action.",
-              ].map((text, i) => (
-                <div key={i} className="flex items-start gap-3 py-3 px-4 rounded-xl bg-red-50/60 border border-red-100/80">
-                  <X className="w-4 h-4 text-red-400 mt-0.5 shrink-0" />
-                  <span className="text-sm text-[var(--foreground-soft)]">{text}</span>
-                </div>
-              ))}
-            </div>
-          </Reveal>
-
-          <Reveal delay={0.2}>
-            <p className="mt-6 text-sm font-semibold text-[var(--foreground)]">
-              Nous travaillons uniquement avec des personnes qui veulent réellement construire.
-            </p>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* ── Comment rejoindre ── */}
-      <section className="py-14 sm:py-16 border-t border-[var(--border)]">
-        <div className="mx-auto max-w-3xl px-5 sm:px-6">
-          <Reveal>
-            <h2 className="font-display text-2xl sm:text-3xl font-bold tracking-tight">
-              Comment rejoindre l'accompagnement ?
+              Comment fonctionne le diagnostic ?
             </h2>
           </Reveal>
 
           <div className="mt-8 space-y-6">
             {[
-              { num: '1', title: 'Remplissez le formulaire de candidature', desc: 'Quelques questions pour comprendre votre situation et votre projet.' },
-              { num: '2', title: 'Nous analysons votre projet', desc: 'Nous étudions chaque candidature individuellement.' },
-              { num: '3', title: 'Appel stratégique', desc: 'Si votre profil correspond, nous vous invitons à un appel de 30 minutes.' },
-              { num: '4', title: 'La suite adaptée à votre situation', desc: 'Accompagnement premium, Le Club IA, ou une prochaine étape — nous vous orientons vers la solution qui vous donnera le plus de chances de réussir.' },
+              { num: '1', title: 'Répondez au diagnostic en ligne', desc: '11 questions simples à choix multiples pour analyser votre profil en 3 minutes.' },
+              { num: '2', title: 'Obtenez votre score instantanément', desc: 'Une note sur 20 et une évaluation de votre maturité entrepreneuriale s\'affichent.' },
+              { num: '3', title: 'Rapport complet par e-mail', desc: 'Nous vous envoyons vos forces, axes d\'amélioration et recommandations personnalisées.' },
+              { num: '4', title: 'Accompagnement (Profils Cibles)', desc: 'Si vos résultats indiquent un profil sérieux et éligible, vous débloquerez un lien de discussion direct sur WhatsApp.' },
             ].map((step, i) => (
               <Reveal key={i} delay={i * 0.08}>
                 <div className="flex items-start gap-5">
@@ -391,10 +332,10 @@ export function AccompagnementPage() {
         <div className="mx-auto max-w-3xl px-5 sm:px-6 text-center">
           <Reveal>
             <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight leading-tight">
-              Candidatez à l'accompagnement
+              Découvrez votre score Business IA dès maintenant
             </h2>
             <p className="mt-4 text-base text-white/50 max-w-xl mx-auto leading-relaxed">
-              Notre objectif est de vous proposer la solution qui vous donnera le plus de chances de réussir.
+              Ne restez pas dans le doute. Évaluez votre profil et recevez vos recommandations personnalisées.
             </p>
           </Reveal>
 
@@ -404,11 +345,11 @@ export function AccompagnementPage() {
                 onClick={openForm}
                 className="inline-flex items-center gap-3 px-8 py-4 bg-white text-[var(--noir)] rounded-2xl text-sm font-bold transition-all hover:bg-white/90 shadow-[0_0_40px_rgba(255,255,255,0.08)] cursor-pointer group"
               >
-                Remplir le formulaire de candidature
+                Lancer mon diagnostic gratuit
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
               </button>
               <p className="mt-4 text-xs text-white/30 uppercase tracking-wide font-medium">
-                Places limitées · Profils sélectionnés
+                Analyse IA instantanée · Rapport complet par mail
               </p>
             </div>
           </Reveal>
@@ -418,7 +359,7 @@ export function AccompagnementPage() {
       {/* ── Footer ── */}
       <footer className="py-8 border-t border-[var(--border)] text-center">
         <p className="text-xs text-[var(--muted-foreground)]">
-          © {new Date().getFullYear()} Le Club IA — Accompagnement Business Premium
+          © {new Date().getFullYear()} Le Club IA — Diagnostic & Accompagnement
         </p>
       </footer>
 
@@ -434,7 +375,11 @@ export function AccompagnementPage() {
    Typeform-style Candidature — full-screen, one question at a time
    ═══════════════════════════════════════════════════════════════════════ */
 
-type QuestionType = 'text' | 'email' | 'tel' | 'textarea' | 'choice' | 'yesno'
+/* ═══════════════════════════════════════════════════════════════════════
+   Sleek Diagnostic Wizard — full-screen, choice-based, AI-evaluated
+   ═══════════════════════════════════════════════════════════════════════ */
+
+type QuestionType = 'text' | 'email' | 'tel' | 'choice'
 
 interface Question {
   id: string
@@ -444,115 +389,158 @@ interface Question {
   placeholder?: string
   options?: string[]
   required?: boolean
-  /** If set, this question only shows when the condition is met */
-  showIf?: (f: Record<string, any>) => boolean
 }
 
 const QUESTIONS: Question[] = [
-  { id: 'prenom', label: 'Comment vous appelez-vous ?', subtitle: 'Votre prénom', type: 'text', placeholder: 'Votre prénom', required: true },
-  { id: 'nom', label: 'Et votre nom de famille ?', type: 'text', placeholder: 'Votre nom', required: true },
-  { id: 'email', label: 'Votre adresse email', subtitle: 'Pour vous recontacter', type: 'email', placeholder: 'vous@email.com', required: true },
-  { id: 'telephone', label: 'Votre numéro de téléphone', subtitle: 'WhatsApp de préférence', type: 'tel', placeholder: '+33 6 12 34 56 78', required: true },
-  { id: 'pays', label: 'Dans quel pays êtes-vous ?', type: 'text', placeholder: 'France' },
+  { id: 'prenom', label: 'Quel est votre prénom ?', type: 'text', placeholder: 'Votre prénom', required: true },
+  { id: 'nom', label: 'Quel est votre nom de famille ?', type: 'text', placeholder: 'Votre nom', required: true },
+  { id: 'email', label: 'Quelle est votre adresse email ?', subtitle: 'Pour vous envoyer le rapport d\'analyse complet', type: 'email', placeholder: 'vous@email.com', required: true },
+  { id: 'telephone', label: 'Votre numéro de téléphone (WhatsApp)', subtitle: 'Pour échanger en direct si votre profil est qualifié', type: 'tel', placeholder: '+33 6 12 34 56 78', required: true },
+  { id: 'pays', label: 'Dans quel pays résidez-vous ?', subtitle: 'Exemple : France, Canada, Belgique...', type: 'text', placeholder: 'France', required: true },
   {
-    id: 'projet_type',
-    label: 'Quel est votre projet aujourd\'hui ?',
+    id: 'experience',
+    label: 'Quelle est votre expérience actuelle en business ?',
     type: 'choice',
     options: [
-      'Je veux lancer mon premier business.',
-      "J'ai déjà un business.",
-      'Je suis salarié.',
-      'Je suis freelance.',
-      'Autre.',
-    ],
-  },
-  { id: 'projet_ia', label: 'Que souhaitez-vous construire grâce à l\'IA ?', type: 'textarea', placeholder: 'Décrivez en quelques lignes votre idée ou votre projet…', required: true },
-  { id: 'projet_raison', label: 'Pourquoi souhaitez-vous lancer ce projet maintenant ?', type: 'textarea', placeholder: 'Votre motivation principale…', required: true },
-  { id: 'projet_blocage', label: 'Quel est aujourd\'hui votre plus grand blocage ?', type: 'textarea', placeholder: 'Ce qui vous empêche d\'avancer…', required: true },
-  {
-    id: 'deja_essaie',
-    label: 'Avez-vous déjà essayé de lancer un business ?',
-    type: 'yesno',
+      'Je pars de zéro (jamais lancé de business).',
+      "J'ai déjà essayé mais sans grand succès.",
+      'Je suis freelance ou salarié et je veux me lancer.',
+      "J'ai déjà un business actif et je veux l'accélérer."
+    ]
   },
   {
-    id: 'deja_essaie_details',
-    label: 'Expliquez-nous rapidement.',
-    subtitle: 'Ce que vous avez tenté',
-    type: 'textarea',
-    placeholder: 'Décrivez brièvement votre expérience…',
-    showIf: (f) => f.deja_essaie === true,
-  },
-  {
-    id: 'statut_actuel',
-    label: 'Où en êtes-vous actuellement ?',
+    id: 'motivation',
+    label: 'Pourquoi souhaitez-vous lancer ce business maintenant ?',
     type: 'choice',
-    options: ['Je pars de zéro.', "J'ai une idée.", "J'ai commencé.", "J'ai déjà des clients."],
+    options: [
+      'Créer une vraie liberté géographique et financière.',
+      'Automatiser des tâches répétitives et gagner du temps.',
+      "Explorer l'IA par simple curiosité.",
+      'Gagner beaucoup d\'argent rapidement sans trop d\'efforts.'
+    ]
   },
   {
-    id: 'heures_semaine',
-    label: 'Combien d\'heures pouvez-vous consacrer chaque semaine ?',
+    id: 'temps',
+    label: 'Combien d\'heures par semaine pouvez-vous y consacrer ?',
     type: 'choice',
-    options: ['Moins de 5 h', '5 à 10 h', '10 à 20 h', 'Plus de 20 h'],
-  },
-  { id: 'objectif_12m', label: 'Quel est votre objectif dans les 12 prochains mois ?', type: 'textarea', placeholder: 'Ce que vous voulez avoir accompli…' },
-  {
-    id: 'pret_investir',
-    label: 'Si nous pouvons vous aider, êtes-vous prêt à investir dans un accompagnement ?',
-    type: 'choice',
-    options: ['Oui', 'Peut-être', 'Non'],
+    options: [
+      'Moins de 5 heures par semaine.',
+      '5 à 10 heures par semaine.',
+      '10 à 20 heures par semaine.',
+      'Plus de 20 heures par semaine (Investissement maximal).'
+    ]
   },
   {
     id: 'budget',
-    label: 'Quel budget êtes-vous prêt à investir ?',
+    label: 'Quel budget êtes-vous prêt à investir pour lancer votre business ?',
     type: 'choice',
-    options: ['Moins de 500 €', '500 à 1 500 €', '1 500 à 3 000 €', 'Plus de 3 000 €'],
+    options: [
+      'Moins de 500 €.',
+      '500 à 1 500 €.',
+      '1 500 à 3 000 €.',
+      'Plus de 3 000 €.'
+    ]
   },
-  { id: 'candidat_raison', label: 'Pourquoi pensez-vous être un bon candidat pour cet accompagnement ?', type: 'textarea', placeholder: 'Ce qui fait que vous êtes prêt à passer à l\'action…', required: true },
+  {
+    id: 'autonomie',
+    label: 'Face à un problème technique ou un blocage, que faites-vous ?',
+    type: 'choice',
+    options: [
+      "Je cherche des solutions par moi-même et j'avance.",
+      "J'abandonne rapidement ou je remets à plus tard.",
+      "Je préfère qu'on fasse le travail à ma place."
+    ]
+  },
+  {
+    id: 'projet_type',
+    label: 'Quel type d\'activité souhaitez-vous créer grâce à l\'IA ?',
+    type: 'choice',
+    options: [
+      'Agence de services IA / Conseil Freelance.',
+      'Création de produits digitaux / Formations.',
+      'E-commerce ou application SaaS avec IA.',
+      'Je n\'ai pas encore d\'idée claire.'
+    ]
+  }
 ]
+
+function CircularScore({ score, color }: { score: number; color: string }) {
+  const percentage = (score / 20) * 100
+  const radius = 54
+  const strokeWidth = 8
+  const circumference = 2 * Math.PI * radius
+  const strokeDashoffset = circumference - (percentage / 100) * circumference
+
+  return (
+    <div className="relative flex items-center justify-center w-36 h-36 mx-auto">
+      <svg className="w-full h-full transform -rotate-90">
+        <circle
+          cx="72"
+          cy="72"
+          r={radius}
+          stroke="var(--secondary)"
+          strokeWidth={strokeWidth}
+          fill="transparent"
+        />
+        <motion.circle
+          cx="72"
+          cy="72"
+          r={radius}
+          stroke={color}
+          strokeWidth={strokeWidth}
+          fill="transparent"
+          strokeDasharray={circumference}
+          initial={{ strokeDashoffset: circumference }}
+          animate={{ strokeDashoffset }}
+          transition={{ duration: 1.2, ease: 'easeOut', delay: 0.2 }}
+        />
+      </svg>
+      <div className="absolute flex flex-col items-center justify-center">
+        <span className="text-3xl font-extrabold tracking-tighter" style={{ color }}>
+          {score}
+        </span>
+        <span className="text-[10px] font-bold text-[var(--muted-foreground)] uppercase tracking-wider mt-0.5">
+          Sur 20
+        </span>
+      </div>
+    </div>
+  )
+}
 
 function CandidatureModal({ onClose }: { onClose: () => void }) {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
-  const [direction, setDirection] = useState(1) // 1 = forward, -1 = backward
-  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null)
+  const [result, setResult] = useState<any>(null)
+  const [direction, setDirection] = useState(1)
+  const inputRef = useRef<HTMLInputElement>(null)
 
-  const [f, setF] = useState<Record<string, any>>({
+  const [f, setF] = useState<Record<string, string>>({
     prenom: '',
     nom: '',
     email: '',
     telephone: '',
-    pays: 'France',
-    projet_type: 'Je veux lancer mon premier business.',
-    projet_ia: '',
-    projet_raison: '',
-    projet_blocage: '',
-    deja_essaie: false,
-    deja_essaie_details: '',
-    statut_actuel: 'Je pars de zéro.',
-    heures_semaine: '5 à 10 h',
-    objectif_12m: '',
-    pret_investir: 'Oui',
-    budget: '500 à 1 500 €',
-    candidat_raison: '',
+    pays: '',
+    experience: '',
+    motivation: '',
+    temps: '',
+    budget: '',
+    autonomie: '',
+    projet_type: '',
   })
 
-  // Filter out conditional questions that shouldn't be shown
-  const visibleQuestions = QUESTIONS.filter(q => !q.showIf || q.showIf(f))
-  const totalVisible = visibleQuestions.length
-  const current = visibleQuestions[currentIndex]
+  const totalVisible = QUESTIONS.length
+  const current = QUESTIONS[currentIndex]
   const isLast = currentIndex === totalVisible - 1
   const progress = ((currentIndex) / totalVisible) * 100
 
-  const set = (k: string, v: any) => setF(p => ({ ...p, [k]: v }))
+  const set = (k: string, v: string) => setF(p => ({ ...p, [k]: v }))
 
-  // Lock scroll
   useEffect(() => {
     document.body.style.overflow = 'hidden'
     return () => { document.body.style.overflow = '' }
   }, [])
 
-  // Auto-focus input on step change
   useEffect(() => {
     const timer = setTimeout(() => {
       inputRef.current?.focus()
@@ -560,7 +548,6 @@ function CandidatureModal({ onClose }: { onClose: () => void }) {
     return () => clearTimeout(timer)
   }, [currentIndex])
 
-  // Validate current question
   const validate = (): boolean => {
     if (!current) return true
     const val = f[current.id]
@@ -569,7 +556,7 @@ function CandidatureModal({ onClose }: { onClose: () => void }) {
       toast.error('Adresse email invalide.')
       return false
     }
-    if (current.required && (val === '' || val === undefined || val === null)) {
+    if (current.required && (!val || val.trim() === '')) {
       toast.error('Ce champ est requis.')
       return false
     }
@@ -585,14 +572,7 @@ function CandidatureModal({ onClose }: { onClose: () => void }) {
     }
 
     setDirection(1)
-    // Find next visible index
-    let nextIdx = currentIndex + 1
-    while (nextIdx < totalVisible) {
-      const q = visibleQuestions[nextIdx]
-      if (!q.showIf || q.showIf(f)) break
-      nextIdx++
-    }
-    setCurrentIndex(Math.min(nextIdx, totalVisible - 1))
+    setCurrentIndex(prev => Math.min(prev + 1, totalVisible - 1))
   }
 
   const goPrev = () => {
@@ -601,11 +581,10 @@ function CandidatureModal({ onClose }: { onClose: () => void }) {
     setCurrentIndex(prev => Math.max(prev - 1, 0))
   }
 
-  // Keyboard navigation
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && !submitted) onClose()
-      if (e.key === 'Enter' && !e.shiftKey && current?.type !== 'textarea') {
+      if (e.key === 'Enter' && !e.shiftKey && current?.type !== 'choice') {
         e.preventDefault()
         goNext()
       }
@@ -615,43 +594,47 @@ function CandidatureModal({ onClose }: { onClose: () => void }) {
   }, [currentIndex, f, submitted])
 
   const handleSubmit = async () => {
-    if (!f.candidat_raison?.trim()) {
-      toast.error('Dites-nous pourquoi vous seriez un bon candidat.')
-      return
+    // Final validation
+    for (const q of QUESTIONS) {
+      if (q.required && (!f[q.id] || f[q.id].trim() === '')) {
+        toast.error(`Le champ "${q.label}" est requis.`);
+        return
+      }
     }
+
     setSubmitting(true)
     try {
-      const { error } = await supabase.from('accompagnement_candidatures').insert([{
-        nom: String(f.nom).trim(),
-        prenom: String(f.prenom).trim(),
-        email: String(f.email).trim().toLowerCase(),
-        telephone: String(f.telephone).trim(),
-        pays: String(f.pays).trim() || 'Non précisé',
-        projet_type: f.projet_type,
-        projet_ia: String(f.projet_ia).trim(),
-        projet_raison: String(f.projet_raison).trim(),
-        projet_blocage: String(f.projet_blocage).trim(),
-        deja_essaie: f.deja_essaie,
-        deja_essaie_details: String(f.deja_essaie_details).trim() || null,
-        statut_actuel: f.statut_actuel,
-        heures_semaine: f.heures_semaine,
-        objectif_12m: String(f.objectif_12m).trim() || 'Non précisé',
-        pret_investir: f.pret_investir,
-        budget: f.budget,
-        candidat_raison: String(f.candidat_raison).trim(),
-        status: 'Nouveau',
-      }])
-      if (error) throw error
+      const { data, error } = await supabase.functions.invoke('submit-diagnostic', {
+        body: {
+          prenom: f.prenom,
+          nom: f.nom,
+          email: f.email,
+          telephone: f.telephone,
+          pays: f.pays,
+          experience: f.experience,
+          motivation: f.motivation,
+          temps: f.temps,
+          budget: f.budget,
+          autonomie: f.autonomie,
+          projet_type: f.projet_type,
+        }
+      })
+
+      if (error || !data || !data.ok) {
+        throw new Error(error?.message || 'Erreur lors de la soumission')
+      }
+
+      setResult(data)
       setSubmitted(true)
-      confetti({ particleCount: 80, spread: 60, origin: { y: 0.5 } })
-    } catch {
-      toast.error('Erreur, veuillez réessayer.')
+      confetti({ particleCount: 100, spread: 70, origin: { y: 0.5 } })
+    } catch (err: any) {
+      console.error(err)
+      toast.error('Une erreur est survenue lors du calcul de votre diagnostic. Réessayez.')
     } finally {
       setSubmitting(false)
     }
   }
 
-  // Animation variants
   const variants = {
     enter: (d: number) => ({ y: d > 0 ? 60 : -60, opacity: 0 }),
     center: { y: 0, opacity: 1 },
@@ -663,9 +646,9 @@ function CandidatureModal({ onClose }: { onClose: () => void }) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[100] bg-white flex flex-col"
+      className="fixed inset-0 z-[100] bg-[var(--background)] flex flex-col font-sans"
     >
-      {/* ── Top bar ── */}
+      {/* Top bar */}
       <div className="shrink-0 px-5 sm:px-8 pt-5 pb-3 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <BrandLogo size="sm" asLink={false} />
@@ -685,92 +668,149 @@ function CandidatureModal({ onClose }: { onClose: () => void }) {
         )}
       </div>
 
-      {/* ── Progress bar ── */}
+      {/* Progress bar */}
       {!submitted && (
         <div className="shrink-0 h-1 bg-[var(--secondary)] relative">
           <motion.div
             className="absolute inset-y-0 left-0 bg-[var(--primary)]"
             animate={{ width: `${progress}%` }}
-            transition={{ duration: 0.4, ease: EASE }}
+            transition={{ duration: 0.4 }}
           />
         </div>
       )}
 
-      {/* ── Main content ── */}
-      <div className="flex-1 flex items-center justify-center overflow-hidden">
+      {/* Main content */}
+      <div className="flex-1 flex items-center justify-center overflow-y-auto px-4 py-8">
         <AnimatePresence mode="wait" custom={direction}>
-          {submitted ? (
-            /* ── Success Screen ── */
+          {submitted && result ? (
+            /* ── SUCCESS RESULTS SCREEN ── */
             <motion.div
-              key="success"
-              initial={{ opacity: 0, scale: 0.95 }}
+              key="results"
+              initial={{ opacity: 0, scale: 0.96 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5, ease: EASE }}
-              className="w-full max-w-md px-6 text-center"
+              transition={{ duration: 0.5 }}
+              className="w-full max-w-2xl bg-[var(--card)] border border-[var(--border)]/60 rounded-3xl p-6 sm:p-10 shadow-xl space-y-8"
             >
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ type: 'spring', stiffness: 300, damping: 20, delay: 0.2 }}
-                className="w-20 h-20 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-8"
-              >
-                <CheckCircle2 className="w-10 h-10" />
-              </motion.div>
+              {/* Header Title */}
+              <div className="text-center space-y-2">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[var(--secondary)] border border-[var(--border)]">
+                  <Sparkles className="w-3.5 h-3.5 text-[var(--primary)]" />
+                  Diagnostic Analyse Terminé
+                </span>
+                <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[var(--foreground)]">
+                  Résultats de {f.prenom}
+                </h2>
+              </div>
 
-              <motion.h2
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="text-3xl sm:text-4xl font-bold tracking-tight text-[var(--foreground)]"
-              >
-                Merci {f.prenom} !
-              </motion.h2>
+              {/* Score and status card */}
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-6 items-center p-6 rounded-2xl bg-[var(--secondary)]/40 border border-[var(--border)]/50">
+                <div className="md:col-span-2 text-center">
+                  <CircularScore score={result.score} color={result.profileColor} />
+                </div>
+                <div className="md:col-span-3 space-y-3 text-center md:text-left">
+                  <div className="flex flex-col md:flex-row items-center gap-2">
+                    <span
+                      className="px-3.5 py-1 rounded-lg text-xs font-bold text-white uppercase tracking-wider"
+                      style={{ backgroundColor: result.profileColor }}
+                    >
+                      {result.profileTitle}
+                    </span>
+                    {result.isWestern && (
+                      <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100">
+                        <ShieldCheck className="w-3.5 h-3.5" /> Zone Occidentale
+                      </span>
+                    )}
+                  </div>
+                  <h3 className="text-lg font-bold flex items-center justify-center md:justify-start gap-1.5 text-[var(--foreground)]">
+                    <Award className="w-5 h-5 text-[var(--primary)]" /> Profil Évalué par IA
+                  </h3>
+                  <p className="text-sm text-[var(--foreground-soft)] leading-relaxed">
+                    {result.evaluation}
+                  </p>
+                </div>
+              </div>
 
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-                className="mt-4 text-base text-[var(--muted-foreground)] leading-relaxed"
-              >
-                Votre candidature a été enregistrée.<br />
-                L'étape suivante : réservez votre appel stratégique.
-              </motion.p>
+              {/* Recommendations */}
+              <div className="space-y-4">
+                <h4 className="text-sm font-bold text-[var(--foreground)] uppercase tracking-wider flex items-center gap-1.5">
+                  <TrendingUp className="w-4 h-4 text-[var(--primary)]" /> Recommandations Personnalisées
+                </h4>
+                <div className="grid grid-cols-1 gap-3">
+                  {result.recommendations?.map((rec: string, idx: number) => (
+                    <div key={idx} className="flex items-start gap-3 p-4 rounded-xl bg-[var(--card)] border border-[var(--border)] hover:border-[var(--primary)]/20 transition-all">
+                      <div className="w-6 h-6 rounded-full bg-[var(--secondary)] text-[var(--primary)] font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
+                        {idx + 1}
+                      </div>
+                      <p className="text-sm text-[var(--foreground-soft)] leading-relaxed">
+                        {rec}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
 
-              <motion.a
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.55 }}
-                href="https://calendly.com/ghislaintankeu6/nouvelle-reunion"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-10 w-full flex items-center justify-center gap-3 px-8 py-5 bg-[var(--primary)] hover:bg-[var(--primary-light)] text-white rounded-2xl text-lg font-bold transition-all shadow-lg shadow-[var(--primary)]/20 group"
-              >
-                <Calendar className="w-6 h-6" />
-                <span>Choisir mon créneau</span>
-                <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
-              </motion.a>
+              {/* Notification note */}
+              <div className="flex items-center gap-3 p-4 rounded-xl bg-blue-50/50 border border-blue-100 text-blue-700">
+                <Mail className="w-5 h-5 shrink-0" />
+                <p className="text-xs font-medium">
+                  Le rapport complet de votre diagnostic IA ainsi que votre feuille de route ont été envoyés à l'adresse <strong>{f.email}</strong>.
+                </p>
+              </div>
 
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.7 }}
-                className="mt-4 text-xs text-[var(--muted-foreground)]"
-              >
-                Appel gratuit · 30 min · Sans engagement
-              </motion.p>
+              {/* ACTION CARD (WhatsApp vs Community) */}
+              <div className="p-6 sm:p-8 rounded-2xl bg-zinc-950 text-white text-center space-y-6">
+                {result.qualified ? (
+                  <>
+                    <div className="space-y-2">
+                      <h4 className="text-xl font-bold text-[var(--bleu-ciel)] flex items-center justify-center gap-2">
+                        💬 Discuter d'un accompagnement
+                      </h4>
+                      <p className="text-sm text-zinc-400 max-w-lg mx-auto leading-relaxed">
+                        Si tu souhaites discuter d'un accompagnement avec moi pour lancer ton business en ligne grâce à l'IA, clique ci-dessous pour qu'on en parle en direct sur WhatsApp. Nous verrons ensemble s'il est possible qu'on travaille ensemble (je te le dirai si ce n'est pas possible).
+                      </p>
+                    </div>
+                    <a
+                      href={`https://wa.me/33744125798?text=${encodeURIComponent(`Bonjour Ghislain, je viens de passer le diagnostic IA (Mon score : ${result.score}/20). J'aimerais échanger sur mon projet d'accompagnement.`)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-8 py-4 bg-[#25D366] hover:bg-[#1FAA50] text-white rounded-xl text-base font-bold transition-all shadow-[0_8px_20px_rgba(37,211,102,0.25)] hover:scale-[1.02] cursor-pointer"
+                    >
+                      <MessageSquare className="w-5 h-5" />
+                      <span>Discuter sur WhatsApp</span>
+                    </a>
+                  </>
+                ) : (
+                  <>
+                    <div className="space-y-2">
+                      <h4 className="text-xl font-bold text-zinc-200">
+                        🌱 Prochaine étape conseillée
+                      </h4>
+                      <p className="text-sm text-zinc-400 max-w-lg mx-auto leading-relaxed">
+                        Pour progresser à votre rythme et développer vos compétences sans investissement premium, nous vous recommandons de rejoindre la communauté Le Club IA.
+                      </p>
+                    </div>
+                    <Link
+                      to="/"
+                      className="inline-flex items-center gap-2 px-8 py-4 bg-white text-zinc-950 hover:bg-zinc-100 rounded-xl text-base font-bold transition-all hover:scale-[1.02] cursor-pointer"
+                    >
+                      <span>Découvrir la communauté</span>
+                      <ArrowRight className="w-5 h-5" />
+                    </Link>
+                  </>
+                )}
+              </div>
 
-              <motion.button
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.8 }}
-                onClick={onClose}
-                className="mt-8 text-sm font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors cursor-pointer"
-              >
-                Fermer
-              </motion.button>
+              <div className="text-center pt-2">
+                <button
+                  onClick={onClose}
+                  className="text-sm font-semibold text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors cursor-pointer"
+                >
+                  Fermer le diagnostic
+                </button>
+              </div>
             </motion.div>
           ) : current ? (
-            /* ── Question Screen ── */
+            /* ── QUESTION WIZARD SCREEN ── */
             <motion.div
               key={current.id}
               custom={direction}
@@ -778,80 +818,65 @@ function CandidatureModal({ onClose }: { onClose: () => void }) {
               initial="enter"
               animate="center"
               exit="exit"
-              transition={{ duration: 0.35, ease: EASE }}
-              className="w-full max-w-xl px-6 sm:px-8"
+              transition={{ duration: 0.3, ease: 'easeOut' }}
+              className="w-full max-w-xl px-4"
             >
-              {/* Question */}
-              <p className="text-xs font-mono text-[var(--primary)] tracking-wider uppercase mb-4">
-                Question {currentIndex + 1}
+              <p className="text-xs font-mono text-[var(--primary)] tracking-widest uppercase mb-3">
+                Étape {currentIndex + 1} sur {totalVisible}
               </p>
-              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--foreground)] leading-snug">
+              <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[var(--foreground)] leading-snug">
                 {current.label}
               </h2>
               {current.subtitle && (
                 <p className="mt-2 text-sm text-[var(--muted-foreground)]">{current.subtitle}</p>
               )}
 
-              {/* Input area */}
+              {/* Input section */}
               <div className="mt-8">
-                {/* Text / Email / Tel */}
+                {/* Standard inputs */}
                 {(current.type === 'text' || current.type === 'email' || current.type === 'tel') && (
                   <input
-                    ref={inputRef as React.RefObject<HTMLInputElement>}
+                    ref={inputRef}
                     type={current.type}
                     value={f[current.id] || ''}
                     onChange={e => set(current.id, e.target.value)}
                     placeholder={current.placeholder}
-                    className="w-full bg-transparent border-b-2 border-[var(--border)] focus:border-[var(--primary)] text-xl sm:text-2xl font-medium py-3 outline-none transition-colors placeholder:text-[var(--muted-foreground)]/40"
+                    className="w-full bg-transparent border-b-2 border-[var(--border)] focus:border-[var(--primary)] text-xl sm:text-2xl font-semibold py-3 outline-none transition-colors placeholder:text-[var(--muted-foreground)]/30"
                     autoFocus
                   />
                 )}
 
-                {/* Textarea */}
-                {current.type === 'textarea' && (
-                  <textarea
-                    ref={inputRef as React.RefObject<HTMLTextAreaElement>}
-                    rows={3}
-                    value={f[current.id] || ''}
-                    onChange={e => set(current.id, e.target.value)}
-                    placeholder={current.placeholder}
-                    className="w-full bg-transparent border-b-2 border-[var(--border)] focus:border-[var(--primary)] text-lg font-medium py-3 outline-none transition-colors resize-none placeholder:text-[var(--muted-foreground)]/40"
-                    autoFocus
-                  />
-                )}
-
-                {/* Choice */}
+                {/* Multiple choice visual cards */}
                 {current.type === 'choice' && current.options && (
-                  <div className="space-y-2">
+                  <div className="grid grid-cols-1 gap-2.5">
                     {current.options.map((opt, i) => {
                       const isSelected = f[current.id] === opt
-                      const letter = String.fromCharCode(65 + i) // A, B, C, D...
+                      const letter = String.fromCharCode(65 + i)
                       return (
                         <button
                           key={opt}
                           type="button"
                           onClick={() => {
                             set(current.id, opt)
-                            // Auto-advance after a short delay on choice
                             setTimeout(() => {
                               setDirection(1)
                               setCurrentIndex(prev => Math.min(prev + 1, totalVisible - 1))
-                            }, 300)
+                            }, 350)
                           }}
-                          className={`w-full flex items-center gap-4 px-5 py-4 rounded-xl border-2 text-left transition-all cursor-pointer group ${
+                          className={`w-full flex items-center gap-4 px-5 py-4 rounded-2xl border-2 text-left transition-all cursor-pointer group ${
                             isSelected
                               ? 'border-[var(--primary)] bg-[var(--primary)]/[0.04]'
                               : 'border-[var(--border)] hover:border-[var(--primary)]/30 bg-transparent'
                           }`}
                         >
-                          <span className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold shrink-0 transition-all ${
+                          <span className={`w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold shrink-0 transition-all ${
                             isSelected
                               ? 'bg-[var(--primary)] text-white'
                               : 'bg-[var(--secondary)] text-[var(--muted-foreground)] group-hover:bg-[var(--primary)]/10'
                           }`}>
                             {isSelected ? <Check className="w-4 h-4" /> : letter}
                           </span>
-                          <span className={`text-base font-medium ${
+                          <span className={`text-sm sm:text-base font-semibold ${
                             isSelected ? 'text-[var(--foreground)]' : 'text-[var(--foreground-soft)]'
                           }`}>{opt}</span>
                         </button>
@@ -859,47 +884,10 @@ function CandidatureModal({ onClose }: { onClose: () => void }) {
                     })}
                   </div>
                 )}
-
-                {/* Yes/No */}
-                {current.type === 'yesno' && (
-                  <div className="flex gap-3">
-                    {[
-                      { label: 'Oui', value: true },
-                      { label: 'Non', value: false },
-                    ].map(opt => {
-                      const isSelected = f[current.id] === opt.value
-                      return (
-                        <button
-                          key={opt.label}
-                          type="button"
-                          onClick={() => {
-                            set(current.id, opt.value)
-                            setTimeout(() => {
-                              setDirection(1)
-                              setCurrentIndex(prev => Math.min(prev + 1, totalVisible - 1))
-                            }, 300)
-                          }}
-                          className={`flex-1 flex items-center justify-center gap-3 px-6 py-5 rounded-xl border-2 text-lg font-bold transition-all cursor-pointer ${
-                            isSelected
-                              ? 'border-[var(--primary)] bg-[var(--primary)]/[0.04] text-[var(--foreground)]'
-                              : 'border-[var(--border)] text-[var(--muted-foreground)] hover:border-[var(--primary)]/30'
-                          }`}
-                        >
-                          <span className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm shrink-0 transition-all ${
-                            isSelected ? 'bg-[var(--primary)] text-white' : 'bg-[var(--secondary)]'
-                          }`}>
-                            {isSelected ? <Check className="w-4 h-4" /> : opt.label[0]}
-                          </span>
-                          {opt.label}
-                        </button>
-                      )
-                    })}
-                  </div>
-                )}
               </div>
 
-              {/* Navigation */}
-              {current.type !== 'choice' && current.type !== 'yesno' && (
+              {/* Actions */}
+              {current.type !== 'choice' && (
                 <div className="mt-8 flex items-center gap-3">
                   <button
                     type="button"
@@ -908,35 +896,31 @@ function CandidatureModal({ onClose }: { onClose: () => void }) {
                     className="inline-flex items-center gap-2 px-7 py-3.5 bg-[var(--primary)] hover:bg-[var(--primary-light)] text-white rounded-xl text-sm font-bold transition-all cursor-pointer disabled:opacity-50"
                   >
                     {submitting ? (
-                      <><Loader2 className="w-4 h-4 animate-spin" /> Envoi…</>
+                      <><Loader2 className="w-4 h-4 animate-spin" /> Analyse en cours…</>
                     ) : isLast ? (
-                      <>Envoyer ma candidature <ArrowRight className="w-4 h-4" /></>
+                      <>Finaliser le diagnostic <ArrowRight className="w-4 h-4" /></>
                     ) : (
                       <>Continuer <ChevronRight className="w-4 h-4" /></>
                     )}
                   </button>
-
-                  {current.type !== 'textarea' && (
-                    <span className="text-xs text-[var(--muted-foreground)]">
-                      ou appuyez sur <kbd className="px-1.5 py-0.5 rounded bg-[var(--secondary)] border border-[var(--border)] font-mono text-[10px]">Entrée ↵</kbd>
-                    </span>
-                  )}
+                  <span className="text-xs text-[var(--muted-foreground)] hidden sm:inline">
+                    ou appuyez sur <kbd className="px-1.5 py-0.5 rounded bg-[var(--secondary)] border border-[var(--border)] font-mono text-[10px]">Entrée ↵</kbd>
+                  </span>
                 </div>
               )}
 
-              {/* Choice/YesNo also get a continue button for last step or if already selected */}
-              {(current.type === 'choice' || current.type === 'yesno') && isLast && (
+              {current.type === 'choice' && isLast && (
                 <div className="mt-8">
                   <button
                     type="button"
                     onClick={goNext}
                     disabled={submitting}
-                    className="inline-flex items-center gap-2 px-7 py-3.5 bg-[var(--primary)] hover:bg-[var(--primary-light)] text-white rounded-xl text-sm font-bold transition-all cursor-pointer disabled:opacity-50"
+                    className="inline-flex items-center gap-2 px-7 py-3.5 bg-[var(--primary)] hover:bg-[var(--primary-light)] text-white rounded-xl text-sm font-bold transition-all cursor-pointer disabled:opacity-50 animate-pulse"
                   >
                     {submitting ? (
-                      <><Loader2 className="w-4 h-4 animate-spin" /> Envoi…</>
+                      <><Loader2 className="w-4 h-4 animate-spin" /> Calcul du score…</>
                     ) : (
-                      <>Envoyer ma candidature <ArrowRight className="w-4 h-4" /></>
+                      <>Obtenir mon diagnostic <ArrowRight className="w-4 h-4" /></>
                     )}
                   </button>
                 </div>
@@ -946,21 +930,21 @@ function CandidatureModal({ onClose }: { onClose: () => void }) {
         </AnimatePresence>
       </div>
 
-      {/* ── Bottom nav ── */}
+      {/* Bottom nav */}
       {!submitted && (
         <div className="shrink-0 px-5 sm:px-8 py-4 border-t border-[var(--border)] flex items-center justify-between">
           <button
             type="button"
             onClick={goPrev}
             disabled={currentIndex === 0}
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer disabled:opacity-30 hover:bg-[var(--secondary)]"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer disabled:opacity-30 hover:bg-[var(--secondary)] text-[var(--foreground-soft)]"
           >
             <ChevronLeft className="w-4 h-4" />
-            <span className="hidden sm:inline">Précédent</span>
+            <span>Précédent</span>
           </button>
 
           <div className="flex items-center gap-1">
-            {visibleQuestions.map((_, i) => (
+            {QUESTIONS.map((_, i) => (
               <div
                 key={i}
                 className={`h-1.5 rounded-full transition-all duration-300 ${
@@ -977,9 +961,9 @@ function CandidatureModal({ onClose }: { onClose: () => void }) {
           <button
             type="button"
             onClick={goNext}
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer hover:bg-[var(--secondary)]"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer hover:bg-[var(--secondary)] text-[var(--foreground-soft)]"
           >
-            <span className="hidden sm:inline">{isLast ? 'Envoyer' : 'Suivant'}</span>
+            <span>{isLast ? 'Terminer' : 'Suivant'}</span>
             <ChevronRight className="w-4 h-4" />
           </button>
         </div>
@@ -987,4 +971,5 @@ function CandidatureModal({ onClose }: { onClose: () => void }) {
     </motion.div>
   )
 }
+
 

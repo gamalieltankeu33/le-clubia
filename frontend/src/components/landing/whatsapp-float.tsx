@@ -9,7 +9,7 @@
 //   - Tooltip "Une question ?" sur hover (desktop uniquement, peer-hover)
 //   - Z-index 50 : au-dessus du contenu, en dessous des modaux Sonner
 
-const WHATSAPP_NUMBER = '33756859917' // +33 7 56 85 99 17, format wa.me (sans +)
+const WHATSAPP_NUMBER = '33744125798' // +33 7 44 12 57 98, format wa.me (sans +)
 const PREFILLED_MESSAGE = "Bonjour ! J'ai une question sur Leclub.ia."
 
 export function WhatsAppFloat() {

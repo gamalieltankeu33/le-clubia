@@ -53,7 +53,7 @@ export function LandingHeader() {
               to="/accompagnement"
               className="hidden text-sm font-medium text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)] sm:inline-block"
             >
-              Accompagnement Premium
+              Diagnostic Business IA
             </Link>
             <Link
               to="/auth"

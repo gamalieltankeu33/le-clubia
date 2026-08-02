@@ -61,6 +61,9 @@ interface CandidatureItem {
   status?: string
   notes?: string | null
   created_at: string
+  score?: number | null
+  qualified?: boolean | null
+  is_western?: boolean | null
 }
 
 const STATUS_BADGES: Record<string, { label: string; color: string; bg: string }> = {
@@ -250,6 +253,7 @@ export function AdminCandidaturesPage() {
               <thead className="bg-zinc-50 border-b border-zinc-200 text-zinc-500 font-medium">
                 <tr>
                   <th className="p-3.5">Candidat</th>
+                  <th className="p-3.5">Score IA</th>
                   <th className="p-3.5">Projet & Objectif</th>
                   <th className="p-3.5">Temps & Budget</th>
                   <th className="p-3.5">Statut</th>
@@ -267,7 +271,38 @@ export function AdminCandidaturesPage() {
                       <td className="p-3.5">
                         <div className="font-bold text-zinc-900">{item.prenom} {item.nom}</div>
                         <div className="text-[11px] text-zinc-500">{item.email}</div>
-                        <div className="text-[10px] text-zinc-400 font-mono">{item.telephone} • {item.pays}</div>
+                        <div className="text-[10px] text-zinc-400 font-mono flex items-center gap-1.5 flex-wrap mt-0.5">
+                          <span>{item.telephone} • {item.pays}</span>
+                          {item.is_western && (
+                            <span className="inline-flex items-center gap-0.5 text-[9px] text-emerald-600 font-semibold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100/50">
+                              Occidental
+                            </span>
+                          )}
+                        </div>
+                      </td>
+
+                      <td className="p-3.5">
+                        {item.score !== undefined && item.score !== null ? (
+                          <div className="flex flex-col gap-1">
+                            <span className={cn(
+                              'inline-flex items-center justify-center w-12 py-1 rounded-lg text-xs font-bold font-mono border',
+                              item.score >= 16
+                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                : item.score >= 12
+                                  ? 'bg-blue-50 text-blue-700 border-blue-200'
+                                  : 'bg-amber-50 text-amber-700 border-amber-200'
+                            )}>
+                              {item.score}/20
+                            </span>
+                            {item.qualified && (
+                              <span className="text-[8px] font-bold text-emerald-700 uppercase bg-emerald-50/80 px-1 py-0.5 rounded border border-emerald-100 w-12 text-center">
+                                Cible
+                              </span>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-zinc-400 font-mono">-</span>
+                        )}
                       </td>
 
                       <td className="p-3.5 max-w-xs">
@@ -350,6 +385,52 @@ export function AdminCandidaturesPage() {
 
               {/* Modal Content Scroll Area */}
               <div className="p-6 space-y-6 overflow-y-auto flex-1 text-xs">
+
+                {/* Score Diagnostic Card */}
+                {selectedCandidate.score !== undefined && selectedCandidate.score !== null && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-xl border border-zinc-200 bg-zinc-50/50">
+                    <div className="flex items-center gap-3">
+                      <div className={cn(
+                        'w-12 h-12 rounded-xl flex items-center justify-center font-black font-mono text-lg border shrink-0',
+                        selectedCandidate.score >= 16
+                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                          : selectedCandidate.score >= 12
+                            ? 'bg-blue-50 text-blue-700 border-blue-200'
+                            : 'bg-amber-50 text-amber-700 border-amber-200'
+                      )}>
+                        {selectedCandidate.score}/20
+                      </div>
+                      <div>
+                        <div className="font-bold text-zinc-900 text-xs">Score Diagnostic IA</div>
+                        <div className="text-[10px] text-zinc-500 font-medium">
+                          Indice d'éligibilité et de maturité
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center sm:justify-end gap-2">
+                      <span className={cn(
+                        'px-2.5 py-1 rounded-md text-[9px] font-bold text-white uppercase tracking-wider',
+                        selectedCandidate.score >= 16
+                          ? 'bg-emerald-500'
+                          : selectedCandidate.score >= 12
+                            ? 'bg-blue-500'
+                            : 'bg-amber-500'
+                      )}>
+                        {selectedCandidate.score >= 16 ? 'ELITE' : selectedCandidate.score >= 12 ? 'QUALIFIÉ' : 'À CONSOLIDER'}
+                      </span>
+                      {selectedCandidate.is_western && (
+                        <span className="inline-flex items-center gap-1 text-[9px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-1 rounded border border-emerald-100">
+                          Cible Occidentale
+                        </span>
+                      )}
+                      {selectedCandidate.qualified && (
+                        <span className="inline-flex items-center gap-1 text-[9px] font-bold text-white bg-zinc-900 px-2 py-1 rounded shadow-xs">
+                          Cible Premium
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
                 
                 {/* Status Selector Header Bar */}
                 <div className="p-4 rounded-xl bg-zinc-50 border border-zinc-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">

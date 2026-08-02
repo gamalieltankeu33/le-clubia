@@ -37,7 +37,7 @@ export function LandingFooter() {
                 to="/accompagnement"
                 className="text-sm text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
               >
-                Accompagnement Premium
+                Diagnostic Business IA
               </Link>
             </li>
             <FooterLink href="#piliers">Communauté</FooterLink>
