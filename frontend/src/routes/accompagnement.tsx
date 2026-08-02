@@ -438,12 +438,12 @@ const QUESTIONS: Question[] = [
   },
   {
     id: 'autonomie',
-    label: 'Face à un problème technique ou un blocage, que faites-vous ?',
+    label: 'Comment gérez-vous les blocages techniques ou stratégiques ?',
     type: 'choice',
     options: [
-      "Je cherche des solutions par moi-même et j'avance.",
-      "J'abandonne rapidement ou je remets à plus tard.",
-      "Je préfère qu'on fasse le travail à ma place."
+      'Je passe des jours à chercher seul sur Google/YouTube, quitte à perdre beaucoup de temps.',
+      'J\'ai tendance à me décourager ou à abandonner par manque de direction claire.',
+      'Je préfère me faire guider par un mentor pour aller 10 fois plus vite et éviter les erreurs.'
     ]
   },
   {

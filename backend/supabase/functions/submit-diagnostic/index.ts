@@ -102,10 +102,10 @@ serve(async (req: Request) => {
   else if (budget.includes('500 à 1 500')) score += 2
   else score += 0 // Moins de 500 €
 
-  // Autonomie face au blocage (Max 4 pts)
-  if (autonomie.includes('cherche') || autonomie.includes('Autonome')) score += 4
-  else if (autonomie.includes('recherche')) score += 4
-  else score += 0 // Abandonne ou attend qu'on fasse à sa place
+  // Autonomie / Mentorat face au blocage (Max 4 pts)
+  if (autonomie.includes('mentor') || autonomie.includes('guider')) score += 4
+  else if (autonomie.includes('chercher') || autonomie.includes('seul')) score += 3
+  else score += 0 // Abandonne / découragement
 
   // 2. Détection pays occidental
   const pLower = pays.toLowerCase()
