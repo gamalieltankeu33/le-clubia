@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import {
   ArrowRight,
@@ -8,6 +8,7 @@ import {
   X,
   Sparkles,
   Lock,
+  ChevronLeft,
   ArrowUpRight,
   TrendingUp,
   ShoppingBag,
@@ -590,10 +591,61 @@ export function AccompagnementPage() {
   )
 }
 
-/* ─── BOOKING MODAL (CHECKOUT FLOW) ────────────────────────────────── */
+/* ─── BOOKING MODAL (WIZARD FLOW / TYPEFORM-STYLE) ────────────────── */
+interface WizardQuestion {
+  id: 'name' | 'email' | 'country' | 'phone'
+  label: string
+  subtitle: string
+  placeholder: string
+  type: 'text' | 'email' | 'tel'
+  errorMsg: string
+  validation: (val: string) => boolean
+}
+
+const WIZARD_QUESTIONS: WizardQuestion[] = [
+  {
+    id: 'name',
+    label: 'Quel est votre nom et prénom ?',
+    subtitle: 'Entrez votre identité officielle pour la facturation et le suivi.',
+    placeholder: 'Ex : Jean Dupont',
+    type: 'text',
+    errorMsg: 'Veuillez renseigner votre nom complet.',
+    validation: (val) => val.trim().split(' ').filter(Boolean).length >= 1,
+  },
+  {
+    id: 'email',
+    label: 'Quelle est votre adresse e-mail ?',
+    subtitle: 'Pour vous envoyer le lien d\'accès aux sessions du challenge.',
+    placeholder: 'Ex : jean.dupont@gmail.com',
+    type: 'email',
+    errorMsg: 'Veuillez renseigner une adresse e-mail valide.',
+    validation: (val) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim()),
+  },
+  {
+    id: 'country',
+    label: 'Dans quel pays résidez-vous actuellement ?',
+    subtitle: 'Pour adapter les passerelles de paiement (Mobile Money, Stripe...).',
+    placeholder: 'Ex : Cameroun, Côte d\'Ivoire, France...',
+    type: 'text',
+    errorMsg: 'Veuillez préciser votre pays de résidence.',
+    validation: (val) => val.trim().length >= 2,
+  },
+  {
+    id: 'phone',
+    label: 'Quel est votre numéro WhatsApp ?',
+    subtitle: 'Indiquez le code pays pour recevoir les rappels en direct.',
+    placeholder: 'Ex : +237 690 00 00 00',
+    type: 'tel',
+    errorMsg: 'Veuillez saisir un numéro de téléphone valide.',
+    validation: (val) => val.trim().length >= 7,
+  },
+]
+
 function BookingModal({ onClose }: { onClose: () => void }) {
+  const [currentStep, setCurrentStep] = useState(0)
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
+  
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -601,6 +653,16 @@ function BookingModal({ onClose }: { onClose: () => void }) {
     phone: '',
   })
 
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  // Focus the input dynamically whenever the step changes
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus()
+    }
+  }, [currentStep, success])
+
+  // Prevent scroll when modal is open
   useEffect(() => {
     document.body.style.overflow = 'hidden'
     return () => {
@@ -608,21 +670,52 @@ function BookingModal({ onClose }: { onClose: () => void }) {
     }
   }, [])
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const currentQuestion = WIZARD_QUESTIONS[currentStep]
+  const progressPercent = ((currentStep + 1) / WIZARD_QUESTIONS.length) * 100
 
-    if (!formData.name.trim() || !formData.email.trim() || !formData.country.trim() || !formData.phone.trim()) {
-      toast.error('Veuillez remplir tous les champs obligatoires.')
+  // Keyboard navigation support: Enter to validate & proceed
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Enter') {
+        e.preventDefault()
+        handleNext()
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [currentStep, formData])
+
+  const handleNext = async () => {
+    const currentValue = formData[currentQuestion.id]
+    
+    // Validate current field
+    if (!currentQuestion.validation(currentValue)) {
+      toast.error(currentQuestion.errorMsg)
       return
     }
 
+    if (currentStep < WIZARD_QUESTIONS.length - 1) {
+      setCurrentStep(prev => prev + 1)
+    } else {
+      // Submit form
+      await handleFinalSubmit()
+    }
+  }
+
+  const handlePrev = () => {
+    if (currentStep > 0) {
+      setCurrentStep(prev => prev - 1)
+    }
+  }
+
+  const handleFinalSubmit = async () => {
     setLoading(true)
     try {
       const parts = formData.name.trim().split(' ')
       const prenom = parts[0] || ''
       const nom = parts.slice(1).join(' ') || 'Participant'
 
-      // Insert registration details into db
+      // Insert details into Supabase
       const { error } = await supabase.from('accompagnement_candidatures').insert([
         {
           nom: nom,
@@ -645,7 +738,7 @@ function BookingModal({ onClose }: { onClose: () => void }) {
           score: 20,
           qualified: true,
           is_western: false,
-          notes: 'Registration via the sales page'
+          notes: 'Registration via the sales page wizard'
         }
       ])
 
@@ -656,7 +749,7 @@ function BookingModal({ onClose }: { onClose: () => void }) {
       setSuccess(true)
       confetti({ particleCount: 120, spread: 80, origin: { y: 0.5 } })
 
-      // Generate WhatsApp redirection URL
+      // Generate WhatsApp message and redirect
       const whatsappMsg = `Bonjour Gamaliel, je viens de m'inscrire au Sprint Business IA (Nom : ${formData.name}, Pays : ${formData.country}, WhatsApp : ${formData.phone}). J'aimerais valider ma place.`
       const whatsappUrl = `https://wa.me/33744125798?text=${encodeURIComponent(whatsappMsg)}`
 
@@ -677,118 +770,109 @@ function BookingModal({ onClose }: { onClose: () => void }) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#0B1D33]/60 backdrop-blur-sm"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#0B1D33]/65 backdrop-blur-sm"
     >
       <motion.div
         initial={{ scale: 0.96, y: 15 }}
         animate={{ scale: 1, y: 0 }}
         exit={{ scale: 0.96, y: 15 }}
         transition={{ duration: 0.4, ease: EASE }}
-        className="w-full max-w-md bg-white rounded-xl p-6 sm:p-8 border border-zinc-200 shadow-2xl relative overflow-hidden text-[#0B1D33]"
+        className="w-full max-w-lg bg-white rounded-xl overflow-hidden border border-zinc-200 shadow-2xl relative flex flex-col text-[#0B1D33]"
       >
+        {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 w-8 h-8 rounded-lg bg-zinc-100 hover:bg-zinc-200/50 flex items-center justify-center transition-colors cursor-pointer"
+          className="absolute top-4 right-4 w-8 h-8 rounded-lg bg-zinc-100 hover:bg-zinc-200/50 flex items-center justify-center transition-colors cursor-pointer z-10"
         >
           <X className="w-4 h-4 text-zinc-500" />
         </button>
 
         {!success ? (
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="text-center space-y-1">
-              <span className="text-[10px] uppercase tracking-widest font-mono text-[#C9A24B] font-bold">
-                Inscription
-              </span>
-              <h3 className="premium-font-display text-xl font-bold text-[#0B1D33]">
-                Rejoindre le Challenge
-              </h3>
-              <p className="text-xs text-[#0B1D33]/60 max-w-xs mx-auto">
-                Remplissez vos détails d'inscription. Vous serez redirigé vers WhatsApp pour finaliser la validation de votre place (10 000 FCFA).
-              </p>
+          <div className="flex flex-col h-full">
+            {/* Top Progress Bar */}
+            <div className="h-1 bg-zinc-100 w-full relative">
+              <motion.div
+                className="absolute inset-y-0 left-0 bg-[#C9A24B]"
+                animate={{ width: `${progressPercent}%` }}
+                transition={{ duration: 0.3 }}
+              />
             </div>
 
-            <div className="space-y-4">
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#0B1D33]/70">
-                  Nom et Prénom
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Ex : Jean Dupont"
-                  value={formData.name}
-                  onChange={e => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full bg-[#FAFAFA] border border-zinc-200 focus:border-[#C9A24B] rounded-lg py-2.5 px-3.5 text-sm font-semibold outline-none transition-colors"
-                />
-              </div>
+            {/* Form Area */}
+            <div className="p-8 sm:p-10 flex-1 flex flex-col justify-center min-h-[300px]">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={currentStep}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.35, ease: EASE }}
+                  className="space-y-6"
+                >
+                  {/* Step label indicator */}
+                  <span className="text-[10px] font-mono tracking-widest text-[#C9A24B] uppercase font-bold">
+                    Étape {currentStep + 1} sur {WIZARD_QUESTIONS.length}
+                  </span>
 
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#0B1D33]/70">
-                  Adresse E-mail
-                </label>
-                <input
-                  type="email"
-                  required
-                  placeholder="Ex : jean.dupont@gmail.com"
-                  value={formData.email}
-                  onChange={e => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full bg-[#FAFAFA] border border-zinc-200 focus:border-[#C9A24B] rounded-lg py-2.5 px-3.5 text-sm font-semibold outline-none transition-colors"
-                />
-              </div>
+                  <div className="space-y-1">
+                    <h3 className="premium-font-display text-2xl font-bold leading-tight">
+                      {currentQuestion.label}
+                    </h3>
+                    <p className="text-xs text-[#0B1D33]/50">
+                      {currentQuestion.subtitle}
+                    </p>
+                  </div>
 
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#0B1D33]/70">
-                  Votre Pays
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Ex : France, Cameroun, Sénégal..."
-                  value={formData.country}
-                  onChange={e => setFormData({ ...formData, country: e.target.value })}
-                  className="w-full bg-[#FAFAFA] border border-zinc-200 focus:border-[#C9A24B] rounded-lg py-2.5 px-3.5 text-sm font-semibold outline-none transition-colors"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#0B1D33]/70">
-                  Numéro WhatsApp
-                </label>
-                <input
-                  type="tel"
-                  required
-                  placeholder="Ex : +33 6 00 00 00 00"
-                  value={formData.phone}
-                  onChange={e => setFormData({ ...formData, phone: e.target.value })}
-                  className="w-full bg-[#FAFAFA] border border-zinc-200 focus:border-[#C9A24B] rounded-lg py-2.5 px-3.5 text-sm font-semibold outline-none transition-colors"
-                />
-              </div>
+                  <div className="pt-2">
+                    <input
+                      ref={inputRef}
+                      type={currentQuestion.type}
+                      placeholder={currentQuestion.placeholder}
+                      value={formData[currentQuestion.id]}
+                      onChange={(e) => setFormData({ ...formData, [currentQuestion.id]: e.target.value })}
+                      className="w-full bg-transparent border-b-2 border-zinc-200 focus:border-[#C9A24B] py-3 text-lg font-medium outline-none transition-colors placeholder:text-zinc-300"
+                      autoFocus
+                    />
+                  </div>
+                </motion.div>
+              </AnimatePresence>
             </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full inline-flex items-center justify-center gap-2.5 px-6 py-3.5 bg-[#0B1D33] hover:bg-[#0B1D33]/90 text-white rounded-lg text-xs font-bold uppercase tracking-wider shadow-md transition-all disabled:opacity-50 cursor-pointer"
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  <span>Enregistrement en cours…</span>
-                </>
-              ) : (
-                <>
-                  <span>Confirmer mon inscription</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </>
-              )}
-            </button>
-            <div className="flex items-center justify-center gap-1.5 text-[9px] text-zinc-400">
-              <Lock className="w-3 h-3 text-[#C9A24B]" />
-              <span>Validation sur WhatsApp (Mobile Money, Wave, PayPal...)</span>
+            {/* Actions Footer */}
+            <div className="px-8 py-5 bg-zinc-50 flex items-center justify-between border-t border-zinc-200/50">
+              <button
+                type="button"
+                onClick={handlePrev}
+                disabled={currentStep === 0}
+                className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#0B1D33]/60 hover:text-[#0B1D33] disabled:opacity-30 transition-all cursor-pointer"
+              >
+                <ChevronLeft className="w-4 h-4" />
+                <span>Précédent</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleNext}
+                disabled={loading}
+                className="inline-flex items-center gap-2 px-5 py-3 bg-[#0B1D33] hover:bg-[#0B1D33]/90 text-white rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>Calcul...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>{currentStep === WIZARD_QUESTIONS.length - 1 ? 'Finaliser' : 'Continuer'}</span>
+                    <ArrowRight className="w-3.5 h-3.5 text-[#C9A24B]" />
+                  </>
+                )}
+              </button>
             </div>
-          </form>
+          </div>
         ) : (
-          <div className="py-8 text-center space-y-6">
+          /* SUCCESS STATE */
+          <div className="p-8 sm:p-10 text-center space-y-6">
             <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto text-xl animate-bounce">
               ✓
             </div>
@@ -797,7 +881,7 @@ function BookingModal({ onClose }: { onClose: () => void }) {
                 Inscription validée !
               </h3>
               <p className="text-xs text-[#0B1D33]/60 leading-relaxed max-w-xs mx-auto">
-                Félicitations <strong>{formData.name}</strong> ! Vos détails sont enregistrés. Vous allez être redirigé vers WhatsApp pour finaliser la validation.
+                Félicitations <strong>{formData.name}</strong> ! Vos détails sont enregistrés. Vous allez être redirigé vers WhatsApp pour valider votre place.
               </p>
               <p className="text-[10px] text-[#C9A24B] font-bold animate-pulse font-mono uppercase tracking-wider">
                 Redirection automatique en cours...
