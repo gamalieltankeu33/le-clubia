@@ -79,39 +79,15 @@ const styles = `
 
 const EASE = [0.16, 1, 0.3, 1] as const
 
-/* ─── LARGE HIGH-IMPACT PIPELINE STEPPER ANIMATION (PURE VISUAL PROGRESSION) ─── */
+/* ─── PURE HIGH-IMPACT PIPELINE STEPPER ANIMATION (NO OUTER BOX, NO EXTRA TEXT) ─── */
 function LiveWorkflowAnimation() {
   const [activeStep, setActiveStep] = useState(0)
 
   const steps = [
-    {
-      day: 'Jour 1 & 2',
-      title: 'Idée & Offre Digital',
-      subtitle: 'Cadrage et génération du produit digital avec l\'IA',
-      status: 'Produit rédigé & prêt',
-      icon: FileText
-    },
-    {
-      day: 'Jour 3',
-      title: 'Boutique en Ligne',
-      subtitle: 'Mise en place de la page de vente autonome',
-      status: 'Boutique configurée',
-      icon: ShoppingBag
-    },
-    {
-      day: 'Jour 4',
-      title: 'Paiements Connectés',
-      subtitle: 'Stripe & Mobile Money raccordés 24/7',
-      status: 'Paiements actifs',
-      icon: Lock
-    },
-    {
-      day: 'Jour 5',
-      title: 'Premières Ventes',
-      subtitle: 'Acquisition ciblée et premiers prospects',
-      status: 'Campagne lancée',
-      icon: TrendingUp
-    }
+    { day: 'Jour 1 & 2', title: 'Idée & Offre', icon: FileText },
+    { day: 'Jour 3', title: 'Boutique en Ligne', icon: ShoppingBag },
+    { day: 'Jour 4', title: 'Paiements Connectés', icon: Lock },
+    { day: 'Jour 5', title: 'Premières Ventes', icon: TrendingUp }
   ]
 
   // Auto progression loop
@@ -123,9 +99,9 @@ function LiveWorkflowAnimation() {
   }, [])
 
   return (
-    <div className="w-full bg-white rounded-3xl p-8 sm:p-14 border border-zinc-200/80 shadow-lg my-12 relative overflow-hidden">
-      {/* Horizontal Interactive Timeline Bar (GRAND FORMAT) */}
-      <div className="relative max-w-4xl mx-auto py-6 px-4">
+    <div className="w-full my-8 sm:my-12 relative z-10">
+      {/* Horizontal Interactive Timeline Bar */}
+      <div className="relative max-w-4xl mx-auto py-4 px-4">
         {/* Background Connecting Line */}
         <div className="absolute top-10 sm:top-12 inset-x-14 h-2 bg-zinc-100 rounded-full z-0" />
         
@@ -170,7 +146,7 @@ function LiveWorkflowAnimation() {
                 }`}>
                   {step.day}
                 </span>
-                <span className="text-[11px] text-zinc-400 font-medium hidden md:block text-center mt-0.5">
+                <span className="text-[11px] text-zinc-500 font-medium hidden md:block text-center mt-0.5">
                   {step.title}
                 </span>
               </button>
@@ -178,37 +154,6 @@ function LiveWorkflowAnimation() {
           })}
         </div>
       </div>
-
-      {/* Active Step Details Banner */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={activeStep}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }}
-          transition={{ duration: 0.3 }}
-          className="max-w-2xl mx-auto mt-8 p-6 rounded-2xl bg-[#FAFAF9] border border-zinc-200/80 flex flex-col sm:flex-row items-center justify-between gap-4"
-        >
-          <div className="space-y-1 text-center sm:text-left">
-            <div className="flex items-center justify-center sm:justify-start gap-2">
-              <span className="text-[10px] font-mono font-bold uppercase text-[#2563EB] bg-[#2563EB]/10 px-2.5 py-0.5 rounded-md">
-                Étape {activeStep + 1} sur 4 — {steps[activeStep].day}
-              </span>
-            </div>
-            <h4 className="premium-font-display text-lg font-bold text-[#0F1E4D]">
-              {steps[activeStep].title}
-            </h4>
-            <p className="text-xs sm:text-sm text-zinc-500 font-light">
-              {steps[activeStep].subtitle}
-            </p>
-          </div>
-
-          <div className="px-4 py-2 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-mono font-bold flex items-center gap-2 shrink-0">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-            <span>{steps[activeStep].status}</span>
-          </div>
-        </motion.div>
-      </AnimatePresence>
     </div>
   )
 }
@@ -396,7 +341,7 @@ export function AccompagnementPage() {
           >
             <button
               onClick={() => setShowBookingModal(true)}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-10 py-4 bg-[#0F1E4D] hover:bg-[#1E3A8A] text-white rounded-full text-sm font-bold uppercase tracking-wider transition-all duration-200 shadow-xl hover:scale-[1.02] cursor-pointer"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-10 py-4 bg-[#0F1E4D] hover:bg-[#1E3A8A] text-[#FAFAF9] rounded-full text-sm font-bold uppercase tracking-wider transition-all duration-200 shadow-xl hover:scale-[1.02] cursor-pointer"
             >
               <span>Réserver ma place — 10 000 FCFA</span>
               <ArrowRight className="w-4 h-4 text-[#C9973E]" />
@@ -429,8 +374,11 @@ export function AccompagnementPage() {
             subtitle="Pas de théorie inutile. Vous construisez votre système de vente de A à Z avec un guidage direct."
           />
 
+          {/* PURE ANIMATED PROGRESSION STEPPER (POSITIONED DIRECTLY UNDER SUBTITLE, BEFORE CARDS) */}
+          <LiveWorkflowAnimation />
+
           {/* 3 PILLAR CARDS WITH ULTRA-DISCREET SANS BACKGROUND NUMBERS */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-14 relative">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12 relative">
             {[
               {
                 num: "01",
@@ -758,10 +706,6 @@ export function AccompagnementPage() {
               </div>
             </div>
           </div>
-
-          {/* LARGE HIGH-IMPACT PIPELINE STEPPER ANIMATION (PLACED SOUS "RÉSERVER MON TICKET") */}
-          <LiveWorkflowAnimation />
-
         </div>
       </section>
 
@@ -862,7 +806,7 @@ export function AccompagnementPage() {
             </div>
             <button
               onClick={() => setShowBookingModal(true)}
-              className="px-5 py-3 bg-[#0F1E4D] text-white rounded-full text-[10px] font-bold uppercase tracking-wider shadow-md"
+              className="px-5 py-3 bg-[#0F1E4D] text-[#FAFAF9] rounded-full text-[10px] font-bold uppercase tracking-wider shadow-md"
             >
               Réserver →
             </button>
