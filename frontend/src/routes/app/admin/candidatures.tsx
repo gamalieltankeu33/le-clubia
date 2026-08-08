@@ -56,8 +56,9 @@ const STATUS_BADGES: Record<string, { label: string; color: string; bg: string }
   Inscrit: { label: 'Inscrit', color: 'text-blue-700', bg: 'bg-blue-50 border-blue-200' },
   'Liste VIP WhatsApp': { label: 'Liste VIP WhatsApp', color: 'text-[#2563EB]', bg: 'bg-[#2563EB]/10 border-[#2563EB]/30' },
   'Paiement en cours': { label: 'Paiement en cours', color: 'text-amber-700', bg: 'bg-amber-50 border-amber-200' },
+  'Payé (15k)': { label: 'Payé (15 000 FCFA)', color: 'text-emerald-700', bg: 'bg-emerald-50 border-emerald-200' },
   'Payé (10k)': { label: 'Payé (10 000 FCFA)', color: 'text-emerald-700', bg: 'bg-emerald-50 border-emerald-200' },
-  Confirmé: { label: 'Payé (10 000 FCFA)', color: 'text-emerald-700', bg: 'bg-emerald-50 border-emerald-200' },
+  Confirmé: { label: 'Payé (15 000 FCFA)', color: 'text-emerald-700', bg: 'bg-emerald-50 border-emerald-200' },
   Archivé: { label: 'Archivé', color: 'text-zinc-600', bg: 'bg-zinc-100 border-zinc-200' }
 }
 
@@ -131,7 +132,7 @@ export function AdminCandidaturesPage() {
   // Stats calculation
   const totalCount = candidatures.length
   const vipCount = candidatures.filter(c => (c.statut_actuel && c.statut_actuel.includes('VIP')) || c.status === 'Liste VIP WhatsApp').length
-  const confirmedCount = candidatures.filter(c => c.status === 'Payé (10k)' || c.status === 'Confirmé').length
+  const confirmedCount = candidatures.filter(c => c.status === 'Payé (15k)' || c.status === 'Payé (10k)' || c.status === 'Confirmé').length
   const pendingCount = candidatures.filter(c => c.status === 'Paiement en cours').length
 
   const handleOpenDetail = (item: CandidatureItem) => {
@@ -191,7 +192,7 @@ export function AdminCandidaturesPage() {
         </div>
 
         <div className="p-4 rounded-xl bg-emerald-50/60 border border-emerald-200 shadow-2xs space-y-1">
-          <div className="text-[11px] font-medium text-emerald-700 uppercase tracking-wider">PAIEMENTS CONFIRMÉS (10K)</div>
+          <div className="text-[11px] font-medium text-emerald-700 uppercase tracking-wider">PAIEMENTS CONFIRMÉS (15K)</div>
           <div className="text-2xl font-bold text-emerald-900 font-mono">{confirmedCount}</div>
         </div>
 
@@ -215,7 +216,7 @@ export function AdminCandidaturesPage() {
         </div>
 
         <div className="flex items-center gap-2 overflow-x-auto">
-          {['Tous', 'Liste VIP WhatsApp', 'Paiement en cours', 'Payé (10k)', 'Inscrit', 'Archivé'].map(st => (
+          {['Tous', 'Liste VIP WhatsApp', 'Paiement en cours', 'Payé (15k)', 'Payé (10k)', 'Inscrit', 'Archivé'].map(st => (
             <button
               key={st}
               onClick={() => setSelectedStatusFilter(st)}
@@ -276,9 +277,9 @@ export function AdminCandidaturesPage() {
                       </td>
 
                       <td className="p-3.5">
-                        <div className="font-mono text-zinc-800 font-bold">{item.budget || '10 000 FCFA'}</div>
+                        <div className="font-mono text-zinc-800 font-bold">{item.budget || '15 000 FCFA'}</div>
                         <div className="text-[10px] text-emerald-700 font-medium bg-emerald-50 px-1.5 py-0.5 rounded w-fit border border-emerald-100 mt-0.5">
-                          {item.pret_investir || 'Oui (10 000 FCFA)'}
+                          {item.pret_investir || 'Oui (15 000 FCFA)'}
                         </div>
                       </td>
 
@@ -391,7 +392,7 @@ export function AdminCandidaturesPage() {
                   </div>
 
                   <div className="flex flex-wrap items-center gap-1.5">
-                    {['Liste VIP WhatsApp', 'Paiement en cours', 'Payé (10k)', 'Inscrit', 'Archivé'].map(st => {
+                    {['Liste VIP WhatsApp', 'Paiement en cours', 'Payé (15k)', 'Payé (10k)', 'Inscrit', 'Archivé'].map(st => {
                       const isActive = (selectedCandidate.status || 'Inscrit') === st
                       return (
                         <button
@@ -430,11 +431,11 @@ export function AdminCandidaturesPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-zinc-100">
                     <div>
                       <span className="text-zinc-400 text-[10px]">Tarif unique :</span>
-                      <div className="font-bold text-emerald-600 font-mono text-sm">{selectedCandidate.budget || '10 000 FCFA'}</div>
+                      <div className="font-bold text-emerald-600 font-mono text-sm">{selectedCandidate.budget || '15 000 FCFA'}</div>
                     </div>
                     <div>
                       <span className="text-zinc-400 text-[10px]">Accord tarifaire :</span>
-                      <div className="font-semibold text-zinc-800">{selectedCandidate.pret_investir || 'Oui (10 000 FCFA)'}</div>
+                      <div className="font-semibold text-zinc-800">{selectedCandidate.pret_investir || 'Oui (15 000 FCFA)'}</div>
                     </div>
                   </div>
                 </div>

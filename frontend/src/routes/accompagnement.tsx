@@ -135,7 +135,7 @@ function OfficialCountdownTimer({ isPaymentsOpen }: { isPaymentsOpen: boolean })
         </div>
         <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#2563EB]/30 border border-[#2563EB]/60 text-white font-mono text-xs font-extrabold shadow-sm">
           <Tag className="w-3.5 h-3.5 text-[#60A5FA]" />
-          <span>Frais : 10 000 FCFA</span>
+          <span>Frais : 15 000 FCFA</span>
         </div>
       </div>
 
@@ -472,7 +472,7 @@ export function AccompagnementPage() {
               onClick={() => setShowBookingModal(true)}
               className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4.5 sm:px-10 sm:py-5 bg-[#0F1E4D] hover:bg-[#1E3A8A] text-white rounded-full text-xs sm:text-sm font-extrabold uppercase tracking-wider transition-all duration-200 shadow-2xl hover:scale-[1.02] cursor-pointer"
             >
-              <span>{isPaymentsOpen ? 'Réserver ma place — 10 000 FCFA' : 'Rejoindre la liste d\'attente (10 000 FCFA)'}</span>
+              <span>{isPaymentsOpen ? 'Réserver ma place — 15 000 FCFA' : 'Rejoindre la liste d\'attente (15 000 FCFA)'}</span>
               <ArrowRight className="w-4 h-4 text-[#60A5FA]" />
             </button>
           </motion.div>
@@ -679,7 +679,7 @@ export function AccompagnementPage() {
               onClick={() => setShowBookingModal(true)}
               className="w-full sm:w-auto px-8 py-4.5 bg-[#2563EB] hover:bg-[#1E3A8A] text-white rounded-full text-xs font-extrabold uppercase tracking-wider transition-all shrink-0 cursor-pointer shadow-xl hover:scale-[1.02]"
             >
-              {isPaymentsOpen ? 'Réserver ma place (10 000 FCFA) →' : 'Rejoindre le groupe VIP (10 000 FCFA) →'}
+              {isPaymentsOpen ? 'Réserver ma place (15 000 FCFA) →' : 'Rejoindre le groupe VIP (15 000 FCFA) →'}
             </button>
           </div>
         </div>
@@ -788,7 +788,7 @@ export function AccompagnementPage() {
         </div>
       </section>
 
-      {/* ── SECTION TARIFICATION (IMPOSING 10 000 FCFA DISPLAY PRICE) ── */}
+      {/* ── SECTION TARIFICATION (IMPOSING 15 000 FCFA DISPLAY PRICE) ── */}
       <section className="py-16 sm:py-24 bg-white relative z-10 border-b border-zinc-200/50" id="tarification">
         <div className="mx-auto max-w-4xl px-4 sm:px-6">
           <div className="p-8 sm:p-14 rounded-3xl bg-[#0F1E4D] text-white text-center relative overflow-hidden border-2 border-[#2563EB]/40 shadow-2xl">
@@ -805,13 +805,13 @@ export function AccompagnementPage() {
             <p className="text-sm sm:text-base text-zinc-300 mt-3 font-normal max-w-md mx-auto leading-relaxed">
               {isPaymentsOpen
                 ? 'Accès complet aux 5 jours d\'accompagnement direct et au groupe d\'entraide dédié.'
-                : 'Les places sont limitées à 20 participants. Le tarif est de 10 000 FCFA pour l\'ensemble du challenge.'}
+                : 'Les places sont limitées à 20 participants. Le tarif est de 15 000 FCFA pour l\'ensemble du challenge.'}
             </p>
 
             {/* IMPOSING DISPLAY PRICE FONT */}
             <div className="my-8 sm:my-10">
               <div className="text-5xl sm:text-7xl font-extrabold tracking-tight text-white flex items-center justify-center gap-3">
-                <span className="premium-font-display font-extrabold text-white tracking-tight">10 000</span>
+                <span className="premium-font-display font-extrabold text-white tracking-tight">15 000</span>
                 <span className="text-2xl sm:text-3xl font-extrabold text-[#60A5FA] premium-font-display">FCFA</span>
               </div>
               <p className="text-xs text-zinc-400 mt-3 font-mono uppercase tracking-wider font-bold">
@@ -824,7 +824,7 @@ export function AccompagnementPage() {
                 onClick={() => setShowBookingModal(true)}
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-9 py-4.5 sm:px-12 sm:py-5 bg-[#2563EB] hover:bg-[#1E3A8A] text-white rounded-full text-xs sm:text-sm font-extrabold uppercase tracking-wider transition-all duration-200 shadow-2xl cursor-pointer hover:scale-[1.02]"
               >
-                <span>{isPaymentsOpen ? 'Réserver mon ticket (10 000 FCFA) →' : 'Rejoindre la liste VIP (10 000 FCFA) →'}</span>
+                <span>{isPaymentsOpen ? 'Réserver mon ticket (15 000 FCFA) →' : 'Rejoindre la liste VIP (15 000 FCFA) →'}</span>
               </button>
               <div className="flex items-center justify-center gap-2 text-xs font-mono text-zinc-400 uppercase tracking-wider font-bold">
                 <Lock className="w-4 h-4 text-[#60A5FA]" />
@@ -847,7 +847,7 @@ export function AccompagnementPage() {
             {[
               {
                 q: "Quel est le tarif de participation au challenge ?",
-                a: "L'inscription au challenge intensif de 5 jours coûte 10 000 FCFA (tarif unique tout inclus, incluant 1 mois d'accès au Club IA).",
+                a: "L'inscription au challenge intensif de 5 jours coûte 15 000 FCFA (tarif unique tout inclus, incluant 1 mois d'accès au Club IA).",
               },
               {
                 q: "Faut-il avoir des compétences techniques pour participer ?",
@@ -882,7 +882,7 @@ export function AccompagnementPage() {
             Prêt à <span className="serif-accent">passer le cap ?</span>
           </h2>
           <p className="text-sm sm:text-base text-zinc-300 max-w-md mx-auto leading-relaxed font-normal">
-            Dans 5 jours, vous disposerez d'un système de vente prêt à l'emploi. L'inscription est de 10 000 FCFA.
+            Dans 5 jours, vous disposerez d'un système de vente prêt à l'emploi. L'inscription est de 15 000 FCFA.
           </p>
 
           <div className="pt-2 sm:pt-4 flex flex-col items-center justify-center gap-3.5">
@@ -890,7 +890,7 @@ export function AccompagnementPage() {
               onClick={() => setShowBookingModal(true)}
               className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-9 py-4.5 sm:px-12 sm:py-5 bg-[#2563EB] hover:bg-[#1E3A8A] text-white rounded-full text-xs sm:text-sm font-extrabold uppercase tracking-wider transition-all duration-200 shadow-2xl cursor-pointer"
             >
-              <span>{isPaymentsOpen ? 'Réserver ma place — 10 000 FCFA →' : 'Rejoindre la liste VIP (10 000 FCFA) →'}</span>
+              <span>{isPaymentsOpen ? 'Réserver ma place — 15 000 FCFA →' : 'Rejoindre la liste VIP (15 000 FCFA) →'}</span>
             </button>
             <span className="text-xs font-mono tracking-widest text-zinc-300 uppercase font-bold">
               Prochaine session : Mardi 12 au Samedi 16 Août 2026
@@ -928,7 +928,7 @@ export function AccompagnementPage() {
           >
             <div className="space-y-0.5">
               <div className="text-[10px] font-mono text-[#2563EB] font-extrabold uppercase tracking-wider">12 - 16 AOÛT</div>
-              <div className="text-base font-extrabold font-mono text-[#0F1E4D]">10 000 FCFA</div>
+              <div className="text-base font-extrabold font-mono text-[#0F1E4D]">15 000 FCFA</div>
             </div>
             <button
               onClick={() => setShowBookingModal(true)}
@@ -940,7 +940,7 @@ export function AccompagnementPage() {
         )}
       </AnimatePresence>
 
-      {/* ── Booking Modal (Wizard Checkout with Explicit 10 000 FCFA Price Confirmation Step) ── */}
+      {/* ── Booking Modal (Wizard Checkout with Explicit 15 000 FCFA Price Confirmation Step) ── */}
       <AnimatePresence>
         {showBookingModal && (
           <BookingModal isPaymentsOpen={isPaymentsOpen} onClose={() => setShowBookingModal(false)} />
@@ -950,7 +950,7 @@ export function AccompagnementPage() {
   )
 }
 
-/* ─── BOOKING MODAL WITH EXPLICIT 10 000 FCFA CONFIRMATION STEP ─── */
+/* ─── BOOKING MODAL WITH EXPLICIT 15 000 FCFA CONFIRMATION STEP ─── */
 interface WizardQuestion {
   id: 'price_confirm' | 'name' | 'email' | 'country' | 'phone'
   label: string
@@ -965,7 +965,7 @@ const WIZARD_QUESTIONS: WizardQuestion[] = [
   {
     id: 'price_confirm',
     label: 'Confirmation du tarif de participation',
-    subtitle: 'La participation au Challenge Sprint Business IA (5 jours intensifs + 1 mois de Club IA) est de 10 000 FCFA.',
+    subtitle: 'La participation au Challenge Sprint Business IA (5 jours intensifs + 1 mois de Club IA) est de 15 000 FCFA.',
     placeholder: '',
     type: 'confirm',
     errorMsg: 'Veuillez accepter le tarif pour continuer.',
@@ -1097,13 +1097,13 @@ function BookingModal({ isPaymentsOpen, onClose }: { isPaymentsOpen: boolean; on
           statut_actuel: isPaymentsOpen ? 'Paiement en cours' : 'Liste d\'attente VIP WhatsApp',
           heures_semaine: '10+ heures',
           objectif_12m: 'Lancer un business rentable grâce à l\'IA',
-          pret_investir: 'Oui (10 000 FCFA)',
-          budget: '10 000 FCFA',
+          pret_investir: 'Oui (15 000 FCFA)',
+          budget: '15 000 FCFA',
           candidat_raison: 'Blueprint Business IA Registration',
           score: 20,
           qualified: true,
           is_western: false,
-          notes: isPaymentsOpen ? 'Redirigé vers Chariow Checkout' : 'Inscrit sur la liste d\'attente VIP WhatsApp (Tarif 10k confirme)'
+          notes: isPaymentsOpen ? 'Redirigé vers Chariow Checkout' : 'Inscrit sur la liste d\'attente VIP WhatsApp (Tarif 15k confirme)'
         }
       ])
 
@@ -1189,7 +1189,7 @@ function BookingModal({ isPaymentsOpen, onClose }: { isPaymentsOpen: boolean; on
                     <div className="pt-3 space-y-3">
                       <div className="p-4 rounded-2xl bg-[#2563EB]/10 border-2 border-[#2563EB]/30 flex items-center justify-between">
                         <span className="text-xs sm:text-sm font-bold text-[#0F1E4D]">Tarif Challenge (5 Jours)</span>
-                        <span className="premium-font-display text-xl font-extrabold text-[#2563EB]">10 000 FCFA</span>
+                        <span className="premium-font-display text-xl font-extrabold text-[#2563EB]">15 000 FCFA</span>
                       </div>
                       
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
@@ -1279,7 +1279,7 @@ function BookingModal({ isPaymentsOpen, onClose }: { isPaymentsOpen: boolean; on
                 {isPaymentsOpen ? 'Informations enregistrées !' : 'Place pré-réservée avec succès !'}
               </h3>
               <p className="text-xs sm:text-sm text-[#0F1E4D]/80 leading-relaxed max-w-xs mx-auto font-normal">
-                Félicitations <strong>{formData.name}</strong> ! Tarif validé (10 000 FCFA).{' '}
+                Félicitations <strong>{formData.name}</strong> ! Tarif validé (15 000 FCFA).{' '}
                 {isPaymentsOpen
                   ? 'Redirection automatique vers la page de paiement sécurisée Chariow...'
                   : 'Les ouvertures officielles débutent Lundi à 18h. Rejoignez le groupe WhatsApp d\'attente VIP pour recevoir votre lien prioritaire.'}
@@ -1295,7 +1295,7 @@ function BookingModal({ isPaymentsOpen, onClose }: { isPaymentsOpen: boolean; on
                   className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-7 py-4 bg-[#2563EB] hover:bg-[#1E3A8A] text-white rounded-full text-xs font-extrabold uppercase tracking-wider transition-all shadow-xl hover:scale-[1.02]"
                 >
                   <CreditCard className="w-4 h-4" />
-                  <span>Payer mon ticket (10 000 FCFA) →</span>
+                  <span>Payer mon ticket (15 000 FCFA) →</span>
                 </a>
               ) : (
                 <a
