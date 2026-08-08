@@ -48,8 +48,6 @@ const TUESDAY_CLOSING_DATE = new Date('2026-08-11T23:59:59')
 
 /* ─── Custom CSS Injection (Mobile First & Canonical Le Club IA Styling) ─── */
 const styles = `
-  @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600;700&display=swap');
-  
   .premium-font-display {
     font-family: 'Bricolage Grotesque', 'Space Grotesk', 'Inter', sans-serif;
   }
