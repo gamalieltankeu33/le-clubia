@@ -31,8 +31,8 @@ const ADMIN_NAV_ITEMS: AdminNavItem[] = [
   { to: '/app/admin', label: 'Tableau de bord', icon: LayoutDashboard },
   {
     to: '/app/admin/candidatures',
-    label: 'Sprint Business IA',
-    icon: Zap,
+    label: 'Blueprint IA',
+    icon: Briefcase,
     matchPrefix: '/app/admin/candidatures',
   },
   {
@@ -105,7 +105,7 @@ export function AppSidebar() {
         </Link>
         {isAdminRoute && (
           <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-zinc-900 bg-zinc-200/80 px-2 py-0.5 rounded">
-            Admin
+            ADMIN
           </span>
         )}
       </div>
