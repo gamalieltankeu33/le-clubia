@@ -18,6 +18,7 @@ import {
   CalendarDays,
   ShieldCheck,
   CheckCircle2,
+  Zap,
   Sparkles
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -31,12 +32,12 @@ export const Route = createFileRoute('/accompagnement')({
   component: AccompagnementPage,
 })
 
-/* ─── Custom CSS Injection ─── */
+/* ─── Custom CSS Injection (Aligned with Le Club IA Design System) ─── */
 const styles = `
-  @import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Geist+Mono:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600;700&display=swap');
   
   .premium-font-display {
-    font-family: 'Instrument Sans', sans-serif;
+    font-family: 'Space Grotesk', 'Inter', sans-serif;
   }
   .premium-font-body {
     font-family: 'Inter', sans-serif;
@@ -47,8 +48,8 @@ const styles = `
 
   .premium-grid-overlay {
     background-image: 
-      linear-gradient(to right, rgba(15, 27, 61, 0.025) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(15, 27, 61, 0.025) 1px, transparent 1px);
+      linear-gradient(to right, rgba(15, 30, 77, 0.025) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(15, 30, 77, 0.025) 1px, transparent 1px);
     background-size: 40px 40px;
   }
 
@@ -56,15 +57,163 @@ const styles = `
     width: 6px;
   }
   .custom-scrollbar::-webkit-scrollbar-track {
-    background: rgba(15, 27, 61, 0.02);
+    background: rgba(15, 30, 77, 0.02);
   }
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: rgba(201, 151, 62, 0.3);
+    background: rgba(201, 162, 75, 0.3);
     border-radius: 10px;
   }
 `
 
 const EASE = [0.16, 1, 0.3, 1] as const
+
+/* ─── INTERACTIVE WORKFLOW STEPPER ANIMATION (Exploria-style pipeline) ─── */
+function LiveWorkflowAnimation() {
+  const [activeStep, setActiveStep] = useState(0)
+
+  const steps = [
+    {
+      day: 'J+1',
+      title: 'Idée & Offre',
+      subtitle: 'Définition du produit et génération du contenu par l\'IA',
+      status: 'Produit rédigé & prêt',
+      badge: 'Contenu IA'
+    },
+    {
+      day: 'J+3',
+      title: 'Page & Boutique',
+      subtitle: 'Mise en place de la boutique en ligne autonome',
+      status: 'Boutique configurée',
+      badge: 'Page de vente'
+    },
+    {
+      day: 'J+4',
+      title: 'Paiements Connectés',
+      subtitle: 'Raccordement des passerelles Stripe & Mobile Money',
+      status: 'Système d\'encaissement actif',
+      badge: 'Paiement 24/7'
+    },
+    {
+      day: 'J+5',
+      title: 'Premières Ventes',
+      subtitle: 'Lancement de l\'acquisition et contact des premiers prospects',
+      status: 'Premiers clients engagés',
+      badge: 'Acquisition ciblée'
+    }
+  ]
+
+  // Auto progression loop
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveStep((prev) => (prev + 1) % steps.length)
+    }, 3500)
+    return () => clearInterval(timer)
+  }, [])
+
+  return (
+    <div className="w-full bg-[#0F1E4D] text-white rounded-3xl p-8 sm:p-12 shadow-xl border border-[#C9973E]/30 relative overflow-hidden my-12">
+      {/* Background glow */}
+      <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-[#C9973E]/10 blur-3xl pointer-events-none" />
+
+      <div className="text-center max-w-xl mx-auto space-y-2 mb-10 relative z-10">
+        <span className="text-[10px] font-mono font-bold tracking-[0.2em] text-[#C9973E] uppercase bg-[#C9973E]/15 px-3 py-1 rounded-full border border-[#C9973E]/30">
+          PARCOURS EN DIRECT
+        </span>
+        <h3 className="premium-font-display text-2xl sm:text-3xl font-bold text-white">
+          La progression de votre système en 5 jours
+        </h3>
+        <p className="text-xs text-zinc-300 font-light">
+          Cliquez sur chaque étape pour voir la livraison automatisée du programme.
+        </p>
+      </div>
+
+      {/* Horizontal Interactive Timeline Bar */}
+      <div className="relative max-w-3xl mx-auto my-8">
+        {/* Background Connecting Line */}
+        <div className="absolute top-6 inset-x-8 h-1 bg-white/15 rounded-full z-0" />
+        
+        {/* Active Animated Progress Line */}
+        <motion.div
+          className="absolute top-6 left-8 h-1 bg-gradient-to-r from-[#D9A94A] to-[#C9973E] rounded-full z-0"
+          animate={{ width: `${(activeStep / (steps.length - 1)) * 82}%` }}
+          transition={{ duration: 0.5, ease: EASE }}
+        />
+
+        <div className="grid grid-cols-4 relative z-10">
+          {steps.map((step, idx) => {
+            const isActive = idx <= activeStep
+            const isCurrent = idx === activeStep
+            return (
+              <button
+                key={idx}
+                onClick={() => setActiveStep(idx)}
+                className="flex flex-col items-center group cursor-pointer focus:outline-none"
+              >
+                <motion.div
+                  animate={{
+                    scale: isCurrent ? 1.15 : 1,
+                    backgroundColor: isCurrent ? '#C9973E' : isActive ? '#0F1E4D' : '#1E293B',
+                    borderColor: isCurrent ? '#FFFFFF' : isActive ? '#C9973E' : 'rgba(255,255,255,0.2)'
+                  }}
+                  transition={{ duration: 0.3 }}
+                  className={`w-12 h-12 rounded-full border-2 flex items-center justify-center font-mono text-xs font-bold ${
+                    isCurrent ? 'text-[#0F1E4D] shadow-lg ring-4 ring-[#C9973E]/30' : isActive ? 'text-[#C9973E]' : 'text-zinc-400'
+                  }`}
+                >
+                  {isActive && !isCurrent ? (
+                    <CheckCircle2 className="w-5 h-5 text-[#C9973E]" />
+                  ) : (
+                    <span>{step.day}</span>
+                  )}
+                </motion.div>
+                
+                <span className={`text-[11px] font-medium mt-3 transition-colors text-center hidden sm:block ${
+                  isCurrent ? 'text-[#C9973E] font-bold' : isActive ? 'text-white' : 'text-zinc-400'
+                }`}>
+                  {step.title}
+                </span>
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Active Step Details Card */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={activeStep}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.3 }}
+          className="max-w-2xl mx-auto mt-8 p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md flex flex-col sm:flex-row items-center justify-between gap-4 relative z-10"
+        >
+          <div className="space-y-1 text-center sm:text-left">
+            <div className="flex items-center justify-center sm:justify-start gap-2">
+              <span className="text-[9px] font-mono font-bold uppercase text-[#C9973E] bg-[#C9973E]/10 px-2 py-0.5 rounded">
+                Étape {activeStep + 1} sur 4
+              </span>
+              <span className="text-xs font-semibold text-white">
+                {steps[activeStep].badge}
+              </span>
+            </div>
+            <h4 className="premium-font-display text-lg font-bold text-white">
+              {steps[activeStep].title}
+            </h4>
+            <p className="text-xs text-zinc-300 font-light">
+              {steps[activeStep].subtitle}
+            </p>
+          </div>
+
+          <div className="px-4 py-2 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-mono font-semibold flex items-center gap-2 shrink-0">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span>{steps[activeStep].status}</span>
+          </div>
+        </motion.div>
+      </AnimatePresence>
+    </div>
+  )
+}
 
 /* ─── SECTION HEADER HELPER ─── */
 function SectionHeader({ eyebrow, title, subtitle }: { eyebrow: string; title: string; subtitle?: string }) {
@@ -78,7 +227,7 @@ function SectionHeader({ eyebrow, title, subtitle }: { eyebrow: string; title: s
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: '-20px' }}
         transition={{ duration: 0.6, ease: EASE }}
-        className="premium-font-display text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-[#0F1B3D] leading-tight"
+        className="premium-font-display text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-[#0F1E4D] leading-tight"
       >
         {title}
       </motion.h2>
@@ -88,7 +237,7 @@ function SectionHeader({ eyebrow, title, subtitle }: { eyebrow: string; title: s
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.15 }}
-          className="text-base sm:text-lg text-[#0F1B3D]/70 leading-relaxed font-light max-w-2xl mx-auto"
+          className="text-base sm:text-lg text-[#0F1E4D]/70 leading-relaxed font-light max-w-2xl mx-auto"
         >
           {subtitle}
         </motion.p>
@@ -109,13 +258,13 @@ function FAQAccordionItem({ question, answer, idx }: { question: string; answer:
       transition={{ duration: 0.5, delay: idx * 0.05, ease: EASE }}
       className={`border rounded-2xl mb-3 overflow-hidden transition-all duration-200 ${
         isOpen
-          ? 'border-[#C9973E]/40 bg-white shadow-md shadow-[#0B1223]/3'
+          ? 'border-[#C9973E]/40 bg-white shadow-md shadow-[#0F1E4D]/3'
           : 'border-zinc-200/80 bg-white hover:border-zinc-300 shadow-2xs'
       }`}
     >
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between text-left p-6 font-semibold text-base text-[#0F1B3D] transition-colors hover:text-[#C9973E] cursor-pointer"
+        className="w-full flex items-center justify-between text-left p-6 font-semibold text-base text-[#0F1E4D] transition-colors hover:text-[#C9973E] cursor-pointer"
       >
         <span className="premium-font-display pr-6 font-medium text-sm sm:text-base">{question}</span>
         <div
@@ -134,7 +283,7 @@ function FAQAccordionItem({ question, answer, idx }: { question: string; answer:
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.3, ease: EASE }}
           >
-            <div className="px-6 pb-6 pt-1 text-xs sm:text-sm text-[#0F1B3D]/70 leading-relaxed premium-font-body border-t border-zinc-100">
+            <div className="px-6 pb-6 pt-1 text-xs sm:text-sm text-[#0F1E4D]/70 leading-relaxed premium-font-body border-t border-zinc-100">
               {answer}
             </div>
           </motion.div>
@@ -181,14 +330,14 @@ export function AccompagnementPage() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-[#FAF8F5] text-[#0F1B3D] premium-font-body antialiased selection:bg-[#C9973E] selection:text-white pb-10 overflow-hidden relative">
+    <div className="min-h-screen bg-[#FAFAF9] text-[#0F1E4D] premium-font-body antialiased selection:bg-[#C9973E] selection:text-white pb-10 overflow-hidden relative">
       <style>{styles}</style>
 
       {/* Grid overlay for subtle background texture */}
       <div className="absolute inset-0 premium-grid-overlay pointer-events-none z-0" />
 
       {/* ── Navigation Header ── */}
-      <header className="fixed inset-x-0 top-0 z-50 bg-[#FAF8F5]/85 backdrop-blur-md border-b border-zinc-200/50 transition-all duration-300">
+      <header className="fixed inset-x-0 top-0 z-50 bg-[#FAFAF9]/85 backdrop-blur-md border-b border-zinc-200/50 transition-all duration-300">
         <div className="mx-auto flex h-20 max-w-6xl items-center justify-between px-6">
           <Link to="/" className="flex items-center gap-3">
             <BrandLogo size="sm" className="transition-transform hover:scale-[1.01]" />
@@ -196,7 +345,7 @@ export function AccompagnementPage() {
           <div className="flex items-center gap-4">
             <button
               onClick={() => setShowBookingModal(true)}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-[#0B1223] hover:bg-[#131B35] text-white rounded-full text-xs font-semibold tracking-wide transition-all duration-200 shadow-sm hover:shadow cursor-pointer"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-[#0F1E4D] hover:bg-[#1E3A8A] text-white rounded-full text-xs font-semibold tracking-wide transition-all duration-200 shadow-sm hover:shadow cursor-pointer"
             >
               <span>Réserver ma place →</span>
             </button>
@@ -204,11 +353,11 @@ export function AccompagnementPage() {
         </div>
       </header>
 
-      {/* ── HERO SECTION (CENTERED & REFINED) ── */}
-      <section className="relative pt-32 pb-20 sm:pt-40 sm:pb-28 overflow-hidden z-10">
+      {/* ── HERO SECTION (CLEAN & CENTERED) ── */}
+      <section className="relative pt-32 pb-16 sm:pt-40 sm:pb-24 overflow-hidden z-10">
         <div className="mx-auto max-w-4xl px-6 text-center space-y-8">
           
-          {/* PROMINENT SPRINT DATES BADGE */}
+          {/* UPDATED PROMINENT SPRINT DATES BADGE */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -216,9 +365,9 @@ export function AccompagnementPage() {
             className="inline-flex items-center gap-3 p-3 px-6 rounded-full bg-white border-2 border-[#C9973E]/40 shadow-sm"
           >
             <CalendarDays className="w-5 h-5 text-[#C9973E]" />
-            <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#0F1B3D]">
+            <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#0F1E4D]">
               <span className="text-[#C9973E] uppercase tracking-wider">PROCHAINE SESSION :</span>
-              <span className="premium-font-display text-sm">Vendredi 14 au Mardi 18 Août 2026</span>
+              <span className="premium-font-display text-sm font-bold">Mardi 12 au Samedi 16 Août 2026</span>
             </div>
           </motion.div>
 
@@ -226,7 +375,7 @@ export function AccompagnementPage() {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1, ease: EASE }}
-            className="premium-font-display text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-[#0F1B3D] leading-[1.12] max-w-3xl mx-auto"
+            className="premium-font-display text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-[#0F1E4D] leading-[1.12] max-w-3xl mx-auto"
           >
             5 jours pour créer votre <span className="text-[#C9973E]">produit digital</span>, lancer votre boutique, et encaisser vos paiements.
           </motion.h1>
@@ -235,7 +384,7 @@ export function AccompagnementPage() {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.18, ease: EASE }}
-            className="text-base sm:text-xl text-[#0F1B3D]/70 leading-relaxed font-light max-w-2xl mx-auto"
+            className="text-base sm:text-xl text-[#0F1E4D]/75 leading-relaxed font-light max-w-2xl mx-auto"
           >
             Un accompagnement intensif de 5 jours guidé étape par étape. Vous repartez avec un produit concret en ligne, un système d'encaissement fonctionnel et une méthode d'acquisition claire.
           </motion.p>
@@ -249,7 +398,7 @@ export function AccompagnementPage() {
           >
             <button
               onClick={() => setShowBookingModal(true)}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-10 py-4 bg-[#0B1223] hover:bg-[#131B35] text-white rounded-full text-sm font-bold uppercase tracking-wider transition-all duration-200 shadow-xl hover:scale-[1.02] cursor-pointer"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-10 py-4 bg-[#0F1E4D] hover:bg-[#1E3A8A] text-white rounded-full text-sm font-bold uppercase tracking-wider transition-all duration-200 shadow-xl hover:scale-[1.02] cursor-pointer"
             >
               <span>Réserver ma place — 10 000 FCFA</span>
               <ArrowRight className="w-4 h-4 text-[#C9973E]" />
@@ -261,7 +410,7 @@ export function AccompagnementPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.35, duration: 0.5 }}
-            className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs font-medium text-[#0F1B3D]/60 pt-2"
+            className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs font-medium text-[#0F1E4D]/60 pt-2"
           >
             <span className="flex items-center gap-1.5">
               <ShieldCheck className="w-4 h-4 text-emerald-600" />
@@ -274,7 +423,7 @@ export function AccompagnementPage() {
       </section>
 
       {/* ── SECTION 01 — CE QUE NOUS ACCOMPLISSONS EN 5 JOURS ── */}
-      <section className="py-24 bg-white relative z-10 border-y border-zinc-200/50">
+      <section className="py-20 bg-white relative z-10 border-y border-zinc-200/50">
         <div className="mx-auto max-w-6xl px-6">
           <SectionHeader
             eyebrow="01 / Objectifs & Résultats"
@@ -282,7 +431,8 @@ export function AccompagnementPage() {
             subtitle="Pas de théorie inutile. Vous construisez votre système de vente de A à Z avec un guidage direct."
           />
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16 relative">
+          {/* 3 PILLAR CARDS WITH NON-OVERLAPPING DISCREET TRANSPARENT NUMBERS */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-14 relative">
             {[
               {
                 num: "01",
@@ -321,27 +471,27 @@ export function AccompagnementPage() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.5, delay: idx * 0.1, ease: EASE }}
-                    className="h-full p-8 rounded-3xl border border-zinc-200/80 bg-[#FAF8F5] relative overflow-hidden flex flex-col justify-between hover:border-[#C9973E]/50 hover:shadow-lg transition-all duration-300"
+                    className="h-full p-8 rounded-3xl border border-zinc-200/80 bg-[#FAFAF9] relative overflow-hidden flex flex-col justify-between hover:border-[#C9973E]/50 hover:shadow-lg transition-all duration-300"
                   >
-                    {/* GIANT LOW-OPACITY BACKGROUND NUMBER */}
-                    <span className="absolute -right-2 -bottom-4 text-8xl font-mono font-extrabold text-[#C9973E]/10 select-none pointer-events-none transition-opacity group-hover:text-[#C9973E]/20">
+                    {/* DISCREET TOP-RIGHT BACKGROUND NUMBER (NON-OVERLAPPING WITH TEXT) */}
+                    <span className="absolute top-4 right-5 text-6xl font-mono font-extrabold text-[#0F1E4D]/08 select-none pointer-events-none">
                       {pillar.num}
                     </span>
 
-                    <div className="space-y-5 relative z-10">
+                    <div className="space-y-5 relative z-10 pt-2">
                       <div className="flex items-center justify-between">
                         <div className="w-12 h-12 rounded-2xl bg-[#C9973E]/10 text-[#C9973E] flex items-center justify-center border border-[#C9973E]/20">
                           <PillarIcon className="w-6 h-6" />
                         </div>
-                        <span className="premium-font-mono text-sm font-bold text-[#C9973E] bg-white px-3 py-1 rounded-full border border-zinc-200/60 shadow-2xs">
+                        <span className="premium-font-mono text-xs font-bold text-[#C9973E] bg-white px-3 py-1 rounded-full border border-zinc-200/60 shadow-2xs">
                           Phase {pillar.num}
                         </span>
                       </div>
 
-                      <h3 className="premium-font-display text-xl font-bold text-[#0F1B3D]">
+                      <h3 className="premium-font-display text-xl font-bold text-[#0F1E4D]">
                         {pillar.title}
                       </h3>
-                      <p className="text-sm text-[#0F1B3D]/70 leading-relaxed font-light">
+                      <p className="text-sm text-[#0F1E4D]/75 leading-relaxed font-light">
                         {pillar.desc}
                       </p>
                     </div>
@@ -350,11 +500,15 @@ export function AccompagnementPage() {
               )
             })}
           </div>
+
+          {/* INTERACTIVE WORKFLOW PIPELINE ANIMATION */}
+          <LiveWorkflowAnimation />
+
         </div>
       </section>
 
       {/* ── SECTION 02 — UN PLAN D'ACTION STRUCTURÉ SUR 5 JOURS ── */}
-      <section className="py-24 bg-[#FAF8F5] relative z-10 border-b border-zinc-200/50" id="programme">
+      <section className="py-24 bg-[#FAFAF9] relative z-10 border-b border-zinc-200/50" id="programme">
         <div className="mx-auto max-w-5xl px-6">
           <SectionHeader
             eyebrow="02 / Programme détaillé"
@@ -362,7 +516,7 @@ export function AccompagnementPage() {
             subtitle="Suivez une feuille de route rythmée avec des livrables clairs à chaque étape."
           />
 
-          {/* DYNAMIC TIMELINE STEPS WITH CURVED CONNECTORS AND GIANT TRANSPARENT NUMBERS */}
+          {/* DYNAMIC TIMELINE STEPS WITH DISCREET NUMBERS & CURVED CONNECTORS */}
           <div className="mt-16 space-y-8 relative">
             {[
               {
@@ -410,8 +564,8 @@ export function AccompagnementPage() {
                     transition={{ duration: 0.5, delay: idx * 0.08, ease: EASE }}
                     className="p-8 sm:p-10 rounded-3xl bg-white border border-zinc-200/80 shadow-sm relative overflow-hidden flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 hover:border-[#C9973E]/40 hover:shadow-md transition-all"
                   >
-                    {/* GIANT LOW-OPACITY STEP NUMBER IN BACKGROUND */}
-                    <span className="absolute -left-3 -bottom-6 text-9xl font-mono font-extrabold text-[#C9973E]/10 select-none pointer-events-none">
+                    {/* DISCREET TOP-RIGHT BACKGROUND STEP NUMBER (NON-OVERLAPPING) */}
+                    <span className="absolute top-4 right-6 text-7xl font-mono font-extrabold text-[#0F1E4D]/06 select-none pointer-events-none">
                       {step.num}
                     </span>
 
@@ -426,12 +580,12 @@ export function AccompagnementPage() {
                           </span>
                           <span className="text-xs font-mono text-zinc-400 font-medium">Étape 0{idx + 1}</span>
                         </div>
-                        <h3 className="premium-font-display text-2xl font-bold text-[#0F1B3D]">{step.title}</h3>
-                        <p className="text-sm text-[#0F1B3D]/70 font-light leading-relaxed max-w-2xl">{step.desc}</p>
+                        <h3 className="premium-font-display text-2xl font-bold text-[#0F1E4D]">{step.title}</h3>
+                        <p className="text-sm text-[#0F1E4D]/75 font-light leading-relaxed max-w-2xl">{step.desc}</p>
                       </div>
                     </div>
 
-                    <div className="inline-flex items-center gap-2.5 bg-[#FAF8F5] border border-zinc-200/80 px-4 py-2.5 rounded-2xl text-xs font-semibold text-[#0F1B3D] shrink-0 relative z-10 shadow-2xs">
+                    <div className="inline-flex items-center gap-2.5 bg-[#FAFAF9] border border-zinc-200/80 px-4 py-2.5 rounded-2xl text-xs font-semibold text-[#0F1E4D] shrink-0 relative z-10 shadow-2xs">
                       <span className="w-2 h-2 rounded-full bg-emerald-500" />
                       <span>{step.output}</span>
                     </div>
@@ -442,7 +596,7 @@ export function AccompagnementPage() {
           </div>
 
           {/* Banner Résultat */}
-          <div className="mt-16 p-8 sm:p-12 rounded-3xl bg-[#0B1223] text-white border border-[#C9973E]/30 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl">
+          <div className="mt-16 p-8 sm:p-12 rounded-3xl bg-[#0F1E4D] text-white border border-[#C9973E]/30 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl">
             <div className="space-y-2 text-center sm:text-left">
               <span className="text-[10px] font-mono font-bold text-[#C9973E] uppercase tracking-widest bg-[#C9973E]/15 px-3 py-1 rounded-full">
                 OBJECTIF DU SPRINT
@@ -450,13 +604,13 @@ export function AccompagnementPage() {
               <h3 className="premium-font-display text-2xl sm:text-3xl font-bold text-white">
                 À la fin des 5 jours, votre boutique est en ligne.
               </h3>
-              <p className="text-sm text-zinc-400 font-light">
+              <p className="text-sm text-zinc-300 font-light">
                 Vous possédez un système autonome et prêt à encaisser des paiements.
               </p>
             </div>
             <button
               onClick={() => setShowBookingModal(true)}
-              className="px-8 py-4 bg-[#C9973E] hover:bg-[#D9A94A] text-[#0B1223] rounded-full text-xs font-bold uppercase tracking-wider transition-all shrink-0 cursor-pointer shadow-lg"
+              className="px-8 py-4 bg-[#C9973E] hover:bg-[#D9A94A] text-[#0F1E4D] rounded-full text-xs font-bold uppercase tracking-wider transition-all shrink-0 cursor-pointer shadow-lg"
             >
               Rejoindre la session →
             </button>
@@ -467,13 +621,13 @@ export function AccompagnementPage() {
       {/* ── SECTION BONUS ── */}
       <section className="py-24 bg-white relative z-10 border-b border-zinc-200/50">
         <div className="mx-auto max-w-5xl px-6">
-          <div className="border border-[#C9973E]/30 rounded-3xl p-8 sm:p-12 bg-gradient-to-br from-white to-[#FAF8F5] shadow-sm">
+          <div className="border border-[#C9973E]/30 rounded-3xl p-8 sm:p-12 bg-gradient-to-br from-white to-[#FAFAF9] shadow-sm">
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-center">
               <div className="lg:col-span-2 space-y-3">
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-mono font-bold bg-[#C9973E]/10 text-[#C9973E] uppercase tracking-wider">
                   BONUS INCLUS
                 </span>
-                <h3 className="premium-font-display text-2xl sm:text-3xl font-bold text-[#0F1B3D] leading-tight">
+                <h3 className="premium-font-display text-2xl sm:text-3xl font-bold text-[#0F1E4D] leading-tight">
                   1 mois d'accès au Club IA offert
                 </h3>
                 <p className="text-xs font-mono text-zinc-400 uppercase tracking-wider">
@@ -481,7 +635,7 @@ export function AccompagnementPage() {
                 </p>
               </div>
 
-              <div className="lg:col-span-3 text-sm text-[#0F1B3D]/70 leading-relaxed space-y-4 font-light">
+              <div className="lg:col-span-3 text-sm text-[#0F1E4D]/75 leading-relaxed space-y-4 font-light">
                 <p>
                   Pour vous assurer un suivi régulier après la fin du challenge, votre inscription inclut 1 mois complet d'accès à notre communauté privée.
                 </p>
@@ -492,7 +646,7 @@ export function AccompagnementPage() {
                     "Sessions de Q&A hebdomadaires",
                     "Feedback sur vos premières ventes"
                   ].map((item, i) => (
-                    <li key={i} className="flex items-center gap-2.5 text-xs text-[#0F1B3D] font-medium">
+                    <li key={i} className="flex items-center gap-2.5 text-xs text-[#0F1E4D] font-medium">
                       <span className="w-1.5 h-1.5 rounded-full bg-[#C9973E]" />
                       <span>{item}</span>
                     </li>
@@ -505,7 +659,7 @@ export function AccompagnementPage() {
       </section>
 
       {/* ── SECTION 03 — POUR QUI EST CE CHALLENGE ── */}
-      <section className="py-24 bg-[#FAF8F5] relative z-10 border-b border-zinc-200/50">
+      <section className="py-24 bg-[#FAFAF9] relative z-10 border-b border-zinc-200/50">
         <div className="mx-auto max-w-5xl px-6">
           <SectionHeader
             eyebrow="03 / Public visé"
@@ -550,15 +704,15 @@ export function AccompagnementPage() {
                   transition={{ duration: 0.5, delay: idx * 0.05, ease: EASE }}
                   className="p-6 rounded-3xl border border-zinc-200/80 bg-white flex flex-col justify-between hover:border-[#C9973E]/40 hover:shadow-md transition-all duration-200 relative overflow-hidden"
                 >
-                  <span className="absolute -right-2 -bottom-4 text-7xl font-mono font-extrabold text-[#C9973E]/10 select-none pointer-events-none">
+                  <span className="absolute top-3 right-4 text-5xl font-mono font-extrabold text-[#0F1E4D]/06 select-none pointer-events-none">
                     {item.num}
                   </span>
                   <div className="space-y-4 relative z-10">
                     <div className="w-10 h-10 rounded-xl bg-[#C9973E]/10 text-[#C9973E] flex items-center justify-center">
                       <ProfileIcon className="w-5 h-5" />
                     </div>
-                    <h4 className="premium-font-display font-bold text-base text-[#0F1B3D]">{item.title}</h4>
-                    <p className="text-xs text-[#0F1B3D]/70 leading-relaxed font-light">{item.desc}</p>
+                    <h4 className="premium-font-display font-bold text-base text-[#0F1E4D]">{item.title}</h4>
+                    <p className="text-xs text-[#0F1E4D]/75 leading-relaxed font-light">{item.desc}</p>
                   </div>
                 </motion.div>
               )
@@ -570,18 +724,18 @@ export function AccompagnementPage() {
       {/* ── SECTION TARIFICATION ── */}
       <section className="py-24 bg-white relative z-10 border-b border-zinc-200/50" id="tarification">
         <div className="mx-auto max-w-3xl px-6">
-          <div className="p-8 sm:p-12 rounded-3xl bg-[#0B1223] text-white text-center relative overflow-hidden border border-[#C9973E]/30 shadow-xl">
+          <div className="p-8 sm:p-12 rounded-3xl bg-[#0F1E4D] text-white text-center relative overflow-hidden border border-[#C9973E]/30 shadow-xl">
             
             {/* Session highlight pill */}
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-mono font-bold bg-[#C9973E]/15 text-[#D9A94A] uppercase tracking-wider mb-6 border border-[#C9973E]/30">
               <CalendarDays className="w-4 h-4 text-[#D9A94A]" />
-              <span>Session du 14 au 18 Août 2026</span>
+              <span>Session du Mardi 12 au Samedi 16 Août 2026</span>
             </div>
 
             <h3 className="premium-font-display text-3xl sm:text-4xl font-bold tracking-tight text-white leading-tight">
               Réservez votre ticket d'accès
             </h3>
-            <p className="text-xs text-zinc-400 mt-2 font-light max-w-md mx-auto">
+            <p className="text-xs text-zinc-300 mt-2 font-light max-w-md mx-auto">
               Accès complet aux 5 jours d'accompagnement direct et au groupe d'entraide dédié.
             </p>
 
@@ -598,7 +752,7 @@ export function AccompagnementPage() {
             <div className="flex flex-col items-center gap-4">
               <button
                 onClick={() => setShowBookingModal(true)}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-10 py-4 bg-[#C9973E] hover:bg-[#D9A94A] text-[#0B1223] rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-200 shadow-lg cursor-pointer"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-10 py-4 bg-[#C9973E] hover:bg-[#D9A94A] text-[#0F1E4D] rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-200 shadow-lg cursor-pointer"
               >
                 <span>Réserver mon ticket d'accès →</span>
               </button>
@@ -612,7 +766,7 @@ export function AccompagnementPage() {
       </section>
 
       {/* ── SECTION FAQ ── */}
-      <section className="py-24 bg-[#FAF8F5] relative z-10 border-b border-zinc-200/50" id="faq">
+      <section className="py-24 bg-[#FAFAF9] relative z-10 border-b border-zinc-200/50" id="faq">
         <div className="mx-auto max-w-3xl px-6">
           <SectionHeader
             eyebrow="FAQ"
@@ -649,7 +803,7 @@ export function AccompagnementPage() {
       </section>
 
       {/* ── SECTION CTA FINAL ── */}
-      <section className="py-28 bg-[#0B1223] text-white text-center relative z-10 overflow-hidden">
+      <section className="py-28 bg-[#0F1E4D] text-white text-center relative z-10 overflow-hidden">
         <div className="mx-auto max-w-3xl px-6 relative z-10 space-y-6">
           <span className="premium-font-mono text-[10px] font-bold tracking-[0.2em] text-[#C9973E] uppercase block">
             PASSEZ À L'ACTION
@@ -657,26 +811,26 @@ export function AccompagnementPage() {
           <h2 className="premium-font-display text-3xl sm:text-4xl font-bold tracking-tight text-white leading-tight">
             Prêt à lancer votre produit digital ?
           </h2>
-          <p className="text-sm text-zinc-400 max-w-md mx-auto leading-relaxed font-light">
+          <p className="text-sm text-zinc-300 max-w-md mx-auto leading-relaxed font-light">
             Dans 5 jours, vous disposerez d'un système de vente prêt à l'emploi. Rejoignez la session en direct.
           </p>
 
           <div className="pt-4 flex flex-col items-center justify-center gap-3">
             <button
               onClick={() => setShowBookingModal(true)}
-              className="inline-flex items-center gap-3 px-10 py-4 bg-[#C9973E] hover:bg-[#D9A94A] text-[#0B1223] rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-200 shadow-lg cursor-pointer"
+              className="inline-flex items-center gap-3 px-10 py-4 bg-[#C9973E] hover:bg-[#D9A94A] text-[#0F1E4D] rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-200 shadow-lg cursor-pointer"
             >
               <span>Réserver ma place — 10 000 FCFA →</span>
             </button>
             <span className="text-[10px] font-mono tracking-widest text-zinc-400 uppercase">
-              Prochaine session : 14 — 18 Août 2026
+              Prochaine session : Mardi 12 au Samedi 16 Août 2026
             </span>
           </div>
         </div>
       </section>
 
       {/* ── Footer ── */}
-      <footer className="py-12 text-center bg-[#FAF8F5] border-t border-zinc-200/50 relative z-10">
+      <footer className="py-12 text-center bg-[#FAFAF9] border-t border-zinc-200/50 relative z-10">
         <div className="mx-auto max-w-6xl px-6 flex flex-col md:flex-row items-center justify-between gap-6">
           <BrandLogo size="sm" display="mark" showSignature={true} />
           
@@ -703,12 +857,12 @@ export function AccompagnementPage() {
             className="fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-md border-t border-zinc-200 p-4 sm:hidden flex items-center justify-between shadow-xl"
           >
             <div className="space-y-0.5">
-              <div className="text-[9px] font-mono text-[#C9973E] font-bold uppercase">14 - 18 AOÛT</div>
-              <div className="text-base font-bold font-mono text-[#0F1B3D]">10 000 FCFA</div>
+              <div className="text-[9px] font-mono text-[#C9973E] font-bold uppercase">12 - 16 AOÛT</div>
+              <div className="text-base font-bold font-mono text-[#0F1E4D]">10 000 FCFA</div>
             </div>
             <button
               onClick={() => setShowBookingModal(true)}
-              className="px-5 py-3 bg-[#0B1223] text-white rounded-full text-[10px] font-bold uppercase tracking-wider shadow-md"
+              className="px-5 py-3 bg-[#0F1E4D] text-white rounded-full text-[10px] font-bold uppercase tracking-wider shadow-md"
             >
               Réserver →
             </button>
@@ -898,14 +1052,14 @@ function BookingModal({ onClose }: { onClose: () => void }) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#0B1223]/75 backdrop-blur-md"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#0F1E4D]/75 backdrop-blur-md"
     >
       <motion.div
         initial={{ scale: 0.96, y: 20 }}
         animate={{ scale: 1, y: 0 }}
         exit={{ scale: 0.96, y: 20 }}
         transition={{ duration: 0.35, ease: EASE }}
-        className="w-full max-w-lg bg-white rounded-3xl overflow-hidden border border-zinc-200 shadow-2xl relative flex flex-col text-[#0F1B3D]"
+        className="w-full max-w-lg bg-white rounded-3xl overflow-hidden border border-zinc-200 shadow-2xl relative flex flex-col text-[#0F1E4D]"
       >
         {/* Close Button */}
         <button
@@ -942,10 +1096,10 @@ function BookingModal({ onClose }: { onClose: () => void }) {
                   </span>
 
                   <div className="space-y-2">
-                    <h3 className="premium-font-display text-2xl font-bold leading-tight text-[#0F1B3D]">
+                    <h3 className="premium-font-display text-2xl font-bold leading-tight text-[#0F1E4D]">
                       {currentQuestion.label}
                     </h3>
-                    <p className="text-xs text-[#0F1B3D]/60">
+                    <p className="text-xs text-[#0F1E4D]/60">
                       {currentQuestion.subtitle}
                     </p>
                   </div>
@@ -971,7 +1125,7 @@ function BookingModal({ onClose }: { onClose: () => void }) {
                 type="button"
                 onClick={handlePrev}
                 disabled={currentStep === 0}
-                className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#0F1B3D]/50 hover:text-[#0F1B3D] disabled:opacity-30 transition-all cursor-pointer"
+                className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#0F1E4D]/50 hover:text-[#0F1E4D] disabled:opacity-30 transition-all cursor-pointer"
               >
                 <ChevronLeft className="w-4 h-4" />
                 <span>Précédent</span>
@@ -981,7 +1135,7 @@ function BookingModal({ onClose }: { onClose: () => void }) {
                 type="button"
                 onClick={handleNext}
                 disabled={loading}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-[#0B1223] hover:bg-[#131B35] text-white rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer shadow-md"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-[#0F1E4D] hover:bg-[#1E3A8A] text-white rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer shadow-md"
               >
                 {loading ? (
                   <>
@@ -1004,10 +1158,10 @@ function BookingModal({ onClose }: { onClose: () => void }) {
               ✓
             </div>
             <div className="space-y-2">
-              <h3 className="premium-font-display text-xl font-bold text-[#0F1B3D]">
+              <h3 className="premium-font-display text-xl font-bold text-[#0F1E4D]">
                 Inscription enregistrée !
               </h3>
-              <p className="text-xs text-[#0F1B3D]/60 leading-relaxed max-w-xs mx-auto">
+              <p className="text-xs text-[#0F1E4D]/60 leading-relaxed max-w-xs mx-auto">
                 Félicitations <strong>{formData.name}</strong> ! Votre place pour le Sprint est pré-réservée. Redirection vers WhatsApp...
               </p>
             </div>
