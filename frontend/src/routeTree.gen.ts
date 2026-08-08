@@ -17,8 +17,11 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as ConfidentialiteRouteImport } from './routes/confidentialite'
 import { Route as CheckoutRouteImport } from './routes/checkout'
+import { Route as ChallengeRouteImport } from './routes/challenge'
 import { Route as CguRouteImport } from './routes/cgu'
 import { Route as CatalogueRouteImport } from './routes/catalogue'
+import { Route as BusinessIaRouteImport } from './routes/business-ia'
+import { Route as BusinessRouteImport } from './routes/business'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as AccompagnementRouteImport } from './routes/accompagnement'
@@ -101,6 +104,11 @@ const CheckoutRoute = CheckoutRouteImport.update({
   path: '/checkout',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ChallengeRoute = ChallengeRouteImport.update({
+  id: '/challenge',
+  path: '/challenge',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CguRoute = CguRouteImport.update({
   id: '/cgu',
   path: '/cgu',
@@ -109,6 +117,16 @@ const CguRoute = CguRouteImport.update({
 const CatalogueRoute = CatalogueRouteImport.update({
   id: '/catalogue',
   path: '/catalogue',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BusinessIaRoute = BusinessIaRouteImport.update({
+  id: '/business-ia',
+  path: '/business-ia',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BusinessRoute = BusinessRouteImport.update({
+  id: '/business',
+  path: '/business',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -323,8 +341,11 @@ export interface FileRoutesByFullPath {
   '/accompagnement': typeof AccompagnementRoute
   '/app': typeof AppRouteWithChildren
   '/auth': typeof AuthRoute
+  '/business': typeof BusinessRoute
+  '/business-ia': typeof BusinessIaRoute
   '/catalogue': typeof CatalogueRouteWithChildren
   '/cgu': typeof CguRoute
+  '/challenge': typeof ChallengeRoute
   '/checkout': typeof CheckoutRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/forgot-password': typeof ForgotPasswordRoute
@@ -375,7 +396,10 @@ export interface FileRoutesByTo {
   '/abonnement': typeof AbonnementRoute
   '/accompagnement': typeof AccompagnementRoute
   '/auth': typeof AuthRoute
+  '/business': typeof BusinessRoute
+  '/business-ia': typeof BusinessIaRoute
   '/cgu': typeof CguRoute
+  '/challenge': typeof ChallengeRoute
   '/checkout': typeof CheckoutRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/forgot-password': typeof ForgotPasswordRoute
@@ -427,8 +451,11 @@ export interface FileRoutesById {
   '/accompagnement': typeof AccompagnementRoute
   '/app': typeof AppRouteWithChildren
   '/auth': typeof AuthRoute
+  '/business': typeof BusinessRoute
+  '/business-ia': typeof BusinessIaRoute
   '/catalogue': typeof CatalogueRouteWithChildren
   '/cgu': typeof CguRoute
+  '/challenge': typeof ChallengeRoute
   '/checkout': typeof CheckoutRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/forgot-password': typeof ForgotPasswordRoute
@@ -482,8 +509,11 @@ export interface FileRouteTypes {
     | '/accompagnement'
     | '/app'
     | '/auth'
+    | '/business'
+    | '/business-ia'
     | '/catalogue'
     | '/cgu'
+    | '/challenge'
     | '/checkout'
     | '/confidentialite'
     | '/forgot-password'
@@ -534,7 +564,10 @@ export interface FileRouteTypes {
     | '/abonnement'
     | '/accompagnement'
     | '/auth'
+    | '/business'
+    | '/business-ia'
     | '/cgu'
+    | '/challenge'
     | '/checkout'
     | '/confidentialite'
     | '/forgot-password'
@@ -585,8 +618,11 @@ export interface FileRouteTypes {
     | '/accompagnement'
     | '/app'
     | '/auth'
+    | '/business'
+    | '/business-ia'
     | '/catalogue'
     | '/cgu'
+    | '/challenge'
     | '/checkout'
     | '/confidentialite'
     | '/forgot-password'
@@ -639,8 +675,11 @@ export interface RootRouteChildren {
   AccompagnementRoute: typeof AccompagnementRoute
   AppRoute: typeof AppRouteWithChildren
   AuthRoute: typeof AuthRoute
+  BusinessRoute: typeof BusinessRoute
+  BusinessIaRoute: typeof BusinessIaRoute
   CatalogueRoute: typeof CatalogueRouteWithChildren
   CguRoute: typeof CguRoute
+  ChallengeRoute: typeof ChallengeRoute
   CheckoutRoute: typeof CheckoutRoute
   ConfidentialiteRoute: typeof ConfidentialiteRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
@@ -709,6 +748,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CheckoutRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/challenge': {
+      id: '/challenge'
+      path: '/challenge'
+      fullPath: '/challenge'
+      preLoaderRoute: typeof ChallengeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/cgu': {
       id: '/cgu'
       path: '/cgu'
@@ -721,6 +767,20 @@ declare module '@tanstack/react-router' {
       path: '/catalogue'
       fullPath: '/catalogue'
       preLoaderRoute: typeof CatalogueRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/business-ia': {
+      id: '/business-ia'
+      path: '/business-ia'
+      fullPath: '/business-ia'
+      preLoaderRoute: typeof BusinessIaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/business': {
+      id: '/business'
+      path: '/business'
+      fullPath: '/business'
+      preLoaderRoute: typeof BusinessRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -1119,8 +1179,11 @@ const rootRouteChildren: RootRouteChildren = {
   AccompagnementRoute: AccompagnementRoute,
   AppRoute: AppRouteWithChildren,
   AuthRoute: AuthRoute,
+  BusinessRoute: BusinessRoute,
+  BusinessIaRoute: BusinessIaRoute,
   CatalogueRoute: CatalogueRouteWithChildren,
   CguRoute: CguRoute,
+  ChallengeRoute: ChallengeRoute,
   CheckoutRoute: CheckoutRoute,
   ConfidentialiteRoute: ConfidentialiteRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
