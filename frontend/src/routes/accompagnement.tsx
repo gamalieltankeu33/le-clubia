@@ -354,21 +354,28 @@ export function AccompagnementPage() {
     return () => clearInterval(interval)
   }, [])
 
-  // Initialize Lenis smooth scrolling
+  // Initialize Lenis smooth scrolling safely
   useEffect(() => {
-    const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      orientation: 'vertical',
-      gestureOrientation: 'vertical',
-      smoothWheel: true,
-    })
+    let lenis: any = null
+    try {
+      lenis = new Lenis({
+        duration: 1.2,
+        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        orientation: 'vertical',
+        gestureOrientation: 'vertical',
+        smoothWheel: true,
+      })
 
-    function raf(time: number) {
-      lenis.raf(time)
+      function raf(time: number) {
+        if (lenis) {
+          lenis.raf(time)
+          requestAnimationFrame(raf)
+        }
+      }
       requestAnimationFrame(raf)
+    } catch (err) {
+      console.warn('Lenis initialization skipped:', err)
     }
-    requestAnimationFrame(raf)
 
     const handleScroll = () => {
       if (window.scrollY > 400) {
@@ -380,7 +387,11 @@ export function AccompagnementPage() {
     window.addEventListener('scroll', handleScroll)
 
     return () => {
-      lenis.destroy()
+      if (lenis) {
+        try {
+          lenis.destroy()
+        } catch {}
+      }
       window.removeEventListener('scroll', handleScroll)
     }
   }, [])

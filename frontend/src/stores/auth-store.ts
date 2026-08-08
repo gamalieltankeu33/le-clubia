@@ -182,12 +182,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     })
 
     // ── 2. Failsafe absolu ─────────────────────────────────────────────
-    // L'écran de chargement (BootLoader) bloque tant que isInitialized
-    // est false. Si getSession() se bloque (échange du code de
-    // récupération PKCE, lock auth, réseau), l'app resterait figée à
-    // l'infini. Ce timeout GARANTIT l'affichage en 3s max, quoi qu'il
-    // arrive. Le listener ci-dessus complétera l'hydratation ensuite.
-    const failsafe = window.setTimeout(markReady, 3000)
+    // Timeout de 1s pour garantir l'affichage immédiat même si Supabase RPC ralentit.
+    const failsafe = window.setTimeout(markReady, 1000)
 
     // ── 3. Hydratation locale (rapide) ─────────────────────────────────
     try {

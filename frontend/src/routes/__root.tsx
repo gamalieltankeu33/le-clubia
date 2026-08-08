@@ -72,16 +72,14 @@ function RootComponent() {
 
 function BootLoader() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-3 bg-[var(--background)]">
-      <img
-        src="/brand/icone.svg"
-        alt="Leclub.ia"
-        className="h-14 w-14 animate-pulse"
-        draggable={false}
-      />
-      <span className="text-sm text-[var(--muted-foreground)]">
-        Chargement…
-      </span>
+    <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-[#FAFAF9] text-[#0F1E4D]">
+      <BrandLogo size="md" />
+      <div className="flex items-center gap-2 mt-2">
+        <div className="w-2 h-2 rounded-full bg-[#2563EB] animate-ping" />
+        <span className="text-xs font-mono font-bold uppercase tracking-widest text-[#0F1E4D]/70">
+          Chargement en cours...
+        </span>
+      </div>
     </div>
   )
 }
