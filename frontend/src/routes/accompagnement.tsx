@@ -20,7 +20,8 @@ import {
   CheckCircle2,
   Zap,
   Sparkles,
-  CreditCard
+  MessageSquare,
+  Users
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
@@ -33,9 +34,9 @@ export const Route = createFileRoute('/accompagnement')({
   component: AccompagnementPage,
 })
 
-const CHARIOW_PAYMENT_URL = 'https://ekzckmyk.mychariow.shop/prd_wx1lpxcw?draft=true'
+const WHATSAPP_GROUP_URL = 'https://chat.whatsapp.com/D8g1c1cWjuK1OIgpDdRWFs?mode=gi_t'
 
-/* ─── Custom CSS Injection (Aligned with Le Club IA Design System) ─── */
+/* ─── Custom CSS Injection (Strictly Aligned with Le Club IA Canonical Design Tokens) ─── */
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600;700&display=swap');
   
@@ -72,14 +73,14 @@ const styles = `
     background: rgba(15, 30, 77, 0.02);
   }
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: rgba(201, 162, 75, 0.3);
+    background: rgba(37, 99, 235, 0.3);
     border-radius: 10px;
   }
 `
 
 const EASE = [0.16, 1, 0.3, 1] as const
 
-/* ─── PURE HIGH-IMPACT PIPELINE STEPPER ANIMATION (NO OUTER BOX, NO EXTRA TEXT) ─── */
+/* ─── PURE HIGH-IMPACT PIPELINE STEPPER ANIMATION ─── */
 function LiveWorkflowAnimation() {
   const [activeStep, setActiveStep] = useState(0)
 
@@ -162,7 +163,7 @@ function LiveWorkflowAnimation() {
 function SectionHeader({ eyebrow, title, subtitle }: { eyebrow: string; title: string; subtitle?: string }) {
   return (
     <div className="max-w-3xl mb-14 text-center mx-auto space-y-3">
-      <span className="premium-font-mono text-[11px] font-bold tracking-[0.25em] text-[#C9973E] uppercase block">
+      <span className="premium-font-mono text-[11px] font-bold tracking-[0.25em] text-[#2563EB] uppercase block">
         {eyebrow}
       </span>
       <motion.h2
@@ -201,18 +202,18 @@ function FAQAccordionItem({ question, answer, idx }: { question: string; answer:
       transition={{ duration: 0.5, delay: idx * 0.05, ease: EASE }}
       className={`border rounded-2xl mb-3 overflow-hidden transition-all duration-200 ${
         isOpen
-          ? 'border-[#C9973E]/40 bg-white shadow-md shadow-[#0F1E4D]/3'
+          ? 'border-[#2563EB]/40 bg-white shadow-md shadow-[#0F1E4D]/3'
           : 'border-zinc-200/80 bg-white hover:border-zinc-300 shadow-2xs'
       }`}
     >
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between text-left p-6 font-semibold text-base text-[#0F1E4D] transition-colors hover:text-[#C9973E] cursor-pointer"
+        className="w-full flex items-center justify-between text-left p-6 font-semibold text-base text-[#0F1E4D] transition-colors hover:text-[#2563EB] cursor-pointer"
       >
         <span className="premium-font-display pr-6 font-medium text-sm sm:text-base">{question}</span>
         <div
           className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full transition-transform duration-300 ${
-            isOpen ? 'bg-[#C9973E]/10 text-[#C9973E] rotate-45' : 'bg-zinc-100 text-zinc-500'
+            isOpen ? 'bg-[#2563EB]/10 text-[#2563EB] rotate-45' : 'bg-zinc-100 text-zinc-500'
           }`}
         >
           <Plus className="h-4 w-4" />
@@ -273,7 +274,7 @@ export function AccompagnementPage() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-[#FAFAF9] text-[#0F1E4D] premium-font-body antialiased selection:bg-[#C9973E] selection:text-white pb-10 overflow-hidden relative">
+    <div className="min-h-screen bg-[#FAFAF9] text-[#0F1E4D] premium-font-body antialiased selection:bg-[#2563EB] selection:text-white pb-10 overflow-hidden relative">
       <style>{styles}</style>
 
       {/* Grid overlay for subtle background texture */}
@@ -290,7 +291,7 @@ export function AccompagnementPage() {
               onClick={() => setShowBookingModal(true)}
               className="inline-flex items-center gap-2 px-6 py-3 bg-[#0F1E4D] hover:bg-[#1E3A8A] text-white rounded-full text-xs font-semibold tracking-wide transition-all duration-200 shadow-sm hover:shadow cursor-pointer"
             >
-              <span>Réserver ma place →</span>
+              <span>Rejoindre la liste VIP →</span>
             </button>
           </div>
         </div>
@@ -305,11 +306,11 @@ export function AccompagnementPage() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, ease: EASE }}
-            className="inline-flex items-center gap-3 p-3 px-6 rounded-full bg-white border-2 border-[#C9973E]/40 shadow-sm"
+            className="inline-flex items-center gap-3 p-3 px-6 rounded-full bg-white border-2 border-[#2563EB]/30 shadow-sm"
           >
-            <CalendarDays className="w-5 h-5 text-[#C9973E]" />
+            <CalendarDays className="w-5 h-5 text-[#2563EB]" />
             <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#0F1E4D]">
-              <span className="text-[#C9973E] uppercase tracking-wider">PROCHAINE SESSION :</span>
+              <span className="text-[#2563EB] uppercase tracking-wider">SESSION DÉBUT :</span>
               <span className="premium-font-display text-sm font-bold">Mardi 12 au Samedi 16 Août 2026</span>
             </div>
           </motion.div>
@@ -341,10 +342,10 @@ export function AccompagnementPage() {
           >
             <button
               onClick={() => setShowBookingModal(true)}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-10 py-4 bg-[#0F1E4D] hover:bg-[#1E3A8A] text-[#FAFAF9] rounded-full text-sm font-bold uppercase tracking-wider transition-all duration-200 shadow-xl hover:scale-[1.02] cursor-pointer"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-10 py-4 bg-[#0F1E4D] hover:bg-[#1E3A8A] text-white rounded-full text-sm font-bold uppercase tracking-wider transition-all duration-200 shadow-xl hover:scale-[1.02] cursor-pointer"
             >
-              <span>Réserver ma place — 10 000 FCFA</span>
-              <ArrowRight className="w-4 h-4 text-[#C9973E]" />
+              <span>Rejoindre la liste d'attente (VIP)</span>
+              <ArrowRight className="w-4 h-4 text-[#60A5FA]" />
             </button>
           </motion.div>
 
@@ -357,10 +358,10 @@ export function AccompagnementPage() {
           >
             <span className="flex items-center gap-1.5">
               <ShieldCheck className="w-4 h-4 text-emerald-600" />
-              <span>Session limitée à 20 participants</span>
+              <span>Ouverture officielle : Lundi 18h</span>
             </span>
             <span>•</span>
-            <span className="text-[#C9973E] font-semibold">1 mois d'accès Club IA offert</span>
+            <span className="text-[#2563EB] font-semibold">100% gratuit d'attendre dans le groupe VIP</span>
           </motion.div>
         </div>
       </section>
@@ -405,7 +406,7 @@ export function AccompagnementPage() {
                   {/* Curved Connector Arrow between pillars 1->2 and 2->3 on desktop */}
                   {idx < 2 && (
                     <div className="hidden md:block absolute -right-6 top-1/2 -translate-y-1/2 z-20 pointer-events-none">
-                      <svg className="w-10 h-10 text-[#C9973E]/40" viewBox="0 0 40 40" fill="none">
+                      <svg className="w-10 h-10 text-[#2563EB]/40" viewBox="0 0 40 40" fill="none">
                         <path d="M 5 20 Q 20 5, 35 20" stroke="currentColor" strokeWidth="2" strokeDasharray="3 3" />
                         <polygon points="32,15 38,20 32,25" fill="currentColor" />
                       </svg>
@@ -417,7 +418,7 @@ export function AccompagnementPage() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.5, delay: idx * 0.1, ease: EASE }}
-                    className="h-full p-8 sm:p-9 rounded-3xl border border-zinc-200/80 bg-[#FAFAF9] relative overflow-hidden flex flex-col justify-between hover:border-[#C9973E]/50 hover:shadow-lg transition-all duration-300"
+                    className="h-full p-8 sm:p-9 rounded-3xl border border-zinc-200/80 bg-[#FAFAF9] relative overflow-hidden flex flex-col justify-between hover:border-[#2563EB]/40 hover:shadow-lg transition-all duration-300"
                   >
                     {/* ULTRA-SUBTLE SANS BACKGROUND NUMBER (NON-OVERLAPPING) */}
                     <span className="absolute top-4 right-5 font-mono text-5xl font-extrabold text-[#0F1E4D]/[0.025] select-none pointer-events-none">
@@ -426,10 +427,10 @@ export function AccompagnementPage() {
 
                     <div className="space-y-5 relative z-10 pt-1">
                       <div className="flex items-center justify-between">
-                        <div className="w-12 h-12 rounded-2xl bg-[#C9973E]/10 text-[#C9973E] flex items-center justify-center border border-[#C9973E]/20">
+                        <div className="w-12 h-12 rounded-2xl bg-[#2563EB]/10 text-[#2563EB] flex items-center justify-center border border-[#2563EB]/20">
                           <PillarIcon className="w-6 h-6" />
                         </div>
-                        <span className="premium-font-mono text-xs font-bold text-[#C9973E] bg-white px-3 py-1 rounded-full border border-zinc-200/60 shadow-2xs">
+                        <span className="premium-font-mono text-xs font-bold text-[#2563EB] bg-white px-3 py-1 rounded-full border border-zinc-200/60 shadow-2xs">
                           Phase {pillar.num}
                         </span>
                       </div>
@@ -493,7 +494,7 @@ export function AccompagnementPage() {
                   {/* Curved Connector SVG Arrow between steps 1->2 and 2->3 */}
                   {idx < 2 && (
                     <div className="hidden sm:flex justify-center my-2 relative z-20">
-                      <svg className="w-12 h-10 text-[#C9973E]/50" viewBox="0 0 50 40" fill="none">
+                      <svg className="w-12 h-10 text-[#2563EB]/50" viewBox="0 0 50 40" fill="none">
                         <path d="M 25 0 Q 38 20, 25 35" stroke="currentColor" strokeWidth="2.5" strokeDasharray="4 3" />
                         <polygon points="19,30 25,38 31,30" fill="currentColor" />
                       </svg>
@@ -505,7 +506,7 @@ export function AccompagnementPage() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.5, delay: idx * 0.08, ease: EASE }}
-                    className="p-8 sm:p-10 rounded-3xl bg-white border border-zinc-200/80 shadow-sm relative overflow-hidden flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 hover:border-[#C9973E]/40 hover:shadow-md transition-all"
+                    className="p-8 sm:p-10 rounded-3xl bg-white border border-zinc-200/80 shadow-sm relative overflow-hidden flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 hover:border-[#2563EB]/40 hover:shadow-md transition-all"
                   >
                     {/* ULTRA-SUBTLE SANS BACKGROUND STEP NUMBER */}
                     <span className="font-mono absolute top-4 right-6 text-6xl font-extrabold text-[#0F1E4D]/[0.025] select-none pointer-events-none">
@@ -513,12 +514,12 @@ export function AccompagnementPage() {
                     </span>
 
                     <div className="flex items-start gap-6 relative z-10">
-                      <div className="w-14 h-14 rounded-2xl bg-[#C9973E]/10 border border-[#C9973E]/20 flex items-center justify-center shrink-0">
-                        <StepIcon className="w-7 h-7 text-[#C9973E]" />
+                      <div className="w-14 h-14 rounded-2xl bg-[#2563EB]/10 border border-[#2563EB]/20 flex items-center justify-center shrink-0">
+                        <StepIcon className="w-7 h-7 text-[#2563EB]" />
                       </div>
                       <div className="space-y-2">
                         <div className="flex items-center gap-3">
-                          <span className="text-xs font-mono font-bold tracking-widest text-[#C9973E] uppercase bg-[#C9973E]/10 px-3 py-1 rounded-full border border-[#C9973E]/20">
+                          <span className="text-xs font-mono font-bold tracking-widest text-[#2563EB] uppercase bg-[#2563EB]/10 px-3 py-1 rounded-full border border-[#2563EB]/20">
                             {step.day}
                           </span>
                           <span className="text-xs font-mono text-zinc-400 font-medium">Étape 0{idx + 1}</span>
@@ -539,9 +540,9 @@ export function AccompagnementPage() {
           </div>
 
           {/* Banner Résultat */}
-          <div className="mt-16 p-8 sm:p-12 rounded-3xl bg-[#0F1E4D] text-white border border-[#C9973E]/30 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl">
+          <div className="mt-16 p-8 sm:p-12 rounded-3xl bg-[#0F1E4D] text-white border border-[#2563EB]/30 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl">
             <div className="space-y-2 text-center sm:text-left">
-              <span className="text-[10px] font-mono font-bold text-[#C9973E] uppercase tracking-widest bg-[#C9973E]/15 px-3 py-1 rounded-full">
+              <span className="text-[10px] font-mono font-bold text-[#60A5FA] uppercase tracking-widest bg-[#60A5FA]/15 px-3 py-1 rounded-full">
                 OBJECTIF DU SPRINT
               </span>
               <h3 className="premium-font-display text-2xl sm:text-3xl font-bold text-white">
@@ -553,9 +554,9 @@ export function AccompagnementPage() {
             </div>
             <button
               onClick={() => setShowBookingModal(true)}
-              className="px-8 py-4 bg-[#C9973E] hover:bg-[#D9A94A] text-[#0F1E4D] rounded-full text-xs font-bold uppercase tracking-wider transition-all shrink-0 cursor-pointer shadow-lg"
+              className="px-8 py-4 bg-[#2563EB] hover:bg-[#1E3A8A] text-white rounded-full text-xs font-bold uppercase tracking-wider transition-all shrink-0 cursor-pointer shadow-lg"
             >
-              Rejoindre la session →
+              Rejoindre le groupe VIP →
             </button>
           </div>
         </div>
@@ -564,10 +565,10 @@ export function AccompagnementPage() {
       {/* ── SECTION BONUS ── */}
       <section className="py-24 bg-white relative z-10 border-b border-zinc-200/50">
         <div className="mx-auto max-w-5xl px-6">
-          <div className="border border-[#C9973E]/30 rounded-3xl p-8 sm:p-12 bg-gradient-to-br from-white to-[#FAFAF9] shadow-sm">
+          <div className="border border-[#2563EB]/30 rounded-3xl p-8 sm:p-12 bg-gradient-to-br from-white to-[#FAFAF9] shadow-sm">
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-center">
               <div className="lg:col-span-2 space-y-3">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-mono font-bold bg-[#C9973E]/10 text-[#C9973E] uppercase tracking-wider">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-mono font-bold bg-[#2563EB]/10 text-[#2563EB] uppercase tracking-wider">
                   BONUS INCLUS
                 </span>
                 <h3 className="premium-font-display text-2xl sm:text-3xl font-bold text-[#0F1E4D] leading-tight">
@@ -590,7 +591,7 @@ export function AccompagnementPage() {
                     "Feedback sur vos premières ventes"
                   ].map((item, i) => (
                     <li key={i} className="flex items-center gap-2.5 text-xs text-[#0F1E4D] font-medium">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#C9973E]" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#2563EB]" />
                       <span>{item}</span>
                     </li>
                   ))}
@@ -645,13 +646,13 @@ export function AccompagnementPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: idx * 0.05, ease: EASE }}
-                  className="p-6 rounded-3xl border border-zinc-200/80 bg-white flex flex-col justify-between hover:border-[#C9973E]/40 hover:shadow-md transition-all duration-200 relative overflow-hidden"
+                  className="p-6 rounded-3xl border border-zinc-200/80 bg-white flex flex-col justify-between hover:border-[#2563EB]/40 hover:shadow-md transition-all duration-200 relative overflow-hidden"
                 >
                   <span className="font-mono absolute top-3 right-4 text-5xl font-extrabold text-[#0F1E4D]/[0.025] select-none pointer-events-none">
                     {item.num}
                   </span>
                   <div className="space-y-4 relative z-10">
-                    <div className="w-10 h-10 rounded-xl bg-[#C9973E]/10 text-[#C9973E] flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-xl bg-[#2563EB]/10 text-[#2563EB] flex items-center justify-center">
                       <ProfileIcon className="w-5 h-5" />
                     </div>
                     <h4 className="premium-font-display font-bold text-base text-[#0F1E4D]">{item.title}</h4>
@@ -664,45 +665,45 @@ export function AccompagnementPage() {
         </div>
       </section>
 
-      {/* ── SECTION TARIFICATION ── */}
+      {/* ── SECTION TARIFICATION (ACCÈS VIP LISTE D'ATTENTE) ── */}
       <section className="py-24 bg-white relative z-10 border-b border-zinc-200/50" id="tarification">
         <div className="mx-auto max-w-4xl px-6">
-          <div className="p-8 sm:p-14 rounded-3xl bg-[#0F1E4D] text-white text-center relative overflow-hidden border border-[#C9973E]/30 shadow-xl">
+          <div className="p-8 sm:p-14 rounded-3xl bg-[#0F1E4D] text-white text-center relative overflow-hidden border border-[#2563EB]/30 shadow-xl">
             
             {/* Session highlight pill */}
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-mono font-bold bg-[#C9973E]/15 text-[#D9A94A] uppercase tracking-wider mb-6 border border-[#C9973E]/30">
-              <CalendarDays className="w-4 h-4 text-[#D9A94A]" />
-              <span>Session du Mardi 12 au Samedi 16 Août 2026</span>
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-mono font-bold bg-[#2563EB]/20 text-[#60A5FA] uppercase tracking-wider mb-6 border border-[#2563EB]/30">
+              <CalendarDays className="w-4 h-4 text-[#60A5FA]" />
+              <span>Ouverture officielle : Lundi 18h • Sprint : Mardi 12 au Samedi 16 Août</span>
             </div>
 
             <h3 className="premium-font-display text-3xl sm:text-4xl font-bold tracking-tight text-white leading-tight">
-              Réservez votre ticket d'accès
+              Rejoignez le Groupe WhatsApp VIP
             </h3>
             <p className="text-xs sm:text-sm text-zinc-300 mt-2 font-light max-w-md mx-auto">
-              Accès complet aux 5 jours d'accompagnement direct et au groupe d'entraide dédié.
+              Les places sont limitées à 20 participants. Inscrivez-vous pour obtenir votre lien d'accès prioritaire dès l'ouverture des paiements Lundi.
             </p>
 
             {/* REFINED HIGH-IMPACT DISPLAY PRICE FONT */}
             <div className="my-10">
               <div className="text-5xl sm:text-6xl font-extrabold tracking-tight text-white flex items-center justify-center gap-3">
                 <span className="premium-font-display font-extrabold text-white tracking-tight">10 000</span>
-                <span className="text-2xl sm:text-3xl font-bold text-[#D9A94A] premium-font-display">FCFA</span>
+                <span className="text-2xl sm:text-3xl font-bold text-[#60A5FA] premium-font-display">FCFA</span>
               </div>
               <p className="text-xs text-zinc-400 mt-3 font-mono uppercase tracking-wider">
-                Tarif unique • Aucun frais caché
+                Tarif unique • Paiement débloqué Lundi
               </p>
             </div>
 
             <div className="flex flex-col items-center gap-4">
               <button
                 onClick={() => setShowBookingModal(true)}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-10 py-4 bg-[#C9973E] hover:bg-[#D9A94A] text-[#0F1E4D] rounded-full text-sm font-bold uppercase tracking-wider transition-all duration-200 shadow-lg cursor-pointer hover:scale-[1.02]"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-10 py-4 bg-[#2563EB] hover:bg-[#1E3A8A] text-white rounded-full text-sm font-bold uppercase tracking-wider transition-all duration-200 shadow-lg cursor-pointer hover:scale-[1.02]"
               >
-                <span>Réserver mon ticket d'accès →</span>
+                <span>Rejoindre la liste d'attente VIP →</span>
               </button>
               <div className="flex items-center justify-center gap-2 text-[10px] font-mono text-zinc-400 uppercase tracking-wider">
-                <Lock className="w-3.5 h-3.5 text-[#C9973E]" />
-                <span>Paiement sécurisé (Stripe & Mobile Money)</span>
+                <Lock className="w-3.5 h-3.5 text-[#60A5FA]" />
+                <span>Sans engagement • Accès prioritaire au groupe</span>
               </div>
             </div>
           </div>
@@ -724,12 +725,12 @@ export function AccompagnementPage() {
                 a: "Non. Le challenge est spécialement conçu pour éliminer la complexité technique. Nous utilisons des outils simples et des instructions claires pour configurer vos pages.",
               },
               {
-                q: "Combien de temps dois-je consacrer chaque jour ?",
-                a: "Comptez environ 1 à 2 heures par jour pour suivre les instructions et appliquer les exercices. C'est parfaitement compatible avec une activité salariée.",
+                q: "Quand ouvrent officiellement les inscriptions ?",
+                a: "Les inscriptions et paiements ouvrent officiellement ce Lundi. En rejoignant le groupe WhatsApp VIP aujourd'hui, vous recevrez votre lien de réservation en avant-première.",
               },
               {
-                q: "Comment se déroulent les sessions ?",
-                a: "Les instructions et guides pas à pas sont partagés chaque jour dans l'espace membre, accompagnés d'un canal d'entraide pour poser vos questions en direct.",
+                q: "Combien de temps dois-je consacrer chaque jour ?",
+                a: "Comptez environ 1 à 2 heures par jour pour suivre les instructions et appliquer les exercices. C'est parfaitement compatible avec une activité salariée.",
               },
               {
                 q: "Puis-je participer depuis l'Afrique ou l'Europe ?",
@@ -749,22 +750,22 @@ export function AccompagnementPage() {
       {/* ── SECTION CTA FINAL ── */}
       <section className="py-28 bg-[#0F1E4D] text-white text-center relative z-10 overflow-hidden">
         <div className="mx-auto max-w-3xl px-6 relative z-10 space-y-6">
-          <span className="premium-font-mono text-[10px] font-bold tracking-[0.2em] text-[#C9973E] uppercase block">
+          <span className="premium-font-mono text-[10px] font-bold tracking-[0.2em] text-[#60A5FA] uppercase block">
             PASSEZ À L'ACTION
           </span>
           <h2 className="premium-font-display text-3xl sm:text-4xl font-bold tracking-tight text-white leading-tight">
-            Prêt à lancer votre produit digital ?
+            Prêt à <span className="serif-accent">passer le cap ?</span>
           </h2>
           <p className="text-sm text-zinc-300 max-w-md mx-auto leading-relaxed font-light">
-            Dans 5 jours, vous disposerez d'un système de vente prêt à l'emploi. Rejoignez la session en direct.
+            Dans 5 jours, vous disposerez d'un système de vente prêt à l'emploi. Rejoignez la liste VIP.
           </p>
 
           <div className="pt-4 flex flex-col items-center justify-center gap-3">
             <button
               onClick={() => setShowBookingModal(true)}
-              className="inline-flex items-center gap-3 px-10 py-4 bg-[#C9973E] hover:bg-[#D9A94A] text-[#0F1E4D] rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-200 shadow-lg cursor-pointer"
+              className="inline-flex items-center gap-3 px-10 py-4 bg-[#2563EB] hover:bg-[#1E3A8A] text-white rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-200 shadow-lg cursor-pointer"
             >
-              <span>Réserver ma place — 10 000 FCFA →</span>
+              <span>Rejoindre la liste d'attente VIP →</span>
             </button>
             <span className="text-[10px] font-mono tracking-widest text-zinc-400 uppercase">
               Prochaine session : Mardi 12 au Samedi 16 Août 2026
@@ -779,9 +780,9 @@ export function AccompagnementPage() {
           <BrandLogo size="sm" display="mark" showSignature={true} />
           
           <div className="flex gap-8 text-[11px] font-mono tracking-wider text-zinc-500 uppercase">
-            <a href="#programme" className="hover:text-[#C9973E] transition-colors">Programme</a>
-            <a href="#tarification" className="hover:text-[#C9973E] transition-colors">Tarif</a>
-            <a href="#faq" className="hover:text-[#C9973E] transition-colors">FAQ</a>
+            <a href="#programme" className="hover:text-[#2563EB] transition-colors">Programme</a>
+            <a href="#tarification" className="hover:text-[#2563EB] transition-colors">Tarif</a>
+            <a href="#faq" className="hover:text-[#2563EB] transition-colors">FAQ</a>
           </div>
 
           <p className="text-[10px] text-zinc-400 font-mono">
@@ -801,20 +802,20 @@ export function AccompagnementPage() {
             className="fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-md border-t border-zinc-200 p-4 sm:hidden flex items-center justify-between shadow-xl"
           >
             <div className="space-y-0.5">
-              <div className="text-[9px] font-mono text-[#C9973E] font-bold uppercase">12 - 16 AOÛT</div>
+              <div className="text-[9px] font-mono text-[#2563EB] font-bold uppercase">12 - 16 AOÛT</div>
               <div className="text-base font-bold font-mono text-[#0F1E4D]">10 000 FCFA</div>
             </div>
             <button
               onClick={() => setShowBookingModal(true)}
-              className="px-5 py-3 bg-[#0F1E4D] text-[#FAFAF9] rounded-full text-[10px] font-bold uppercase tracking-wider shadow-md"
+              className="px-5 py-3 bg-[#0F1E4D] text-white rounded-full text-[10px] font-bold uppercase tracking-wider shadow-md"
             >
-              Réserver →
+              Rejoindre VIP →
             </button>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* ── Booking Modal (Typeform-style wizard checkout) ── */}
+      {/* ── Booking Modal (Wizard Checkout redirecting to WhatsApp VIP Group) ── */}
       <AnimatePresence>
         {showBookingModal && (
           <BookingModal onClose={() => setShowBookingModal(false)} />
@@ -824,7 +825,7 @@ export function AccompagnementPage() {
   )
 }
 
-/* ─── BOOKING MODAL (WIZARD FLOW WITH CHARIOW DIRECT PAYMENT REDIRECT) ─── */
+/* ─── BOOKING MODAL (WIZARD FLOW REDIRECTING TO WHATSAPP VIP GROUP) ─── */
 interface WizardQuestion {
   id: 'name' | 'email' | 'country' | 'phone'
   label: string
@@ -839,7 +840,7 @@ const WIZARD_QUESTIONS: WizardQuestion[] = [
   {
     id: 'name',
     label: 'Quel est votre nom et prénom ?',
-    subtitle: 'Entrez votre identité officielle pour la facturation et le suivi.',
+    subtitle: 'Entrez votre identité officielle pour votre inscription au groupe VIP.',
     placeholder: 'Ex : Jean Dupont',
     type: 'text',
     errorMsg: 'Veuillez renseigner votre nom complet.',
@@ -848,7 +849,7 @@ const WIZARD_QUESTIONS: WizardQuestion[] = [
   {
     id: 'email',
     label: 'Quelle est votre adresse e-mail ?',
-    subtitle: 'Pour vous envoyer le lien d\'accès aux sessions du challenge.',
+    subtitle: 'Pour vous envoyer le lien d\'accès prioritaire dès l\'ouverture Lundi.',
     placeholder: 'Ex : jean.dupont@gmail.com',
     type: 'email',
     errorMsg: 'Veuillez renseigner une adresse e-mail valide.',
@@ -866,7 +867,7 @@ const WIZARD_QUESTIONS: WizardQuestion[] = [
   {
     id: 'phone',
     label: 'Quel est votre numéro WhatsApp ?',
-    subtitle: 'Indiquez le code pays pour recevoir les rappels en direct.',
+    subtitle: 'Indiquez le code pays pour vous identifier dans le groupe d\'attente.',
     placeholder: 'Ex : +237 690 00 00 00',
     type: 'tel',
     errorMsg: 'Veuillez saisir un numéro de téléphone valide.',
@@ -951,21 +952,21 @@ function BookingModal({ onClose }: { onClose: () => void }) {
           telephone: formData.phone.trim(),
           pays: formData.country.trim(),
           projet_type: 'Sprint Business IA',
-          projet_ia: 'Sprint Business IA Challenge',
+          projet_ia: 'Sprint Business IA Challenge - VIP Waiting Group',
           projet_raison: 'Sprint Business IA Challenge',
-          projet_blocage: 'Sprint Business IA Challenge',
+          projet_blocage: 'Attente ouverture officielle Lundi 18h',
           deja_essaie: false,
-          deja_essaie_details: 'Inscription Challenge Sprint Business IA',
-          statut_actuel: 'Challenge Participant',
+          deja_essaie_details: 'Groupe WhatsApp d\'attente VIP',
+          statut_actuel: 'Liste d\'attente VIP WhatsApp',
           heures_semaine: '10+ heures',
           objectif_12m: 'Lancer un business rentable grâce à l\'IA',
           pret_investir: 'Oui',
-          budget: '10000 FCFA',
-          candidat_raison: 'Sprint Business IA Challenge Registration',
+          budget: '10 000 FCFA',
+          candidat_raison: 'Sprint Business IA WhatsApp VIP Group Access',
           score: 20,
           qualified: true,
           is_western: false,
-          notes: 'Registration via the sales page wizard - Chariow Checkout'
+          notes: 'Inscrit sur la liste d\'attente VIP WhatsApp (Ouverture Lundi)'
         }
       ])
 
@@ -976,9 +977,9 @@ function BookingModal({ onClose }: { onClose: () => void }) {
       setSuccess(true)
       confetti({ particleCount: 120, spread: 80, origin: { y: 0.5 } })
 
-      // Auto redirect to Chariow Payment link after 1.5 seconds
+      // Auto redirect to WhatsApp Group after 1.5 seconds
       setTimeout(() => {
-        window.location.href = CHARIOW_PAYMENT_URL
+        window.location.href = WHATSAPP_GROUP_URL
       }, 1500)
 
     } catch (err: any) {
@@ -1016,7 +1017,7 @@ function BookingModal({ onClose }: { onClose: () => void }) {
             {/* Top Progress Line */}
             <div className="h-1 bg-zinc-100 w-full relative">
               <motion.div
-                className="absolute inset-y-0 left-0 bg-[#C9973E]"
+                className="absolute inset-y-0 left-0 bg-[#2563EB]"
                 animate={{ width: `${progressPercent}%` }}
                 transition={{ duration: 0.3 }}
               />
@@ -1033,7 +1034,7 @@ function BookingModal({ onClose }: { onClose: () => void }) {
                   transition={{ duration: 0.3, ease: EASE }}
                   className="space-y-6"
                 >
-                  <span className="text-[10px] font-mono tracking-widest text-[#C9973E] uppercase font-bold bg-[#C9973E]/10 px-2.5 py-1 rounded-md">
+                  <span className="text-[10px] font-mono tracking-widest text-[#2563EB] uppercase font-bold bg-[#2563EB]/10 px-2.5 py-1 rounded-md">
                     Question {currentStep + 1} sur {WIZARD_QUESTIONS.length}
                   </span>
 
@@ -1053,7 +1054,7 @@ function BookingModal({ onClose }: { onClose: () => void }) {
                       placeholder={currentQuestion.placeholder}
                       value={formData[currentQuestion.id]}
                       onChange={(e) => setFormData({ ...formData, [currentQuestion.id]: e.target.value })}
-                      className="w-full bg-transparent border-b-2 border-zinc-200 focus:border-[#C9973E] py-3 text-lg font-medium outline-none transition-colors placeholder:text-zinc-300"
+                      className="w-full bg-transparent border-b-2 border-zinc-200 focus:border-[#2563EB] py-3 text-lg font-medium outline-none transition-colors placeholder:text-zinc-300"
                       autoFocus
                     />
                   </div>
@@ -1082,41 +1083,46 @@ function BookingModal({ onClose }: { onClose: () => void }) {
                 {loading ? (
                   <>
                     <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    <span>Traitement...</span>
+                    <span>Enregistrement...</span>
                   </>
                 ) : (
                   <>
-                    <span>{currentStep === WIZARD_QUESTIONS.length - 1 ? 'Procéder au paiement' : 'Continuer'}</span>
-                    <ArrowRight className="w-3.5 h-3.5 text-[#C9973E]" />
+                    <span>{currentStep === WIZARD_QUESTIONS.length - 1 ? 'Rejoindre le groupe VIP' : 'Continuer'}</span>
+                    <ArrowRight className="w-3.5 h-3.5 text-[#60A5FA]" />
                   </>
                 )}
               </button>
             </div>
           </div>
         ) : (
-          /* CHARIOW PAYMENT REDIRECT SUCCESS STATE */
+          /* WHATSAPP VIP GROUP REDIRECT SUCCESS STATE */
           <div className="p-10 text-center space-y-6">
-            <div className="w-14 h-14 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto text-2xl border border-emerald-100 shadow-md">
+            <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto text-3xl border border-emerald-100 shadow-md">
               ✓
             </div>
             <div className="space-y-2">
               <h3 className="premium-font-display text-xl font-bold text-[#0F1E4D]">
-                Informations enregistrées !
+                Place pré-réservée avec succès !
               </h3>
-              <p className="text-xs text-[#0F1E4D]/70 leading-relaxed max-w-xs mx-auto">
-                Félicitations <strong>{formData.name}</strong> ! Vos détails sont enregistrés. Redirection vers la page de paiement sécurisée Chariow...
+              <p className="text-xs text-[#0F1E4D]/75 leading-relaxed max-w-xs mx-auto font-light">
+                Félicitations <strong>{formData.name}</strong> ! Les ouvertures officielles débutent <strong>Lundi à 18h</strong>.
+              </p>
+              <p className="text-xs text-[#2563EB] font-medium leading-relaxed max-w-xs mx-auto">
+                Rejoignez le groupe d'attente WhatsApp pour sécuriser votre lien prioritaire.
               </p>
               <p className="text-[10px] text-[#2563EB] font-bold animate-pulse font-mono uppercase tracking-wider pt-2">
-                Redirection automatique en cours...
+                Redirection automatique vers WhatsApp...
               </p>
             </div>
             <div className="pt-2">
               <a
-                href={CHARIOW_PAYMENT_URL}
-                className="inline-flex items-center gap-2 px-8 py-4 bg-[#C9973E] hover:bg-[#D9A94A] text-[#0F1E4D] rounded-full text-xs font-bold uppercase tracking-wider transition-all shadow-lg hover:scale-[1.02]"
+                href={WHATSAPP_GROUP_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2.5 px-8 py-4 bg-[#25D366] hover:bg-[#1FAA50] text-white rounded-full text-xs font-bold uppercase tracking-wider transition-all shadow-lg hover:scale-[1.02]"
               >
-                <CreditCard className="w-4 h-4" />
-                <span>Payer mon ticket (10 000 FCFA) →</span>
+                <MessageSquare className="w-4 h-4" />
+                <span>Rejoindre le Groupe WhatsApp VIP →</span>
               </a>
             </div>
           </div>
