@@ -2,14 +2,11 @@ import React, { useState, useEffect, useRef } from 'react'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import {
   ArrowRight,
-  Check,
   ChevronDown,
   Loader2,
   X,
-  Sparkles,
   Lock,
   ChevronLeft,
-  Zap,
   FileText,
   ShoppingBag,
   TrendingUp,
@@ -19,9 +16,9 @@ import {
   Target,
   Plus,
   CalendarDays,
-  Clock,
   ShieldCheck,
-  CheckCircle2
+  CheckCircle2,
+  Sparkles
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
@@ -34,7 +31,7 @@ export const Route = createFileRoute('/accompagnement')({
   component: AccompagnementPage,
 })
 
-/* ─── Custom CSS Injection (Clean typography, sleek layout) ─── */
+/* ─── Custom CSS Injection ─── */
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Geist+Mono:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
   
@@ -69,86 +66,11 @@ const styles = `
 
 const EASE = [0.16, 1, 0.3, 1] as const
 
-/* ─── 3D CSS Browser Mockup ─── */
-function HeroBrowserMockup() {
-  return (
-    <div className="relative w-full flex items-center justify-center p-2 sm:p-4">
-      {/* Subtle ambient glow */}
-      <div className="absolute w-[110%] h-[110%] rounded-3xl bg-gradient-to-tr from-[#C9973E]/10 via-transparent to-zinc-200/20 blur-2xl pointer-events-none" />
-
-      <div className="w-full max-w-[500px] rounded-2xl border border-zinc-200/90 bg-[#0B1223] text-white p-5 sm:p-7 shadow-2xl relative overflow-hidden">
-        {/* Browser window top bar */}
-        <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-6">
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-[#FF5F56]" />
-            <div className="w-3 h-3 rounded-full bg-[#FFBD2E]" />
-            <div className="w-3 h-3 rounded-full bg-[#27C93F]" />
-            <div className="h-5 w-48 rounded-md bg-white/10 ml-3 flex items-center px-2.5 text-[10px] font-mono text-white/50 truncate">
-              leclub.ia/sprint-boutique
-            </div>
-          </div>
-          <span className="text-[9px] font-mono text-[#D9A94A] font-semibold tracking-wider uppercase bg-[#C9973E]/15 px-2.5 py-0.5 rounded-full border border-[#C9973E]/30">
-            En direct
-          </span>
-        </div>
-
-        {/* Browser content preview */}
-        <div className="space-y-5">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono text-zinc-400 uppercase tracking-widest font-medium">
-              VOTRE LIVRABLE APRÈS 5 JOURS
-            </span>
-            <span className="flex items-center gap-1.5 text-[9px] font-mono text-emerald-400 font-semibold uppercase bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 rounded-full">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-              Boutique Active
-            </span>
-          </div>
-
-          <div className="space-y-1.5">
-            <h4 className="premium-font-display text-lg font-bold text-white tracking-tight">
-              E-book & Kit Pratique : Monétiser l'IA
-            </h4>
-            <p className="text-xs text-zinc-400 leading-relaxed font-light">
-              Produit digital conçu, paginé et configuré avec les méthodes du Sprint.
-            </p>
-          </div>
-
-          {/* Pricing container */}
-          <div className="p-4 rounded-xl bg-white/[0.04] border border-white/[0.08] flex items-center justify-between">
-            <div className="space-y-0.5">
-              <div className="text-[9px] font-semibold text-zinc-400 tracking-wider">PRIX DE VENTE DE VOTRE OFFRE</div>
-              <div className="font-mono font-bold text-lg text-[#D9A94A]">15 000 FCFA</div>
-            </div>
-            <div className="px-4 py-2 bg-[#C9973E] text-[#0B1223] font-bold text-[10px] rounded-lg shadow-md uppercase tracking-wider">
-              Acheter en 1 clic
-            </div>
-          </div>
-
-          {/* Metric graph simulation */}
-          <div className="grid grid-cols-2 gap-3 pt-3 border-t border-white/10">
-            <div className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.05]">
-              <div className="text-[8px] text-zinc-400 font-mono tracking-widest uppercase">STATUT SYSTEME</div>
-              <div className="text-xs font-mono font-bold text-emerald-400 mt-1 flex items-center gap-1">
-                <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>Opérationnel</span>
-              </div>
-            </div>
-            <div className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.05]">
-              <div className="text-[8px] text-zinc-400 font-mono tracking-widest uppercase">ENCAISSEMENT</div>
-              <div className="text-xs font-mono font-bold text-white mt-1">Stripe & Mobile Money</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
 /* ─── SECTION HEADER HELPER ─── */
 function SectionHeader({ eyebrow, title, subtitle }: { eyebrow: string; title: string; subtitle?: string }) {
   return (
-    <div className="max-w-3xl mb-12 text-center mx-auto">
-      <span className="premium-font-mono text-[11px] font-bold tracking-[0.2em] text-[#C9973E] uppercase mb-3 block">
+    <div className="max-w-3xl mb-14 text-center mx-auto space-y-3">
+      <span className="premium-font-mono text-[11px] font-bold tracking-[0.25em] text-[#C9973E] uppercase block">
         {eyebrow}
       </span>
       <motion.h2
@@ -156,7 +78,7 @@ function SectionHeader({ eyebrow, title, subtitle }: { eyebrow: string; title: s
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: '-20px' }}
         transition={{ duration: 0.6, ease: EASE }}
-        className="premium-font-display text-2xl sm:text-4xl font-bold tracking-tight text-[#0F1B3D] leading-tight"
+        className="premium-font-display text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-[#0F1B3D] leading-tight"
       >
         {title}
       </motion.h2>
@@ -166,7 +88,7 @@ function SectionHeader({ eyebrow, title, subtitle }: { eyebrow: string; title: s
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.15 }}
-          className="mt-3 text-sm sm:text-base text-[#0F1B3D]/65 leading-relaxed font-light"
+          className="text-base sm:text-lg text-[#0F1B3D]/70 leading-relaxed font-light max-w-2xl mx-auto"
         >
           {subtitle}
         </motion.p>
@@ -227,7 +149,7 @@ export function AccompagnementPage() {
   const [showBookingModal, setShowBookingModal] = useState(false)
   const [showStickyCTA, setShowStickyCTA] = useState(false)
 
-  // Initialize Lenis smooth scrolling locally
+  // Initialize Lenis smooth scrolling
   useEffect(() => {
     const lenis = new Lenis({
       duration: 1.2,
@@ -282,121 +204,90 @@ export function AccompagnementPage() {
         </div>
       </header>
 
-      {/* ── HERO SECTION ── */}
-      <section className="relative pt-28 pb-20 sm:pt-36 sm:pb-28 overflow-hidden z-10">
-        <div className="mx-auto max-w-6xl px-6">
+      {/* ── HERO SECTION (CENTERED & REFINED) ── */}
+      <section className="relative pt-32 pb-20 sm:pt-40 sm:pb-28 overflow-hidden z-10">
+        <div className="mx-auto max-w-4xl px-6 text-center space-y-8">
           
-          {/* Refined Quote Header */}
-          <div className="max-w-3xl mx-auto text-center mb-12 sm:mb-16">
-            <div className="inline-flex items-center justify-center gap-2 mb-3">
-              <span className="h-[1px] w-6 bg-[#C9973E]/40" />
-              <span className="text-[10px] font-mono font-semibold tracking-[0.2em] text-[#C9973E] uppercase">
-                MOTIVATION & VISION
-              </span>
-              <span className="h-[1px] w-6 bg-[#C9973E]/40" />
+          {/* PROMINENT SPRINT DATES BADGE */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: EASE }}
+            className="inline-flex items-center gap-3 p-3 px-6 rounded-full bg-white border-2 border-[#C9973E]/40 shadow-sm"
+          >
+            <CalendarDays className="w-5 h-5 text-[#C9973E]" />
+            <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#0F1B3D]">
+              <span className="text-[#C9973E] uppercase tracking-wider">PROCHAINE SESSION :</span>
+              <span className="premium-font-display text-sm">Vendredi 14 au Mardi 18 Août 2026</span>
             </div>
-            <p className="premium-font-display text-base sm:text-xl font-light text-[#0F1B3D]/80 leading-relaxed italic max-w-2xl mx-auto">
-              « Passer de l'idée à la première vente en quelques jours grâce à l'IA, sans se perdre dans la technique. »
-            </p>
-          </div>
+          </motion.div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
-            {/* Left Column: Headline, Dates, Action */}
-            <div className="lg:col-span-7 text-center lg:text-left space-y-6 sm:space-y-8">
-              
-              {/* PROMINENT SPRINT DATES BADGE */}
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, ease: EASE }}
-                className="inline-flex flex-wrap items-center gap-3 p-2.5 pr-5 rounded-2xl bg-white border-2 border-[#C9973E]/40 shadow-sm text-left"
-              >
-                <div className="w-10 h-10 rounded-xl bg-[#C9973E]/10 text-[#C9973E] flex items-center justify-center shrink-0">
-                  <CalendarDays className="w-5 h-5 text-[#C9973E]" />
-                </div>
-                <div className="space-y-0.5">
-                  <div className="text-[10px] font-mono font-bold text-[#C9973E] uppercase tracking-wider">
-                    PROCHAINE SESSION EN DIRECT
-                  </div>
-                  <div className="text-sm font-bold text-[#0F1B3D] premium-font-display">
-                    Vendredi 14 au Mardi 18 Août 2026
-                  </div>
-                </div>
-              </motion.div>
+          <motion.h1
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1, ease: EASE }}
+            className="premium-font-display text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-[#0F1B3D] leading-[1.12] max-w-3xl mx-auto"
+          >
+            5 jours pour créer votre <span className="text-[#C9973E]">produit digital</span>, lancer votre boutique, et encaisser vos paiements.
+          </motion.h1>
 
-              <motion.h1
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.1, ease: EASE }}
-                className="premium-font-display text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-[#0F1B3D] leading-[1.12]"
-              >
-                5 jours pour créer votre <span className="text-[#C9973E]">produit digital</span>, lancer votre boutique, et encaisser vos premières ventes.
-              </motion.h1>
+          <motion.p
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.18, ease: EASE }}
+            className="text-base sm:text-xl text-[#0F1B3D]/70 leading-relaxed font-light max-w-2xl mx-auto"
+          >
+            Un accompagnement intensif de 5 jours guidé étape par étape. Vous repartez avec un produit concret en ligne, un système d'encaissement fonctionnel et une méthode d'acquisition claire.
+          </motion.p>
 
-              <motion.p
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.18, ease: EASE }}
-                className="text-base text-[#0F1B3D]/70 leading-relaxed font-light"
-              >
-                Un accompagnement intensif de 5 jours guidé étape par étape. Vous repartez avec un produit concret en ligne, un système d'encaissement fonctionnel et une méthode d'acquisition claire.
-              </motion.p>
+          {/* Action Button */}
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.25, ease: EASE }}
+            className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4"
+          >
+            <button
+              onClick={() => setShowBookingModal(true)}
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-10 py-4 bg-[#0B1223] hover:bg-[#131B35] text-white rounded-full text-sm font-bold uppercase tracking-wider transition-all duration-200 shadow-xl hover:scale-[1.02] cursor-pointer"
+            >
+              <span>Réserver ma place — 10 000 FCFA</span>
+              <ArrowRight className="w-4 h-4 text-[#C9973E]" />
+            </button>
+          </motion.div>
 
-              {/* Action Button & Security */}
-              <motion.div
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.25, ease: EASE }}
-                className="flex flex-col sm:flex-row items-center gap-4 pt-2"
-              >
-                <button
-                  onClick={() => setShowBookingModal(true)}
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 bg-[#0B1223] hover:bg-[#131B35] text-white rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-200 shadow-lg hover:shadow-xl cursor-pointer"
-                >
-                  <span>Réserver ma place — 10 000 FCFA</span>
-                  <ArrowRight className="w-4 h-4 text-[#C9973E]" />
-                </button>
-              </motion.div>
-
-              {/* Guarantees / Highlights */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.35, duration: 0.5 }}
-                className="flex flex-wrap items-center justify-center lg:justify-start gap-x-6 gap-y-2 text-xs font-medium text-[#0F1B3D]/60 pt-2"
-              >
-                <span className="flex items-center gap-1.5">
-                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                  <span>Session limitée à 20 participants</span>
-                </span>
-                <span>•</span>
-                <span className="text-[#C9973E] font-semibold">1 mois d'accès Club IA offert</span>
-              </motion.div>
-            </div>
-
-            {/* Right Column: Clean Browser Mockup */}
-            <div className="lg:col-span-5 flex justify-center">
-              <HeroBrowserMockup />
-            </div>
-          </div>
+          {/* Guarantees */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.35, duration: 0.5 }}
+            className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs font-medium text-[#0F1B3D]/60 pt-2"
+          >
+            <span className="flex items-center gap-1.5">
+              <ShieldCheck className="w-4 h-4 text-emerald-600" />
+              <span>Session limitée à 20 participants</span>
+            </span>
+            <span>•</span>
+            <span className="text-[#C9973E] font-semibold">1 mois d'accès Club IA offert</span>
+          </motion.div>
         </div>
       </section>
 
-      {/* ── SECTION 01 — OBJECTIFS DU SPRINT ── */}
+      {/* ── SECTION 01 — CE QUE NOUS ACCOMPLISSONS EN 5 JOURS ── */}
       <section className="py-24 bg-white relative z-10 border-y border-zinc-200/50">
-        <div className="mx-auto max-w-5xl px-6">
+        <div className="mx-auto max-w-6xl px-6">
           <SectionHeader
-            eyebrow="01 / Méthode & Objectifs"
-            title="Ce que nous accomplissons ensemble en 5 jours"
-            subtitle="Fini la théorie passive. Nous nous concentrons uniquement sur ce qui produit des résultats concrets."
+            eyebrow="01 / Objectifs & Résultats"
+            title="Ce que nous accomplissons en 5 jours"
+            subtitle="Pas de théorie inutile. Vous construisez votre système de vente de A à Z avec un guidage direct."
           />
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16 relative">
             {[
               {
                 num: "01",
-                title: "Création du produit digital",
-                desc: "Définissez et concevez votre offre (e-book, template, guide pratique ou mini-formation) en utilisant des prompts d'IA structurés.",
+                title: "Création du Produit Digital",
+                desc: "Définissez et concevez votre offre (e-book, template, guide pratique ou formation) en utilisant des prompts d'IA structurés.",
                 icon: FileText,
               },
               {
@@ -414,116 +305,158 @@ export function AccompagnementPage() {
             ].map((pillar, idx) => {
               const PillarIcon = pillar.icon
               return (
-                <motion.div
-                  key={idx}
-                  initial={{ opacity: 0, y: 15 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: idx * 0.08, ease: EASE }}
-                  className="p-8 rounded-2xl border border-zinc-200/80 bg-[#FAF8F5] flex flex-col justify-between hover:border-[#C9973E]/40 hover:shadow-md transition-all duration-300"
-                >
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className="w-10 h-10 rounded-xl bg-[#C9973E]/10 text-[#C9973E] flex items-center justify-center">
-                        <PillarIcon className="w-5 h-5" />
-                      </div>
-                      <span className="text-xs font-mono font-bold text-zinc-400">{pillar.num}</span>
+                <div key={idx} className="relative group">
+                  {/* Curved Connector Arrow between pillars 1->2 and 2->3 on desktop */}
+                  {idx < 2 && (
+                    <div className="hidden md:block absolute -right-6 top-1/2 -translate-y-1/2 z-20 pointer-events-none">
+                      <svg className="w-10 h-10 text-[#C9973E]/40" viewBox="0 0 40 40" fill="none">
+                        <path d="M 5 20 Q 20 5, 35 20" stroke="currentColor" strokeWidth="2" strokeDasharray="3 3" />
+                        <polygon points="32,15 38,20 32,25" fill="currentColor" />
+                      </svg>
                     </div>
-                    <h3 className="premium-font-display text-lg font-bold text-[#0F1B3D]">
-                      {pillar.title}
-                    </h3>
-                    <p className="text-xs sm:text-sm text-[#0F1B3D]/70 leading-relaxed font-light">
-                      {pillar.desc}
-                    </p>
-                  </div>
-                </motion.div>
+                  )}
+
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: idx * 0.1, ease: EASE }}
+                    className="h-full p-8 rounded-3xl border border-zinc-200/80 bg-[#FAF8F5] relative overflow-hidden flex flex-col justify-between hover:border-[#C9973E]/50 hover:shadow-lg transition-all duration-300"
+                  >
+                    {/* GIANT LOW-OPACITY BACKGROUND NUMBER */}
+                    <span className="absolute -right-2 -bottom-4 text-8xl font-mono font-extrabold text-[#C9973E]/10 select-none pointer-events-none transition-opacity group-hover:text-[#C9973E]/20">
+                      {pillar.num}
+                    </span>
+
+                    <div className="space-y-5 relative z-10">
+                      <div className="flex items-center justify-between">
+                        <div className="w-12 h-12 rounded-2xl bg-[#C9973E]/10 text-[#C9973E] flex items-center justify-center border border-[#C9973E]/20">
+                          <PillarIcon className="w-6 h-6" />
+                        </div>
+                        <span className="premium-font-mono text-sm font-bold text-[#C9973E] bg-white px-3 py-1 rounded-full border border-zinc-200/60 shadow-2xs">
+                          Phase {pillar.num}
+                        </span>
+                      </div>
+
+                      <h3 className="premium-font-display text-xl font-bold text-[#0F1B3D]">
+                        {pillar.title}
+                      </h3>
+                      <p className="text-sm text-[#0F1B3D]/70 leading-relaxed font-light">
+                        {pillar.desc}
+                      </p>
+                    </div>
+                  </motion.div>
+                </div>
               )
             })}
           </div>
         </div>
       </section>
 
-      {/* ── SECTION 02 — LE PROGRAMME SUR 5 JOURS ── */}
+      {/* ── SECTION 02 — UN PLAN D'ACTION STRUCTURÉ SUR 5 JOURS ── */}
       <section className="py-24 bg-[#FAF8F5] relative z-10 border-b border-zinc-200/50" id="programme">
         <div className="mx-auto max-w-5xl px-6">
           <SectionHeader
-            eyebrow="02 / Le Programme"
-            title="Un plan d'action structuré jour par jour"
-            subtitle="Chaque jour correspond à une étape précise avec un livrable opérationnel."
+            eyebrow="02 / Programme détaillé"
+            title="Un plan d'action structuré"
+            subtitle="Suivez une feuille de route rythmée avec des livrables clairs à chaque étape."
           />
 
-          <div className="mt-12 space-y-6">
+          {/* DYNAMIC TIMELINE STEPS WITH CURVED CONNECTORS AND GIANT TRANSPARENT NUMBERS */}
+          <div className="mt-16 space-y-8 relative">
             {[
               {
+                num: "01",
                 day: 'Jour 1 & 2',
                 title: 'Conception & Génération du Produit Digital',
                 desc: 'Définissez votre offre idéale et générez votre produit digital (guide PDF, templates, ou supports de cours) grâce à une série de prompts d\'IA ciblés.',
-                output: 'Un produit digital terminé et prêt à être distribué.',
+                output: 'Produit digital finalisé & rédigé',
                 icon: FileText,
               },
               {
+                num: "02",
                 day: 'Jour 3',
                 title: 'Configuration de la Boutique & des Paiements',
                 desc: 'Mise en place de votre page de paiement autonome. Liaison des moyens de paiement (Mobile Money, Stripe) pour automatiser la livraison du produit.',
-                output: 'Votre page de vente et boutique 100% fonctionnelles.',
+                output: 'Boutique & paiement 100% opérationnels',
                 icon: ShoppingBag,
               },
               {
+                num: "03",
                 day: 'Jour 4 & 5',
                 title: 'Lancement de l\'Acquisition & Premiers Prospects',
                 desc: 'Déploiement de votre stratégie de diffusion sur votre réseau et vos canaux de communication. Approche directe des premiers clients intéressés.',
-                output: 'Vos premiers prospects ciblés engagés.',
+                output: 'Campagne lancée & premiers prospects',
                 icon: TrendingUp,
               },
             ].map((step, idx) => {
               const StepIcon = step.icon
               return (
-                <motion.div
-                  key={idx}
-                  initial={{ opacity: 0, y: 15 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: idx * 0.08, ease: EASE }}
-                  className="p-7 sm:p-8 rounded-2xl bg-white border border-zinc-200/80 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 hover:border-[#C9973E]/30 transition-all"
-                >
-                  <div className="flex items-start gap-5">
-                    <div className="w-12 h-12 rounded-xl bg-[#C9973E]/10 border border-[#C9973E]/20 flex items-center justify-center shrink-0">
-                      <StepIcon className="w-6 h-6 text-[#C9973E]" />
+                <div key={idx} className="relative">
+                  {/* Curved Connector SVG Arrow between steps 1->2 and 2->3 */}
+                  {idx < 2 && (
+                    <div className="hidden sm:flex justify-center my-2 relative z-20">
+                      <svg className="w-12 h-10 text-[#C9973E]/50" viewBox="0 0 50 40" fill="none">
+                        <path d="M 25 0 Q 38 20, 25 35" stroke="currentColor" strokeWidth="2.5" strokeDasharray="4 3" />
+                        <polygon points="19,30 25,38 31,30" fill="currentColor" />
+                      </svg>
                     </div>
-                    <div className="space-y-1.5">
-                      <span className="text-xs font-mono font-bold tracking-widest text-[#C9973E] uppercase">
-                        {step.day}
-                      </span>
-                      <h3 className="premium-font-display text-xl font-bold text-[#0F1B3D]">{step.title}</h3>
-                      <p className="text-xs sm:text-sm text-[#0F1B3D]/70 font-light leading-relaxed max-w-2xl">{step.desc}</p>
-                    </div>
-                  </div>
+                  )}
 
-                  <div className="inline-flex items-center gap-2 bg-[#FAF8F5] border border-zinc-200/60 px-3.5 py-2 rounded-xl text-xs font-medium text-[#0F1B3D] shrink-0">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                    <span>{step.output}</span>
-                  </div>
-                </motion.div>
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: idx * 0.08, ease: EASE }}
+                    className="p-8 sm:p-10 rounded-3xl bg-white border border-zinc-200/80 shadow-sm relative overflow-hidden flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 hover:border-[#C9973E]/40 hover:shadow-md transition-all"
+                  >
+                    {/* GIANT LOW-OPACITY STEP NUMBER IN BACKGROUND */}
+                    <span className="absolute -left-3 -bottom-6 text-9xl font-mono font-extrabold text-[#C9973E]/10 select-none pointer-events-none">
+                      {step.num}
+                    </span>
+
+                    <div className="flex items-start gap-6 relative z-10">
+                      <div className="w-14 h-14 rounded-2xl bg-[#C9973E]/10 border border-[#C9973E]/20 flex items-center justify-center shrink-0">
+                        <StepIcon className="w-7 h-7 text-[#C9973E]" />
+                      </div>
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-3">
+                          <span className="text-xs font-mono font-bold tracking-widest text-[#C9973E] uppercase bg-[#C9973E]/10 px-3 py-1 rounded-full border border-[#C9973E]/20">
+                            {step.day}
+                          </span>
+                          <span className="text-xs font-mono text-zinc-400 font-medium">Étape 0{idx + 1}</span>
+                        </div>
+                        <h3 className="premium-font-display text-2xl font-bold text-[#0F1B3D]">{step.title}</h3>
+                        <p className="text-sm text-[#0F1B3D]/70 font-light leading-relaxed max-w-2xl">{step.desc}</p>
+                      </div>
+                    </div>
+
+                    <div className="inline-flex items-center gap-2.5 bg-[#FAF8F5] border border-zinc-200/80 px-4 py-2.5 rounded-2xl text-xs font-semibold text-[#0F1B3D] shrink-0 relative z-10 shadow-2xs">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                      <span>{step.output}</span>
+                    </div>
+                  </motion.div>
+                </div>
               )
             })}
           </div>
 
           {/* Banner Résultat */}
-          <div className="mt-14 p-8 sm:p-10 rounded-2xl bg-[#0B1223] text-white border border-[#C9973E]/20 flex flex-col sm:flex-row items-center justify-between gap-6">
+          <div className="mt-16 p-8 sm:p-12 rounded-3xl bg-[#0B1223] text-white border border-[#C9973E]/30 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl">
             <div className="space-y-2 text-center sm:text-left">
-              <span className="text-[10px] font-mono font-bold text-[#C9973E] uppercase tracking-widest">
-                RÉSULTAT GARANTI
+              <span className="text-[10px] font-mono font-bold text-[#C9973E] uppercase tracking-widest bg-[#C9973E]/15 px-3 py-1 rounded-full">
+                OBJECTIF DU SPRINT
               </span>
-              <h3 className="premium-font-display text-xl sm:text-2xl font-bold text-white">
-                À la fin des 5 jours, votre système est en ligne.
+              <h3 className="premium-font-display text-2xl sm:text-3xl font-bold text-white">
+                À la fin des 5 jours, votre boutique est en ligne.
               </h3>
-              <p className="text-xs text-zinc-400 font-light">
-                Vous n'avez plus besoin d'accumuler des vidéos théoriques : vous possédez une boutique active.
+              <p className="text-sm text-zinc-400 font-light">
+                Vous possédez un système autonome et prêt à encaisser des paiements.
               </p>
             </div>
             <button
               onClick={() => setShowBookingModal(true)}
-              className="px-6 py-3 bg-[#C9973E] hover:bg-[#D9A94A] text-[#0B1223] rounded-full text-xs font-bold uppercase tracking-wider transition-all shrink-0 cursor-pointer"
+              className="px-8 py-4 bg-[#C9973E] hover:bg-[#D9A94A] text-[#0B1223] rounded-full text-xs font-bold uppercase tracking-wider transition-all shrink-0 cursor-pointer shadow-lg"
             >
               Rejoindre la session →
             </button>
@@ -544,13 +477,13 @@ export function AccompagnementPage() {
                   1 mois d'accès au Club IA offert
                 </h3>
                 <p className="text-xs font-mono text-zinc-400 uppercase tracking-wider">
-                  Communauté & Accompagnement continu
+                  Communauté & Suivi post-sprint
                 </p>
               </div>
 
               <div className="lg:col-span-3 text-sm text-[#0F1B3D]/70 leading-relaxed space-y-4 font-light">
                 <p>
-                  Pour vous assurer un suivi régulier après la fin du challenge, votre inscription inclut 1 mois complet d'accès à notre communauté francophone.
+                  Pour vous assurer un suivi régulier après la fin du challenge, votre inscription inclut 1 mois complet d'accès à notre communauté privée.
                 </p>
                 <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
                   {[
@@ -583,21 +516,25 @@ export function AccompagnementPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-12">
             {[
               {
+                num: "01",
                 title: "Salariés & Actifs",
                 desc: "Vous souhaitez créer une activité numérique parallèle sans compromettre votre emploi principal.",
                 icon: Briefcase
               },
               {
+                num: "02",
                 title: "Créateurs & Formateurs",
                 desc: "Vous possédez une expertise mais hésitez encore à la packager et à la vendre en ligne.",
                 icon: Target
               },
               {
+                num: "03",
                 title: "Freelances & Experts",
                 desc: "Vous cherchez à diversifier vos revenus en vendant des templates, e-books ou méthodes automatisées.",
                 icon: Bot
               },
               {
+                num: "04",
                 title: "Débutants Ambitieux",
                 desc: "Vous privilégiez la pratique immédiate aux longs cours théoriques.",
                 icon: UserCheck
@@ -611,9 +548,12 @@ export function AccompagnementPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: idx * 0.05, ease: EASE }}
-                  className="p-6 rounded-2xl border border-zinc-200/80 bg-white flex flex-col justify-between hover:border-[#C9973E]/30 hover:shadow-md transition-all duration-200"
+                  className="p-6 rounded-3xl border border-zinc-200/80 bg-white flex flex-col justify-between hover:border-[#C9973E]/40 hover:shadow-md transition-all duration-200 relative overflow-hidden"
                 >
-                  <div className="space-y-4">
+                  <span className="absolute -right-2 -bottom-4 text-7xl font-mono font-extrabold text-[#C9973E]/10 select-none pointer-events-none">
+                    {item.num}
+                  </span>
+                  <div className="space-y-4 relative z-10">
                     <div className="w-10 h-10 rounded-xl bg-[#C9973E]/10 text-[#C9973E] flex items-center justify-center">
                       <ProfileIcon className="w-5 h-5" />
                     </div>
@@ -752,7 +692,7 @@ export function AccompagnementPage() {
         </div>
       </footer>
 
-      {/* ── STICKY MOBILE CTA (Bottom fixed bar) ── */}
+      {/* ── STICKY MOBILE CTA ── */}
       <AnimatePresence>
         {showStickyCTA && (
           <motion.div
