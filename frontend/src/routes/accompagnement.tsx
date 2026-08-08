@@ -23,7 +23,9 @@ import {
   MessageSquare,
   Users,
   CreditCard,
-  Clock
+  Clock,
+  Check,
+  Tag
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
@@ -108,7 +110,7 @@ function calculateTimeLeft(targetDate: Date) {
   }
 }
 
-/* ─── HIGH-END TIMER COMPONENT ─── */
+/* ─── HIGH-END TIMER COMPONENT (NO EMOJIS, CLEAR 10 000 FCFA FEE BADGE) ─── */
 function OfficialCountdownTimer({ isPaymentsOpen }: { isPaymentsOpen: boolean }) {
   const targetDate = isPaymentsOpen ? TUESDAY_CLOSING_DATE : MONDAY_OPENING_DATE
   const [timeLeft, setTimeLeft] = useState(calculateTimeLeft(targetDate))
@@ -125,11 +127,18 @@ function OfficialCountdownTimer({ isPaymentsOpen }: { isPaymentsOpen: boolean })
       {/* Decorative background glow */}
       <div className="absolute -top-12 -right-12 w-40 h-40 rounded-full bg-[#2563EB]/20 blur-2xl pointer-events-none" />
 
-      <div className="flex items-center justify-center gap-2 mb-4 relative z-10">
-        <span className={`w-2.5 h-2.5 rounded-full ${isPaymentsOpen ? 'bg-amber-400 animate-ping' : 'bg-emerald-400 animate-pulse'}`} />
-        <span className="text-[11px] sm:text-xs font-mono font-bold uppercase tracking-wider text-[#60A5FA]">
-          {isPaymentsOpen ? '🔴 FERMETURE DES RÉSERVATIONS DANS :' : '⚡ OUVERTURE OFFICIELLE DES PLACES DANS :'}
-        </span>
+      {/* Top Bar with Icon & Explicit Price Tag */}
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-5 pb-4 border-b border-white/10 relative z-10">
+        <div className="flex items-center gap-2">
+          <Clock className="w-4 h-4 text-[#60A5FA]" />
+          <span className="text-[11px] sm:text-xs font-mono font-bold uppercase tracking-wider text-[#60A5FA]">
+            {isPaymentsOpen ? 'FERMETURE DES RÉSERVATIONS DANS :' : 'OUVERTURE DES INSCRIPTIONS DANS :'}
+          </span>
+        </div>
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#2563EB]/25 border border-[#2563EB]/50 text-white font-mono text-xs font-bold">
+          <Tag className="w-3 h-3 text-[#60A5FA]" />
+          <span>Frais : 10 000 FCFA</span>
+        </div>
       </div>
 
       <div className="grid grid-cols-4 gap-2 sm:gap-4 text-center relative z-10">
@@ -440,7 +449,7 @@ export function AccompagnementPage() {
             Un accompagnement intensif de 5 jours guidé étape par étape. Vous repartez avec un produit concret en ligne, un système d'encaissement fonctionnel et une méthode d'acquisition claire.
           </motion.p>
 
-          {/* HIGH-IMPACT COUNTDOWN TIMER */}
+          {/* HIGH-IMPACT COUNTDOWN TIMER WITH EXPLICIT PRICE TAG */}
           <OfficialCountdownTimer isPaymentsOpen={isPaymentsOpen} />
 
           {/* Action Button */}
@@ -454,7 +463,7 @@ export function AccompagnementPage() {
               onClick={() => setShowBookingModal(true)}
               className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 sm:px-10 bg-[#0F1E4D] hover:bg-[#1E3A8A] text-white rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider transition-all duration-200 shadow-xl hover:scale-[1.02] cursor-pointer"
             >
-              <span>{isPaymentsOpen ? 'Réserver ma place — 10 000 FCFA' : 'Rejoindre la liste d\'attente (VIP)'}</span>
+              <span>{isPaymentsOpen ? 'Réserver ma place — 10 000 FCFA' : 'Rejoindre la liste d\'attente (10 000 FCFA)'}</span>
               <ArrowRight className="w-4 h-4 text-[#60A5FA]" />
             </button>
           </motion.div>
@@ -468,7 +477,7 @@ export function AccompagnementPage() {
           >
             <span className="flex items-center gap-1.5">
               <ShieldCheck className="w-4 h-4 text-emerald-600" />
-              <span>{isPaymentsOpen ? '20 places disponibles' : 'Ouverture officielle : Lundi 18h'}</span>
+              <span>{isPaymentsOpen ? '20 places disponibles' : 'Ouverture des inscriptions : Lundi 18h'}</span>
             </span>
             <span className="hidden sm:inline">•</span>
             <span className="text-[#2563EB] font-semibold">1 mois d'accès Club IA offert</span>
@@ -661,7 +670,7 @@ export function AccompagnementPage() {
               onClick={() => setShowBookingModal(true)}
               className="w-full sm:w-auto px-8 py-4 bg-[#2563EB] hover:bg-[#1E3A8A] text-white rounded-full text-xs font-bold uppercase tracking-wider transition-all shrink-0 cursor-pointer shadow-lg"
             >
-              {isPaymentsOpen ? 'Réserver ma place →' : 'Rejoindre le groupe VIP →'}
+              {isPaymentsOpen ? 'Réserver ma place (10 000 FCFA) →' : 'Rejoindre le groupe VIP (10 000 FCFA) →'}
             </button>
           </div>
         </div>
@@ -787,7 +796,7 @@ export function AccompagnementPage() {
             <p className="text-xs sm:text-sm text-zinc-300 mt-2 font-light max-w-md mx-auto">
               {isPaymentsOpen
                 ? 'Accès complet aux 5 jours d\'accompagnement direct et au groupe d\'entraide dédié.'
-                : 'Les places sont limitées à 20 participants. Inscrivez-vous pour obtenir votre lien d\'accès prioritaire dès l\'ouverture des paiements Lundi.'}
+                : 'Les places sont limitées à 20 participants. Le tarif est de 10 000 FCFA pour l\'ensemble du challenge.'}
             </p>
 
             {/* REFINED DISPLAY PRICE FONT */}
@@ -797,7 +806,7 @@ export function AccompagnementPage() {
                 <span className="text-xl sm:text-3xl font-bold text-[#60A5FA] premium-font-display">FCFA</span>
               </div>
               <p className="text-[10px] sm:text-xs text-zinc-400 mt-2.5 font-mono uppercase tracking-wider">
-                {isPaymentsOpen ? 'Tarif unique • Paiement sécurisé' : 'Tarif unique • Paiement débloqué Lundi'}
+                {isPaymentsOpen ? 'Tarif unique • Paiement sécurisé' : 'Tarif unique • Ouverture des paiements Lundi'}
               </p>
             </div>
 
@@ -806,7 +815,7 @@ export function AccompagnementPage() {
                 onClick={() => setShowBookingModal(true)}
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 sm:px-10 bg-[#2563EB] hover:bg-[#1E3A8A] text-white rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider transition-all duration-200 shadow-lg cursor-pointer hover:scale-[1.02]"
               >
-                <span>{isPaymentsOpen ? 'Réserver mon ticket d\'accès →' : 'Rejoindre la liste d\'attente VIP →'}</span>
+                <span>{isPaymentsOpen ? 'Réserver mon ticket (10 000 FCFA) →' : 'Rejoindre la liste VIP (10 000 FCFA) →'}</span>
               </button>
               <div className="flex items-center justify-center gap-2 text-[10px] font-mono text-zinc-400 uppercase tracking-wider">
                 <Lock className="w-3.5 h-3.5 text-[#60A5FA]" />
@@ -828,6 +837,10 @@ export function AccompagnementPage() {
           <div className="mt-6 sm:mt-8">
             {[
               {
+                q: "Quel est le tarif de participation au challenge ?",
+                a: "L'inscription au challenge intensif de 5 jours coûte 10 000 FCFA (tarif unique tout inclus, incluant 1 mois d'accès au Club IA).",
+              },
+              {
                 q: "Faut-il avoir des compétences techniques pour participer ?",
                 a: "Non. Le challenge est spécialement conçu pour éliminer la complexité technique. Nous utilisons des outils simples et des instructions claires pour configurer vos pages.",
               },
@@ -842,10 +855,6 @@ export function AccompagnementPage() {
               {
                 q: "Puis-je participer depuis l'Afrique ou l'Europe ?",
                 a: "Oui. Le programme est accessible partout et nous acceptons les paiements par Mobile Money (Orange Money, Wave, MTN...) ainsi que par carte bancaire (Stripe).",
-              },
-              {
-                q: "Qu'est-ce qui est inclus dans le mois d'accès au Club IA ?",
-                a: "Vous bénéficiez d'un accès illimité à la communauté privée, aux salons de discussion, à nos guides de prompts avancés et aux sessions de suivi hebdomadaires.",
               }
             ].map((item, idx) => (
               <FAQAccordionItem key={idx} question={item.q} answer={item.a} idx={idx} />
@@ -864,7 +873,7 @@ export function AccompagnementPage() {
             Prêt à <span className="serif-accent">passer le cap ?</span>
           </h2>
           <p className="text-xs sm:text-sm text-zinc-300 max-w-md mx-auto leading-relaxed font-light">
-            Dans 5 jours, vous disposerez d'un système de vente prêt à l'emploi. Rejoignez la session.
+            Dans 5 jours, vous disposerez d'un système de vente prêt à l'emploi. L'inscription est de 10 000 FCFA.
           </p>
 
           <div className="pt-2 sm:pt-4 flex flex-col items-center justify-center gap-3">
@@ -872,7 +881,7 @@ export function AccompagnementPage() {
               onClick={() => setShowBookingModal(true)}
               className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 sm:px-10 bg-[#2563EB] hover:bg-[#1E3A8A] text-white rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-200 shadow-lg cursor-pointer"
             >
-              <span>{isPaymentsOpen ? 'Réserver ma place — 10 000 FCFA →' : 'Rejoindre la liste d\'attente VIP →'}</span>
+              <span>{isPaymentsOpen ? 'Réserver ma place — 10 000 FCFA →' : 'Rejoindre la liste VIP (10 000 FCFA) →'}</span>
             </button>
             <span className="text-[10px] font-mono tracking-widest text-zinc-400 uppercase">
               Prochaine session : Mardi 12 au Samedi 16 Août 2026
@@ -910,9 +919,7 @@ export function AccompagnementPage() {
           >
             <div className="space-y-0.5">
               <div className="text-[9px] font-mono text-[#2563EB] font-bold uppercase">12 - 16 AOÛT</div>
-              <div className="text-sm font-bold font-mono text-[#0F1E4D]">
-                {isPaymentsOpen ? '10 000 FCFA' : 'OUVERTURE LUNDI'}
-              </div>
+              <div className="text-sm font-bold font-mono text-[#0F1E4D]">10 000 FCFA</div>
             </div>
             <button
               onClick={() => setShowBookingModal(true)}
@@ -924,7 +931,7 @@ export function AccompagnementPage() {
         )}
       </AnimatePresence>
 
-      {/* ── Booking Modal (Dynamic Phase Switcher: WhatsApp Group or Chariow Payment) ── */}
+      {/* ── Booking Modal (Wizard Checkout with Explicit 10 000 FCFA Price Confirmation Step) ── */}
       <AnimatePresence>
         {showBookingModal && (
           <BookingModal isPaymentsOpen={isPaymentsOpen} onClose={() => setShowBookingModal(false)} />
@@ -934,18 +941,27 @@ export function AccompagnementPage() {
   )
 }
 
-/* ─── BOOKING MODAL (WIZARD FLOW WITH DYNAMIC PHASE SWITCHER) ─── */
+/* ─── BOOKING MODAL WITH EXPLICIT 10 000 FCFA CONFIRMATION STEP ─── */
 interface WizardQuestion {
-  id: 'name' | 'email' | 'country' | 'phone'
+  id: 'price_confirm' | 'name' | 'email' | 'country' | 'phone'
   label: string
   subtitle: string
   placeholder: string
-  type: 'text' | 'email' | 'tel'
+  type: 'confirm' | 'text' | 'email' | 'tel'
   errorMsg: string
   validation: (val: string) => boolean
 }
 
 const WIZARD_QUESTIONS: WizardQuestion[] = [
+  {
+    id: 'price_confirm',
+    label: 'Confirmation du tarif de participation',
+    subtitle: 'La participation au Challenge Sprint Business IA (5 jours intensifs + 1 mois de Club IA) est de 10 000 FCFA.',
+    placeholder: '',
+    type: 'confirm',
+    errorMsg: 'Veuillez accepter le tarif pour continuer.',
+    validation: (val) => val === 'accepted',
+  },
   {
     id: 'name',
     label: 'Quel est votre nom et prénom ?',
@@ -990,6 +1006,7 @@ function BookingModal({ isPaymentsOpen, onClose }: { isPaymentsOpen: boolean; on
   const [success, setSuccess] = useState(false)
   
   const [formData, setFormData] = useState({
+    price_confirm: 'accepted',
     name: '',
     email: '',
     country: '',
@@ -999,7 +1016,7 @@ function BookingModal({ isPaymentsOpen, onClose }: { isPaymentsOpen: boolean; on
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
-    if (inputRef.current) {
+    if (inputRef.current && WIZARD_QUESTIONS[currentStep].type !== 'confirm') {
       inputRef.current.focus()
     }
   }, [currentStep, success])
@@ -1016,7 +1033,7 @@ function BookingModal({ isPaymentsOpen, onClose }: { isPaymentsOpen: boolean; on
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Enter') {
+      if (e.key === 'Enter' && currentQuestion.type !== 'confirm') {
         e.preventDefault()
         handleNext()
       }
@@ -1071,13 +1088,13 @@ function BookingModal({ isPaymentsOpen, onClose }: { isPaymentsOpen: boolean; on
           statut_actuel: isPaymentsOpen ? 'Paiement en cours' : 'Liste d\'attente VIP WhatsApp',
           heures_semaine: '10+ heures',
           objectif_12m: 'Lancer un business rentable grâce à l\'IA',
-          pret_investir: 'Oui',
+          pret_investir: 'Oui (10 000 FCFA confirme)',
           budget: '10 000 FCFA',
           candidat_raison: 'Sprint Business IA Registration',
           score: 20,
           qualified: true,
           is_western: false,
-          notes: isPaymentsOpen ? 'Redirigé vers Chariow Checkout' : 'Inscrit sur la liste d\'attente VIP WhatsApp'
+          notes: isPaymentsOpen ? 'Redirigé vers Chariow Checkout' : 'Inscrit sur la liste d\'attente VIP WhatsApp (Tarif 10k confirme)'
         }
       ])
 
@@ -1146,68 +1163,101 @@ function BookingModal({ isPaymentsOpen, onClose }: { isPaymentsOpen: boolean; on
                   className="space-y-5 sm:space-y-6"
                 >
                   <span className="text-[10px] font-mono tracking-widest text-[#2563EB] uppercase font-bold bg-[#2563EB]/10 px-2.5 py-1 rounded-md">
-                    Question {currentStep + 1} sur {WIZARD_QUESTIONS.length}
+                    Étape {currentStep + 1} sur {WIZARD_QUESTIONS.length}
                   </span>
 
                   <div className="space-y-1.5 sm:space-y-2">
                     <h3 className="premium-font-display text-xl sm:text-2xl font-bold leading-tight text-[#0F1E4D]">
                       {currentQuestion.label}
                     </h3>
-                    <p className="text-xs text-[#0F1E4D]/60">
+                    <p className="text-xs text-[#0F1E4D]/70 leading-relaxed font-light">
                       {currentQuestion.subtitle}
                     </p>
                   </div>
 
-                  <div className="pt-1 sm:pt-2">
-                    <input
-                      ref={inputRef}
-                      type={currentQuestion.type}
-                      placeholder={currentQuestion.placeholder}
-                      value={formData[currentQuestion.id]}
-                      onChange={(e) => setFormData({ ...formData, [currentQuestion.id]: e.target.value })}
-                      className="w-full bg-transparent border-b-2 border-zinc-200 focus:border-[#2563EB] py-2.5 sm:py-3 text-base sm:text-lg font-medium outline-none transition-colors placeholder:text-zinc-300"
-                      autoFocus
-                    />
-                  </div>
+                  {/* PRICE CONFIRMATION STEP WITH OUI / NON BUTTONS */}
+                  {currentQuestion.type === 'confirm' ? (
+                    <div className="pt-3 space-y-3">
+                      <div className="p-4 rounded-2xl bg-[#2563EB]/5 border border-[#2563EB]/20 flex items-center justify-between">
+                        <span className="text-xs font-semibold text-[#0F1E4D]">Tarif du Challenge (5 Jours)</span>
+                        <span className="premium-font-display text-lg font-extrabold text-[#2563EB]">10 000 FCFA</span>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFormData({ ...formData, price_confirm: 'accepted' })
+                            setCurrentStep(1)
+                          }}
+                          className="w-full flex items-center justify-center gap-2 p-3.5 bg-[#2563EB] hover:bg-[#1E3A8A] text-white rounded-2xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer shadow-md"
+                        >
+                          <Check className="w-4 h-4 text-emerald-300" />
+                          <span>Oui, je confirme</span>
+                        </button>
+                        
+                        <button
+                          type="button"
+                          onClick={onClose}
+                          className="w-full flex items-center justify-center gap-2 p-3.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-600 rounded-2xl text-xs font-semibold transition-all cursor-pointer"
+                        >
+                          <span>Non, annuler</span>
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="pt-1 sm:pt-2">
+                      <input
+                        ref={inputRef}
+                        type={currentQuestion.type}
+                        placeholder={currentQuestion.placeholder}
+                        value={formData[currentQuestion.id as keyof typeof formData]}
+                        onChange={(e) => setFormData({ ...formData, [currentQuestion.id]: e.target.value })}
+                        className="w-full bg-transparent border-b-2 border-zinc-200 focus:border-[#2563EB] py-2.5 sm:py-3 text-base sm:text-lg font-medium outline-none transition-colors placeholder:text-zinc-300"
+                        autoFocus
+                      />
+                    </div>
+                  )}
                 </motion.div>
               </AnimatePresence>
             </div>
 
             {/* Wizard Actions Footer */}
-            <div className="px-6 py-4 sm:px-8 sm:py-5 bg-zinc-50 flex items-center justify-between border-t border-zinc-200/60">
-              <button
-                type="button"
-                onClick={handlePrev}
-                disabled={currentStep === 0}
-                className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#0F1E4D]/50 hover:text-[#0F1E4D] disabled:opacity-30 transition-all cursor-pointer"
-              >
-                <ChevronLeft className="w-4 h-4" />
-                <span>Précédent</span>
-              </button>
+            {currentQuestion.type !== 'confirm' && (
+              <div className="px-6 py-4 sm:px-8 sm:py-5 bg-zinc-50 flex items-center justify-between border-t border-zinc-200/60">
+                <button
+                  type="button"
+                  onClick={handlePrev}
+                  className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#0F1E4D]/50 hover:text-[#0F1E4D] transition-all cursor-pointer"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  <span>Précédent</span>
+                </button>
 
-              <button
-                type="button"
-                onClick={handleNext}
-                disabled={loading}
-                className="inline-flex items-center gap-2 px-5 py-2.5 sm:px-6 sm:py-3 bg-[#0F1E4D] hover:bg-[#1E3A8A] text-white rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer shadow-md"
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    <span>Enregistrement...</span>
-                  </>
-                ) : (
-                  <>
-                    <span>
-                      {currentStep === WIZARD_QUESTIONS.length - 1
-                        ? (isPaymentsOpen ? 'Procéder au paiement' : 'Rejoindre le groupe VIP')
-                        : 'Continuer'}
-                    </span>
-                    <ArrowRight className="w-3.5 h-3.5 text-[#60A5FA]" />
-                  </>
-                )}
-              </button>
-            </div>
+                <button
+                  type="button"
+                  onClick={handleNext}
+                  disabled={loading}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 sm:px-6 sm:py-3 bg-[#0F1E4D] hover:bg-[#1E3A8A] text-white rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer shadow-md"
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <span>Enregistrement...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>
+                        {currentStep === WIZARD_QUESTIONS.length - 1
+                          ? (isPaymentsOpen ? 'Procéder au paiement' : 'Rejoindre le groupe VIP')
+                          : 'Continuer'}
+                      </span>
+                      <ArrowRight className="w-3.5 h-3.5 text-[#60A5FA]" />
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
           </div>
         ) : (
           /* REDIRECT SUCCESS STATE */
@@ -1220,7 +1270,7 @@ function BookingModal({ isPaymentsOpen, onClose }: { isPaymentsOpen: boolean; on
                 {isPaymentsOpen ? 'Informations enregistrées !' : 'Place pré-réservée avec succès !'}
               </h3>
               <p className="text-xs text-[#0F1E4D]/75 leading-relaxed max-w-xs mx-auto font-light">
-                Félicitations <strong>{formData.name}</strong> !{' '}
+                Félicitations <strong>{formData.name}</strong> ! Tarif validé (10 000 FCFA).{' '}
                 {isPaymentsOpen
                   ? 'Redirection automatique vers la page de paiement sécurisée Chariow...'
                   : 'Les ouvertures officielles débutent Lundi à 18h. Rejoignez le groupe WhatsApp d\'attente VIP pour recevoir votre lien prioritaire.'}
