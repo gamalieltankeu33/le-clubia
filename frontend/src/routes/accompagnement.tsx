@@ -21,7 +21,9 @@ import {
   Zap,
   Sparkles,
   MessageSquare,
-  Users
+  Users,
+  CreditCard,
+  Clock
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
@@ -35,6 +37,12 @@ export const Route = createFileRoute('/accompagnement')({
 })
 
 const WHATSAPP_GROUP_URL = 'https://chat.whatsapp.com/D8g1c1cWjuK1OIgpDdRWFs?mode=gi_t'
+const CHARIOW_PAYMENT_URL = 'https://ekzckmyk.mychariow.shop/prd_wx1lpxcw?draft=true'
+
+// Opening Date: Monday 10 August 2026 at 18:00
+const MONDAY_OPENING_DATE = new Date('2026-08-10T18:00:00')
+// Closing Date: Tuesday 11 August 2026 at 23:59
+const TUESDAY_CLOSING_DATE = new Date('2026-08-11T23:59:59')
 
 /* ─── Custom CSS Injection (Mobile First & Canonical Le Club IA Styling) ─── */
 const styles = `
@@ -84,6 +92,79 @@ const styles = `
 `
 
 const EASE = [0.16, 1, 0.3, 1] as const
+
+/* ─── TIME LEFT HELPER ─── */
+function calculateTimeLeft(targetDate: Date) {
+  const difference = +targetDate - +new Date()
+  if (difference <= 0) {
+    return { days: 0, hours: 0, minutes: 0, seconds: 0, isExpired: true }
+  }
+  return {
+    days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+    hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+    minutes: Math.floor((difference / 1000 / 60) % 60),
+    seconds: Math.floor((difference / 1000) % 60),
+    isExpired: false
+  }
+}
+
+/* ─── HIGH-END TIMER COMPONENT ─── */
+function OfficialCountdownTimer({ isPaymentsOpen }: { isPaymentsOpen: boolean }) {
+  const targetDate = isPaymentsOpen ? TUESDAY_CLOSING_DATE : MONDAY_OPENING_DATE
+  const [timeLeft, setTimeLeft] = useState(calculateTimeLeft(targetDate))
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft(calculateTimeLeft(targetDate))
+    }, 1000)
+    return () => clearInterval(timer)
+  }, [targetDate])
+
+  return (
+    <div className="w-full max-w-xl mx-auto my-6 sm:my-8 p-5 sm:p-8 rounded-3xl bg-[#0F1E4D] border border-[#2563EB]/40 shadow-2xl text-white relative overflow-hidden">
+      {/* Decorative background glow */}
+      <div className="absolute -top-12 -right-12 w-40 h-40 rounded-full bg-[#2563EB]/20 blur-2xl pointer-events-none" />
+
+      <div className="flex items-center justify-center gap-2 mb-4 relative z-10">
+        <span className={`w-2.5 h-2.5 rounded-full ${isPaymentsOpen ? 'bg-amber-400 animate-ping' : 'bg-emerald-400 animate-pulse'}`} />
+        <span className="text-[11px] sm:text-xs font-mono font-bold uppercase tracking-wider text-[#60A5FA]">
+          {isPaymentsOpen ? '🔴 FERMETURE DES RÉSERVATIONS DANS :' : '⚡ OUVERTURE OFFICIELLE DES PLACES DANS :'}
+        </span>
+      </div>
+
+      <div className="grid grid-cols-4 gap-2 sm:gap-4 text-center relative z-10">
+        {/* Jours */}
+        <div className="bg-white/10 backdrop-blur-md p-3 sm:p-4 rounded-2xl border border-white/10 flex flex-col justify-center">
+          <div className="premium-font-display text-2xl sm:text-4xl font-extrabold text-white">
+            {String(timeLeft.days).padStart(2, '0')}
+          </div>
+          <div className="text-[9px] sm:text-[10px] font-mono text-zinc-300 uppercase tracking-widest mt-1">Jours</div>
+        </div>
+        {/* Heures */}
+        <div className="bg-white/10 backdrop-blur-md p-3 sm:p-4 rounded-2xl border border-white/10 flex flex-col justify-center">
+          <div className="premium-font-display text-2xl sm:text-4xl font-extrabold text-white">
+            {String(timeLeft.hours).padStart(2, '0')}
+          </div>
+          <div className="text-[9px] sm:text-[10px] font-mono text-zinc-300 uppercase tracking-widest mt-1">Heures</div>
+        </div>
+        {/* Minutes */}
+        <div className="bg-white/10 backdrop-blur-md p-3 sm:p-4 rounded-2xl border border-white/10 flex flex-col justify-center">
+          <div className="premium-font-display text-2xl sm:text-4xl font-extrabold text-white">
+            {String(timeLeft.minutes).padStart(2, '0')}
+          </div>
+          <div className="text-[9px] sm:text-[10px] font-mono text-zinc-300 uppercase tracking-widest mt-1">Minutes</div>
+        </div>
+        {/* Secondes */}
+        <div className="bg-white/10 backdrop-blur-md p-3 sm:p-4 rounded-2xl border border-white/10 flex flex-col justify-center">
+          <div className="premium-font-display text-2xl sm:text-4xl font-extrabold text-[#60A5FA]">
+            {String(timeLeft.seconds).padStart(2, '0')}
+          </div>
+          <div className="text-[9px] sm:text-[10px] font-mono text-zinc-300 uppercase tracking-widest mt-1">Sec</div>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 /* ─── MOBILE-FIRST HIGH-IMPACT PIPELINE STEPPER ANIMATION ─── */
 function LiveWorkflowAnimation() {
@@ -247,6 +328,22 @@ function FAQAccordionItem({ question, answer, idx }: { question: string; answer:
 export function AccompagnementPage() {
   const [showBookingModal, setShowBookingModal] = useState(false)
   const [showStickyCTA, setShowStickyCTA] = useState(false)
+  const [isPaymentsOpen, setIsPaymentsOpen] = useState(false)
+
+  // Check if today is past Monday opening date
+  useEffect(() => {
+    const checkStatus = () => {
+      const now = new Date()
+      if (now >= MONDAY_OPENING_DATE) {
+        setIsPaymentsOpen(true)
+      } else {
+        setIsPaymentsOpen(false)
+      }
+    }
+    checkStatus()
+    const interval = setInterval(checkStatus, 5000)
+    return () => clearInterval(interval)
+  }, [])
 
   // Initialize Lenis smooth scrolling
   useEffect(() => {
@@ -297,7 +394,7 @@ export function AccompagnementPage() {
               onClick={() => setShowBookingModal(true)}
               className="inline-flex items-center gap-2 px-4 py-2.5 sm:px-6 sm:py-3 bg-[#0F1E4D] hover:bg-[#1E3A8A] text-white rounded-full text-[11px] sm:text-xs font-semibold tracking-wide transition-all duration-200 shadow-sm cursor-pointer"
             >
-              <span>Rejoindre VIP →</span>
+              <span>{isPaymentsOpen ? 'Réserver ma place →' : 'Rejoindre VIP →'}</span>
             </button>
           </div>
         </div>
@@ -307,7 +404,7 @@ export function AccompagnementPage() {
       <section className="relative pt-28 pb-12 sm:pt-40 sm:pb-24 overflow-hidden z-10">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 text-center space-y-6 sm:space-y-8">
           
-          {/* PROMINENT SPRINT DATES BADGE (MOBILE-FIRST FLEX LAYOUT) */}
+          {/* PROMINENT SPRINT DATES BADGE */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -343,6 +440,9 @@ export function AccompagnementPage() {
             Un accompagnement intensif de 5 jours guidé étape par étape. Vous repartez avec un produit concret en ligne, un système d'encaissement fonctionnel et une méthode d'acquisition claire.
           </motion.p>
 
+          {/* HIGH-IMPACT COUNTDOWN TIMER */}
+          <OfficialCountdownTimer isPaymentsOpen={isPaymentsOpen} />
+
           {/* Action Button */}
           <motion.div
             initial={{ opacity: 0, y: 15 }}
@@ -354,7 +454,7 @@ export function AccompagnementPage() {
               onClick={() => setShowBookingModal(true)}
               className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 sm:px-10 bg-[#0F1E4D] hover:bg-[#1E3A8A] text-white rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider transition-all duration-200 shadow-xl hover:scale-[1.02] cursor-pointer"
             >
-              <span>Rejoindre la liste d'attente (VIP)</span>
+              <span>{isPaymentsOpen ? 'Réserver ma place — 10 000 FCFA' : 'Rejoindre la liste d\'attente (VIP)'}</span>
               <ArrowRight className="w-4 h-4 text-[#60A5FA]" />
             </button>
           </motion.div>
@@ -368,10 +468,10 @@ export function AccompagnementPage() {
           >
             <span className="flex items-center gap-1.5">
               <ShieldCheck className="w-4 h-4 text-emerald-600" />
-              <span>Ouverture officielle : Lundi 18h</span>
+              <span>{isPaymentsOpen ? '20 places disponibles' : 'Ouverture officielle : Lundi 18h'}</span>
             </span>
             <span className="hidden sm:inline">•</span>
-            <span className="text-[#2563EB] font-semibold">100% gratuit d'attendre dans le groupe VIP</span>
+            <span className="text-[#2563EB] font-semibold">1 mois d'accès Club IA offert</span>
           </motion.div>
         </div>
       </section>
@@ -561,7 +661,7 @@ export function AccompagnementPage() {
               onClick={() => setShowBookingModal(true)}
               className="w-full sm:w-auto px-8 py-4 bg-[#2563EB] hover:bg-[#1E3A8A] text-white rounded-full text-xs font-bold uppercase tracking-wider transition-all shrink-0 cursor-pointer shadow-lg"
             >
-              Rejoindre le groupe VIP →
+              {isPaymentsOpen ? 'Réserver ma place →' : 'Rejoindre le groupe VIP →'}
             </button>
           </div>
         </div>
@@ -670,7 +770,7 @@ export function AccompagnementPage() {
         </div>
       </section>
 
-      {/* ── SECTION TARIFICATION (ACCÈS VIP LISTE D'ATTENTE) ── */}
+      {/* ── SECTION TARIFICATION (ACCÈS VIP LISTE D'ATTENTE OU PAIEMENT DIRECT) ── */}
       <section className="py-16 sm:py-24 bg-white relative z-10 border-b border-zinc-200/50" id="tarification">
         <div className="mx-auto max-w-4xl px-4 sm:px-6">
           <div className="p-6 sm:p-14 rounded-2xl sm:rounded-3xl bg-[#0F1E4D] text-white text-center relative overflow-hidden border border-[#2563EB]/30 shadow-xl">
@@ -678,14 +778,16 @@ export function AccompagnementPage() {
             {/* Session highlight pill */}
             <div className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-mono font-bold bg-[#2563EB]/20 text-[#60A5FA] uppercase tracking-wider mb-6 border border-[#2563EB]/30 max-w-full">
               <CalendarDays className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#60A5FA] shrink-0" />
-              <span>Ouverture Lundi 18h • Sprint : 12 - 16 Août</span>
+              <span>{isPaymentsOpen ? 'Paiements ouverts ! Sprint : 12 - 16 Août' : 'Ouverture Lundi 18h • Sprint : 12 - 16 Août'}</span>
             </div>
 
             <h3 className="premium-font-display text-2xl sm:text-4xl font-bold tracking-tight text-white leading-tight">
-              Rejoignez le Groupe WhatsApp VIP
+              {isPaymentsOpen ? 'Réservez votre ticket d\'accès' : 'Rejoignez le Groupe WhatsApp VIP'}
             </h3>
             <p className="text-xs sm:text-sm text-zinc-300 mt-2 font-light max-w-md mx-auto">
-              Les places sont limitées à 20 participants. Inscrivez-vous pour obtenir votre lien d'accès prioritaire dès l'ouverture des paiements Lundi.
+              {isPaymentsOpen
+                ? 'Accès complet aux 5 jours d\'accompagnement direct et au groupe d\'entraide dédié.'
+                : 'Les places sont limitées à 20 participants. Inscrivez-vous pour obtenir votre lien d\'accès prioritaire dès l\'ouverture des paiements Lundi.'}
             </p>
 
             {/* REFINED DISPLAY PRICE FONT */}
@@ -695,7 +797,7 @@ export function AccompagnementPage() {
                 <span className="text-xl sm:text-3xl font-bold text-[#60A5FA] premium-font-display">FCFA</span>
               </div>
               <p className="text-[10px] sm:text-xs text-zinc-400 mt-2.5 font-mono uppercase tracking-wider">
-                Tarif unique • Paiement débloqué Lundi
+                {isPaymentsOpen ? 'Tarif unique • Paiement sécurisé' : 'Tarif unique • Paiement débloqué Lundi'}
               </p>
             </div>
 
@@ -704,11 +806,11 @@ export function AccompagnementPage() {
                 onClick={() => setShowBookingModal(true)}
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 sm:px-10 bg-[#2563EB] hover:bg-[#1E3A8A] text-white rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider transition-all duration-200 shadow-lg cursor-pointer hover:scale-[1.02]"
               >
-                <span>Rejoindre la liste d'attente VIP →</span>
+                <span>{isPaymentsOpen ? 'Réserver mon ticket d\'accès →' : 'Rejoindre la liste d\'attente VIP →'}</span>
               </button>
               <div className="flex items-center justify-center gap-2 text-[10px] font-mono text-zinc-400 uppercase tracking-wider">
                 <Lock className="w-3.5 h-3.5 text-[#60A5FA]" />
-                <span>Sans engagement • Accès prioritaire au groupe</span>
+                <span>Paiement sécurisé (Stripe & Mobile Money)</span>
               </div>
             </div>
           </div>
@@ -762,7 +864,7 @@ export function AccompagnementPage() {
             Prêt à <span className="serif-accent">passer le cap ?</span>
           </h2>
           <p className="text-xs sm:text-sm text-zinc-300 max-w-md mx-auto leading-relaxed font-light">
-            Dans 5 jours, vous disposerez d'un système de vente prêt à l'emploi. Rejoignez la liste VIP.
+            Dans 5 jours, vous disposerez d'un système de vente prêt à l'emploi. Rejoignez la session.
           </p>
 
           <div className="pt-2 sm:pt-4 flex flex-col items-center justify-center gap-3">
@@ -770,7 +872,7 @@ export function AccompagnementPage() {
               onClick={() => setShowBookingModal(true)}
               className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 sm:px-10 bg-[#2563EB] hover:bg-[#1E3A8A] text-white rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-200 shadow-lg cursor-pointer"
             >
-              <span>Rejoindre la liste d'attente VIP →</span>
+              <span>{isPaymentsOpen ? 'Réserver ma place — 10 000 FCFA →' : 'Rejoindre la liste d\'attente VIP →'}</span>
             </button>
             <span className="text-[10px] font-mono tracking-widest text-zinc-400 uppercase">
               Prochaine session : Mardi 12 au Samedi 16 Août 2026
@@ -808,29 +910,31 @@ export function AccompagnementPage() {
           >
             <div className="space-y-0.5">
               <div className="text-[9px] font-mono text-[#2563EB] font-bold uppercase">12 - 16 AOÛT</div>
-              <div className="text-sm font-bold font-mono text-[#0F1E4D]">OUVERTURE LUNDI</div>
+              <div className="text-sm font-bold font-mono text-[#0F1E4D]">
+                {isPaymentsOpen ? '10 000 FCFA' : 'OUVERTURE LUNDI'}
+              </div>
             </div>
             <button
               onClick={() => setShowBookingModal(true)}
               className="px-5 py-3 bg-[#0F1E4D] text-white rounded-full text-[10px] font-bold uppercase tracking-wider shadow-md cursor-pointer"
             >
-              Rejoindre VIP →
+              {isPaymentsOpen ? 'Réserver →' : 'Rejoindre VIP →'}
             </button>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* ── Booking Modal (Wizard Checkout redirecting to WhatsApp VIP Group) ── */}
+      {/* ── Booking Modal (Dynamic Phase Switcher: WhatsApp Group or Chariow Payment) ── */}
       <AnimatePresence>
         {showBookingModal && (
-          <BookingModal onClose={() => setShowBookingModal(false)} />
+          <BookingModal isPaymentsOpen={isPaymentsOpen} onClose={() => setShowBookingModal(false)} />
         )}
       </AnimatePresence>
     </div>
   )
 }
 
-/* ─── BOOKING MODAL (WIZARD FLOW REDIRECTING TO WHATSAPP VIP GROUP) ─── */
+/* ─── BOOKING MODAL (WIZARD FLOW WITH DYNAMIC PHASE SWITCHER) ─── */
 interface WizardQuestion {
   id: 'name' | 'email' | 'country' | 'phone'
   label: string
@@ -845,7 +949,7 @@ const WIZARD_QUESTIONS: WizardQuestion[] = [
   {
     id: 'name',
     label: 'Quel est votre nom et prénom ?',
-    subtitle: 'Entrez votre identité officielle pour votre inscription au groupe VIP.',
+    subtitle: 'Entrez votre identité officielle pour votre inscription au challenge.',
     placeholder: 'Ex : Jean Dupont',
     type: 'text',
     errorMsg: 'Veuillez renseigner votre nom complet.',
@@ -854,7 +958,7 @@ const WIZARD_QUESTIONS: WizardQuestion[] = [
   {
     id: 'email',
     label: 'Quelle est votre adresse e-mail ?',
-    subtitle: 'Pour vous envoyer le lien d\'accès prioritaire dès l\'ouverture Lundi.',
+    subtitle: 'Pour vous envoyer les accès aux sessions du challenge.',
     placeholder: 'Ex : jean.dupont@gmail.com',
     type: 'email',
     errorMsg: 'Veuillez renseigner une adresse e-mail valide.',
@@ -872,7 +976,7 @@ const WIZARD_QUESTIONS: WizardQuestion[] = [
   {
     id: 'phone',
     label: 'Quel est votre numéro WhatsApp ?',
-    subtitle: 'Indiquez le code pays pour vous identifier dans le groupe d\'attente.',
+    subtitle: 'Indiquez le code pays pour recevoir les rappels en direct.',
     placeholder: 'Ex : +237 690 00 00 00',
     type: 'tel',
     errorMsg: 'Veuillez saisir un numéro de téléphone valide.',
@@ -880,7 +984,7 @@ const WIZARD_QUESTIONS: WizardQuestion[] = [
   },
 ]
 
-function BookingModal({ onClose }: { onClose: () => void }) {
+function BookingModal({ isPaymentsOpen, onClose }: { isPaymentsOpen: boolean; onClose: () => void }) {
   const [currentStep, setCurrentStep] = useState(0)
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
@@ -949,6 +1053,8 @@ function BookingModal({ onClose }: { onClose: () => void }) {
       const prenom = parts[0] || ''
       const nom = parts.slice(1).join(' ') || 'Participant'
 
+      const redirectDestination = isPaymentsOpen ? CHARIOW_PAYMENT_URL : WHATSAPP_GROUP_URL
+
       const { error } = await supabase.from('accompagnement_candidatures').insert([
         {
           nom: nom,
@@ -957,21 +1063,21 @@ function BookingModal({ onClose }: { onClose: () => void }) {
           telephone: formData.phone.trim(),
           pays: formData.country.trim(),
           projet_type: 'Sprint Business IA',
-          projet_ia: 'Sprint Business IA Challenge - VIP Waiting Group',
+          projet_ia: isPaymentsOpen ? 'Sprint Business IA - Direct Checkout' : 'Sprint Business IA - VIP Waiting Group',
           projet_raison: 'Sprint Business IA Challenge',
-          projet_blocage: 'Attente ouverture officielle Lundi 18h',
+          projet_blocage: isPaymentsOpen ? 'Paiement direct Chariow' : 'Attente ouverture Lundi 18h',
           deja_essaie: false,
-          deja_essaie_details: 'Groupe WhatsApp d\'attente VIP',
-          statut_actuel: 'Liste d\'attente VIP WhatsApp',
+          deja_essaie_details: isPaymentsOpen ? 'Redirection Chariow' : 'Groupe WhatsApp d\'attente VIP',
+          statut_actuel: isPaymentsOpen ? 'Paiement en cours' : 'Liste d\'attente VIP WhatsApp',
           heures_semaine: '10+ heures',
           objectif_12m: 'Lancer un business rentable grâce à l\'IA',
           pret_investir: 'Oui',
           budget: '10 000 FCFA',
-          candidat_raison: 'Sprint Business IA WhatsApp VIP Group Access',
+          candidat_raison: 'Sprint Business IA Registration',
           score: 20,
           qualified: true,
           is_western: false,
-          notes: 'Inscrit sur la liste d\'attente VIP WhatsApp (Ouverture Lundi)'
+          notes: isPaymentsOpen ? 'Redirigé vers Chariow Checkout' : 'Inscrit sur la liste d\'attente VIP WhatsApp'
         }
       ])
 
@@ -982,9 +1088,9 @@ function BookingModal({ onClose }: { onClose: () => void }) {
       setSuccess(true)
       confetti({ particleCount: 120, spread: 80, origin: { y: 0.5 } })
 
-      // Auto redirect to WhatsApp Group after 1.5 seconds
+      // Auto redirect after 1.5 seconds to WhatsApp Group or Chariow Checkout
       setTimeout(() => {
-        window.location.href = WHATSAPP_GROUP_URL
+        window.location.href = redirectDestination
       }, 1500)
 
     } catch (err: any) {
@@ -1092,7 +1198,11 @@ function BookingModal({ onClose }: { onClose: () => void }) {
                   </>
                 ) : (
                   <>
-                    <span>{currentStep === WIZARD_QUESTIONS.length - 1 ? 'Rejoindre le groupe VIP' : 'Continuer'}</span>
+                    <span>
+                      {currentStep === WIZARD_QUESTIONS.length - 1
+                        ? (isPaymentsOpen ? 'Procéder au paiement' : 'Rejoindre le groupe VIP')
+                        : 'Continuer'}
+                    </span>
                     <ArrowRight className="w-3.5 h-3.5 text-[#60A5FA]" />
                   </>
                 )}
@@ -1100,35 +1210,45 @@ function BookingModal({ onClose }: { onClose: () => void }) {
             </div>
           </div>
         ) : (
-          /* WHATSAPP VIP GROUP REDIRECT SUCCESS STATE */
+          /* REDIRECT SUCCESS STATE */
           <div className="p-8 sm:p-10 text-center space-y-5 sm:space-y-6">
             <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto text-2xl sm:text-3xl border border-emerald-100 shadow-md">
               ✓
             </div>
             <div className="space-y-2">
               <h3 className="premium-font-display text-lg sm:text-xl font-bold text-[#0F1E4D]">
-                Place pré-réservée avec succès !
+                {isPaymentsOpen ? 'Informations enregistrées !' : 'Place pré-réservée avec succès !'}
               </h3>
               <p className="text-xs text-[#0F1E4D]/75 leading-relaxed max-w-xs mx-auto font-light">
-                Félicitations <strong>{formData.name}</strong> ! Les ouvertures officielles débutent <strong>Lundi à 18h</strong>.
-              </p>
-              <p className="text-xs text-[#2563EB] font-medium leading-relaxed max-w-xs mx-auto">
-                Rejoignez le groupe d'attente WhatsApp pour sécuriser votre lien prioritaire.
+                Félicitations <strong>{formData.name}</strong> !{' '}
+                {isPaymentsOpen
+                  ? 'Redirection automatique vers la page de paiement sécurisée Chariow...'
+                  : 'Les ouvertures officielles débutent Lundi à 18h. Rejoignez le groupe WhatsApp d\'attente VIP pour recevoir votre lien prioritaire.'}
               </p>
               <p className="text-[10px] text-[#2563EB] font-bold animate-pulse font-mono uppercase tracking-wider pt-2">
-                Redirection automatique vers WhatsApp...
+                Redirection automatique en cours...
               </p>
             </div>
             <div className="pt-1 sm:pt-2">
-              <a
-                href={WHATSAPP_GROUP_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 py-3.5 sm:px-8 sm:py-4 bg-[#25D366] hover:bg-[#1FAA50] text-white rounded-full text-xs font-bold uppercase tracking-wider transition-all shadow-lg hover:scale-[1.02]"
-              >
-                <MessageSquare className="w-4 h-4" />
-                <span>Rejoindre le Groupe WhatsApp VIP →</span>
-              </a>
+              {isPaymentsOpen ? (
+                <a
+                  href={CHARIOW_PAYMENT_URL}
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 py-3.5 sm:px-8 sm:py-4 bg-[#2563EB] hover:bg-[#1E3A8A] text-white rounded-full text-xs font-bold uppercase tracking-wider transition-all shadow-lg hover:scale-[1.02]"
+                >
+                  <CreditCard className="w-4 h-4" />
+                  <span>Payer mon ticket (10 000 FCFA) →</span>
+                </a>
+              ) : (
+                <a
+                  href={WHATSAPP_GROUP_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 py-3.5 sm:px-8 sm:py-4 bg-[#25D366] hover:bg-[#1FAA50] text-white rounded-full text-xs font-bold uppercase tracking-wider transition-all shadow-lg hover:scale-[1.02]"
+                >
+                  <MessageSquare className="w-4 h-4" />
+                  <span>Rejoindre le Groupe WhatsApp VIP →</span>
+                </a>
+              )}
             </div>
           </div>
         )}
