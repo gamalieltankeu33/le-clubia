@@ -55,13 +55,6 @@ const styles = `
     font-weight: 400;
   }
 
-  /* Chiffres géants filigranés en Instrument Serif italique ultra-discrets */
-  .serif-number {
-    font-family: 'Instrument Serif', Georgia, serif;
-    font-style: italic;
-    font-weight: 400;
-  }
-
   .premium-grid-overlay {
     background-image: 
       linear-gradient(to right, rgba(15, 30, 77, 0.025) 1px, transparent 1px),
@@ -83,7 +76,7 @@ const styles = `
 
 const EASE = [0.16, 1, 0.3, 1] as const
 
-/* ─── INTERACTIVE WORKFLOW PIPELINE ANIMATION (White background, Le Club IA style) ─── */
+/* ─── LARGE HIGH-IMPACT PIPELINE STEPPER ANIMATION (PURE VISUAL PROGRESSION) ─── */
 function LiveWorkflowAnimation() {
   const [activeStep, setActiveStep] = useState(0)
 
@@ -127,27 +120,15 @@ function LiveWorkflowAnimation() {
   }, [])
 
   return (
-    <div className="w-full bg-white rounded-3xl p-8 sm:p-12 border border-zinc-200/80 shadow-md my-12 relative overflow-hidden">
-      <div className="text-center max-w-xl mx-auto space-y-2 mb-10">
-        <span className="text-[10px] font-mono font-bold tracking-[0.2em] text-[#2563EB] uppercase bg-[#2563EB]/10 px-3 py-1 rounded-full border border-[#2563EB]/20">
-          PARCOURS EN DIRECT
-        </span>
-        <h3 className="premium-font-display text-2xl sm:text-3xl font-bold text-[#0F1E4D]">
-          La progression de votre système en <span className="serif-accent">5 jours.</span>
-        </h3>
-        <p className="text-xs sm:text-sm text-zinc-500 font-light">
-          Déroulement pas à pas de votre intégration pendant la session.
-        </p>
-      </div>
-
-      {/* Horizontal Interactive Timeline Bar */}
-      <div className="relative max-w-3xl mx-auto my-8 px-4">
+    <div className="w-full bg-white rounded-3xl p-8 sm:p-14 border border-zinc-200/80 shadow-lg my-12 relative overflow-hidden">
+      {/* Horizontal Interactive Timeline Bar (GRAND FORMAT) */}
+      <div className="relative max-w-4xl mx-auto py-6 px-4">
         {/* Background Connecting Line */}
-        <div className="absolute top-6 inset-x-12 h-0.5 bg-zinc-200 z-0" />
+        <div className="absolute top-10 sm:top-12 inset-x-14 h-2 bg-zinc-100 rounded-full z-0" />
         
         {/* Active Animated Progress Line */}
         <motion.div
-          className="absolute top-6 left-12 h-0.5 bg-[#2563EB] z-0"
+          className="absolute top-10 sm:top-12 left-14 h-2 bg-[#2563EB] rounded-full z-0"
           animate={{ width: `${(activeStep / (steps.length - 1)) * 82}%` }}
           transition={{ duration: 0.5, ease: EASE }}
         />
@@ -165,26 +146,29 @@ function LiveWorkflowAnimation() {
               >
                 <motion.div
                   animate={{
-                    scale: isCurrent ? 1.15 : 1,
+                    scale: isCurrent ? 1.18 : 1,
                     backgroundColor: isCurrent ? '#2563EB' : isActive ? '#0F1E4D' : '#FFFFFF',
                     borderColor: isCurrent ? '#2563EB' : isActive ? '#0F1E4D' : '#E5E5E4'
                   }}
                   transition={{ duration: 0.3 }}
-                  className={`w-12 h-12 rounded-full border-2 flex items-center justify-center shadow-sm ${
+                  className={`w-16 h-16 sm:w-20 sm:h-20 rounded-3xl border-2 flex items-center justify-center shadow-md transition-shadow ${
                     isCurrent
-                      ? 'text-white shadow-md ring-4 ring-[#2563EB]/20'
+                      ? 'text-white shadow-xl ring-4 ring-[#2563EB]/25'
                       : isActive
                       ? 'text-white'
                       : 'text-zinc-400 bg-white'
                   }`}
                 >
-                  <StepIcon className="w-5 h-5" />
+                  <StepIcon className="w-7 h-7 sm:w-8 sm:h-8" />
                 </motion.div>
                 
-                <span className={`text-[11px] font-medium mt-3 transition-colors text-center hidden sm:block ${
-                  isCurrent ? 'text-[#2563EB] font-bold' : isActive ? 'text-[#0F1E4D]' : 'text-zinc-400'
+                <span className={`text-xs sm:text-sm font-bold mt-4 transition-colors text-center ${
+                  isCurrent ? 'text-[#2563EB]' : isActive ? 'text-[#0F1E4D]' : 'text-zinc-400'
                 }`}>
                   {step.day}
+                </span>
+                <span className="text-[11px] text-zinc-400 font-medium hidden md:block text-center mt-0.5">
+                  {step.title}
                 </span>
               </button>
             )
@@ -192,30 +176,32 @@ function LiveWorkflowAnimation() {
         </div>
       </div>
 
-      {/* Active Step Details Card */}
+      {/* Active Step Details Banner */}
       <AnimatePresence mode="wait">
         <motion.div
           key={activeStep}
-          initial={{ opacity: 0, y: 8 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -8 }}
+          exit={{ opacity: 0, y: -10 }}
           transition={{ duration: 0.3 }}
-          className="max-w-xl mx-auto mt-6 p-5 rounded-2xl bg-[#FAFAF9] border border-zinc-200/80 flex flex-col sm:flex-row items-center justify-between gap-4"
+          className="max-w-2xl mx-auto mt-8 p-6 rounded-2xl bg-[#FAFAF9] border border-zinc-200/80 flex flex-col sm:flex-row items-center justify-between gap-4"
         >
           <div className="space-y-1 text-center sm:text-left">
-            <span className="text-[9px] font-mono font-bold uppercase text-[#2563EB] bg-[#2563EB]/10 px-2 py-0.5 rounded">
-              Étape {activeStep + 1} sur 4 — {steps[activeStep].day}
-            </span>
-            <h4 className="premium-font-display text-base font-bold text-[#0F1E4D]">
+            <div className="flex items-center justify-center sm:justify-start gap-2">
+              <span className="text-[10px] font-mono font-bold uppercase text-[#2563EB] bg-[#2563EB]/10 px-2.5 py-0.5 rounded-md">
+                Étape {activeStep + 1} sur 4 — {steps[activeStep].day}
+              </span>
+            </div>
+            <h4 className="premium-font-display text-lg font-bold text-[#0F1E4D]">
               {steps[activeStep].title}
             </h4>
-            <p className="text-xs text-zinc-500 font-light">
+            <p className="text-xs sm:text-sm text-zinc-500 font-light">
               {steps[activeStep].subtitle}
             </p>
           </div>
 
-          <div className="px-3.5 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-mono font-semibold flex items-center gap-2 shrink-0">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          <div className="px-4 py-2 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-mono font-bold flex items-center gap-2 shrink-0">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
             <span>{steps[activeStep].status}</span>
           </div>
         </motion.div>
@@ -366,7 +352,7 @@ export function AccompagnementPage() {
       <section className="relative pt-32 pb-16 sm:pt-40 sm:pb-24 overflow-hidden z-10">
         <div className="mx-auto max-w-4xl px-6 text-center space-y-8">
           
-          {/* UPDATED PROMINENT SPRINT DATES BADGE */}
+          {/* PROMINENT SPRINT DATES BADGE */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -440,7 +426,7 @@ export function AccompagnementPage() {
             subtitle="Pas de théorie inutile. Vous construisez votre système de vente de A à Z avec un guidage direct."
           />
 
-          {/* 3 PILLAR CARDS WITH INSTRUMENT SERIF DISCREET BACKGROUND NUMBERS */}
+          {/* 3 PILLAR CARDS WITH ULTRA-DISCREET SANS BACKGROUND NUMBERS */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-14 relative">
             {[
               {
@@ -480,14 +466,14 @@ export function AccompagnementPage() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.5, delay: idx * 0.1, ease: EASE }}
-                    className="h-full p-8 rounded-3xl border border-zinc-200/80 bg-[#FAFAF9] relative overflow-hidden flex flex-col justify-between hover:border-[#C9973E]/50 hover:shadow-lg transition-all duration-300"
+                    className="h-full p-8 sm:p-9 rounded-3xl border border-zinc-200/80 bg-[#FAFAF9] relative overflow-hidden flex flex-col justify-between hover:border-[#C9973E]/50 hover:shadow-lg transition-all duration-300"
                   >
-                    {/* DISCREET TOP-RIGHT BACKGROUND NUMBER (INSTRUMENT SERIF ITALIC - NON OVERLAPPING) */}
-                    <span className="serif-number absolute top-3 right-5 text-6xl text-[#0F1E4D]/04 select-none pointer-events-none">
+                    {/* ULTRA-SUBTLE SANS BACKGROUND NUMBER (NON-OVERLAPPING) */}
+                    <span className="absolute top-4 right-5 font-mono text-5xl font-extrabold text-[#0F1E4D]/[0.025] select-none pointer-events-none">
                       {pillar.num}
                     </span>
 
-                    <div className="space-y-5 relative z-10 pt-2">
+                    <div className="space-y-5 relative z-10 pt-1">
                       <div className="flex items-center justify-between">
                         <div className="w-12 h-12 rounded-2xl bg-[#C9973E]/10 text-[#C9973E] flex items-center justify-center border border-[#C9973E]/20">
                           <PillarIcon className="w-6 h-6" />
@@ -522,7 +508,7 @@ export function AccompagnementPage() {
             subtitle="Suivez une feuille de route rythmée avec des livrables clairs à chaque étape."
           />
 
-          {/* DYNAMIC TIMELINE STEPS WITH DISCREET INSTRUMENT SERIF NUMBERS & CURVED CONNECTORS */}
+          {/* DYNAMIC TIMELINE STEPS WITH ULTRA-SUBTLE SANS NUMBERS & CURVED CONNECTORS */}
           <div className="mt-16 space-y-8 relative">
             {[
               {
@@ -570,8 +556,8 @@ export function AccompagnementPage() {
                     transition={{ duration: 0.5, delay: idx * 0.08, ease: EASE }}
                     className="p-8 sm:p-10 rounded-3xl bg-white border border-zinc-200/80 shadow-sm relative overflow-hidden flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 hover:border-[#C9973E]/40 hover:shadow-md transition-all"
                   >
-                    {/* DISCREET TOP-RIGHT BACKGROUND STEP NUMBER */}
-                    <span className="serif-number absolute top-4 right-6 text-7xl text-[#0F1E4D]/04 select-none pointer-events-none">
+                    {/* ULTRA-SUBTLE SANS BACKGROUND STEP NUMBER */}
+                    <span className="font-mono absolute top-4 right-6 text-6xl font-extrabold text-[#0F1E4D]/[0.025] select-none pointer-events-none">
                       {step.num}
                     </span>
 
@@ -710,7 +696,7 @@ export function AccompagnementPage() {
                   transition={{ duration: 0.5, delay: idx * 0.05, ease: EASE }}
                   className="p-6 rounded-3xl border border-zinc-200/80 bg-white flex flex-col justify-between hover:border-[#C9973E]/40 hover:shadow-md transition-all duration-200 relative overflow-hidden"
                 >
-                  <span className="serif-number absolute top-3 right-4 text-5xl text-[#0F1E4D]/04 select-none pointer-events-none">
+                  <span className="font-mono absolute top-3 right-4 text-5xl font-extrabold text-[#0F1E4D]/[0.025] select-none pointer-events-none">
                     {item.num}
                   </span>
                   <div className="space-y-4 relative z-10">
@@ -729,8 +715,8 @@ export function AccompagnementPage() {
 
       {/* ── SECTION TARIFICATION ── */}
       <section className="py-24 bg-white relative z-10 border-b border-zinc-200/50" id="tarification">
-        <div className="mx-auto max-w-3xl px-6">
-          <div className="p-8 sm:p-12 rounded-3xl bg-[#0F1E4D] text-white text-center relative overflow-hidden border border-[#C9973E]/30 shadow-xl">
+        <div className="mx-auto max-w-4xl px-6">
+          <div className="p-8 sm:p-14 rounded-3xl bg-[#0F1E4D] text-white text-center relative overflow-hidden border border-[#C9973E]/30 shadow-xl">
             
             {/* Session highlight pill */}
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-mono font-bold bg-[#C9973E]/15 text-[#D9A94A] uppercase tracking-wider mb-6 border border-[#C9973E]/30">
@@ -741,16 +727,17 @@ export function AccompagnementPage() {
             <h3 className="premium-font-display text-3xl sm:text-4xl font-bold tracking-tight text-white leading-tight">
               Réservez votre ticket d'accès
             </h3>
-            <p className="text-xs text-zinc-300 mt-2 font-light max-w-md mx-auto">
+            <p className="text-xs sm:text-sm text-zinc-300 mt-2 font-light max-w-md mx-auto">
               Accès complet aux 5 jours d'accompagnement direct et au groupe d'entraide dédié.
             </p>
 
-            <div className="my-8">
-              <div className="text-4xl sm:text-5xl font-extrabold tracking-tight text-white flex items-center justify-center gap-2">
-                <span className="font-mono">10 000</span>
-                <span className="text-2xl font-light text-[#D9A94A]">FCFA</span>
+            {/* REFINED HIGH-IMPACT DISPLAY PRICE FONT */}
+            <div className="my-10">
+              <div className="text-5xl sm:text-6xl font-extrabold tracking-tight text-white flex items-center justify-center gap-3">
+                <span className="premium-font-display font-extrabold text-white tracking-tight">10 000</span>
+                <span className="text-2xl sm:text-3xl font-bold text-[#D9A94A] premium-font-display">FCFA</span>
               </div>
-              <p className="text-[11px] text-zinc-400 mt-2 font-mono uppercase tracking-wider">
+              <p className="text-xs text-zinc-400 mt-3 font-mono uppercase tracking-wider">
                 Tarif unique • Aucun frais caché
               </p>
             </div>
@@ -758,7 +745,7 @@ export function AccompagnementPage() {
             <div className="flex flex-col items-center gap-4">
               <button
                 onClick={() => setShowBookingModal(true)}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-10 py-4 bg-[#C9973E] hover:bg-[#D9A94A] text-[#0F1E4D] rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-200 shadow-lg cursor-pointer"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-10 py-4 bg-[#C9973E] hover:bg-[#D9A94A] text-[#0F1E4D] rounded-full text-sm font-bold uppercase tracking-wider transition-all duration-200 shadow-lg cursor-pointer hover:scale-[1.02]"
               >
                 <span>Réserver mon ticket d'accès →</span>
               </button>
@@ -769,7 +756,7 @@ export function AccompagnementPage() {
             </div>
           </div>
 
-          {/* INTERACTIVE WORKFLOW PIPELINE ANIMATION (PLACED SOUS "RÉSERVER MA PLACE") */}
+          {/* LARGE HIGH-IMPACT PIPELINE STEPPER ANIMATION (PLACED SOUS "RÉSERVER MON TICKET") */}
           <LiveWorkflowAnimation />
 
         </div>
