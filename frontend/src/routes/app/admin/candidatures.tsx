@@ -28,7 +28,11 @@ import {
   User,
   ShieldCheck,
   TrendingUp,
-  ChevronDown
+  ChevronDown,
+  Zap,
+  Tag,
+  CreditCard,
+  Users
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { supabase } from '@/lib/supabase'
@@ -67,11 +71,12 @@ interface CandidatureItem {
 }
 
 const STATUS_BADGES: Record<string, { label: string; color: string; bg: string }> = {
-  Nouveau: { label: 'Nouveau', color: 'text-blue-700', bg: 'bg-blue-50 border-blue-200' },
-  Qualifié: { label: 'Qualifié', color: 'text-emerald-700', bg: 'bg-emerald-50 border-emerald-200' },
-  'Appel prévu': { label: 'Appel prévu', color: 'text-purple-700', bg: 'bg-purple-50 border-purple-200' },
-  Admis: { label: 'Admis', color: 'text-amber-700', bg: 'bg-amber-50 border-amber-200' },
-  'Non qualifié': { label: 'Non qualifié', color: 'text-rose-700', bg: 'bg-rose-50 border-rose-200' }
+  Nouveau: { label: 'Inscrit', color: 'text-blue-700', bg: 'bg-blue-50 border-blue-200' },
+  'Liste VIP': { label: 'Liste VIP WhatsApp', color: 'text-[#2563EB]', bg: 'bg-[#2563EB]/10 border-[#2563EB]/30' },
+  'Paiement en cours': { label: 'Paiement en cours', color: 'text-amber-700', bg: 'bg-amber-50 border-amber-200' },
+  Confirmé: { label: 'Confirmé (10k FCFA)', color: 'text-emerald-700', bg: 'bg-emerald-50 border-emerald-200' },
+  Admis: { label: 'Admis', color: 'text-emerald-700', bg: 'bg-emerald-50 border-emerald-200' },
+  Archivé: { label: 'Archivé', color: 'text-zinc-600', bg: 'bg-zinc-100 border-zinc-200' }
 }
 
 export function AdminCandidaturesPage() {
@@ -91,8 +96,8 @@ export function AdminCandidaturesPage() {
         .order('created_at', { ascending: false })
 
       if (error) {
-        console.error('Erreur récupération candidatures:', error)
-        toast.error('Erreur lors du chargement des candidatures')
+        console.error('Erreur récupération inscriptions Sprint:', error)
+        toast.error('Erreur lors du chargement des inscriptions')
         return []
       }
 
@@ -115,7 +120,7 @@ export function AdminCandidaturesPage() {
       if (error) throw error
     },
     onSuccess: () => {
-      toast.success('Dossier candidat mis à jour')
+      toast.success('Fiche participant mise à jour')
       queryClient.invalidateQueries({ queryKey: ['admin-candidatures'] })
     },
     onError: (err) => {
@@ -126,14 +131,16 @@ export function AdminCandidaturesPage() {
 
   // Filter logic
   const filteredCandidatures = candidatures.filter(c => {
-    const statusMatch = selectedStatusFilter === 'Tous' || (c.status || 'Nouveau') === selectedStatusFilter
+    const currentStatus = c.status || 'Nouveau'
+    const statusMatch = selectedStatusFilter === 'Tous' || currentStatus === selectedStatusFilter
     const searchLower = searchQuery.toLowerCase()
     const queryMatch =
       !searchQuery ||
       c.nom.toLowerCase().includes(searchLower) ||
       c.prenom.toLowerCase().includes(searchLower) ||
       c.email.toLowerCase().includes(searchLower) ||
-      c.projet_type.toLowerCase().includes(searchLower) ||
+      c.telephone.toLowerCase().includes(searchLower) ||
+      c.pays.toLowerCase().includes(searchLower) ||
       c.projet_ia.toLowerCase().includes(searchLower)
 
     return statusMatch && queryMatch
@@ -141,9 +148,9 @@ export function AdminCandidaturesPage() {
 
   // Stats calculation
   const totalCount = candidatures.length
-  const nouveauCount = candidatures.filter(c => (c.status || 'Nouveau') === 'Nouveau').length
-  const qualifieCount = candidatures.filter(c => c.status === 'Qualifié' || c.status === 'Appel prévu' || c.status === 'Admis').length
-  const nonQualifieCount = candidatures.filter(c => c.status === 'Non qualifié').length
+  const vipWaitingCount = candidatures.filter(c => c.statut_actuel?.includes('VIP') || c.status === 'Liste VIP').length
+  const paymentPendingCount = candidatures.filter(c => c.status === 'Paiement en cours').length
+  const confirmedCount = candidatures.filter(c => c.status === 'Confirmé' || c.status === 'Admis').length
 
   const handleOpenDetail = (item: CandidatureItem) => {
     setSelectedCandidate(item)
@@ -161,23 +168,29 @@ export function AdminCandidaturesPage() {
     updateCandidateMutation.mutate({ id: selectedCandidate.id, notes: adminNotes })
   }
 
+  const getWhatsAppLink = (phone: string, firstName: string) => {
+    const cleanPhone = phone.replace(/[^0-9+]/g, '')
+    const msg = `Bonjour ${firstName}, je suis Gamaliel du Club IA. Je vous contacte au sujet de votre inscription au Sprint Business IA (12-16 Août). Avez-vous pu rejoindre le groupe d'attente VIP ?`
+    return `https://wa.me/${cleanPhone.replace('+', '')}?text=${encodeURIComponent(msg)}`
+  }
+
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-8 font-sans">
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-200 pb-5">
         <div>
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-zinc-900 text-white flex items-center justify-center font-bold">
-              <Briefcase className="w-4 h-4" />
+            <div className="w-8 h-8 rounded-lg bg-[#0F1E4D] text-white flex items-center justify-center font-bold">
+              <Zap className="w-4 h-4 text-[#2563EB]" />
             </div>
-            <h1 className="text-2xl font-bold text-zinc-900">Candidatures Accompagnement</h1>
+            <h1 className="text-2xl font-bold text-zinc-900">Sprint Business IA — Inscriptions</h1>
           </div>
           <p className="text-xs text-zinc-500 mt-1">
-            Gestion, qualification et suivi des dossiers de candidats au programme d'accompagnement IA.
+            Gestion en temps réel des pré-inscriptions sur liste VIP WhatsApp et des paiements pour le challenge de 5 jours.
           </p>
         </div>
 
-        <Button onClick={() => refetch()} variant="outline" size="sm" className="gap-2 text-xs">
+        <Button onClick={() => refetch()} variant="outline" size="sm" className="gap-2 text-xs cursor-pointer">
           <Clock className="w-3.5 h-3.5" />
           <span>Actualiser</span>
         </Button>
@@ -186,23 +199,23 @@ export function AdminCandidaturesPage() {
       {/* KPI Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
         <div className="p-4 rounded-xl bg-white border border-zinc-200 shadow-2xs space-y-1">
-          <div className="text-[11px] font-medium text-zinc-500 uppercase tracking-wider">Total Candidatures</div>
+          <div className="text-[11px] font-medium text-zinc-500 uppercase tracking-wider">Total Inscrits</div>
           <div className="text-2xl font-bold text-zinc-900 font-mono">{totalCount}</div>
         </div>
 
         <div className="p-4 rounded-xl bg-blue-50/60 border border-blue-200 shadow-2xs space-y-1">
-          <div className="text-[11px] font-medium text-blue-700 uppercase tracking-wider">Nouveaux Dossiers</div>
-          <div className="text-2xl font-bold text-blue-900 font-mono">{nouveauCount}</div>
+          <div className="text-[11px] font-medium text-[#2563EB] uppercase tracking-wider">Liste VIP WhatsApp</div>
+          <div className="text-2xl font-bold text-[#0F1E4D] font-mono">{vipWaitingCount}</div>
+        </div>
+
+        <div className="p-4 rounded-xl bg-amber-50/60 border border-amber-200 shadow-2xs space-y-1">
+          <div className="text-[11px] font-medium text-amber-700 uppercase tracking-wider">Paiement en cours</div>
+          <div className="text-2xl font-bold text-amber-900 font-mono">{paymentPendingCount}</div>
         </div>
 
         <div className="p-4 rounded-xl bg-emerald-50/60 border border-emerald-200 shadow-2xs space-y-1">
-          <div className="text-[11px] font-medium text-emerald-700 uppercase tracking-wider">Qualifiés / Admis</div>
-          <div className="text-2xl font-bold text-emerald-900 font-mono">{qualifieCount}</div>
-        </div>
-
-        <div className="p-4 rounded-xl bg-rose-50/60 border border-rose-200 shadow-2xs space-y-1">
-          <div className="text-[11px] font-medium text-rose-700 uppercase tracking-wider">Non Qualifiés</div>
-          <div className="text-2xl font-bold text-rose-900 font-mono">{nonQualifieCount}</div>
+          <div className="text-[11px] font-medium text-emerald-700 uppercase tracking-wider">Confirmés / Admis (10k)</div>
+          <div className="text-2xl font-bold text-emerald-900 font-mono">{confirmedCount}</div>
         </div>
       </div>
 
@@ -214,20 +227,20 @@ export function AdminCandidaturesPage() {
             type="text"
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            placeholder="Rechercher par nom, prénom, email ou projet..."
-            className="w-full pl-9 pr-4 py-2 rounded-lg bg-zinc-50 border border-zinc-200 text-xs focus:outline-none focus:ring-2 focus:ring-zinc-900"
+            placeholder="Rechercher par nom, prénom, email, téléphone ou pays..."
+            className="w-full pl-9 pr-4 py-2 rounded-lg bg-zinc-50 border border-zinc-200 text-xs focus:outline-none focus:ring-2 focus:ring-[#0F1E4D]"
           />
         </div>
 
         <div className="flex items-center gap-2 overflow-x-auto">
-          {['Tous', 'Nouveau', 'Qualifié', 'Appel prévu', 'Admis', 'Non qualifié'].map(st => (
+          {['Tous', 'Nouveau', 'Liste VIP', 'Paiement en cours', 'Confirmé', 'Archivé'].map(st => (
             <button
               key={st}
               onClick={() => setSelectedStatusFilter(st)}
               className={cn(
                 'px-3 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap cursor-pointer',
                 selectedStatusFilter === st
-                  ? 'bg-zinc-900 text-white shadow-2xs'
+                  ? 'bg-[#0F1E4D] text-white shadow-2xs font-semibold'
                   : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200'
               )}
             >
@@ -237,28 +250,27 @@ export function AdminCandidaturesPage() {
         </div>
       </div>
 
-      {/* Candidatures Table */}
+      {/* Inscriptions Table */}
       <div className="rounded-xl bg-white border border-zinc-200 shadow-2xs overflow-hidden">
         {isLoading ? (
-          <div className="p-12 text-center text-xs text-zinc-500">Chargement des candidatures...</div>
+          <div className="p-12 text-center text-xs text-zinc-500">Chargement des inscrits...</div>
         ) : filteredCandidatures.length === 0 ? (
           <div className="p-12 text-center space-y-2">
             <AlertCircle className="w-8 h-8 text-zinc-300 mx-auto" />
-            <div className="text-sm font-semibold text-zinc-700">Aucune candidature trouvée</div>
-            <p className="text-xs text-zinc-400">Aucun dossier ne correspond à vos filtres actuels.</p>
+            <div className="text-sm font-semibold text-zinc-700">Aucun inscrit trouvé</div>
+            <p className="text-xs text-zinc-400">Aucune pré-inscription ne correspond à vos filtres actuels.</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead className="bg-zinc-50 border-b border-zinc-200 text-zinc-500 font-medium">
                 <tr>
-                  <th className="p-3.5">Candidat</th>
-                  <th className="p-3.5">Score IA</th>
-                  <th className="p-3.5">Projet & Objectif</th>
-                  <th className="p-3.5">Temps & Budget</th>
-                  <th className="p-3.5">Statut</th>
-                  <th className="p-3.5">Date</th>
-                  <th className="p-3.5 text-right">Action</th>
+                  <th className="p-3.5">Participant</th>
+                  <th className="p-3.5">Source & Canal</th>
+                  <th className="p-3.5">Tarif & Accord</th>
+                  <th className="p-3.5">Statut Sprint</th>
+                  <th className="p-3.5">Date Inscription</th>
+                  <th className="p-3.5 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-100 font-sans">
@@ -273,46 +285,19 @@ export function AdminCandidaturesPage() {
                         <div className="text-[11px] text-zinc-500">{item.email}</div>
                         <div className="text-[10px] text-zinc-400 font-mono flex items-center gap-1.5 flex-wrap mt-0.5">
                           <span>{item.telephone} • {item.pays}</span>
-                          {item.is_western && (
-                            <span className="inline-flex items-center gap-0.5 text-[9px] text-emerald-600 font-semibold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100/50">
-                              Occidental
-                            </span>
-                          )}
                         </div>
                       </td>
 
-                      <td className="p-3.5">
-                        {item.score !== undefined && item.score !== null ? (
-                          <div className="flex flex-col gap-1">
-                            <span className={cn(
-                              'inline-flex items-center justify-center w-12 py-1 rounded-lg text-xs font-bold font-mono border',
-                              item.score >= 16
-                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                                : item.score >= 12
-                                  ? 'bg-blue-50 text-blue-700 border-blue-200'
-                                  : 'bg-amber-50 text-amber-700 border-amber-200'
-                            )}>
-                              {item.score}/20
-                            </span>
-                            {item.qualified && (
-                              <span className="text-[8px] font-bold text-emerald-700 uppercase bg-emerald-50/80 px-1 py-0.5 rounded border border-emerald-100 w-12 text-center">
-                                Cible
-                              </span>
-                            )}
-                          </div>
-                        ) : (
-                          <span className="text-zinc-400 font-mono">-</span>
-                        )}
-                      </td>
-
                       <td className="p-3.5 max-w-xs">
-                        <div className="font-semibold text-zinc-800 line-clamp-1">{item.projet_type}</div>
-                        <div className="text-[11px] text-zinc-500 line-clamp-2">{item.projet_ia}</div>
+                        <div className="font-semibold text-zinc-800 line-clamp-1">{item.projet_type || 'Sprint Business IA'}</div>
+                        <div className="text-[11px] text-[#2563EB] font-medium line-clamp-1">{item.projet_ia}</div>
                       </td>
 
                       <td className="p-3.5">
-                        <div className="font-mono text-zinc-800">{item.budget}</div>
-                        <div className="text-[11px] text-zinc-500">{item.heures_semaine}</div>
+                        <div className="font-mono text-zinc-800 font-bold">{item.budget || '10 000 FCFA'}</div>
+                        <div className="text-[10px] text-emerald-700 font-medium bg-emerald-50 px-1.5 py-0.5 rounded w-fit border border-emerald-100 mt-0.5">
+                          {item.pret_investir || 'Oui (Tarif validé)'}
+                        </div>
                       </td>
 
                       <td className="p-3.5">
@@ -326,15 +311,28 @@ export function AdminCandidaturesPage() {
                       </td>
 
                       <td className="p-3.5 text-right">
-                        <Button
-                          onClick={() => handleOpenDetail(item)}
-                          size="sm"
-                          variant="outline"
-                          className="text-xs h-8 px-3 gap-1"
-                        >
-                          <span>Examiner</span>
-                          <ChevronRight className="w-3 h-3" />
-                        </Button>
+                        <div className="flex items-center justify-end gap-2">
+                          <a
+                            href={getWhatsAppLink(item.telephone, item.prenom)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#25D366]/10 text-[#1FAA50] hover:bg-[#25D366]/20 text-[11px] font-bold transition-colors"
+                            title="Contacter sur WhatsApp"
+                          >
+                            <MessageSquare className="w-3.5 h-3.5" />
+                            <span>WhatsApp</span>
+                          </a>
+
+                          <Button
+                            onClick={() => handleOpenDetail(item)}
+                            size="sm"
+                            variant="outline"
+                            className="text-xs h-8 px-3 gap-1 cursor-pointer"
+                          >
+                            <span>Détails</span>
+                            <ChevronRight className="w-3 h-3" />
+                          </Button>
+                        </div>
                       </td>
                     </tr>
                   )
@@ -345,7 +343,7 @@ export function AdminCandidaturesPage() {
         )}
       </div>
 
-      {/* Candidate Detail Modal / Drawer */}
+      {/* Participant Detail Modal / Drawer */}
       <AnimatePresence>
         {selectedCandidate && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
@@ -353,19 +351,19 @@ export function AdminCandidaturesPage() {
               initial={{ opacity: 0, scale: 0.96 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.96 }}
-              className="w-full max-w-3xl bg-white rounded-2xl border border-zinc-200 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col font-sans"
+              className="w-full max-w-2xl bg-white rounded-2xl border border-zinc-200 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col font-sans"
             >
               {/* Modal Top Bar */}
               <div className="p-5 border-b border-zinc-200 flex items-center justify-between bg-zinc-50">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-zinc-900 text-white flex items-center justify-center font-bold text-sm">
+                  <div className="w-10 h-10 rounded-full bg-[#0F1E4D] text-white flex items-center justify-center font-bold text-sm">
                     {selectedCandidate.prenom[0]}{selectedCandidate.nom[0]}
                   </div>
                   <div>
                     <h3 className="text-base font-bold text-zinc-900">
                       {selectedCandidate.prenom} {selectedCandidate.nom}
                     </h3>
-                    <div className="text-xs text-zinc-500 flex items-center gap-3">
+                    <div className="text-xs text-zinc-500 flex items-center gap-2 flex-wrap">
                       <span>{selectedCandidate.email}</span>
                       <span>•</span>
                       <span>{selectedCandidate.telephone}</span>
@@ -386,61 +384,32 @@ export function AdminCandidaturesPage() {
               {/* Modal Content Scroll Area */}
               <div className="p-6 space-y-6 overflow-y-auto flex-1 text-xs">
 
-                {/* Score Diagnostic Card */}
-                {selectedCandidate.score !== undefined && selectedCandidate.score !== null && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-xl border border-zinc-200 bg-zinc-50/50">
-                    <div className="flex items-center gap-3">
-                      <div className={cn(
-                        'w-12 h-12 rounded-xl flex items-center justify-center font-black font-mono text-lg border shrink-0',
-                        selectedCandidate.score >= 16
-                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                          : selectedCandidate.score >= 12
-                            ? 'bg-blue-50 text-blue-700 border-blue-200'
-                            : 'bg-amber-50 text-amber-700 border-amber-200'
-                      )}>
-                        {selectedCandidate.score}/20
-                      </div>
-                      <div>
-                        <div className="font-bold text-zinc-900 text-xs">Score Diagnostic IA</div>
-                        <div className="text-[10px] text-zinc-500 font-medium">
-                          Indice d'éligibilité et de maturité
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center sm:justify-end gap-2">
-                      <span className={cn(
-                        'px-2.5 py-1 rounded-md text-[9px] font-bold text-white uppercase tracking-wider',
-                        selectedCandidate.score >= 16
-                          ? 'bg-emerald-500'
-                          : selectedCandidate.score >= 12
-                            ? 'bg-blue-500'
-                            : 'bg-amber-500'
-                      )}>
-                        {selectedCandidate.score >= 16 ? 'ELITE' : selectedCandidate.score >= 12 ? 'QUALIFIÉ' : 'À CONSOLIDER'}
-                      </span>
-                      {selectedCandidate.is_western && (
-                        <span className="inline-flex items-center gap-1 text-[9px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-1 rounded border border-emerald-100">
-                          Cible Occidentale
-                        </span>
-                      )}
-                      {selectedCandidate.qualified && (
-                        <span className="inline-flex items-center gap-1 text-[9px] font-bold text-white bg-zinc-900 px-2 py-1 rounded shadow-xs">
-                          Cible Premium
-                        </span>
-                      )}
-                    </div>
+                {/* Direct WhatsApp Contact Button Banner */}
+                <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-between gap-4">
+                  <div className="space-y-0.5">
+                    <div className="font-bold text-emerald-900 text-xs">Contacter directement sur WhatsApp</div>
+                    <div className="text-[10px] text-emerald-700">Envoyer un message pré-rédigé à {selectedCandidate.prenom}</div>
                   </div>
-                )}
+                  <a
+                    href={getWhatsAppLink(selectedCandidate.telephone, selectedCandidate.prenom)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-4 py-2 bg-[#25D366] hover:bg-[#1FAA50] text-white rounded-lg text-xs font-bold uppercase tracking-wider inline-flex items-center gap-1.5 shadow-xs shrink-0"
+                  >
+                    <MessageSquare className="w-3.5 h-3.5" />
+                    <span>Ouvrir WhatsApp</span>
+                  </a>
+                </div>
                 
                 {/* Status Selector Header Bar */}
                 <div className="p-4 rounded-xl bg-zinc-50 border border-zinc-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                   <div>
-                    <span className="text-[10px] font-mono uppercase text-zinc-400 font-semibold">Statut de Qualification</span>
-                    <div className="font-bold text-zinc-800 text-sm">Changer l'état du dossier :</div>
+                    <span className="text-[10px] font-mono uppercase text-zinc-400 font-semibold">Statut du Participant</span>
+                    <div className="font-bold text-zinc-800 text-sm">Mise à jour de l'état :</div>
                   </div>
 
                   <div className="flex flex-wrap items-center gap-1.5">
-                    {['Nouveau', 'Qualifié', 'Appel prévu', 'Admis', 'Non qualifié'].map(st => {
+                    {['Nouveau', 'Liste VIP', 'Paiement en cours', 'Confirmé', 'Archivé'].map(st => {
                       const isActive = (selectedCandidate.status || 'Nouveau') === st
                       return (
                         <button
@@ -449,7 +418,7 @@ export function AdminCandidaturesPage() {
                           className={cn(
                             'px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer border',
                             isActive
-                              ? 'bg-zinc-900 text-white border-zinc-900 shadow-2xs'
+                              ? 'bg-[#0F1E4D] text-white border-[#0F1E4D] shadow-2xs'
                               : 'bg-white text-zinc-700 border-zinc-200 hover:bg-zinc-100'
                           )}
                         >
@@ -460,105 +429,52 @@ export function AdminCandidaturesPage() {
                   </div>
                 </div>
 
-                {/* Section 1: Projet & Vision */}
+                {/* Section 1: Inscription Sprint */}
                 <div className="space-y-3 p-4 rounded-xl border border-zinc-200 bg-white">
-                  <h4 className="font-bold text-zinc-900 text-xs text-blue-600 uppercase tracking-wider">
-                    1. Projet & Vision
+                  <h4 className="font-bold text-zinc-900 text-xs text-[#2563EB] uppercase tracking-wider">
+                    1. Inscription & Session
                   </h4>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <span className="text-zinc-400 text-[10px]">Type de projet :</span>
-                      <div className="font-semibold text-zinc-800">{selectedCandidate.projet_type}</div>
+                      <span className="text-zinc-400 text-[10px]">Programme :</span>
+                      <div className="font-semibold text-zinc-800">{selectedCandidate.projet_type || 'Sprint Business IA'}</div>
                     </div>
                     <div>
-                      <span className="text-zinc-400 text-[10px]">Statut actuel :</span>
-                      <div className="font-semibold text-zinc-800">{selectedCandidate.statut_actuel}</div>
+                      <span className="text-zinc-400 text-[10px]">Canal / Destination :</span>
+                      <div className="font-semibold text-zinc-800">{selectedCandidate.projet_ia}</div>
                     </div>
                   </div>
 
-                  <div className="pt-2 border-t border-zinc-100">
-                    <span className="text-zinc-400 text-[10px]">Ce qu'il/elle souhaite construire :</span>
-                    <p className="text-zinc-800 font-medium leading-relaxed bg-zinc-50 p-2.5 rounded border border-zinc-100 mt-1">
-                      {selectedCandidate.projet_ia}
-                    </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-zinc-100">
+                    <div>
+                      <span className="text-zinc-400 text-[10px]">Tarif unique :</span>
+                      <div className="font-bold text-emerald-600 font-mono text-sm">{selectedCandidate.budget || '10 000 FCFA'}</div>
+                    </div>
+                    <div>
+                      <span className="text-zinc-400 text-[10px]">Accord tarifaire :</span>
+                      <div className="font-semibold text-zinc-800">{selectedCandidate.pret_investir || 'Oui (10 000 FCFA confirmé)'}</div>
+                    </div>
                   </div>
                 </div>
 
-                {/* Section 2: Freins & Motivations */}
-                <div className="space-y-3 p-4 rounded-xl border border-zinc-200 bg-white">
-                  <h4 className="font-bold text-zinc-900 text-xs text-purple-600 uppercase tracking-wider">
-                    2. Blocages & Motivations
-                  </h4>
-                  <div className="space-y-2">
-                    <div>
-                      <span className="text-zinc-400 text-[10px]">Principal blocage :</span>
-                      <p className="text-zinc-800 leading-relaxed bg-zinc-50 p-2 rounded border border-zinc-100 mt-0.5">
-                        {selectedCandidate.projet_blocage}
-                      </p>
-                    </div>
-                    <div>
-                      <span className="text-zinc-400 text-[10px]">Pourquoi maintenant ? :</span>
-                      <p className="text-zinc-800 leading-relaxed bg-zinc-50 p-2 rounded border border-zinc-100 mt-0.5">
-                        {selectedCandidate.projet_raison}
-                      </p>
-                    </div>
-                    {selectedCandidate.deja_essaie && (
-                      <div>
-                        <span className="text-zinc-400 text-[10px]">Expériences passées :</span>
-                        <p className="text-zinc-800 leading-relaxed bg-amber-50 text-amber-900 p-2 rounded border border-amber-200 mt-0.5">
-                          {selectedCandidate.deja_essaie_details || 'Déjà essayé d\'autres accompagnements'}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Section 3: Engagement & Budget */}
-                <div className="space-y-3 p-4 rounded-xl border border-zinc-200 bg-white">
-                  <h4 className="font-bold text-zinc-900 text-xs text-emerald-600 uppercase tracking-wider">
-                    3. Engagement & Moyens
-                  </h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div className="p-2.5 rounded bg-zinc-50 border border-zinc-100">
-                      <span className="text-zinc-400 text-[10px]">Temps dispo :</span>
-                      <div className="font-bold text-zinc-900">{selectedCandidate.heures_semaine}</div>
-                    </div>
-                    <div className="p-2.5 rounded bg-zinc-50 border border-zinc-100">
-                      <span className="text-zinc-400 text-[10px]">Budget prêt :</span>
-                      <div className="font-bold text-emerald-600 font-mono">{selectedCandidate.budget}</div>
-                    </div>
-                    <div className="p-2.5 rounded bg-zinc-50 border border-zinc-100">
-                      <span className="text-zinc-400 text-[10px]">Prêt à investir :</span>
-                      <div className="font-bold text-zinc-900">{selectedCandidate.pret_investir}</div>
-                    </div>
-                  </div>
-
-                  <div className="pt-2">
-                    <span className="text-zinc-400 text-[10px]">Pourquoi c'est un bon candidat :</span>
-                    <p className="text-zinc-800 leading-relaxed bg-zinc-50 p-2.5 rounded border border-zinc-100 mt-1">
-                      {selectedCandidate.candidat_raison}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Section 4: Notes internes Admin */}
+                {/* Section 2: Notes interne Admin */}
                 <div className="space-y-2 p-4 rounded-xl border border-zinc-200 bg-zinc-50">
                   <div className="flex items-center justify-between">
                     <label className="font-bold text-zinc-900 text-xs flex items-center gap-1.5">
                       <FileText className="w-3.5 h-3.5 text-zinc-600" />
-                      <span>Notes Interne Admin</span>
+                      <span>Notes de Suivi Interne</span>
                     </label>
-                    <Button onClick={handleSaveNotes} size="sm" className="h-7 text-[11px] gap-1 bg-zinc-900 text-white">
+                    <Button onClick={handleSaveNotes} size="sm" className="h-7 text-[11px] gap-1 bg-[#0F1E4D] text-white cursor-pointer">
                       <Save className="w-3 h-3" />
-                      <span>Sauvegarder notes</span>
+                      <span>Sauvegarder</span>
                     </Button>
                   </div>
                   <textarea
                     rows={3}
                     value={adminNotes}
                     onChange={e => setAdminNotes(e.target.value)}
-                    placeholder="Saisissez des notes d'évaluation, commentaires d'entretien, etc..."
-                    className="w-full p-2.5 bg-white border border-zinc-300 rounded-lg text-xs focus:ring-2 focus:ring-zinc-900 focus:outline-none"
+                    placeholder="Saisissez vos remarques sur l'inscription, échange WhatsApp, confirmation de paiement..."
+                    className="w-full p-2.5 bg-white border border-zinc-300 rounded-lg text-xs focus:ring-2 focus:ring-[#0F1E4D] focus:outline-none"
                   />
                 </div>
 
@@ -566,10 +482,10 @@ export function AdminCandidaturesPage() {
 
               {/* Modal Footer */}
               <div className="p-4 border-t border-zinc-200 bg-zinc-50 flex items-center justify-between text-xs">
-                <span className="text-zinc-400">
+                <span className="text-zinc-400 font-mono">
                   ID: {selectedCandidate.id.substring(0, 8)}...
                 </span>
-                <Button onClick={() => setSelectedCandidate(null)} variant="outline" size="sm">
+                <Button onClick={() => setSelectedCandidate(null)} variant="outline" size="sm" className="cursor-pointer">
                   Fermer
                 </Button>
               </div>
