@@ -19,7 +19,8 @@ import {
   ShieldCheck,
   CheckCircle2,
   Zap,
-  Sparkles
+  Sparkles,
+  CreditCard
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
@@ -31,6 +32,8 @@ import Lenis from 'lenis'
 export const Route = createFileRoute('/accompagnement')({
   component: AccompagnementPage,
 })
+
+const CHARIOW_PAYMENT_URL = 'https://ekzckmyk.mychariow.shop/prd_wx1lpxcw?draft=true'
 
 /* ─── Custom CSS Injection (Aligned with Le Club IA Design System) ─── */
 const styles = `
@@ -877,7 +880,7 @@ export function AccompagnementPage() {
   )
 }
 
-/* ─── BOOKING MODAL (WIZARD FLOW / TYPEFORM-STYLE) ─── */
+/* ─── BOOKING MODAL (WIZARD FLOW WITH CHARIOW DIRECT PAYMENT REDIRECT) ─── */
 interface WizardQuestion {
   id: 'name' | 'email' | 'country' | 'phone'
   label: string
@@ -1018,7 +1021,7 @@ function BookingModal({ onClose }: { onClose: () => void }) {
           score: 20,
           qualified: true,
           is_western: false,
-          notes: 'Registration via the sales page wizard'
+          notes: 'Registration via the sales page wizard - Chariow Checkout'
         }
       ])
 
@@ -1029,11 +1032,9 @@ function BookingModal({ onClose }: { onClose: () => void }) {
       setSuccess(true)
       confetti({ particleCount: 120, spread: 80, origin: { y: 0.5 } })
 
-      const whatsappMsg = `Bonjour Gamaliel, je viens de m'inscrire au Sprint Business IA (Nom : ${formData.name}, Pays : ${formData.country}, WhatsApp : ${formData.phone}). J'aimerais valider ma place.`
-      const whatsappUrl = `https://wa.me/33744125798?text=${encodeURIComponent(whatsappMsg)}`
-
+      // Auto redirect to Chariow Payment link after 1.5 seconds
       setTimeout(() => {
-        window.open(whatsappUrl, '_blank')
+        window.location.href = CHARIOW_PAYMENT_URL
       }, 1500)
 
     } catch (err: any) {
@@ -1141,7 +1142,7 @@ function BookingModal({ onClose }: { onClose: () => void }) {
                   </>
                 ) : (
                   <>
-                    <span>{currentStep === WIZARD_QUESTIONS.length - 1 ? 'Finaliser' : 'Continuer'}</span>
+                    <span>{currentStep === WIZARD_QUESTIONS.length - 1 ? 'Procéder au paiement' : 'Continuer'}</span>
                     <ArrowRight className="w-3.5 h-3.5 text-[#C9973E]" />
                   </>
                 )}
@@ -1149,27 +1150,29 @@ function BookingModal({ onClose }: { onClose: () => void }) {
             </div>
           </div>
         ) : (
-          /* SUCCESS STATE */
+          /* CHARIOW PAYMENT REDIRECT SUCCESS STATE */
           <div className="p-10 text-center space-y-6">
             <div className="w-14 h-14 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto text-2xl border border-emerald-100 shadow-md">
               ✓
             </div>
             <div className="space-y-2">
               <h3 className="premium-font-display text-xl font-bold text-[#0F1E4D]">
-                Inscription enregistrée !
+                Informations enregistrées !
               </h3>
-              <p className="text-xs text-[#0F1E4D]/60 leading-relaxed max-w-xs mx-auto">
-                Félicitations <strong>{formData.name}</strong> ! Votre place pour le Sprint est pré-réservée. Redirection vers WhatsApp...
+              <p className="text-xs text-[#0F1E4D]/70 leading-relaxed max-w-xs mx-auto">
+                Félicitations <strong>{formData.name}</strong> ! Vos détails sont enregistrés. Redirection vers la page de paiement sécurisée Chariow...
+              </p>
+              <p className="text-[10px] text-[#2563EB] font-bold animate-pulse font-mono uppercase tracking-wider pt-2">
+                Redirection automatique en cours...
               </p>
             </div>
             <div className="pt-2">
               <a
-                href={`https://wa.me/33744125798?text=${encodeURIComponent(`Bonjour Gamaliel, je viens de m'inscrire au Sprint Business IA (Nom : ${formData.name}, Pays : ${formData.country}, WhatsApp : ${formData.phone}). J'aimerais valider ma place.`)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-[#25D366] hover:bg-[#1FAA50] text-white rounded-full text-xs font-bold uppercase tracking-wider transition-all shadow-md"
+                href={CHARIOW_PAYMENT_URL}
+                className="inline-flex items-center gap-2 px-8 py-4 bg-[#C9973E] hover:bg-[#D9A94A] text-[#0F1E4D] rounded-full text-xs font-bold uppercase tracking-wider transition-all shadow-lg hover:scale-[1.02]"
               >
-                <span>Ouvrir WhatsApp</span>
+                <CreditCard className="w-4 h-4" />
+                <span>Payer mon ticket (10 000 FCFA) →</span>
               </a>
             </div>
           </div>
