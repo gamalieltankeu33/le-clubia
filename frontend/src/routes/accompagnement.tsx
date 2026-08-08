@@ -34,16 +34,32 @@ export const Route = createFileRoute('/accompagnement')({
 
 /* ─── Custom CSS Injection (Aligned with Le Club IA Design System) ─── */
 const styles = `
-  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600;700&display=swap');
   
   .premium-font-display {
-    font-family: 'Space Grotesk', 'Inter', sans-serif;
+    font-family: 'Bricolage Grotesque', 'Space Grotesk', 'Inter', sans-serif;
   }
   .premium-font-body {
     font-family: 'Inter', sans-serif;
   }
   .premium-font-mono {
     font-family: 'Geist Mono', monospace;
+  }
+
+  /* Signature serif italique Le Club IA (ex: "rentable.", "produit digital.") */
+  .serif-accent {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-style: italic;
+    color: #2563EB;
+    letter-spacing: -0.01em;
+    font-weight: 400;
+  }
+
+  /* Chiffres géants filigranés en Instrument Serif italique ultra-discrets */
+  .serif-number {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-style: italic;
+    font-weight: 400;
   }
 
   .premium-grid-overlay {
@@ -67,38 +83,38 @@ const styles = `
 
 const EASE = [0.16, 1, 0.3, 1] as const
 
-/* ─── INTERACTIVE WORKFLOW STEPPER ANIMATION (Exploria-style pipeline) ─── */
+/* ─── INTERACTIVE WORKFLOW PIPELINE ANIMATION (White background, Le Club IA style) ─── */
 function LiveWorkflowAnimation() {
   const [activeStep, setActiveStep] = useState(0)
 
   const steps = [
     {
-      day: 'J+1',
-      title: 'Idée & Offre',
-      subtitle: 'Définition du produit et génération du contenu par l\'IA',
+      day: 'Jour 1 & 2',
+      title: 'Idée & Offre Digital',
+      subtitle: 'Cadrage et génération du produit digital avec l\'IA',
       status: 'Produit rédigé & prêt',
-      badge: 'Contenu IA'
+      icon: FileText
     },
     {
-      day: 'J+3',
-      title: 'Page & Boutique',
-      subtitle: 'Mise en place de la boutique en ligne autonome',
+      day: 'Jour 3',
+      title: 'Boutique en Ligne',
+      subtitle: 'Mise en place de la page de vente autonome',
       status: 'Boutique configurée',
-      badge: 'Page de vente'
+      icon: ShoppingBag
     },
     {
-      day: 'J+4',
+      day: 'Jour 4',
       title: 'Paiements Connectés',
-      subtitle: 'Raccordement des passerelles Stripe & Mobile Money',
-      status: 'Système d\'encaissement actif',
-      badge: 'Paiement 24/7'
+      subtitle: 'Stripe & Mobile Money raccordés 24/7',
+      status: 'Paiements actifs',
+      icon: Lock
     },
     {
-      day: 'J+5',
+      day: 'Jour 5',
       title: 'Premières Ventes',
-      subtitle: 'Lancement de l\'acquisition et contact des premiers prospects',
-      status: 'Premiers clients engagés',
-      badge: 'Acquisition ciblée'
+      subtitle: 'Acquisition ciblée et premiers prospects',
+      status: 'Campagne lancée',
+      icon: TrendingUp
     }
   ]
 
@@ -111,36 +127,34 @@ function LiveWorkflowAnimation() {
   }, [])
 
   return (
-    <div className="w-full bg-[#0F1E4D] text-white rounded-3xl p-8 sm:p-12 shadow-xl border border-[#C9973E]/30 relative overflow-hidden my-12">
-      {/* Background glow */}
-      <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-[#C9973E]/10 blur-3xl pointer-events-none" />
-
-      <div className="text-center max-w-xl mx-auto space-y-2 mb-10 relative z-10">
-        <span className="text-[10px] font-mono font-bold tracking-[0.2em] text-[#C9973E] uppercase bg-[#C9973E]/15 px-3 py-1 rounded-full border border-[#C9973E]/30">
+    <div className="w-full bg-white rounded-3xl p-8 sm:p-12 border border-zinc-200/80 shadow-md my-12 relative overflow-hidden">
+      <div className="text-center max-w-xl mx-auto space-y-2 mb-10">
+        <span className="text-[10px] font-mono font-bold tracking-[0.2em] text-[#2563EB] uppercase bg-[#2563EB]/10 px-3 py-1 rounded-full border border-[#2563EB]/20">
           PARCOURS EN DIRECT
         </span>
-        <h3 className="premium-font-display text-2xl sm:text-3xl font-bold text-white">
-          La progression de votre système en 5 jours
+        <h3 className="premium-font-display text-2xl sm:text-3xl font-bold text-[#0F1E4D]">
+          La progression de votre système en <span className="serif-accent">5 jours.</span>
         </h3>
-        <p className="text-xs text-zinc-300 font-light">
-          Cliquez sur chaque étape pour voir la livraison automatisée du programme.
+        <p className="text-xs sm:text-sm text-zinc-500 font-light">
+          Déroulement pas à pas de votre intégration pendant la session.
         </p>
       </div>
 
       {/* Horizontal Interactive Timeline Bar */}
-      <div className="relative max-w-3xl mx-auto my-8">
+      <div className="relative max-w-3xl mx-auto my-8 px-4">
         {/* Background Connecting Line */}
-        <div className="absolute top-6 inset-x-8 h-1 bg-white/15 rounded-full z-0" />
+        <div className="absolute top-6 inset-x-12 h-0.5 bg-zinc-200 z-0" />
         
         {/* Active Animated Progress Line */}
         <motion.div
-          className="absolute top-6 left-8 h-1 bg-gradient-to-r from-[#D9A94A] to-[#C9973E] rounded-full z-0"
+          className="absolute top-6 left-12 h-0.5 bg-[#2563EB] z-0"
           animate={{ width: `${(activeStep / (steps.length - 1)) * 82}%` }}
           transition={{ duration: 0.5, ease: EASE }}
         />
 
         <div className="grid grid-cols-4 relative z-10">
           {steps.map((step, idx) => {
+            const StepIcon = step.icon
             const isActive = idx <= activeStep
             const isCurrent = idx === activeStep
             return (
@@ -152,25 +166,25 @@ function LiveWorkflowAnimation() {
                 <motion.div
                   animate={{
                     scale: isCurrent ? 1.15 : 1,
-                    backgroundColor: isCurrent ? '#C9973E' : isActive ? '#0F1E4D' : '#1E293B',
-                    borderColor: isCurrent ? '#FFFFFF' : isActive ? '#C9973E' : 'rgba(255,255,255,0.2)'
+                    backgroundColor: isCurrent ? '#2563EB' : isActive ? '#0F1E4D' : '#FFFFFF',
+                    borderColor: isCurrent ? '#2563EB' : isActive ? '#0F1E4D' : '#E5E5E4'
                   }}
                   transition={{ duration: 0.3 }}
-                  className={`w-12 h-12 rounded-full border-2 flex items-center justify-center font-mono text-xs font-bold ${
-                    isCurrent ? 'text-[#0F1E4D] shadow-lg ring-4 ring-[#C9973E]/30' : isActive ? 'text-[#C9973E]' : 'text-zinc-400'
+                  className={`w-12 h-12 rounded-full border-2 flex items-center justify-center shadow-sm ${
+                    isCurrent
+                      ? 'text-white shadow-md ring-4 ring-[#2563EB]/20'
+                      : isActive
+                      ? 'text-white'
+                      : 'text-zinc-400 bg-white'
                   }`}
                 >
-                  {isActive && !isCurrent ? (
-                    <CheckCircle2 className="w-5 h-5 text-[#C9973E]" />
-                  ) : (
-                    <span>{step.day}</span>
-                  )}
+                  <StepIcon className="w-5 h-5" />
                 </motion.div>
                 
                 <span className={`text-[11px] font-medium mt-3 transition-colors text-center hidden sm:block ${
-                  isCurrent ? 'text-[#C9973E] font-bold' : isActive ? 'text-white' : 'text-zinc-400'
+                  isCurrent ? 'text-[#2563EB] font-bold' : isActive ? 'text-[#0F1E4D]' : 'text-zinc-400'
                 }`}>
-                  {step.title}
+                  {step.day}
                 </span>
               </button>
             )
@@ -182,31 +196,26 @@ function LiveWorkflowAnimation() {
       <AnimatePresence mode="wait">
         <motion.div
           key={activeStep}
-          initial={{ opacity: 0, y: 10 }}
+          initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }}
+          exit={{ opacity: 0, y: -8 }}
           transition={{ duration: 0.3 }}
-          className="max-w-2xl mx-auto mt-8 p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md flex flex-col sm:flex-row items-center justify-between gap-4 relative z-10"
+          className="max-w-xl mx-auto mt-6 p-5 rounded-2xl bg-[#FAFAF9] border border-zinc-200/80 flex flex-col sm:flex-row items-center justify-between gap-4"
         >
           <div className="space-y-1 text-center sm:text-left">
-            <div className="flex items-center justify-center sm:justify-start gap-2">
-              <span className="text-[9px] font-mono font-bold uppercase text-[#C9973E] bg-[#C9973E]/10 px-2 py-0.5 rounded">
-                Étape {activeStep + 1} sur 4
-              </span>
-              <span className="text-xs font-semibold text-white">
-                {steps[activeStep].badge}
-              </span>
-            </div>
-            <h4 className="premium-font-display text-lg font-bold text-white">
+            <span className="text-[9px] font-mono font-bold uppercase text-[#2563EB] bg-[#2563EB]/10 px-2 py-0.5 rounded">
+              Étape {activeStep + 1} sur 4 — {steps[activeStep].day}
+            </span>
+            <h4 className="premium-font-display text-base font-bold text-[#0F1E4D]">
               {steps[activeStep].title}
             </h4>
-            <p className="text-xs text-zinc-300 font-light">
+            <p className="text-xs text-zinc-500 font-light">
               {steps[activeStep].subtitle}
             </p>
           </div>
 
-          <div className="px-4 py-2 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-mono font-semibold flex items-center gap-2 shrink-0">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          <div className="px-3.5 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-mono font-semibold flex items-center gap-2 shrink-0">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             <span>{steps[activeStep].status}</span>
           </div>
         </motion.div>
@@ -353,7 +362,7 @@ export function AccompagnementPage() {
         </div>
       </header>
 
-      {/* ── HERO SECTION (CLEAN & CENTERED) ── */}
+      {/* ── HERO SECTION (CLEAN & CENTERED WITH SERIF ACCENT) ── */}
       <section className="relative pt-32 pb-16 sm:pt-40 sm:pb-24 overflow-hidden z-10">
         <div className="mx-auto max-w-4xl px-6 text-center space-y-8">
           
@@ -377,7 +386,7 @@ export function AccompagnementPage() {
             transition={{ duration: 0.6, delay: 0.1, ease: EASE }}
             className="premium-font-display text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-[#0F1E4D] leading-[1.12] max-w-3xl mx-auto"
           >
-            5 jours pour créer votre <span className="text-[#C9973E]">produit digital</span>, lancer votre boutique, et encaisser vos paiements.
+            5 jours pour créer votre <span className="serif-accent">produit digital.</span>, lancer votre boutique, et encaisser vos paiements.
           </motion.h1>
 
           <motion.p
@@ -431,7 +440,7 @@ export function AccompagnementPage() {
             subtitle="Pas de théorie inutile. Vous construisez votre système de vente de A à Z avec un guidage direct."
           />
 
-          {/* 3 PILLAR CARDS WITH NON-OVERLAPPING DISCREET TRANSPARENT NUMBERS */}
+          {/* 3 PILLAR CARDS WITH INSTRUMENT SERIF DISCREET BACKGROUND NUMBERS */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-14 relative">
             {[
               {
@@ -473,8 +482,8 @@ export function AccompagnementPage() {
                     transition={{ duration: 0.5, delay: idx * 0.1, ease: EASE }}
                     className="h-full p-8 rounded-3xl border border-zinc-200/80 bg-[#FAFAF9] relative overflow-hidden flex flex-col justify-between hover:border-[#C9973E]/50 hover:shadow-lg transition-all duration-300"
                   >
-                    {/* DISCREET TOP-RIGHT BACKGROUND NUMBER (NON-OVERLAPPING WITH TEXT) */}
-                    <span className="absolute top-4 right-5 text-6xl font-mono font-extrabold text-[#0F1E4D]/08 select-none pointer-events-none">
+                    {/* DISCREET TOP-RIGHT BACKGROUND NUMBER (INSTRUMENT SERIF ITALIC - NON OVERLAPPING) */}
+                    <span className="serif-number absolute top-3 right-5 text-6xl text-[#0F1E4D]/04 select-none pointer-events-none">
                       {pillar.num}
                     </span>
 
@@ -501,9 +510,6 @@ export function AccompagnementPage() {
             })}
           </div>
 
-          {/* INTERACTIVE WORKFLOW PIPELINE ANIMATION */}
-          <LiveWorkflowAnimation />
-
         </div>
       </section>
 
@@ -516,7 +522,7 @@ export function AccompagnementPage() {
             subtitle="Suivez une feuille de route rythmée avec des livrables clairs à chaque étape."
           />
 
-          {/* DYNAMIC TIMELINE STEPS WITH DISCREET NUMBERS & CURVED CONNECTORS */}
+          {/* DYNAMIC TIMELINE STEPS WITH DISCREET INSTRUMENT SERIF NUMBERS & CURVED CONNECTORS */}
           <div className="mt-16 space-y-8 relative">
             {[
               {
@@ -564,8 +570,8 @@ export function AccompagnementPage() {
                     transition={{ duration: 0.5, delay: idx * 0.08, ease: EASE }}
                     className="p-8 sm:p-10 rounded-3xl bg-white border border-zinc-200/80 shadow-sm relative overflow-hidden flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 hover:border-[#C9973E]/40 hover:shadow-md transition-all"
                   >
-                    {/* DISCREET TOP-RIGHT BACKGROUND STEP NUMBER (NON-OVERLAPPING) */}
-                    <span className="absolute top-4 right-6 text-7xl font-mono font-extrabold text-[#0F1E4D]/06 select-none pointer-events-none">
+                    {/* DISCREET TOP-RIGHT BACKGROUND STEP NUMBER */}
+                    <span className="serif-number absolute top-4 right-6 text-7xl text-[#0F1E4D]/04 select-none pointer-events-none">
                       {step.num}
                     </span>
 
@@ -704,7 +710,7 @@ export function AccompagnementPage() {
                   transition={{ duration: 0.5, delay: idx * 0.05, ease: EASE }}
                   className="p-6 rounded-3xl border border-zinc-200/80 bg-white flex flex-col justify-between hover:border-[#C9973E]/40 hover:shadow-md transition-all duration-200 relative overflow-hidden"
                 >
-                  <span className="absolute top-3 right-4 text-5xl font-mono font-extrabold text-[#0F1E4D]/06 select-none pointer-events-none">
+                  <span className="serif-number absolute top-3 right-4 text-5xl text-[#0F1E4D]/04 select-none pointer-events-none">
                     {item.num}
                   </span>
                   <div className="space-y-4 relative z-10">
@@ -762,6 +768,10 @@ export function AccompagnementPage() {
               </div>
             </div>
           </div>
+
+          {/* INTERACTIVE WORKFLOW PIPELINE ANIMATION (PLACED SOUS "RÉSERVER MA PLACE") */}
+          <LiveWorkflowAnimation />
+
         </div>
       </section>
 
