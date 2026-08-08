@@ -1,0 +1,1847 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sprint Business IA — Bâtissez et lancez votre produit digital en 5 jours</title>
+  <meta name="description" content="Accompagnement intensif de 5 jours limité à 20 places pour les salariés de la diaspora africaine en Europe. Créez et vendez votre produit digital avec l'IA.">
+
+  <!-- Open Graph / Meta -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Sprint Business IA — Club IA">
+  <meta property="og:description" content="Passez de l'idée aux premières ventes en 5 jours grâce à l'IA. 20 places uniquement.">
+  <meta property="og:image" content="/gamaliel_portrait.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* ----------------------------------------------------
+       DESIGN SYSTEM & TOKENS
+       ---------------------------------------------------- */
+    :root {
+      --color-navy: #0B1D33;
+      --color-navy-light: #122947;
+      --color-gold: #C9A24B;
+      --color-gold-hover: #D4B46A;
+      --color-gold-glow: rgba(201, 162, 75, 0.4);
+      --color-gold-soft: rgba(201, 162, 75, 0.08);
+      
+      --color-bg-light: #FAFAF9;
+      --color-bg-warm: #FDFBF7;
+      
+      --color-text-dark: #0B1D33;
+      --color-text-light: #FAFAF9;
+      --color-text-muted-dark: #5A6E85;
+      --color-text-muted-light: #A0B2C6;
+      
+      --font-sans: 'Inter', sans-serif;
+      --font-display: 'Space Grotesk', sans-serif;
+      
+      --transition-smooth: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--color-bg-light);
+      color: var(--color-text-dark);
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Typographies */
+    h1, h2, h3, h4 {
+      font-family: var(--font-display);
+      font-weight: 700;
+      line-height: 1.15;
+    }
+
+    /* Utilitaires de Layout */
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    @media (min-width: 768px) {
+      .container {
+        padding: 0 3rem;
+      }
+    }
+
+    /* ----------------------------------------------------
+       BOUTONS ET CTA
+       ---------------------------------------------------- */
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background-color: var(--color-gold);
+      color: #000000;
+      font-family: var(--font-sans);
+      font-weight: 600;
+      font-size: 0.95rem;
+      padding: 1.1rem 2.2rem;
+      border: 1px solid var(--color-gold);
+      border-radius: 6px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: var(--transition-smooth);
+      box-shadow: 0 4px 14px rgba(201, 162, 75, 0.15);
+    }
+
+    .btn-primary:hover {
+      background-color: var(--color-gold-hover);
+      transform: translateY(-2px) scale(1.01);
+      box-shadow: 0 6px 20px var(--color-gold-glow);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0) scale(1);
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background-color: transparent;
+      color: var(--color-text-light);
+      font-family: var(--font-sans);
+      font-weight: 500;
+      font-size: 0.95rem;
+      padding: 1.1rem 2.2rem;
+      border: 1px solid rgba(250, 250, 250, 0.2);
+      border-radius: 6px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: var(--transition-smooth);
+    }
+
+    .btn-secondary:hover {
+      background-color: rgba(250, 250, 250, 0.05);
+      border-color: rgba(250, 250, 250, 0.4);
+      transform: translateY(-1px);
+    }
+
+    /* ----------------------------------------------------
+       SCROLL REVEAL ANIMATIONS
+       ---------------------------------------------------- */
+    .reveal {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .reveal.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .stagger-1 { transition-delay: 0.1s; }
+    .stagger-2 { transition-delay: 0.2s; }
+    .stagger-3 { transition-delay: 0.3s; }
+    .stagger-4 { transition-delay: 0.4s; }
+
+    /* ----------------------------------------------------
+       1. HERO SECTION (DARK DEEP NAVY)
+       ---------------------------------------------------- */
+    .hero-section {
+      background-color: var(--color-navy);
+      color: var(--color-text-light);
+      position: relative;
+      overflow: hidden;
+      padding-top: 5rem;
+      padding-bottom: 5rem;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+    }
+
+    @media (min-width: 1024px) {
+      .hero-section {
+        padding-top: 7rem;
+        padding-bottom: 7rem;
+      }
+    }
+
+    /* Halo interactif de fond */
+    .hero-halo {
+      position: absolute;
+      top: var(--mouse-y, 30%);
+      left: var(--mouse-x, 70%);
+      transform: translate(-50%, -50%);
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(201, 162, 75, 0.12) 0%, rgba(201, 162, 75, 0) 70%);
+      pointer-events: none;
+      z-index: 1;
+      transition: top 0.15s ease-out, left 0.15s ease-out;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 3.5rem;
+      align-items: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    @media (min-width: 1024px) {
+      .hero-grid {
+        grid-template-columns: 1.2fr 0.8fr;
+        gap: 5rem;
+      }
+    }
+
+    /* Ouverture narrative */
+    .hero-narrative {
+      font-size: 1.2rem;
+      font-weight: 300;
+      color: var(--color-text-muted-light);
+      border-left: 2px solid var(--color-gold);
+      padding-left: 1.5rem;
+      margin-bottom: 2.5rem;
+      letter-spacing: 0.02em;
+      max-width: 650px;
+    }
+
+    @media (min-width: 768px) {
+      .hero-narrative {
+        font-size: 1.35rem;
+        line-height: 1.7;
+      }
+    }
+
+    .hero-title {
+      font-size: 2.8rem;
+      margin-bottom: 1.2rem;
+      letter-spacing: -0.02em;
+    }
+
+    @media (min-width: 768px) {
+      .hero-title {
+        font-size: 4.2rem;
+      }
+    }
+
+    .hero-title span {
+      color: var(--color-gold);
+    }
+
+    .hero-subtitle {
+      font-size: 1.1rem;
+      font-weight: 400;
+      color: var(--color-text-muted-light);
+      margin-bottom: 2.5rem;
+      max-width: 580px;
+      line-height: 1.6;
+    }
+
+    @media (min-width: 768px) {
+      .hero-subtitle {
+        font-size: 1.25rem;
+      }
+    }
+
+    /* Badge exclusif */
+    .rarity-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      background-color: rgba(201, 162, 75, 0.08);
+      border: 1px solid rgba(201, 162, 75, 0.2);
+      color: var(--color-gold);
+      padding: 0.5rem 1rem;
+      border-radius: 50px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 2rem;
+    }
+
+    .rarity-badge-dot {
+      width: 8px;
+      height: 8px;
+      background-color: var(--color-gold);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    /* Visage humain dans le hero */
+    .hero-image-wrapper {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .hero-image-container {
+      position: relative;
+      width: 100%;
+      max-width: 360px;
+      border-radius: 12px;
+      overflow: hidden;
+      aspect-ratio: 4/5;
+      background-color: var(--color-navy-light);
+      border: 1px solid rgba(250, 250, 250, 0.05);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .hero-image-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: grayscale(15%) contrast(105%);
+      transition: var(--transition-smooth);
+    }
+
+    .hero-image-container:hover img {
+      filter: grayscale(0%) contrast(100%);
+      transform: scale(1.02);
+    }
+
+    /* Halo subtil chaud derrière le visage */
+    .hero-image-glow {
+      position: absolute;
+      width: 120%;
+      height: 120%;
+      background: radial-gradient(circle, rgba(201, 162, 75, 0.15) 0%, rgba(201, 162, 75, 0) 65%);
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    /* ----------------------------------------------------
+       2. SECTION POURQUOI (WARM CREME / SAND)
+       ---------------------------------------------------- */
+    .why-section {
+      background-color: var(--color-bg-warm);
+      padding: 6rem 0;
+      position: relative;
+    }
+
+    @media (min-width: 1024px) {
+      .why-section {
+        padding: 9rem 0;
+      }
+    }
+
+    .why-container {
+      max-width: 800px;
+      margin: 0 auto;
+      text-align: left;
+    }
+
+    .why-tag {
+      font-family: var(--font-display);
+      color: var(--color-gold);
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+      display: block;
+    }
+
+    .why-title {
+      font-size: 2.2rem;
+      color: var(--color-navy);
+      margin-bottom: 2.5rem;
+      letter-spacing: -0.01em;
+      line-height: 1.2;
+    }
+
+    @media (min-width: 768px) {
+      .why-title {
+        font-size: 3rem;
+      }
+    }
+
+    .why-paragraph {
+      font-size: 1.15rem;
+      line-height: 1.8;
+      color: var(--color-navy);
+      opacity: 0.9;
+      margin-bottom: 2rem;
+    }
+
+    @media (min-width: 768px) {
+      .why-paragraph {
+        font-size: 1.3rem;
+      }
+    }
+
+    .why-paragraph-highlight {
+      font-weight: 500;
+      border-bottom: 1px dashed var(--color-gold);
+    }
+
+    .signature-container {
+      margin-top: 3.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+    }
+
+    .signature-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1px solid var(--color-gold);
+    }
+
+    .signature-details h4 {
+      font-size: 1rem;
+      color: var(--color-navy);
+    }
+
+    .signature-details p {
+      font-size: 0.85rem;
+      color: var(--color-text-muted-dark);
+    }
+
+    /* ----------------------------------------------------
+       3. SECTION CONSTAT (WHITE CLEAN)
+       ---------------------------------------------------- */
+    .constat-section {
+      background-color: var(--color-bg-light);
+      padding: 6rem 0;
+      border-top: 1px solid rgba(11, 29, 51, 0.05);
+    }
+
+    @media (min-width: 1024px) {
+      .constat-section {
+        padding: 8rem 0;
+      }
+    }
+
+    .section-header {
+      margin-bottom: 4rem;
+      max-width: 700px;
+    }
+
+    .section-header .section-tag {
+      font-family: var(--font-display);
+      color: var(--color-gold);
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+      display: block;
+    }
+
+    .section-header h2 {
+      font-size: 2.2rem;
+      color: var(--color-navy);
+      letter-spacing: -0.02em;
+    }
+
+    @media (min-width: 768px) {
+      .section-header h2 {
+        font-size: 2.8rem;
+      }
+    }
+
+    .constat-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+
+    @media (min-width: 768px) {
+      .constat-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .constat-card {
+      background-color: #ffffff;
+      border: 1px solid rgba(11, 29, 51, 0.06);
+      border-radius: 8px;
+      padding: 2.5rem;
+      transition: var(--transition-smooth);
+      position: relative;
+    }
+
+    .constat-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 30px rgba(11, 29, 51, 0.03);
+      border-color: rgba(201, 162, 75, 0.2);
+    }
+
+    .constat-number {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      color: var(--color-gold);
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      display: block;
+    }
+
+    .constat-card h3 {
+      font-size: 1.3rem;
+      color: var(--color-navy);
+      margin-bottom: 1rem;
+    }
+
+    .constat-card p {
+      font-size: 0.95rem;
+      color: var(--color-text-muted-dark);
+      line-height: 1.6;
+    }
+
+    /* ----------------------------------------------------
+       4. SECTION L'OFFRE / LE PROGRAMME (DARK NAVY)
+       ---------------------------------------------------- */
+    .programme-section {
+      background-color: var(--color-navy);
+      color: var(--color-text-light);
+      padding: 6rem 0;
+    }
+
+    @media (min-width: 1024px) {
+      .programme-section {
+        padding: 8rem 0;
+      }
+    }
+
+    .programme-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 3.5rem;
+    }
+
+    @media (min-width: 1024px) {
+      .programme-grid {
+        grid-template-columns: 0.8fr 1.2fr;
+        gap: 5rem;
+      }
+    }
+
+    .programme-sticky-sidebar {
+      position: relative;
+    }
+
+    @media (min-width: 1024px) {
+      .programme-sticky-sidebar {
+        position: sticky;
+        top: 6rem;
+        height: fit-content;
+      }
+    }
+
+    .programme-tag {
+      font-family: var(--font-display);
+      color: var(--color-gold);
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+      display: block;
+    }
+
+    .programme-sticky-sidebar h2 {
+      font-size: 2.2rem;
+      margin-bottom: 1.5rem;
+      letter-spacing: -0.02em;
+    }
+
+    @media (min-width: 768px) {
+      .programme-sticky-sidebar h2 {
+        font-size: 3rem;
+      }
+    }
+
+    .programme-sticky-sidebar p {
+      color: var(--color-text-muted-light);
+      font-size: 1.05rem;
+      margin-bottom: 2rem;
+      max-width: 450px;
+    }
+
+    /* Timeline du Programme */
+    .timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      position: relative;
+    }
+
+    .timeline-item {
+      background-color: var(--color-navy-light);
+      border: 1px solid rgba(250, 250, 250, 0.05);
+      border-radius: 8px;
+      padding: 2rem;
+      transition: var(--transition-smooth);
+      position: relative;
+    }
+
+    .timeline-item:hover {
+      border-color: rgba(201, 162, 75, 0.3);
+      transform: translateX(5px);
+    }
+
+    .timeline-day {
+      display: inline-block;
+      font-family: var(--font-display);
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--color-gold);
+      background-color: rgba(201, 162, 75, 0.1);
+      border: 1px solid rgba(201, 162, 75, 0.2);
+      padding: 0.3rem 0.8rem;
+      border-radius: 4px;
+      margin-bottom: 1rem;
+      letter-spacing: 0.05em;
+    }
+
+    .timeline-item h3 {
+      font-size: 1.4rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .timeline-item p {
+      font-size: 0.95rem;
+      color: var(--color-text-muted-light);
+      line-height: 1.6;
+    }
+
+    /* ----------------------------------------------------
+       5. SECTION BONUS (GOLD CARD ON LIGHT)
+       ---------------------------------------------------- */
+    .bonus-section {
+      background-color: var(--color-bg-light);
+      padding: 6rem 0;
+    }
+
+    .bonus-card {
+      background-color: #ffffff;
+      border: 1.5px solid var(--color-gold);
+      border-radius: 12px;
+      padding: 3rem 2rem;
+      max-width: 900px;
+      margin: 0 auto;
+      text-align: center;
+      position: relative;
+      box-shadow: 0 10px 30px rgba(201, 162, 75, 0.08);
+      overflow: hidden;
+    }
+
+    @media (min-width: 768px) {
+      .bonus-card {
+        padding: 4.5rem;
+      }
+    }
+
+    .bonus-badge {
+      display: inline-block;
+      background-color: var(--color-gold);
+      color: #000000;
+      font-family: var(--font-display);
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 0.4rem 1.2rem;
+      border-radius: 50px;
+      margin-bottom: 2rem;
+      letter-spacing: 0.05em;
+    }
+
+    .bonus-card h2 {
+      font-size: 2.2rem;
+      color: var(--color-navy);
+      margin-bottom: 1.2rem;
+      letter-spacing: -0.02em;
+    }
+
+    @media (min-width: 768px) {
+      .bonus-card h2 {
+        font-size: 3rem;
+      }
+    }
+
+    .bonus-card p {
+      font-size: 1.05rem;
+      color: var(--color-text-muted-dark);
+      max-width: 650px;
+      margin: 0 auto 2.5rem auto;
+      line-height: 1.7;
+    }
+
+    .bonus-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+      text-align: left;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    @media (min-width: 768px) {
+      .bonus-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .bonus-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.8rem;
+    }
+
+    .bonus-icon {
+      color: var(--color-gold);
+      font-size: 1.2rem;
+      flex-shrink: 0;
+      margin-top: 0.1rem;
+    }
+
+    .bonus-item p {
+      font-size: 0.95rem;
+      color: var(--color-navy);
+      margin: 0;
+      line-height: 1.5;
+    }
+
+    .bonus-item strong {
+      font-weight: 600;
+    }
+
+    /* ----------------------------------------------------
+       6. SECTION PREUVE SOCIALE (WARM CREME / EDITORIAL)
+       ---------------------------------------------------- */
+    .testimonial-section {
+      background-color: var(--color-bg-warm);
+      padding: 6rem 0;
+    }
+
+    @media (min-width: 1024px) {
+      .testimonial-section {
+        padding: 9rem 0;
+      }
+    }
+
+    .testimonial-container {
+      max-width: 900px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 3.5rem;
+      align-items: center;
+    }
+
+    @media (min-width: 768px) {
+      .testimonial-container {
+        grid-template-columns: 1.2fr 0.8fr;
+        gap: 5rem;
+      }
+    }
+
+    .testimonial-quote {
+      position: relative;
+    }
+
+    /* Grosse esperluette stylisée en arrière-plan */
+    .testimonial-quote::before {
+      content: "“";
+      position: absolute;
+      top: -4rem;
+      left: -2rem;
+      font-family: var(--font-display);
+      font-size: 10rem;
+      color: var(--color-gold);
+      opacity: 0.15;
+      line-height: 1;
+      pointer-events: none;
+    }
+
+    .testimonial-text {
+      font-family: var(--font-sans);
+      font-weight: 300;
+      font-size: 1.4rem;
+      line-height: 1.7;
+      color: var(--color-navy);
+      margin-bottom: 2rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    @media (min-width: 768px) {
+      .testimonial-text {
+        font-size: 1.75rem;
+      }
+    }
+
+    .testimonial-author {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: var(--color-navy);
+      margin-bottom: 0.3rem;
+    }
+
+    .testimonial-role {
+      font-size: 0.85rem;
+      color: var(--color-text-muted-dark);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .testimonial-image-wrapper {
+      position: relative;
+      display: flex;
+      justify-content: center;
+    }
+
+    .testimonial-image-container {
+      width: 100%;
+      max-width: 300px;
+      border-radius: 8px;
+      overflow: hidden;
+      aspect-ratio: 3/4;
+      background-color: var(--color-navy-light);
+      border: 1px solid rgba(11, 29, 51, 0.05);
+      box-shadow: 0 15px 30px rgba(11, 29, 51, 0.08);
+    }
+
+    .testimonial-image-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: grayscale(10%) contrast(102%);
+    }
+
+    /* ----------------------------------------------------
+       7. SECTION POUR QUI (QUALIFICATION - GENTLE FILTERING)
+       ---------------------------------------------------- */
+    .for-whom-section {
+      background-color: var(--color-bg-light);
+      padding: 6rem 0;
+      border-top: 1px solid rgba(11, 29, 51, 0.05);
+      border-bottom: 1px solid rgba(11, 29, 51, 0.05);
+    }
+
+    @media (min-width: 1024px) {
+      .for-whom-section {
+        padding: 8rem 0;
+      }
+    }
+
+    .for-whom-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 3rem;
+    }
+
+    @media (min-width: 768px) {
+      .for-whom-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 4rem;
+      }
+    }
+
+    .for-whom-column {
+      background-color: #ffffff;
+      border: 1px solid rgba(11, 29, 51, 0.05);
+      border-radius: 8px;
+      padding: 2.5rem;
+    }
+
+    .for-whom-column.positive {
+      border-top: 3px solid var(--color-gold);
+    }
+
+    .for-whom-column.negative {
+      border-top: 3px solid var(--color-navy);
+    }
+
+    .for-whom-column h3 {
+      font-size: 1.4rem;
+      color: var(--color-navy);
+      margin-bottom: 2rem;
+    }
+
+    .for-whom-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .for-whom-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+
+    .for-whom-item-icon {
+      flex-shrink: 0;
+      font-size: 1.1rem;
+      margin-top: 0.15rem;
+    }
+
+    .for-whom-column.positive .for-whom-item-icon {
+      color: var(--color-gold);
+    }
+
+    .for-whom-column.negative .for-whom-item-icon {
+      color: var(--color-text-muted-dark);
+      opacity: 0.7;
+    }
+
+    .for-whom-item p {
+      font-size: 0.95rem;
+      color: var(--color-navy);
+      line-height: 1.6;
+    }
+
+    /* ----------------------------------------------------
+       8. TARIF + URGENCE (DARK DEEP NAVY / ELITE SURFACES)
+       ---------------------------------------------------- */
+    .pricing-section {
+      background-color: var(--color-navy);
+      color: var(--color-text-light);
+      padding: 6rem 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    @media (min-width: 1024px) {
+      .pricing-section {
+        padding: 9rem 0;
+      }
+    }
+
+    .pricing-container {
+      max-width: 700px;
+      margin: 0 auto;
+      text-align: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    .pricing-card {
+      background-color: var(--color-navy-light);
+      border: 1px solid rgba(201, 162, 75, 0.3);
+      border-radius: 12px;
+      padding: 3rem 1.5rem;
+      position: relative;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+    }
+
+    @media (min-width: 768px) {
+      .pricing-card {
+        padding: 4.5rem 3rem;
+      }
+    }
+
+    /* Indicateur de places restantes */
+    .pricing-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background-color: rgba(201, 162, 75, 0.1);
+      border: 1px solid rgba(201, 162, 75, 0.2);
+      padding: 0.4rem 1rem;
+      border-radius: 50px;
+      margin-bottom: 2.5rem;
+    }
+
+    .pricing-indicator-dot {
+      width: 8px;
+      height: 8px;
+      background-color: #E84A4A;
+      border-radius: 50%;
+      animation: pulse 1.5s infinite;
+    }
+
+    .pricing-indicator-text {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--color-gold);
+      letter-spacing: 0.02em;
+    }
+
+    .pricing-title {
+      font-size: 2.2rem;
+      margin-bottom: 1rem;
+      letter-spacing: -0.02em;
+    }
+
+    .pricing-subtitle {
+      font-size: 1rem;
+      color: var(--color-text-muted-light);
+      margin-bottom: 3rem;
+    }
+
+    /* Le Prix */
+    .price-block {
+      margin-bottom: 3.5rem;
+    }
+
+    .price-original {
+      font-size: 1.2rem;
+      color: var(--color-text-muted-light);
+      text-decoration: line-through;
+      margin-bottom: 0.3rem;
+      opacity: 0.6;
+      display: block;
+    }
+
+    .price-current {
+      font-family: var(--font-display);
+      font-size: 3.8rem;
+      font-weight: 700;
+      color: var(--color-gold);
+      line-height: 1;
+      display: block;
+    }
+
+    @media (min-width: 768px) {
+      .price-current {
+        font-size: 4.5rem;
+      }
+    }
+
+    .price-currency-note {
+      font-size: 0.85rem;
+      color: var(--color-text-muted-light);
+      margin-top: 0.5rem;
+      display: block;
+    }
+
+    .pricing-cta {
+      width: 100%;
+      max-width: 400px;
+      margin: 0 auto 2rem auto;
+      display: flex;
+    }
+
+    .pricing-cta .btn-primary {
+      width: 100%;
+    }
+
+    .pricing-guarantee {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      color: var(--color-text-muted-light);
+    }
+
+    .pricing-guarantee-icon {
+      color: var(--color-gold);
+    }
+
+    /* Animation pulse */
+    @keyframes pulse {
+      0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(232, 74, 74, 0.7);
+      }
+      70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 6px rgba(232, 74, 74, 0);
+      }
+      100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(232, 74, 74, 0);
+      }
+    }
+
+    /* ----------------------------------------------------
+       9. FAQ SECTION (LIGHT / CLEAN ACCORDION)
+       ---------------------------------------------------- */
+    .faq-section {
+      background-color: var(--color-bg-light);
+      padding: 6rem 0;
+    }
+
+    @media (min-width: 1024px) {
+      .faq-section {
+        padding: 8rem 0;
+      }
+    }
+
+    .faq-container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .faq-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      margin-top: 3.5rem;
+    }
+
+    .faq-item {
+      background-color: #ffffff;
+      border: 1px solid rgba(11, 29, 51, 0.05);
+      border-radius: 6px;
+      overflow: hidden;
+      transition: var(--transition-smooth);
+    }
+
+    .faq-item:hover {
+      border-color: rgba(201, 162, 75, 0.2);
+    }
+
+    .faq-trigger {
+      width: 100%;
+      text-align: left;
+      background: none;
+      border: none;
+      padding: 1.8rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      outline: none;
+    }
+
+    .faq-trigger h3 {
+      font-size: 1.1rem;
+      font-family: var(--font-sans);
+      font-weight: 600;
+      color: var(--color-navy);
+      padding-right: 1.5rem;
+    }
+
+    .faq-icon {
+      font-size: 1.2rem;
+      color: var(--color-gold);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      flex-shrink: 0;
+    }
+
+    .faq-panel {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .faq-content {
+      padding: 0 1.8rem 1.8rem 1.8rem;
+      font-size: 0.95rem;
+      color: var(--color-text-muted-dark);
+      line-height: 1.6;
+    }
+
+    .faq-item.active {
+      border-color: rgba(201, 162, 75, 0.3);
+      box-shadow: 0 10px 25px rgba(11, 29, 51, 0.02);
+    }
+
+    .faq-item.active .faq-icon {
+      transform: rotate(45deg);
+    }
+
+    /* ----------------------------------------------------
+       10. CTA FINAL & FOOTER (DARK NAVY)
+       ---------------------------------------------------- */
+    .cta-final-section {
+      background-color: var(--color-navy);
+      color: var(--color-text-light);
+      padding: 6rem 0;
+      text-align: center;
+      position: relative;
+    }
+
+    @media (min-width: 1024px) {
+      .cta-final-section {
+        padding: 8rem 0;
+      }
+    }
+
+    .cta-final-container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .cta-final-section h2 {
+      font-size: 2.2rem;
+      margin-bottom: 1.5rem;
+      letter-spacing: -0.02em;
+    }
+
+    @media (min-width: 768px) {
+      .cta-final-section h2 {
+        font-size: 3.5rem;
+      }
+    }
+
+    .cta-final-section p {
+      font-size: 1.1rem;
+      color: var(--color-text-muted-light);
+      max-width: 600px;
+      margin: 0 auto 3rem auto;
+      line-height: 1.7;
+    }
+
+    .cta-final-buttons {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .cta-final-meta {
+      font-size: 0.85rem;
+      color: var(--color-text-muted-light);
+      margin-top: 1rem;
+      opacity: 0.7;
+    }
+
+    /* Footer */
+    footer {
+      background-color: #081627;
+      color: var(--color-text-muted-light);
+      padding: 3rem 0;
+      font-size: 0.85rem;
+      border-top: 1px solid rgba(250, 250, 250, 0.05);
+      text-align: center;
+    }
+
+    .footer-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    @media (min-width: 768px) {
+      .footer-container {
+        flex-direction: row;
+        justify-content: space-between;
+      }
+    }
+
+    .footer-logo {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1.2rem;
+      color: var(--color-text-light);
+      letter-spacing: -0.01em;
+      text-decoration: none;
+    }
+
+    .footer-logo span {
+      color: var(--color-gold);
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 2rem;
+    }
+
+    .footer-links a {
+      color: var(--color-text-muted-light);
+      text-decoration: none;
+      transition: var(--transition-smooth);
+    }
+
+    .footer-links a:hover {
+      color: var(--color-gold);
+    }
+
+    .footer-copy {
+      opacity: 0.5;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ====================================================
+       1. HERO SECTION
+       ==================================================== -->
+  <section class="hero-section" id="hero">
+    <!-- Halo interactif de fond -->
+    <div class="hero-halo" id="hero-halo"></div>
+
+    <div class="container">
+      <div class="hero-grid">
+        <!-- Contenu Hero gauche -->
+        <div class="hero-content">
+          <!-- Ouverture narrative -->
+          <div class="hero-narrative reveal stagger-1">
+            Il y a 2 ans, je lançais mon premier produit avec une simple idée et zéro client dans mon réseau. Aujourd'hui, j'aide la diaspora africaine en Europe à faire exactement la même chose grâce à l'IA.
+          </div>
+
+          <!-- Rareté Badge -->
+          <div class="rarity-badge reveal stagger-2">
+            <span class="rarity-badge-dot"></span>
+            <span>20 places uniquement — Session exclusive</span>
+          </div>
+
+          <!-- Accroche Principale -->
+          <h1 class="hero-title reveal stagger-2">
+            Sprint Business <span>IA</span>
+          </h1>
+
+          <!-- Sous-titre explicatif -->
+          <p class="hero-subtitle reveal stagger-3">
+            Bâtissez et lancez votre produit digital en 5 jours de pratique intensive. Sans coder, guidé pas à pas par l'intelligence artificielle pour obtenir vos premiers clients.
+          </p>
+
+          <!-- Boutons d'action -->
+          <div class="hero-actions reveal stagger-4" style="display: flex; flex-wrap: wrap; gap: 1rem; align-items: center;">
+            <a href="#tarification" class="btn-primary">Rejoindre le Sprint (10 000 FCFA)</a>
+            <a href="#programme" class="btn-secondary">Découvrir le programme</a>
+          </div>
+        </div>
+
+        <!-- Visage humain à droite -->
+        <div class="hero-image-wrapper reveal stagger-3">
+          <div class="hero-image-glow"></div>
+          <div class="hero-image-container">
+            <!-- Image de Gamaliel servant d'ancrage humain direct -->
+            <img src="/gamaliel_portrait.png" alt="Portrait de Gamaliel, fondateur du Club IA" width="360" height="450">
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ====================================================
+       2. LE POURQUOI (SECTION EDITORIALE)
+       ==================================================== -->
+  <section class="why-section" id="pourquoi">
+    <div class="container">
+      <div class="why-container reveal">
+        <span class="why-tag">Pourquoi je fais ça</span>
+        <h2 class="why-title">
+          La théorie vous paralyse. Ce sprint est l'antidote.
+        </h2>
+        <p class="why-paragraph">
+          Je vois trop de professionnels talentueux de la diaspora accumuler des formations théoriques, des PDF gratuits et des vidéos YouTube pendant des mois, voire des années, sans jamais rien mettre sur le marché. 
+        </p>
+        <p class="why-paragraph">
+          La vérité, c'est que <span class="why-paragraph-highlight">l'excès d'information crée la paralysie</span>. La technique fait peur, l'isolement décourage et on finit par remettre son ambition à demain.
+        </p>
+        <p class="why-paragraph">
+          J'ai créé ce Sprint de 5 jours pour vous forcer à agir. Pas de théorie superflue, pas de blabla. Pendant 5 jours, nous construisons votre produit digital en direct avec l'intelligence artificielle. Vous n'avez pas besoin d'être développeur, vous avez juste besoin d'avoir faim d'indépendance.
+        </p>
+
+        <!-- Signature Gamaliel -->
+        <div class="signature-container">
+          <img src="/gamaliel_portrait.png" alt="Gamaliel" class="signature-avatar">
+          <div class="signature-details">
+            <h4>Gamaliel</h4>
+            <p>Fondateur du Club IA</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ====================================================
+       3. LE CONSTAT (PROBLEMATIQUES DE L'AUDIENCE)
+       ==================================================== -->
+  <section class="constat-section">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-tag">Le constat</span>
+        <h2>Pourquoi 95% des projets meurent avant de naître</h2>
+      </div>
+
+      <div class="constat-grid">
+        <!-- Obstacle 1 -->
+        <div class="constat-card reveal stagger-1">
+          <span class="constat-number">01</span>
+          <h3>Le syndrome du produit parfait</h3>
+          <p>Passer des mois à peaufiner une offre dans son coin pour finalement se rendre compte que personne n'en veut. La seule vraie validation est la vente.</p>
+        </div>
+
+        <!-- Obstacle 2 -->
+        <div class="constat-card reveal stagger-2">
+          <span class="constat-number">02</span>
+          <h3>L'enfer technique</h3>
+          <p>Se perdre dans le choix des outils de paiement, de tunnels de vente ou de serveurs. L'IA permet aujourd'hui d'effacer cette friction technique en quelques heures.</p>
+        </div>
+
+        <!-- Obstacle 3 -->
+        <div class="constat-card reveal stagger-3">
+          <span class="constat-number">03</span>
+          <h3>La solitude stratégique</h3>
+          <p>Travailler sans retour critique, sans structure quotidienne et sans l'émulation d'un groupe d'ambitieux qui partagent les mêmes objectifs.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ====================================================
+       4. PROGRAMME JOUR PAR JOUR (timeline premium)
+       ==================================================== -->
+  <section class="programme-section" id="programme">
+    <div class="container">
+      <div class="programme-grid">
+        <!-- Titre collant à gauche sur desktop -->
+        <div class="programme-sticky-sidebar reveal">
+          <span class="programme-tag">5 jours d'action</span>
+          <h2>Le plan de vol quotidien du Sprint</h2>
+          <p>
+            Chaque matin, vous recevez une feuille de route précise. Pas de cours magistral de 3 heures, uniquement des actions claires guidées par l'IA.
+          </p>
+          <a href="#tarification" class="btn-primary">Réserver mon accès</a>
+        </div>
+
+        <!-- Timeline des jours à droite -->
+        <div class="timeline">
+          <!-- Jour 1 -->
+          <div class="timeline-item reveal stagger-1">
+            <span class="timeline-day">Jour 1</span>
+            <h3>L'Idée d'Élite & Validation Marché</h3>
+            <p>
+              Identifier et valider votre niche à forte valeur. Nous utiliserons des prompts avancés pour analyser la demande réelle et concevoir le concept de votre produit digital (Ebook enrichi, mini-formation, template, kit d'outils) en moins de 2 heures.
+            </p>
+          </div>
+
+          <!-- Jour 2 -->
+          <div class="timeline-item reveal stagger-2">
+            <span class="timeline-day">Jour 2</span>
+            <h3>Copywriting & Offre Irrésistible</h3>
+            <p>
+              Rédiger le squelette de votre page de vente avec des frameworks de conversion. Apprendre à structurer une proposition de valeur unique et des promesses fortes qui parlent aux besoins émotionnels et rationnels de vos acheteurs.
+            </p>
+          </div>
+
+          <!-- Jour 3 -->
+          <div class="timeline-item reveal stagger-3">
+            <span class="timeline-day">Jour 3</span>
+            <h3>Création du Produit Assistée par l'IA</h3>
+            <p>
+              Génération et structuration des contenus du produit. Vous apprendrez à piloter Claude et ChatGPT pour structurer vos modules, peaufiner vos documents et packager le tout proprement dans un format premium prêt à être consommé.
+            </p>
+          </div>
+
+          <!-- Jour 4 -->
+          <div class="timeline-item reveal stagger-4">
+            <span class="timeline-day">Jour 4</span>
+            <h3>Tunnel Express & Système de Paiement</h3>
+            <p>
+              Mettre en ligne votre page de paiement sécurisée sans aucun abonnement logiciel lourd. Intégrer les passerelles de paiement adaptées (Stripe, Chariot, ou Mobile Money selon votre public cible) pour accepter des paiements immédiatement.
+            </p>
+          </div>
+
+          <!-- Jour 5 -->
+          <div class="timeline-item reveal stagger-4" style="transition-delay: 0.5s;">
+            <span class="timeline-day">Jour 5</span>
+            <h3>Le Lancement & L'Acquisition Client</h3>
+            <p>
+              Déployer la stratégie de vente minimale viable (Organic Reach). Rédiger vos premiers posts de lancement, contacter vos prospects chauds et initier les premières conversations pour valider le sprint par vos premiers encaissements.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ====================================================
+       5. LE BONUS (CARTE OR DE HAUTE PRÉCISION)
+       ==================================================== -->
+  <section class="bonus-section">
+    <div class="container">
+      <div class="bonus-card reveal">
+        <span class="bonus-badge">Bonus Spécial</span>
+        <h2>3 Mois d'Accès Offert au Club IA</h2>
+        <p>
+          Ne restez pas seul après le Sprint. Rejoignez notre écosystème d'entraide pour pérenniser vos résultats, affiner vos offres et continuer à grandir.
+        </p>
+
+        <div class="bonus-grid">
+          <!-- Point 1 -->
+          <div class="bonus-item">
+            <span class="bonus-icon">✦</span>
+            <p><strong>La Communauté Privée :</strong> Un espace d'échange avec plus de 200 salariés et entrepreneurs de la diaspora africaine.</p>
+          </div>
+
+          <!-- Point 2 -->
+          <div class="bonus-item">
+            <span class="bonus-icon">✦</span>
+            <p><strong>Les Retours Hebdomadaires :</strong> Posez vos questions et obtenez des retours constructifs sur vos pages de vente et produits.</p>
+          </div>
+
+          <!-- Point 3 -->
+          <div class="bonus-item">
+            <span class="bonus-icon">✦</span>
+            <p><strong>Bibliothèque de Prompts :</strong> Accès immédiat à tous nos modèles de prompts exclusifs de copywriting et d'automatisation.</p>
+          </div>
+
+          <!-- Point 4 -->
+          <div class="bonus-item">
+            <span class="bonus-icon">✦</span>
+            <p><strong>Ressources & Mises à jour :</strong> Nouveaux templates de pages de vente et webinaires exclusifs en replay.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ====================================================
+       6. PREUVE SOCIALE INCARNÉE (TESTIMONIAL AVEC PHOTO)
+       ==================================================== -->
+  <section class="testimonial-section">
+    <div class="container">
+      <div class="testimonial-container reveal">
+        <!-- Citation narrative -->
+        <div class="testimonial-quote">
+          <blockquote class="testimonial-text">
+            « Grâce à la méthode du Club IA, j'ai surmonté le blocage technique qui m'empêchait de me lancer depuis un an. J'ai conçu et mis en vente mon premier guide digital en 4 jours. J'ai fait mes premières ventes le week-end même auprès de ma communauté. C'est le déclic concret dont j'avais besoin. »
+          </blockquote>
+          <div class="testimonial-author">Patricia Njie</div>
+          <div class="testimonial-role">Consultante RH & Créatrice de Produits Digitaux</div>
+        </div>
+
+        <!-- Photo du membre incarnant la réussite -->
+        <div class="testimonial-image-wrapper">
+          <div class="testimonial-image-container">
+            <img src="/landing/members/patricia-njie.jpg" alt="Portrait de Patricia Njie, participante au Club IA" width="300" height="400">
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ====================================================
+       7. POUR QUI / PAS POUR QUI (FILTRE QUALITATIF)
+       ==================================================== -->
+  <section class="for-whom-section">
+    <div class="container">
+      <div class="section-header reveal" style="text-align: center; margin-left: auto; margin-right: auto;">
+        <span class="section-tag">La Sélection</span>
+        <h2>Ce Sprint est-il fait pour vous ?</h2>
+      </div>
+
+      <div class="for-whom-grid">
+        <!-- Fait pour vous -->
+        <div class="for-whom-column positive reveal stagger-1">
+          <h3>Ce Sprint est fait pour vous si...</h3>
+          <ul class="for-whom-list">
+            <li class="for-whom-item">
+              <span class="for-whom-item-icon">✓</span>
+              <p>Vous êtes salarié de la diaspora ou ambitieux et souhaitez monétiser vos compétences professionnelles en parallèle de votre emploi.</p>
+            </li>
+            <li class="for-whom-item">
+              <span class="for-whom-item-icon">✓</span>
+              <p>Vous êtes prêt à consacrer 1 à 2 heures par jour pendant 5 jours pour exécuter les tâches demandées.</p>
+            </li>
+            <li class="for-whom-item">
+              <span class="for-whom-item-icon">✓</span>
+              <p>Vous souhaitez surmonter la barrière technique en utilisant des technologies d'automatisation no-code et d'IA générative.</p>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Pas pour vous -->
+        <div class="for-whom-column negative reveal stagger-2">
+          <h3>Ce Sprint n'est PAS fait pour vous si...</h3>
+          <ul class="for-whom-list">
+            <li class="for-whom-item">
+              <span class="for-whom-item-icon">✕</span>
+              <p>Vous cherchez un raccourci magique pour devenir riche sans travailler ni produire la moindre valeur.</p>
+            </li>
+            <li class="for-whom-item">
+              <span class="for-whom-item-icon">✕</span>
+              <p>Vous refusez de remettre en question vos acquis ou d'intégrer l'intelligence artificielle dans vos processus créatifs.</p>
+            </li>
+            <li class="for-whom-item">
+              <span class="for-whom-item-icon">✕</span>
+              <p>Vous n'aimez pas l'action directe et préférez accumuler de la théorie passive plutôt que de lancer des projets réels.</p>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ====================================================
+       8. TARIF + URGENCE (PRIX ACCESSIBLE & COMPTEUR DYNAMIQUE)
+       ==================================================== -->
+  <section class="pricing-section" id="tarification">
+    <div class="container">
+      <div class="pricing-container reveal">
+        <div class="pricing-card">
+          <!-- Compteur de places -->
+          <div class="pricing-indicator">
+            <span class="pricing-indicator-dot"></span>
+            <span class="pricing-indicator-text" id="spots-counter">Plus que 4 places disponibles</span>
+          </div>
+
+          <h2 class="pricing-title">Accès Complet au Sprint Business IA</h2>
+          <p class="pricing-subtitle">
+            5 jours d'accompagnement intensif + 3 mois d'accès au Club IA offerts.
+          </p>
+
+          <!-- Tarification transparente -->
+          <div class="price-block">
+            <span class="price-original">Valeur réelle : 150 000 FCFA</span>
+            <span class="price-current">10 000 FCFA</span>
+            <span class="price-currency-note">Paiement unique, aucun frais caché.</span>
+          </div>
+
+          <!-- CTA principal de paiement -->
+          <div class="pricing-cta">
+            <a href="https://buy.stripe.com/mock-link-sprint-club-ia" class="btn-primary">Réserver mon ticket d'accès</a>
+          </div>
+
+          <!-- Garantie de confiance -->
+          <div class="pricing-guarantee">
+            <span class="pricing-guarantee-icon">🛡</span>
+            <span>Garantie de remboursement de 7 jours si non satisfait</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ====================================================
+       9. FAQ (ACCORDÉON INTERACTIF FLUIDE)
+       ==================================================== -->
+  <section class="faq-section" id="faq">
+    <div class="container">
+      <div class="faq-container">
+        <div class="section-header reveal" style="text-align: center; margin-left: auto; margin-right: auto;">
+          <span class="section-tag">FAQ</span>
+          <h2>Des questions fréquentes ?</h2>
+        </div>
+
+        <div class="faq-list">
+          <!-- Question 1 -->
+          <div class="faq-item reveal stagger-1">
+            <button class="faq-trigger" aria-expanded="false">
+              <h3>Faut-il avoir des compétences techniques ou savoir coder ?</h3>
+              <span class="faq-icon">+</span>
+            </button>
+            <div class="faq-panel">
+              <div class="faq-content">
+                Absolument pas. Tout le concept de ce Sprint repose sur l'exploitation des outils de no-code et de l'intelligence artificielle. Vous apprendrez à générer votre contenu, concevoir votre offre et configurer votre tunnel de paiement à l'aide d'interfaces visuelles intuitives.
+              </div>
+            </div>
+          </div>
+
+          <!-- Question 2 -->
+          <div class="faq-item reveal stagger-2">
+            <button class="faq-trigger" aria-expanded="false">
+              <h3>Combien de temps dois-je consacrer par jour ?</h3>
+              <span class="faq-icon">+</span>
+            </button>
+            <div class="faq-panel">
+              <div class="faq-content">
+                Prévoyez environ 1 à 2 heures par jour. Ce temps vous servira à lire la feuille de route du jour, visionner les rapides instructions pratiques, piloter l'IA et mettre immédiatement en ligne les livrables requis. Le Sprint est structuré pour s'adapter à l'emploi du temps de salariés actifs.
+              </div>
+            </div>
+          </div>
+
+          <!-- Question 3 -->
+          <div class="faq-item reveal stagger-3">
+            <button class="faq-trigger" aria-expanded="false">
+              <h3>Je vis en Afrique, puis-je participer au Sprint ?</h3>
+              <span class="faq-icon">+</span>
+            </button>
+            <div class="faq-panel">
+              <div class="faq-content">
+                Oui, sans aucun problème. L'accompagnement s'effectue entièrement en ligne. Nos plateformes d'apprentissage sont accessibles mondialement et le parcours intègre des modules dédiés à la configuration de solutions de paiement utilisables localement (Mobile Money et cartes bancaires locales via des partenaires comme Chariot).
+              </div>
+            </div>
+          </div>
+
+          <!-- Question 4 -->
+          <div class="faq-item reveal stagger-4">
+            <button class="faq-trigger" aria-expanded="false">
+              <h3>Comment fonctionne l'accès offert au Club IA ?</h3>
+              <span class="faq-icon">+</span>
+            </button>
+            <div class="faq-panel">
+              <div class="faq-content">
+                Dès votre inscription validée, vous recevez par courriel vos accès personnels pour rejoindre le Club IA. Vos 3 mois offerts commencent instantanément, vous donnant accès au forum, aux salons d'entraide, à la bibliothèque de prompts ainsi qu'aux webinaires mensuels en direct.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ====================================================
+       10. CTA FINAL & FOOTER
+       ==================================================== -->
+  <section class="cta-final-section">
+    <div class="container">
+      <div class="cta-final-container reveal">
+        <h2>Ne laissez pas une autre idée mourir dans vos tiroirs</h2>
+        <p>
+          Dans 5 jours, vous aurez un produit digital prêt à être vendu et un système d'encaissement automatisé en place. Rejoignez le mouvement aujourd'hui.
+        </p>
+
+        <div class="cta-final-buttons">
+          <a href="#tarification" class="btn-primary">Lancer mon business maintenant</a>
+          <span class="cta-final-meta">20 tickets disponibles par session uniquement. Accès sécurisé.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pied de page -->
+  <footer>
+    <div class="container">
+      <div class="footer-container">
+        <a href="#" class="footer-logo">Le Club <span>IA</span></a>
+        
+        <div class="footer-links">
+          <a href="#programme">Le Programme</a>
+          <a href="#pourquoi">Notre Vision</a>
+          <a href="#faq">FAQ</a>
+        </div>
+
+        <div class="footer-copy">
+          &copy; 2026 Le Club IA. Conçu pour inspirer l'action et le succès digital de la diaspora.
+        </div>
+      </div>
+    </div>
+  </footer>
+
+
+  <!-- ====================================================
+       INTERACTIONS ET ANIMATIONS (VANILLA JAVASCRIPT)
+       ==================================================== -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+      // --------------------------------------------------
+      // 1. SCROLL REVEAL (Intersection Observer)
+      // --------------------------------------------------
+      const revealElements = document.querySelectorAll('.reveal');
+      const revealObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('active');
+            observer.unobserve(entry.target); // Cesse d'observer pour conserver l'état visible
+          }
+        });
+      }, {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px' // Déclenchement légèrement avant l'entrée physique sur l'écran
+      });
+
+      revealElements.forEach(element => {
+        revealObserver.observe(element);
+      });
+
+
+      // --------------------------------------------------
+      // 2. GLOW / HALO DE SOURIS (Parallaxe 3D Hero)
+      // --------------------------------------------------
+      const hero = document.getElementById('hero');
+      const halo = document.getElementById('hero-halo');
+
+      if (hero && halo && window.innerWidth >= 1024) {
+        hero.addEventListener('mousemove', (e) => {
+          const rect = hero.getBoundingClientRect();
+          const x = e.clientX - rect.left; // Position X par rapport au conteneur hero
+          const y = e.clientY - rect.top;  // Position Y par rapport au conteneur hero
+          
+          // Mise à jour douce des variables CSS du halo
+          halo.style.setProperty('--mouse-x', `${x}px`);
+          halo.style.setProperty('--mouse-y', `${y}px`);
+        });
+      }
+
+
+      // --------------------------------------------------
+      // 3. LOGIQUE D'ACCORDÉON FAQ FLUIDE
+      // --------------------------------------------------
+      const faqTriggers = document.querySelectorAll('.faq-trigger');
+
+      faqTriggers.forEach(trigger => {
+        trigger.addEventListener('click', () => {
+          const item = trigger.parentElement;
+          const panel = item.querySelector('.faq-panel');
+          const isExpanded = trigger.getAttribute('aria-expanded') === 'true';
+
+          // Fermer les autres questions ouvertes (mode accordéon strict)
+          document.querySelectorAll('.faq-item.active').forEach(activeItem => {
+            if (activeItem !== item) {
+              activeItem.classList.remove('active');
+              activeItem.querySelector('.faq-trigger').setAttribute('aria-expanded', 'false');
+              activeItem.querySelector('.faq-panel').style.maxHeight = '0';
+            }
+          });
+
+          // Toggle de l'élément cliqué
+          if (isExpanded) {
+            item.classList.remove('active');
+            trigger.setAttribute('aria-expanded', 'false');
+            panel.style.maxHeight = '0';
+          } else {
+            item.classList.add('active');
+            trigger.setAttribute('aria-expanded', 'true');
+            // Calcul et application dynamique de la hauteur de scroll
+            panel.style.maxHeight = `${panel.scrollHeight}px`;
+          }
+        });
+      });
+
+
+      // --------------------------------------------------
+      // 4. ANIMATION & MISE À ZONE DU COMPTEUR DE PLACES
+      // --------------------------------------------------
+      const spotsCounter = document.getElementById('spots-counter');
+      
+      if (spotsCounter) {
+        // Animation simple de pulse sur le texte au chargement
+        setTimeout(() => {
+          spotsCounter.style.transition = 'transform 0.5s ease-out';
+          spotsCounter.style.transform = 'scale(1.05)';
+          setTimeout(() => {
+            spotsCounter.style.transform = 'scale(1)';
+          }, 500);
+        }, 1500);
+
+        // Simulation de mise à jour des places (rare & engageant)
+        // Réduit de 4 à 3 places de façon aléatoire entre 10s et 30s après le chargement
+        const timeToUpdate = Math.random() * (30000 - 10000) + 10000;
+        setTimeout(() => {
+          spotsCounter.innerHTML = "Plus que 3 places disponibles";
+          spotsCounter.style.color = "#E84A4A"; // Changement de couleur vers le rouge alerte
+          
+          // Re-pulse pour attirer l'oeil
+          spotsCounter.style.transform = 'scale(1.08)';
+          setTimeout(() => {
+            spotsCounter.style.transform = 'scale(1)';
+          }, 400);
+        }, timeToUpdate);
+      }
+
+    });
+  </script>
+</body>
+</html>
