@@ -179,29 +179,10 @@ function PillarCard({ badge, title, description, graphic, link, linkText }: Pill
 
 function FormationsPreviewGraphic() {
   return (
-    <div className="relative w-full max-w-[250px] rounded-xl border border-zinc-200 bg-white p-2.5 shadow-lg transition-transform duration-500 group-hover:scale-105">
-      <div className="mb-2 flex items-center justify-between border-b border-zinc-100 pb-1.5 px-1">
-        <div className="flex items-center gap-1.5">
-          <div className="h-2 w-2 rounded-full bg-red-400" />
-          <div className="h-2 w-2 rounded-full bg-yellow-400" />
-          <div className="h-2 w-2 rounded-full bg-green-400" />
-        </div>
-        <span className="text-[9px] font-mono text-zinc-400">formation_01.mp4</span>
-      </div>
-
-      <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-[#0F1E4D] flex items-center justify-center border border-zinc-200">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#0F1E4D] via-[#1E3A8A] to-[#2563EB]/40" />
-        
-        <div className="relative z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#0F1E4D] shadow-xl backdrop-blur-sm">
-          <Play className="h-4 w-4 fill-current translate-x-0.5" />
-        </div>
-
-        <div className="absolute bottom-2 left-2 right-2 flex items-center gap-2">
-          <div className="h-1 flex-1 rounded-full bg-white/30 overflow-hidden">
-            <div className="h-full w-3/4 bg-[#60A5FA]" />
-          </div>
-          <span className="text-[8px] font-mono text-white/80">18:45</span>
-        </div>
+    <div className="relative flex items-center justify-center w-full h-full">
+      <div className="relative flex h-20 w-20 sm:h-24 sm:w-24 items-center justify-center rounded-3xl border-2 border-[#2563EB]/40 bg-[#0F1E4D] shadow-2xl transition-all duration-500 group-hover:scale-110 group-hover:border-[#2563EB]">
+        <div className="absolute -inset-2 rounded-3xl bg-[#2563EB]/20 blur-xl opacity-60 group-hover:opacity-100 transition-opacity" />
+        <GraduationCap className="relative z-10 h-10 w-10 sm:h-12 sm:w-12 text-[#60A5FA]" />
       </div>
     </div>
   )
@@ -210,18 +191,9 @@ function FormationsPreviewGraphic() {
 function CommunityPreviewGraphic() {
   return (
     <div className="relative flex items-center justify-center w-full h-full">
-      <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl border border-blue-200 bg-[#0F1E4D] text-white shadow-xl transition-transform duration-500 group-hover:scale-110">
-        <MessagesSquare className="h-8 w-8 text-[#60A5FA]" />
-      </div>
-
-      <div className="absolute -top-1 left-10 flex h-8 w-8 items-center justify-center rounded-full border border-white bg-[#2563EB] text-white text-xs font-bold shadow-md">
-        <span className="h-2 w-2 rounded-full bg-emerald-400 absolute -top-0.5 -right-0.5 ring-2 ring-white" />
-        GT
-      </div>
-
-      <div className="absolute -bottom-1 right-10 flex h-8 w-8 items-center justify-center rounded-full border border-white bg-[#0F1E4D] text-white text-xs font-bold shadow-md">
-        <span className="h-2 w-2 rounded-full bg-emerald-400 absolute -top-0.5 -right-0.5 ring-2 ring-white" />
-        MC
+      <div className="relative flex h-20 w-20 sm:h-24 sm:w-24 items-center justify-center rounded-3xl border-2 border-emerald-500/40 bg-[#0F1E4D] shadow-2xl transition-all duration-500 group-hover:scale-110 group-hover:border-emerald-500">
+        <div className="absolute -inset-2 rounded-3xl bg-emerald-500/20 blur-xl opacity-60 group-hover:opacity-100 transition-opacity" />
+        <MessagesSquare className="relative z-10 h-10 w-10 sm:h-12 sm:w-12 text-emerald-400" />
       </div>
     </div>
   )
@@ -229,24 +201,10 @@ function CommunityPreviewGraphic() {
 
 function NewsPreviewGraphic() {
   return (
-    <div className="relative w-full max-w-[240px] rounded-xl border border-zinc-200 bg-white p-3 shadow-lg transition-transform duration-500 group-hover:scale-105">
-      <div className="flex items-center justify-between border-b border-zinc-100 pb-2 mb-2">
-        <div className="flex items-center gap-1.5">
-          <Newspaper className="h-3.5 w-3.5 text-[#2563EB]" />
-          <span className="text-[11px] font-bold text-[#0A0A0A]">Veille IA</span>
-        </div>
-        <span className="rounded bg-blue-50 px-1.5 py-0.5 text-[9px] font-mono text-[#2563EB] border border-blue-100">Toutes les 6h</span>
-      </div>
-
-      <div className="space-y-1.5">
-        <div className="flex items-center justify-between rounded bg-zinc-50 p-1.5 text-[10px] border border-zinc-100">
-          <span className="truncate text-zinc-700 font-medium">Synthèse Agents IA Mistral</span>
-          <CheckCircle2 className="h-3 w-3 text-[#2563EB] shrink-0" />
-        </div>
-        <div className="flex items-center justify-between rounded bg-zinc-50 p-1.5 text-[10px] border border-zinc-100">
-          <span className="truncate text-zinc-700 font-medium">Nouveau modèle Claude 3.5</span>
-          <CheckCircle2 className="h-3 w-3 text-[#2563EB] shrink-0" />
-        </div>
+    <div className="relative flex items-center justify-center w-full h-full">
+      <div className="relative flex h-20 w-20 sm:h-24 sm:w-24 items-center justify-center rounded-3xl border-2 border-purple-500/40 bg-[#0F1E4D] shadow-2xl transition-all duration-500 group-hover:scale-110 group-hover:border-purple-500">
+        <div className="absolute -inset-2 rounded-3xl bg-purple-500/20 blur-xl opacity-60 group-hover:opacity-100 transition-opacity" />
+        <Newspaper className="relative z-10 h-10 w-10 sm:h-12 sm:w-12 text-purple-300" />
       </div>
     </div>
   )
@@ -254,20 +212,10 @@ function NewsPreviewGraphic() {
 
 function ResourcesPreviewGraphic() {
   return (
-    <div className="relative flex items-center justify-center h-full w-full">
-      <div className="relative transition-transform duration-500 group-hover:scale-105">
-        <div className="absolute -top-2 -left-2 h-24 w-36 rounded-xl border border-zinc-200 bg-zinc-100 shadow-sm rotate-[-6deg]" />
-        
-        <div className="relative h-24 w-36 rounded-xl border border-blue-200 bg-gradient-to-br from-[#0F1E4D] to-[#1E3A8A] p-3 shadow-xl flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <Library className="h-5 w-5 text-[#60A5FA]" />
-            <span className="rounded bg-white/20 px-1.5 py-0.5 text-[8px] font-mono text-white uppercase font-bold">PROMPT</span>
-          </div>
-          <div>
-            <div className="h-1.5 w-20 rounded bg-white/90" />
-            <div className="mt-1 h-1.5 w-12 rounded bg-white/50" />
-          </div>
-        </div>
+    <div className="relative flex items-center justify-center w-full h-full">
+      <div className="relative flex h-20 w-20 sm:h-24 sm:w-24 items-center justify-center rounded-3xl border-2 border-amber-500/40 bg-[#0F1E4D] shadow-2xl transition-all duration-500 group-hover:scale-110 group-hover:border-amber-500">
+        <div className="absolute -inset-2 rounded-3xl bg-amber-500/20 blur-xl opacity-60 group-hover:opacity-100 transition-opacity" />
+        <Library className="relative z-10 h-10 w-10 sm:h-12 sm:w-12 text-amber-300" />
       </div>
     </div>
   )
