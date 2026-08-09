@@ -25,7 +25,10 @@ import {
   CreditCard,
   Clock,
   Check,
-  Tag
+  Tag,
+  Lightbulb,
+  Package,
+  Eye
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
@@ -178,10 +181,10 @@ function LiveWorkflowAnimation() {
   const [activeStep, setActiveStep] = useState(0)
 
   const steps = [
-    { day: 'J1 & 2', fullDay: 'Jour 1 & 2', title: 'Idée & Offre', icon: FileText },
-    { day: 'J3', fullDay: 'Jour 3', title: 'Boutique', icon: ShoppingBag },
-    { day: 'J4', fullDay: 'Jour 4', title: 'Paiements', icon: Lock },
-    { day: 'J5', fullDay: 'Jour 5', title: 'Ventes', icon: TrendingUp }
+    { day: 'Jour 1', fullDay: 'Jour 1', title: 'Idée', icon: Lightbulb },
+    { day: 'Jour 2', fullDay: 'Jour 2', title: 'Produit', icon: Package },
+    { day: 'Jour 3 & 4', fullDay: 'Jour 3 & 4', title: 'Visibilité', icon: Eye },
+    { day: 'Jour 5', fullDay: 'Jour 5', title: 'Vente', icon: TrendingUp }
   ]
 
   // Auto progression loop
@@ -506,34 +509,40 @@ export function AccompagnementPage() {
           {/* PURE ANIMATED PROGRESSION STEPPER */}
           <LiveWorkflowAnimation />
 
-          {/* 3 PILLAR CARDS WITH SUBTLE SANS BACKGROUND NUMBERS */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 mt-10 sm:mt-12 relative">
+          {/* 4 PILLAR CARDS MATCHING IDÉE -> PRODUIT -> VISIBILITÉ -> VENTE */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6 mt-10 sm:mt-12 relative">
             {[
               {
                 num: "01",
-                title: "Création du Produit Digital",
-                desc: "Définissez et concevez votre offre (e-book, template, guide pratique ou formation) en utilisant des prompts d'IA structurés.",
-                icon: FileText,
+                title: "1. Idée & Offre",
+                desc: "Clarifiez votre niche, validez votre positionnement et formulez l'idée de produit digital la plus rentable avec l'IA.",
+                icon: Lightbulb,
               },
               {
                 num: "02",
-                title: "Boutique & Encaissement",
-                desc: "Configuration de votre page de vente et de vos passerelles de paiement (Stripe, Mobile Money) pour encaisser en toute autonomie.",
-                icon: ShoppingBag,
+                title: "2. Produit Digital",
+                desc: "Concevez et générez votre produit digital prêt à vendre (e-book, guides, templates) grâce à nos prompts d'IA ciblés.",
+                icon: Package,
               },
               {
                 num: "03",
-                title: "Plan d'Acquisition Client",
-                desc: "Mise en place de votre stratégie de diffusion et d'attraction de prospects qualifiés pour obtenir vos premières ventes rapidement.",
+                title: "3. Visibilité",
+                desc: "Déployez votre stratégie d'attraction, créez vos contenus magnétiques et attirez un flux de prospects qualifiés.",
+                icon: Eye,
+              },
+              {
+                num: "04",
+                title: "4. Vente & Encaissement",
+                desc: "Activez votre boutique autonome, configurez vos passerelles de paiement (Mobile Money, Stripe) et encaissez vos premières ventes.",
                 icon: TrendingUp,
               },
             ].map((pillar, idx) => {
               const PillarIcon = pillar.icon
               return (
                 <div key={idx} className="relative group">
-                  {idx < 2 && (
-                    <div className="hidden md:block absolute -right-6 top-1/2 -translate-y-1/2 z-20 pointer-events-none">
-                      <svg className="w-10 h-10 text-[#2563EB]/40" viewBox="0 0 40 40" fill="none">
+                  {idx < 3 && (
+                    <div className="hidden lg:block absolute -right-4 top-1/2 -translate-y-1/2 z-20 pointer-events-none">
+                      <svg className="w-7 h-7 text-[#2563EB]/40" viewBox="0 0 40 40" fill="none">
                         <path d="M 5 20 Q 20 5, 35 20" stroke="currentColor" strokeWidth="2" strokeDasharray="3 3" />
                         <polygon points="32,15 38,20 32,25" fill="currentColor" />
                       </svg>
@@ -545,7 +554,7 @@ export function AccompagnementPage() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.5, delay: idx * 0.1, ease: EASE }}
-                    className="h-full p-7 sm:p-9 rounded-3xl border-2 border-zinc-200/80 bg-[#FAFAF9] relative overflow-hidden flex flex-col justify-between hover:border-[#2563EB]/40 hover:shadow-xl transition-all duration-300"
+                    className="h-full p-6 sm:p-7 rounded-3xl border-2 border-zinc-200/80 bg-[#FAFAF9] relative overflow-hidden flex flex-col justify-between hover:border-[#2563EB]/40 hover:shadow-xl transition-all duration-300"
                   >
                     <span className="absolute top-4 right-5 font-mono text-5xl sm:text-6xl font-extrabold text-[#0F1E4D]/[0.035] select-none pointer-events-none">
                       {pillar.num}
@@ -564,7 +573,7 @@ export function AccompagnementPage() {
                       <h3 className="premium-font-display text-xl sm:text-2xl font-extrabold text-[#0F1E4D]">
                         {pillar.title}
                       </h3>
-                      <p className="text-sm sm:text-base text-[#0F1E4D]/80 leading-relaxed font-normal">
+                      <p className="text-sm text-[#0F1E4D]/80 leading-relaxed font-normal">
                         {pillar.desc}
                       </p>
                     </div>
@@ -590,33 +599,41 @@ export function AccompagnementPage() {
             {[
               {
                 num: "01",
-                day: 'Jour 1 & 2',
-                title: 'Conception & Génération du Produit Digital',
-                desc: 'Définissez votre offre idéale et générez votre produit digital (guide PDF, templates, ou supports de cours) grâce à une série de prompts d\'IA ciblés.',
-                output: 'Produit digital finalisé & rédigé',
-                icon: FileText,
+                day: 'Jour 1',
+                title: 'Phase 1 : Validation de l\'Idée & Positionnement',
+                desc: 'Formulation de l\'idée, étude de marché express assistée par l\'IA et définition d\'une offre digitale irrésistible et positionnée pour votre cible.',
+                output: 'Idée & Offre validées',
+                icon: Lightbulb,
               },
               {
                 num: "02",
-                day: 'Jour 3',
-                title: 'Configuration de la Boutique & des Paiements',
-                desc: 'Mise en place de votre page de vente autonome. Liaison des moyens de paiement (Mobile Money, Stripe) pour automatiser la livraison du produit.',
-                output: 'Boutique & paiement 100% opérationnels',
-                icon: ShoppingBag,
+                day: 'Jour 2',
+                title: 'Phase 2 : Création du Produit Digital',
+                desc: 'Génération intégrale de votre produit digital (e-book, guide d\'action, templates ou supports de cours) avec une suite de prompts IA sur-mesure.',
+                output: 'Produit digital finalisé',
+                icon: Package,
               },
               {
                 num: "03",
-                day: 'Jour 4 & 5',
-                title: 'Lancement de l\'Acquisition & Premiers Prospects',
-                desc: 'Déploiement de votre stratégie de diffusion sur votre réseau et vos canaux de communication. Approche directe des premiers clients intéressés.',
-                output: 'Campagne lancée & premiers prospects',
+                day: 'Jour 3 & 4',
+                title: 'Phase 3 : Visibilité & Stratégie d\'Attraction',
+                desc: 'Mise en place de votre présence digitale, création de contenus magnétiques et activation des canaux d\'acquisition de prospects qualifiés.',
+                output: 'Visibilité & Canaux d\'acquisition prêts',
+                icon: Eye,
+              },
+              {
+                num: "04",
+                day: 'Jour 5',
+                title: 'Phase 4 : Système de Vente & Encaissement',
+                desc: 'Lancement de votre boutique en ligne autonome, configuration des paiements automatiques (Mobile Money, Stripe) et conversion de vos premières ventes.',
+                output: 'Boutique & Ventes en direct',
                 icon: TrendingUp,
               },
             ].map((step, idx) => {
               const StepIcon = step.icon
               return (
                 <div key={idx} className="relative">
-                  {idx < 2 && (
+                  {idx < 3 && (
                     <div className="hidden sm:flex justify-center my-2 relative z-20">
                       <svg className="w-12 h-10 text-[#2563EB]/50" viewBox="0 0 50 40" fill="none">
                         <path d="M 25 0 Q 38 20, 25 35" stroke="currentColor" strokeWidth="2.5" strokeDasharray="4 3" />
