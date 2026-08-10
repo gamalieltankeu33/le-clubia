@@ -41,7 +41,7 @@ export const Route = createFileRoute('/accompagnement')({
   component: AccompagnementPage,
 })
 
-const WHATSAPP_GROUP_URL = 'https://chat.whatsapp.com/IoWHHnNV8mL4bdttTZNnWE?mode=gi_t'
+const WHATSAPP_GROUP_URL = 'https://chat.whatsapp.com/LtTDYyQ2YZVERhAEsGTaJX?mode=gi_t'
 const CHARIOW_PAYMENT_URL = 'https://ekzckmyk.mychariow.shop/prd_wx1lpxcw?draft=true'
 
 const EASE = [0.16, 1, 0.3, 1] as const
