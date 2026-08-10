@@ -44,8 +44,52 @@ export const Route = createFileRoute('/accompagnement')({
 const WHATSAPP_GROUP_URL = 'https://chat.whatsapp.com/IoWHHnNV8mL4bdttTZNnWE?mode=gi_t'
 const CHARIOW_PAYMENT_URL = 'https://ekzckmyk.mychariow.shop/prd_wx1lpxcw?draft=true'
 
-// Session Dates: Tuesday 18 August 2026 to Saturday 22 August 2026
-const CHALLENGE_START_DATE = 'Mardi 18 au Samedi 22 Août 2026'
+const EASE = [0.16, 1, 0.3, 1] as const
+
+/* ─── Custom CSS Injection (Mobile First & Canonical Le Club IA Styling) ─── */
+const styles = `
+  .premium-font-display {
+    font-family: 'Bricolage Grotesque', 'Space Grotesk', 'Inter', sans-serif;
+  }
+  .premium-font-body {
+    font-family: 'Inter', sans-serif;
+  }
+  .premium-font-mono {
+    font-family: 'Geist Mono', monospace;
+  }
+
+  /* Signature serif italique Le Club IA (ex: "rentable.", "produit digital.") */
+  .serif-accent {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-style: italic;
+    color: #2563EB;
+    letter-spacing: -0.01em;
+    font-weight: 400;
+  }
+
+  .premium-grid-overlay {
+    background-image: 
+      linear-gradient(to right, rgba(15, 30, 77, 0.025) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(15, 30, 77, 0.025) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+  @media (min-width: 640px) {
+    .premium-grid-overlay {
+      background-size: 40px 40px;
+    }
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(15, 30, 77, 0.02);
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(37, 99, 235, 0.3);
+    border-radius: 10px;
+  }
+`
 
 
 /* ─── MOBILE-FIRST HIGH-IMPACT PIPELINE STEPPER ANIMATION ─── */
