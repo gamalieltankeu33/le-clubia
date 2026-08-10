@@ -41,7 +41,7 @@ export const Route = createFileRoute('/accompagnement')({
   component: AccompagnementPage,
 })
 
-const WHATSAPP_GROUP_URL = 'https://chat.whatsapp.com/D8g1c1cWjuK1OIgpDdRWFs?mode=gi_t'
+const WHATSAPP_GROUP_URL = 'https://chat.whatsapp.com/IoWHHnNV8mL4bdttTZNnWE?mode=gi_t'
 const CHARIOW_PAYMENT_URL = 'https://ekzckmyk.mychariow.shop/prd_wx1lpxcw?draft=true'
 
 // Session Dates: Tuesday 18 August 2026 to Saturday 22 August 2026
@@ -272,7 +272,7 @@ export function AccompagnementPage() {
               onClick={() => setShowBookingModal(true)}
               className="inline-flex items-center gap-2 px-4 py-2.5 sm:px-6 sm:py-3 bg-[#0F1E4D] hover:bg-[#1E3A8A] text-white rounded-full text-xs sm:text-xs font-bold tracking-wide transition-all duration-200 shadow-md cursor-pointer"
             >
-              <span>Réserver ma place →</span>
+              <span>Rejoindre le groupe VIP →</span>
             </button>
           </div>
         </div>
@@ -329,7 +329,7 @@ export function AccompagnementPage() {
               onClick={() => setShowBookingModal(true)}
               className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4.5 sm:px-10 sm:py-5 bg-[#0F1E4D] hover:bg-[#1E3A8A] text-white rounded-full text-xs sm:text-sm font-extrabold uppercase tracking-wider transition-all duration-200 shadow-2xl hover:scale-[1.02] cursor-pointer"
             >
-              <span>Réserver ma place — 15 000 FCFA</span>
+              <span>Rejoindre le groupe VIP</span>
               <ArrowRight className="w-4 h-4 text-[#60A5FA]" />
             </button>
           </motion.div>
@@ -550,7 +550,7 @@ export function AccompagnementPage() {
               onClick={() => setShowBookingModal(true)}
               className="w-full sm:w-auto px-8 py-4.5 bg-[#2563EB] hover:bg-[#1E3A8A] text-white rounded-full text-xs font-extrabold uppercase tracking-wider transition-all shrink-0 cursor-pointer shadow-xl hover:scale-[1.02]"
             >
-              {isPaymentsOpen ? 'Réserver ma place (15 000 FCFA) →' : 'Rejoindre le groupe VIP (15 000 FCFA) →'}
+              Rejoindre le groupe VIP →
             </button>
           </div>
         </div>
@@ -659,7 +659,7 @@ export function AccompagnementPage() {
         </div>
       </section>
 
-      {/* ── SECTION TARIFICATION (IMPOSING 15 000 FCFA DISPLAY PRICE) ── */}
+      {/* ── SECTION GROUPE VIP ── */}
       <section className="py-16 sm:py-24 bg-white relative z-10 border-b border-zinc-200/50" id="tarification">
         <div className="mx-auto max-w-4xl px-4 sm:px-6">
           <div className="p-8 sm:p-14 rounded-3xl bg-[#0F1E4D] text-white text-center relative overflow-hidden border-2 border-[#2563EB]/40 shadow-2xl">
@@ -667,25 +667,21 @@ export function AccompagnementPage() {
             {/* Session highlight pill */}
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-mono font-extrabold bg-[#2563EB]/25 text-[#60A5FA] uppercase tracking-wider mb-6 border border-[#2563EB]/40 max-w-full">
               <CalendarDays className="w-4 h-4 text-[#60A5FA] shrink-0" />
-              <span>Paiements ouverts ! Sprint : 18 - 22 Août</span>
+              <span>Inscriptions ouvertes • Sprint : 18 - 22 Août</span>
             </div>
 
             <h3 className="premium-font-display text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight">
-              Réservez votre ticket d'accès
+              Rejoignez le Groupe VIP WhatsApp
             </h3>
             <p className="text-sm sm:text-base text-zinc-300 mt-3 font-normal max-w-md mx-auto leading-relaxed">
-              Accès complet aux 5 jours d'accompagnement direct et au groupe d'entraide dédié.
+              Accès complet aux 5 jours d'accompagnement direct et à la communauté d'entraide dédiée.
             </p>
 
-            {/* IMPOSING DISPLAY PRICE FONT */}
-            <div className="my-8 sm:my-10">
-              <div className="text-5xl sm:text-7xl font-extrabold tracking-tight text-white flex items-center justify-center gap-3">
-                <span className="premium-font-display font-extrabold text-white tracking-tight">15 000</span>
-                <span className="text-2xl sm:text-3xl font-extrabold text-[#60A5FA] premium-font-display">FCFA</span>
+            <div className="my-8 sm:my-10 flex flex-col items-center justify-center gap-3">
+              <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#25D366]/20 border border-[#25D366]/40 text-[#25D366] font-mono text-sm font-extrabold">
+                <Users className="w-4 h-4 text-[#25D366]" />
+                <span>Places limitées à 20 participants</span>
               </div>
-              <p className="text-xs text-zinc-400 mt-3 font-mono uppercase tracking-wider font-bold">
-                Tarif unique • Paiement sécurisé
-              </p>
             </div>
 
             <div className="flex flex-col items-center gap-3 sm:gap-4">
@@ -693,12 +689,8 @@ export function AccompagnementPage() {
                 onClick={() => setShowBookingModal(true)}
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-9 py-4.5 sm:px-12 sm:py-5 bg-[#2563EB] hover:bg-[#1E3A8A] text-white rounded-full text-xs sm:text-sm font-extrabold uppercase tracking-wider transition-all duration-200 shadow-2xl cursor-pointer hover:scale-[1.02]"
               >
-                <span>Réserver mon ticket (15 000 FCFA) →</span>
+                <span>Rejoindre le groupe VIP →</span>
               </button>
-              <div className="flex items-center justify-center gap-2 text-xs font-mono text-zinc-400 uppercase tracking-wider font-bold">
-                <Lock className="w-4 h-4 text-[#60A5FA]" />
-                <span>Paiement sécurisé (Stripe & Mobile Money)</span>
-              </div>
             </div>
           </div>
         </div>
@@ -715,8 +707,8 @@ export function AccompagnementPage() {
           <div className="mt-6 sm:mt-8">
             {[
               {
-                q: "Quel est le tarif de participation au challenge ?",
-                a: "L'inscription au challenge intensif de 5 jours coûte 15 000 FCFA (tarif unique tout inclus, incluant 1 mois d'accès au Club IA).",
+                q: "Comment rejoindre le challenge ?",
+                a: "Remplissez simplement le formulaire d'inscription pour être redirigé directement vers le groupe WhatsApp VIP où se déroulera la communauté.",
               },
               {
                 q: "Faut-il avoir des compétences techniques pour participer ?",
@@ -732,7 +724,7 @@ export function AccompagnementPage() {
               },
               {
                 q: "Puis-je participer depuis l'Afrique ou l'Europe ?",
-                a: "Oui. Le programme est accessible partout et nous acceptons les paiements par Mobile Money (Orange Money, Wave, MTN...) ainsi que par carte bancaire (Stripe).",
+                a: "Oui. Le programme et la communauté WhatsApp sont accessibles partout dans le monde sans restriction.",
               }
             ].map((item, idx) => (
               <FAQAccordionItem key={idx} question={item.q} answer={item.a} idx={idx} />
@@ -751,7 +743,7 @@ export function AccompagnementPage() {
             Prêt à <span className="serif-accent">passer le cap ?</span>
           </h2>
           <p className="text-sm sm:text-base text-zinc-300 max-w-md mx-auto leading-relaxed font-normal">
-            Dans 5 jours, vous disposerez d'un système de vente prêt à l'emploi. L'inscription est de 15 000 FCFA.
+            Dans 5 jours, vous disposerez d'un système de vente prêt à l'emploi. Rejoignez le groupe VIP dès maintenant.
           </p>
 
           <div className="pt-2 sm:pt-4 flex flex-col items-center justify-center gap-3.5">
@@ -759,7 +751,7 @@ export function AccompagnementPage() {
               onClick={() => setShowBookingModal(true)}
               className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-9 py-4.5 sm:px-12 sm:py-5 bg-[#2563EB] hover:bg-[#1E3A8A] text-white rounded-full text-xs sm:text-sm font-extrabold uppercase tracking-wider transition-all duration-200 shadow-2xl cursor-pointer"
             >
-              <span>Réserver ma place — 15 000 FCFA →</span>
+              <span>Rejoindre le groupe VIP →</span>
             </button>
             <span className="text-xs font-mono tracking-widest text-zinc-300 uppercase font-bold">
               Prochaine session : Mardi 18 au Samedi 22 Août 2026
@@ -775,7 +767,7 @@ export function AccompagnementPage() {
           
           <div className="flex gap-6 sm:gap-8 text-xs font-mono tracking-wider text-zinc-600 uppercase font-bold">
             <a href="#programme" className="hover:text-[#2563EB] transition-colors">Programme</a>
-            <a href="#tarification" className="hover:text-[#2563EB] transition-colors">Tarif</a>
+            <a href="#tarification" className="hover:text-[#2563EB] transition-colors">Accès VIP</a>
             <a href="#faq" className="hover:text-[#2563EB] transition-colors">FAQ</a>
           </div>
 
@@ -797,13 +789,13 @@ export function AccompagnementPage() {
           >
             <div className="space-y-0.5">
               <div className="text-[10px] font-mono text-[#2563EB] font-extrabold uppercase tracking-wider">18 - 22 AOÛT</div>
-              <div className="text-base font-extrabold font-mono text-[#0F1E4D]">15 000 FCFA</div>
+              <div className="text-xs font-extrabold font-mono text-[#0F1E4D]">GROUPE VIP</div>
             </div>
             <button
               onClick={() => setShowBookingModal(true)}
               className="px-6 py-3.5 bg-[#0F1E4D] text-white rounded-full text-xs font-extrabold uppercase tracking-wider shadow-xl cursor-pointer"
             >
-              Réserver →
+              Rejoindre VIP →
             </button>
           </motion.div>
         )}
@@ -819,27 +811,18 @@ export function AccompagnementPage() {
   )
 }
 
-/* ─── BOOKING MODAL WITH EXPLICIT 15 000 FCFA CONFIRMATION STEP ─── */
+/* ─── BOOKING MODAL (WIZARD FOR DIRECT WHATSAPP VIP GROUP JOINING) ─── */
 interface WizardQuestion {
-  id: 'price_confirm' | 'name' | 'email' | 'country' | 'phone'
+  id: 'name' | 'email' | 'country' | 'phone'
   label: string
   subtitle: string
   placeholder: string
-  type: 'confirm' | 'text' | 'email' | 'tel'
+  type: 'text' | 'email' | 'tel'
   errorMsg: string
   validation: (val: string) => boolean
 }
 
 const WIZARD_QUESTIONS: WizardQuestion[] = [
-  {
-    id: 'price_confirm',
-    label: 'Confirmation du tarif de participation',
-    subtitle: 'La participation au Challenge Sprint Business IA (5 jours intensifs + 1 mois de Club IA) est de 15 000 FCFA.',
-    placeholder: '',
-    type: 'confirm',
-    errorMsg: 'Veuillez accepter le tarif pour continuer.',
-    validation: (val) => val === 'accepted',
-  },
   {
     id: 'name',
     label: 'Quel est votre nom et prénom ?',
@@ -852,7 +835,7 @@ const WIZARD_QUESTIONS: WizardQuestion[] = [
   {
     id: 'email',
     label: 'Quelle est votre adresse e-mail ?',
-    subtitle: 'Pour vous envoyer les accès aux sessions du challenge.',
+    subtitle: 'Pour vous envoyer les accès et rappels des sessions du challenge.',
     placeholder: 'Ex : jean.dupont@gmail.com',
     type: 'email',
     errorMsg: 'Veuillez renseigner une adresse e-mail valide.',
@@ -861,7 +844,7 @@ const WIZARD_QUESTIONS: WizardQuestion[] = [
   {
     id: 'country',
     label: 'Dans quel pays résidez-vous actuellement ?',
-    subtitle: 'Pour adapter les passerelles de paiement (Mobile Money, Stripe...).',
+    subtitle: 'Pour adapter les horaires et contenus de la communauté.',
     placeholder: 'Ex : Cameroun, Côte d\'Ivoire, France...',
     type: 'text',
     errorMsg: 'Veuillez préciser votre pays de résidence.',
@@ -870,7 +853,7 @@ const WIZARD_QUESTIONS: WizardQuestion[] = [
   {
     id: 'phone',
     label: 'Quel est votre numéro WhatsApp ?',
-    subtitle: 'Indiquez le code pays pour recevoir les rappels en direct.',
+    subtitle: 'Pour vous intégrer directement au groupe VIP de la promotion.',
     placeholder: 'Ex : +237 690 00 00 00',
     type: 'tel',
     errorMsg: 'Veuillez saisir un numéro de téléphone valide.',
@@ -884,7 +867,6 @@ function BookingModal({ isPaymentsOpen, onClose }: { isPaymentsOpen: boolean; on
   const [success, setSuccess] = useState(false)
   
   const [formData, setFormData] = useState({
-    price_confirm: 'accepted',
     name: '',
     email: '',
     country: '',
@@ -894,7 +876,7 @@ function BookingModal({ isPaymentsOpen, onClose }: { isPaymentsOpen: boolean; on
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
-    if (inputRef.current && WIZARD_QUESTIONS[currentStep].type !== 'confirm') {
+    if (inputRef.current) {
       inputRef.current.focus()
     }
   }, [currentStep, success])
@@ -911,7 +893,7 @@ function BookingModal({ isPaymentsOpen, onClose }: { isPaymentsOpen: boolean; on
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Enter' && currentQuestion.type !== 'confirm') {
+      if (e.key === 'Enter') {
         e.preventDefault()
         handleNext()
       }
@@ -948,7 +930,7 @@ function BookingModal({ isPaymentsOpen, onClose }: { isPaymentsOpen: boolean; on
       const prenom = parts[0] || ''
       const nom = parts.slice(1).join(' ') || 'Participant'
 
-      const redirectDestination = isPaymentsOpen ? CHARIOW_PAYMENT_URL : WHATSAPP_GROUP_URL
+      const redirectDestination = WHATSAPP_GROUP_URL
 
       const { error } = await supabase.from('accompagnement_candidatures').insert([
         {
@@ -958,21 +940,21 @@ function BookingModal({ isPaymentsOpen, onClose }: { isPaymentsOpen: boolean; on
           telephone: formData.phone.trim(),
           pays: formData.country.trim(),
           projet_type: 'Blueprint Business IA',
-          projet_ia: isPaymentsOpen ? 'Sprint Business IA - Direct Checkout' : 'Sprint Business IA - VIP Waiting Group',
+          projet_ia: 'Sprint Business IA - Inscription VIP WhatsApp',
           projet_raison: 'Sprint Business IA Challenge',
-          projet_blocage: isPaymentsOpen ? 'Paiement direct Chariow' : 'Attente ouverture Lundi 18h',
+          projet_blocage: 'Attente démarrage session',
           deja_essaie: false,
-          deja_essaie_details: isPaymentsOpen ? 'Redirection Chariow' : 'Groupe WhatsApp d\'attente VIP',
-          statut_actuel: isPaymentsOpen ? 'Paiement en cours' : 'Liste d\'attente VIP WhatsApp',
+          deja_essaie_details: 'Groupe WhatsApp VIP',
+          statut_actuel: 'Membre Groupe VIP WhatsApp',
           heures_semaine: '10+ heures',
           objectif_12m: 'Lancer un business rentable grâce à l\'IA',
-          pret_investir: 'Oui (15 000 FCFA)',
-          budget: '15 000 FCFA',
+          pret_investir: 'Oui',
+          budget: 'VIP Group Member',
           candidat_raison: 'Blueprint Business IA Registration',
           score: 20,
           qualified: true,
           is_western: false,
-          notes: isPaymentsOpen ? 'Redirigé vers Chariow Checkout' : 'Inscrit sur la liste d\'attente VIP WhatsApp (Tarif 15k confirme)'
+          notes: 'Inscrit via le formulaire web - Redirigé vers Groupe VIP WhatsApp'
         }
       ])
 
@@ -983,7 +965,7 @@ function BookingModal({ isPaymentsOpen, onClose }: { isPaymentsOpen: boolean; on
       setSuccess(true)
       confetti({ particleCount: 120, spread: 80, origin: { y: 0.5 } })
 
-      // Auto redirect after 1.5 seconds to WhatsApp Group or Chariow Checkout
+      // Auto redirect after 1.5 seconds to WhatsApp Group
       setTimeout(() => {
         window.location.href = redirectDestination
       }, 1500)
@@ -1053,89 +1035,58 @@ function BookingModal({ isPaymentsOpen, onClose }: { isPaymentsOpen: boolean; on
                     </p>
                   </div>
 
-                  {/* PRICE CONFIRMATION STEP WITH OUI / NON BUTTONS */}
-                  {currentQuestion.type === 'confirm' ? (
-                    <div className="pt-3 space-y-3">
-                      <div className="p-4 rounded-2xl bg-[#2563EB]/10 border-2 border-[#2563EB]/30 flex items-center justify-between">
-                        <span className="text-xs sm:text-sm font-bold text-[#0F1E4D]">Tarif Challenge (5 Jours)</span>
-                        <span className="premium-font-display text-xl font-extrabold text-[#2563EB]">15 000 FCFA</span>
-                      </div>
-                      
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setFormData({ ...formData, price_confirm: 'accepted' })
-                            setCurrentStep(1)
-                          }}
-                          className="w-full flex items-center justify-center gap-2 p-4 bg-[#2563EB] hover:bg-[#1E3A8A] text-white rounded-2xl text-xs font-extrabold uppercase tracking-wider transition-all cursor-pointer shadow-md"
-                        >
-                          <Check className="w-4 h-4 text-emerald-300" />
-                          <span>Oui, je confirme</span>
-                        </button>
-                        
-                        <button
-                          type="button"
-                          onClick={onClose}
-                          className="w-full flex items-center justify-center gap-2 p-4 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-2xl text-xs font-bold transition-all cursor-pointer"
-                        >
-                          <span>Non, annuler</span>
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="pt-2">
-                      <input
-                        ref={inputRef}
-                        type={currentQuestion.type}
-                        placeholder={currentQuestion.placeholder}
-                        value={formData[currentQuestion.id as keyof typeof formData]}
-                        onChange={(e) => setFormData({ ...formData, [currentQuestion.id]: e.target.value })}
-                        className="w-full bg-transparent border-b-2 border-zinc-200 focus:border-[#2563EB] py-3 text-base sm:text-lg font-semibold outline-none transition-colors placeholder:text-zinc-300"
-                        autoFocus
-                      />
-                    </div>
-                  )}
+                  <div className="pt-2">
+                    <input
+                      ref={inputRef}
+                      type={currentQuestion.type}
+                      placeholder={currentQuestion.placeholder}
+                      value={formData[currentQuestion.id as keyof typeof formData]}
+                      onChange={(e) => setFormData({ ...formData, [currentQuestion.id]: e.target.value })}
+                      className="w-full bg-transparent border-b-2 border-zinc-200 focus:border-[#2563EB] py-3 text-base sm:text-lg font-semibold outline-none transition-colors placeholder:text-zinc-300"
+                      autoFocus
+                    />
+                  </div>
                 </motion.div>
               </AnimatePresence>
             </div>
 
             {/* Wizard Actions Footer */}
-            {currentQuestion.type !== 'confirm' && (
-              <div className="px-6 py-4.5 sm:px-8 sm:py-5 bg-zinc-50 flex items-center justify-between border-t border-zinc-200">
-                <button
-                  type="button"
-                  onClick={handlePrev}
-                  className="inline-flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-[#0F1E4D]/60 hover:text-[#0F1E4D] transition-all cursor-pointer"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                  <span>Précédent</span>
-                </button>
+            <div className="px-6 py-4.5 sm:px-8 sm:py-5 bg-zinc-50 flex items-center justify-between border-t border-zinc-200">
+              <button
+                type="button"
+                onClick={handlePrev}
+                disabled={currentStep === 0}
+                className={`inline-flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider transition-all ${
+                  currentStep === 0 ? 'opacity-40 cursor-not-allowed text-zinc-400' : 'text-[#0F1E4D]/60 hover:text-[#0F1E4D] cursor-pointer'
+                }`}
+              >
+                <ChevronLeft className="w-4 h-4" />
+                <span>Précédent</span>
+              </button>
 
-                <button
-                  type="button"
-                  onClick={handleNext}
-                  disabled={loading}
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-[#0F1E4D] hover:bg-[#1E3A8A] text-white rounded-full text-xs font-extrabold uppercase tracking-wider transition-all cursor-pointer shadow-md"
-                >
-                  {loading ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      <span>Enregistrement...</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>
-                        {currentStep === WIZARD_QUESTIONS.length - 1
-                          ? (isPaymentsOpen ? 'Procéder au paiement' : 'Rejoindre le groupe VIP')
-                          : 'Continuer'}
-                      </span>
-                      <ArrowRight className="w-4 h-4 text-[#60A5FA]" />
-                    </>
-                  )}
-                </button>
-              </div>
-            )}
+              <button
+                type="button"
+                onClick={handleNext}
+                disabled={loading}
+                className="inline-flex items-center gap-2 px-6 py-3 bg-[#0F1E4D] hover:bg-[#1E3A8A] text-white rounded-full text-xs font-extrabold uppercase tracking-wider transition-all cursor-pointer shadow-md"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Enregistrement...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>
+                      {currentStep === WIZARD_QUESTIONS.length - 1
+                        ? 'Rejoindre le groupe VIP'
+                        : 'Continuer'}
+                    </span>
+                    <ArrowRight className="w-4 h-4 text-[#60A5FA]" />
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         ) : (
           /* REDIRECT SUCCESS STATE */
@@ -1145,38 +1096,25 @@ function BookingModal({ isPaymentsOpen, onClose }: { isPaymentsOpen: boolean; on
             </div>
             <div className="space-y-2">
               <h3 className="premium-font-display text-xl sm:text-2xl font-extrabold text-[#0F1E4D]">
-                {isPaymentsOpen ? 'Informations enregistrées !' : 'Place pré-réservée avec succès !'}
+                Inscription réussie !
               </h3>
               <p className="text-xs sm:text-sm text-[#0F1E4D]/80 leading-relaxed max-w-xs mx-auto font-normal">
-                Félicitations <strong>{formData.name}</strong> ! Tarif validé (15 000 FCFA).{' '}
-                {isPaymentsOpen
-                  ? 'Redirection automatique vers la page de paiement sécurisée Chariow...'
-                  : 'Les ouvertures officielles débutent Lundi à 18h. Rejoignez le groupe WhatsApp d\'attente VIP pour recevoir votre lien prioritaire.'}
+                Félicitations <strong>{formData.name}</strong> ! Votre inscription est enregistrée. Vous allez être redirigé vers le groupe WhatsApp VIP...
               </p>
               <p className="text-xs text-[#2563EB] font-extrabold animate-pulse font-mono uppercase tracking-wider pt-2">
-                Redirection automatique en cours...
+                Redirection automatique vers WhatsApp...
               </p>
             </div>
             <div className="pt-2">
-              {isPaymentsOpen ? (
-                <a
-                  href={CHARIOW_PAYMENT_URL}
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-7 py-4 bg-[#2563EB] hover:bg-[#1E3A8A] text-white rounded-full text-xs font-extrabold uppercase tracking-wider transition-all shadow-xl hover:scale-[1.02]"
-                >
-                  <CreditCard className="w-4 h-4" />
-                  <span>Payer mon ticket (15 000 FCFA) →</span>
-                </a>
-              ) : (
-                <a
-                  href={WHATSAPP_GROUP_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-7 py-4 bg-[#25D366] hover:bg-[#1FAA50] text-white rounded-full text-xs font-extrabold uppercase tracking-wider transition-all shadow-xl hover:scale-[1.02]"
-                >
-                  <MessageSquare className="w-4 h-4" />
-                  <span>Rejoindre le Groupe WhatsApp VIP →</span>
-                </a>
-              )}
+              <a
+                href={WHATSAPP_GROUP_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-7 py-4 bg-[#25D366] hover:bg-[#1FAA50] text-white rounded-full text-xs font-extrabold uppercase tracking-wider transition-all shadow-xl hover:scale-[1.02]"
+              >
+                <MessageSquare className="w-4 h-4" />
+                <span>Rejoindre le Groupe WhatsApp VIP →</span>
+              </a>
             </div>
           </div>
         )}
