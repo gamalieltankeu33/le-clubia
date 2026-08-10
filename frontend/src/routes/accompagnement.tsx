@@ -44,137 +44,9 @@ export const Route = createFileRoute('/accompagnement')({
 const WHATSAPP_GROUP_URL = 'https://chat.whatsapp.com/D8g1c1cWjuK1OIgpDdRWFs?mode=gi_t'
 const CHARIOW_PAYMENT_URL = 'https://ekzckmyk.mychariow.shop/prd_wx1lpxcw?draft=true'
 
-// Opening Date: Monday 10 August 2026 at 18:00
-const MONDAY_OPENING_DATE = new Date('2026-08-10T18:00:00')
-// Closing Date: Tuesday 11 August 2026 at 23:59
-const TUESDAY_CLOSING_DATE = new Date('2026-08-11T23:59:59')
+// Session Dates: Tuesday 18 August 2026 to Saturday 22 August 2026
+const CHALLENGE_START_DATE = 'Mardi 18 au Samedi 22 Août 2026'
 
-/* ─── Custom CSS Injection (Mobile First & Canonical Le Club IA Styling) ─── */
-const styles = `
-  .premium-font-display {
-    font-family: 'Bricolage Grotesque', 'Space Grotesk', 'Inter', sans-serif;
-  }
-  .premium-font-body {
-    font-family: 'Inter', sans-serif;
-  }
-  .premium-font-mono {
-    font-family: 'Geist Mono', monospace;
-  }
-
-  /* Signature serif italique Le Club IA (ex: "rentable.", "produit digital.") */
-  .serif-accent {
-    font-family: 'Instrument Serif', Georgia, serif;
-    font-style: italic;
-    color: #2563EB;
-    letter-spacing: -0.01em;
-    font-weight: 400;
-  }
-
-  .premium-grid-overlay {
-    background-image: 
-      linear-gradient(to right, rgba(15, 30, 77, 0.025) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(15, 30, 77, 0.025) 1px, transparent 1px);
-    background-size: 32px 32px;
-  }
-  @media (min-width: 640px) {
-    .premium-grid-overlay {
-      background-size: 40px 40px;
-    }
-  }
-
-  .custom-scrollbar::-webkit-scrollbar {
-    width: 4px;
-  }
-  .custom-scrollbar::-webkit-scrollbar-track {
-    background: rgba(15, 30, 77, 0.02);
-  }
-  .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: rgba(37, 99, 235, 0.3);
-    border-radius: 10px;
-  }
-`
-
-const EASE = [0.16, 1, 0.3, 1] as const
-
-/* ─── TIME LEFT HELPER ─── */
-function calculateTimeLeft(targetDate: Date) {
-  const difference = +targetDate - +new Date()
-  if (difference <= 0) {
-    return { days: 0, hours: 0, minutes: 0, seconds: 0, isExpired: true }
-  }
-  return {
-    days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-    hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
-    minutes: Math.floor((difference / 1000 / 60) % 60),
-    seconds: Math.floor((difference / 1000) % 60),
-    isExpired: false
-  }
-}
-
-/* ─── HIGH-END TIMER COMPONENT (IMPOSING MOBILE NUMBERS & BADGES) ─── */
-function OfficialCountdownTimer({ isPaymentsOpen }: { isPaymentsOpen: boolean }) {
-  const targetDate = isPaymentsOpen ? TUESDAY_CLOSING_DATE : MONDAY_OPENING_DATE
-  const [timeLeft, setTimeLeft] = useState(calculateTimeLeft(targetDate))
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft(calculateTimeLeft(targetDate))
-    }, 1000)
-    return () => clearInterval(timer)
-  }, [targetDate])
-
-  return (
-    <div className="w-full max-w-xl mx-auto my-6 sm:my-8 p-6 sm:p-8 rounded-3xl bg-[#0F1E4D] border-2 border-[#2563EB]/40 shadow-2xl text-white relative overflow-hidden">
-      {/* Decorative background glow */}
-      <div className="absolute -top-12 -right-12 w-40 h-40 rounded-full bg-[#2563EB]/25 blur-2xl pointer-events-none" />
-
-      {/* Top Bar with Icon & Explicit Price Tag */}
-      <div className="flex flex-wrap items-center justify-between gap-3 mb-5 pb-4 border-b border-white/10 relative z-10">
-        <div className="flex items-center gap-2">
-          <Clock className="w-4 h-4 text-[#60A5FA] shrink-0" />
-          <span className="text-xs sm:text-xs font-mono font-extrabold uppercase tracking-wider text-[#60A5FA]">
-            {isPaymentsOpen ? 'FERMETURE DES RÉSERVATIONS DANS :' : 'OUVERTURE DES INSCRIPTIONS DANS :'}
-          </span>
-        </div>
-        <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#2563EB]/30 border border-[#2563EB]/60 text-white font-mono text-xs font-extrabold shadow-sm">
-          <Tag className="w-3.5 h-3.5 text-[#60A5FA]" />
-          <span>Frais : 15 000 FCFA</span>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-4 gap-2.5 sm:gap-4 text-center relative z-10">
-        {/* Jours */}
-        <div className="bg-white/10 backdrop-blur-md p-3.5 sm:p-4 rounded-2xl border border-white/10 flex flex-col justify-center shadow-xs">
-          <div className="premium-font-display text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-            {String(timeLeft.days).padStart(2, '0')}
-          </div>
-          <div className="text-[10px] sm:text-xs font-mono font-bold text-zinc-300 uppercase tracking-widest mt-1">Jours</div>
-        </div>
-        {/* Heures */}
-        <div className="bg-white/10 backdrop-blur-md p-3.5 sm:p-4 rounded-2xl border border-white/10 flex flex-col justify-center shadow-xs">
-          <div className="premium-font-display text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-            {String(timeLeft.hours).padStart(2, '0')}
-          </div>
-          <div className="text-[10px] sm:text-xs font-mono font-bold text-zinc-300 uppercase tracking-widest mt-1">Heures</div>
-        </div>
-        {/* Minutes */}
-        <div className="bg-white/10 backdrop-blur-md p-3.5 sm:p-4 rounded-2xl border border-white/10 flex flex-col justify-center shadow-xs">
-          <div className="premium-font-display text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-            {String(timeLeft.minutes).padStart(2, '0')}
-          </div>
-          <div className="text-[10px] sm:text-xs font-mono font-bold text-zinc-300 uppercase tracking-widest mt-1">Min</div>
-        </div>
-        {/* Secondes */}
-        <div className="bg-white/10 backdrop-blur-md p-3.5 sm:p-4 rounded-2xl border border-white/10 flex flex-col justify-center shadow-xs">
-          <div className="premium-font-display text-3xl sm:text-4xl font-extrabold text-[#60A5FA] tracking-tight">
-            {String(timeLeft.seconds).padStart(2, '0')}
-          </div>
-          <div className="text-[10px] sm:text-xs font-mono font-bold text-zinc-300 uppercase tracking-widest mt-1">Sec</div>
-        </div>
-      </div>
-    </div>
-  )
-}
 
 /* ─── MOBILE-FIRST HIGH-IMPACT PIPELINE STEPPER ANIMATION ─── */
 function LiveWorkflowAnimation() {
@@ -338,22 +210,7 @@ function FAQAccordionItem({ question, answer, idx }: { question: string; answer:
 export function AccompagnementPage() {
   const [showBookingModal, setShowBookingModal] = useState(false)
   const [showStickyCTA, setShowStickyCTA] = useState(false)
-  const [isPaymentsOpen, setIsPaymentsOpen] = useState(false)
-
-  // Check if today is past Monday opening date
-  useEffect(() => {
-    const checkStatus = () => {
-      const now = new Date()
-      if (now >= MONDAY_OPENING_DATE) {
-        setIsPaymentsOpen(true)
-      } else {
-        setIsPaymentsOpen(false)
-      }
-    }
-    checkStatus()
-    const interval = setInterval(checkStatus, 5000)
-    return () => clearInterval(interval)
-  }, [])
+  const [isPaymentsOpen] = useState(true)
 
   // Initialize Lenis smooth scrolling safely
   useEffect(() => {
@@ -415,7 +272,7 @@ export function AccompagnementPage() {
               onClick={() => setShowBookingModal(true)}
               className="inline-flex items-center gap-2 px-4 py-2.5 sm:px-6 sm:py-3 bg-[#0F1E4D] hover:bg-[#1E3A8A] text-white rounded-full text-xs sm:text-xs font-bold tracking-wide transition-all duration-200 shadow-md cursor-pointer"
             >
-              <span>{isPaymentsOpen ? 'Réserver ma place →' : 'Rejoindre VIP →'}</span>
+              <span>Réserver ma place →</span>
             </button>
           </div>
         </div>
@@ -439,7 +296,7 @@ export function AccompagnementPage() {
               </span>
             </div>
             <span className="premium-font-display text-xs sm:text-sm font-extrabold text-[#0F1E4D]">
-              Mardi 12 au Samedi 16 Août 2026
+              Mardi 18 au Samedi 22 Août 2026
             </span>
           </motion.div>
 
@@ -461,9 +318,6 @@ export function AccompagnementPage() {
             Un accompagnement intensif de 5 jours guidé étape par étape. Vous repartez avec un produit concret en ligne, un système d'encaissement fonctionnel et une méthode d'acquisition claire.
           </motion.p>
 
-          {/* HIGH-IMPACT COUNTDOWN TIMER WITH EXPLICIT PRICE TAG */}
-          <OfficialCountdownTimer isPaymentsOpen={isPaymentsOpen} />
-
           {/* Action Button (Large & Imposing on Mobile) */}
           <motion.div
             initial={{ opacity: 0, y: 15 }}
@@ -475,7 +329,7 @@ export function AccompagnementPage() {
               onClick={() => setShowBookingModal(true)}
               className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4.5 sm:px-10 sm:py-5 bg-[#0F1E4D] hover:bg-[#1E3A8A] text-white rounded-full text-xs sm:text-sm font-extrabold uppercase tracking-wider transition-all duration-200 shadow-2xl hover:scale-[1.02] cursor-pointer"
             >
-              <span>{isPaymentsOpen ? 'Réserver ma place — 15 000 FCFA' : 'Rejoindre la liste d\'attente (15 000 FCFA)'}</span>
+              <span>Réserver ma place — 15 000 FCFA</span>
               <ArrowRight className="w-4 h-4 text-[#60A5FA]" />
             </button>
           </motion.div>
@@ -813,16 +667,14 @@ export function AccompagnementPage() {
             {/* Session highlight pill */}
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-mono font-extrabold bg-[#2563EB]/25 text-[#60A5FA] uppercase tracking-wider mb-6 border border-[#2563EB]/40 max-w-full">
               <CalendarDays className="w-4 h-4 text-[#60A5FA] shrink-0" />
-              <span>{isPaymentsOpen ? 'Paiements ouverts ! Sprint : 12 - 16 Août' : 'Ouverture Lundi 18h • Sprint : 12 - 16 Août'}</span>
+              <span>Paiements ouverts ! Sprint : 18 - 22 Août</span>
             </div>
 
             <h3 className="premium-font-display text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight">
-              {isPaymentsOpen ? 'Réservez votre ticket d\'accès' : 'Rejoignez le Groupe WhatsApp VIP'}
+              Réservez votre ticket d'accès
             </h3>
             <p className="text-sm sm:text-base text-zinc-300 mt-3 font-normal max-w-md mx-auto leading-relaxed">
-              {isPaymentsOpen
-                ? 'Accès complet aux 5 jours d\'accompagnement direct et au groupe d\'entraide dédié.'
-                : 'Les places sont limitées à 20 participants. Le tarif est de 15 000 FCFA pour l\'ensemble du challenge.'}
+              Accès complet aux 5 jours d'accompagnement direct et au groupe d'entraide dédié.
             </p>
 
             {/* IMPOSING DISPLAY PRICE FONT */}
@@ -832,7 +684,7 @@ export function AccompagnementPage() {
                 <span className="text-2xl sm:text-3xl font-extrabold text-[#60A5FA] premium-font-display">FCFA</span>
               </div>
               <p className="text-xs text-zinc-400 mt-3 font-mono uppercase tracking-wider font-bold">
-                {isPaymentsOpen ? 'Tarif unique • Paiement sécurisé' : 'Tarif unique • Ouverture des paiements Lundi'}
+                Tarif unique • Paiement sécurisé
               </p>
             </div>
 
@@ -841,7 +693,7 @@ export function AccompagnementPage() {
                 onClick={() => setShowBookingModal(true)}
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-9 py-4.5 sm:px-12 sm:py-5 bg-[#2563EB] hover:bg-[#1E3A8A] text-white rounded-full text-xs sm:text-sm font-extrabold uppercase tracking-wider transition-all duration-200 shadow-2xl cursor-pointer hover:scale-[1.02]"
               >
-                <span>{isPaymentsOpen ? 'Réserver mon ticket (15 000 FCFA) →' : 'Rejoindre la liste VIP (15 000 FCFA) →'}</span>
+                <span>Réserver mon ticket (15 000 FCFA) →</span>
               </button>
               <div className="flex items-center justify-center gap-2 text-xs font-mono text-zinc-400 uppercase tracking-wider font-bold">
                 <Lock className="w-4 h-4 text-[#60A5FA]" />
@@ -872,7 +724,7 @@ export function AccompagnementPage() {
               },
               {
                 q: "Quand ouvrent officiellement les inscriptions ?",
-                a: "Les inscriptions et paiements ouvrent officiellement ce Lundi. En rejoignant le groupe WhatsApp VIP aujourd'hui, vous recevrez votre lien de réservation en avant-première.",
+                a: "Les inscriptions sont ouvertes dès maintenant pour la session du Mardi 18 au Samedi 22 Août 2026 !",
               },
               {
                 q: "Combien de temps dois-je consacrer chaque jour ?",
@@ -907,10 +759,10 @@ export function AccompagnementPage() {
               onClick={() => setShowBookingModal(true)}
               className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-9 py-4.5 sm:px-12 sm:py-5 bg-[#2563EB] hover:bg-[#1E3A8A] text-white rounded-full text-xs sm:text-sm font-extrabold uppercase tracking-wider transition-all duration-200 shadow-2xl cursor-pointer"
             >
-              <span>{isPaymentsOpen ? 'Réserver ma place — 15 000 FCFA →' : 'Rejoindre la liste VIP (15 000 FCFA) →'}</span>
+              <span>Réserver ma place — 15 000 FCFA →</span>
             </button>
             <span className="text-xs font-mono tracking-widest text-zinc-300 uppercase font-bold">
-              Prochaine session : Mardi 12 au Samedi 16 Août 2026
+              Prochaine session : Mardi 18 au Samedi 22 Août 2026
             </span>
           </div>
         </div>
@@ -944,14 +796,14 @@ export function AccompagnementPage() {
             className="fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-md border-t-2 border-zinc-200 p-4 sm:hidden flex items-center justify-between shadow-2xl"
           >
             <div className="space-y-0.5">
-              <div className="text-[10px] font-mono text-[#2563EB] font-extrabold uppercase tracking-wider">12 - 16 AOÛT</div>
+              <div className="text-[10px] font-mono text-[#2563EB] font-extrabold uppercase tracking-wider">18 - 22 AOÛT</div>
               <div className="text-base font-extrabold font-mono text-[#0F1E4D]">15 000 FCFA</div>
             </div>
             <button
               onClick={() => setShowBookingModal(true)}
               className="px-6 py-3.5 bg-[#0F1E4D] text-white rounded-full text-xs font-extrabold uppercase tracking-wider shadow-xl cursor-pointer"
             >
-              {isPaymentsOpen ? 'Réserver →' : 'Rejoindre VIP →'}
+              Réserver →
             </button>
           </motion.div>
         )}
