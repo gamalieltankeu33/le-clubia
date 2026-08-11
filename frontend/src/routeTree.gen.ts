@@ -31,6 +31,7 @@ import { Route as CatalogueIndexRouteImport } from './routes/catalogue.index'
 import { Route as AppIndexRouteImport } from './routes/app/index'
 import { Route as CatalogueIdRouteImport } from './routes/catalogue.$id'
 import { Route as AppProfilRouteImport } from './routes/app/profil'
+import { Route as AppMessagesRouteImport } from './routes/app/messages'
 import { Route as AppEventsRouteImport } from './routes/app/events'
 import { Route as AppDashboardRouteImport } from './routes/app/dashboard'
 import { Route as AppClassementRouteImport } from './routes/app/classement'
@@ -172,6 +173,11 @@ const CatalogueIdRoute = CatalogueIdRouteImport.update({
 const AppProfilRoute = AppProfilRouteImport.update({
   id: '/profil',
   path: '/profil',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMessagesRoute = AppMessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
   getParentRoute: () => AppRoute,
 } as any)
 const AppEventsRoute = AppEventsRouteImport.update({
@@ -359,6 +365,7 @@ export interface FileRoutesByFullPath {
   '/app/classement': typeof AppClassementRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/events': typeof AppEventsRoute
+  '/app/messages': typeof AppMessagesRoute
   '/app/profil': typeof AppProfilRoute
   '/catalogue/$id': typeof CatalogueIdRoute
   '/app/': typeof AppIndexRoute
@@ -412,6 +419,7 @@ export interface FileRoutesByTo {
   '/app/classement': typeof AppClassementRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/events': typeof AppEventsRoute
+  '/app/messages': typeof AppMessagesRoute
   '/app/profil': typeof AppProfilRoute
   '/catalogue/$id': typeof CatalogueIdRoute
   '/app': typeof AppIndexRoute
@@ -469,6 +477,7 @@ export interface FileRoutesById {
   '/app/classement': typeof AppClassementRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/events': typeof AppEventsRoute
+  '/app/messages': typeof AppMessagesRoute
   '/app/profil': typeof AppProfilRoute
   '/catalogue/$id': typeof CatalogueIdRoute
   '/app/': typeof AppIndexRoute
@@ -527,6 +536,7 @@ export interface FileRouteTypes {
     | '/app/classement'
     | '/app/dashboard'
     | '/app/events'
+    | '/app/messages'
     | '/app/profil'
     | '/catalogue/$id'
     | '/app/'
@@ -580,6 +590,7 @@ export interface FileRouteTypes {
     | '/app/classement'
     | '/app/dashboard'
     | '/app/events'
+    | '/app/messages'
     | '/app/profil'
     | '/catalogue/$id'
     | '/app'
@@ -636,6 +647,7 @@ export interface FileRouteTypes {
     | '/app/classement'
     | '/app/dashboard'
     | '/app/events'
+    | '/app/messages'
     | '/app/profil'
     | '/catalogue/$id'
     | '/app/'
@@ -844,6 +856,13 @@ declare module '@tanstack/react-router' {
       path: '/profil'
       fullPath: '/app/profil'
       preLoaderRoute: typeof AppProfilRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/messages': {
+      id: '/app/messages'
+      path: '/messages'
+      fullPath: '/app/messages'
+      preLoaderRoute: typeof AppMessagesRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/events': {
@@ -1125,6 +1144,7 @@ interface AppRouteChildren {
   AppClassementRoute: typeof AppClassementRoute
   AppDashboardRoute: typeof AppDashboardRoute
   AppEventsRoute: typeof AppEventsRoute
+  AppMessagesRoute: typeof AppMessagesRoute
   AppProfilRoute: typeof AppProfilRoute
   AppIndexRoute: typeof AppIndexRoute
   AppActualitesSlugRoute: typeof AppActualitesSlugRoute
@@ -1144,6 +1164,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppClassementRoute: AppClassementRoute,
   AppDashboardRoute: AppDashboardRoute,
   AppEventsRoute: AppEventsRoute,
+  AppMessagesRoute: AppMessagesRoute,
   AppProfilRoute: AppProfilRoute,
   AppIndexRoute: AppIndexRoute,
   AppActualitesSlugRoute: AppActualitesSlugRoute,

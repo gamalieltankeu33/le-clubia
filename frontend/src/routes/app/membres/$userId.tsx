@@ -1,9 +1,10 @@
+import { useState } from 'react'
 import { createFileRoute, Link, useNavigate, useRouter } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale/fr'
-import { ArrowLeft, Pencil } from 'lucide-react'
+import { ArrowLeft, Pencil, MessageSquare } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { AvatarDisplay } from '@/components/avatar-display'
@@ -17,6 +18,7 @@ import { PostCard, type FeedPost } from '@/components/community/post-card'
 import { FeedSkeleton } from '@/components/community/feed-skeleton'
 import { htmlToPlainText } from '@/lib/sanitize-html'
 import { useConfirm } from '@/hooks/use-confirm'
+import { getOrCreateConversation } from '@/lib/direct-messages'
 
 export const Route = createFileRoute('/app/membres/$userId')({
   component: MemberPublicProfilePage,
@@ -71,6 +73,24 @@ function MemberPublicProfilePage() {
   const isMe = currentUser?.id === userId
   const isMonthlyWinner = useIsMonthlyWinner(userId)
   const { confirm, ConfirmDialog } = useConfirm()
+  const [isStartingChat, setIsStartingChat] = useState(false)
+
+  const handleSendMessage = async () => {
+    if (!currentUser) {
+      toast.error('Connectez-vous pour envoyer un message.')
+      return
+    }
+    try {
+      setIsStartingChat(true)
+      const convId = await getOrCreateConversation(currentUser.id, userId)
+      navigate({ to: '/app/messages', search: { conv: convId } })
+    } catch (err) {
+      toast.error('Impossible d’ouvrir la discussion.')
+      console.error(err)
+    } finally {
+      setIsStartingChat(false)
+    }
+  }
 
   const memberQuery = useQuery({
     queryKey: ['member-public', userId],
@@ -220,12 +240,22 @@ function MemberPublicProfilePage() {
                 {format(new Date(p.created_at), 'MMMM yyyy', { locale: fr })}
               </span>
             </div>
-            {isMe && (
+            {isMe ? (
               <Button asChild variant="outline" size="sm" className="mt-4">
                 <Link to="/app/profil">
                   <Pencil className="h-3.5 w-3.5" />
                   Modifier mon profil
                 </Link>
+              </Button>
+            ) : (
+              <Button
+                size="sm"
+                className="mt-4 bg-[var(--primary)] text-white hover:bg-[var(--primary-light)] gap-2 shadow-sm font-medium"
+                onClick={handleSendMessage}
+                disabled={isStartingChat}
+              >
+                <MessageSquare className="h-4 w-4" />
+                {isStartingChat ? 'Ouverture...' : 'Envoyer un message'}
               </Button>
             )}
           </div>

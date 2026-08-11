@@ -3,6 +3,7 @@ import {
   GraduationCap,
   LayoutDashboard,
   Library,
+  MessageSquare,
   MessagesSquare,
   Newspaper,
   Target,
@@ -21,8 +22,10 @@ export const NAV_ITEMS: NavItem[] = [
   { to: '/app/formations', label: 'Formations', icon: GraduationCap },
   { to: '/app/challenges', label: 'Challenge', icon: Target },
   { to: '/app/communaute', label: 'Communauté', icon: MessagesSquare },
+  { to: '/app/messages', label: 'Messagerie', icon: MessageSquare },
   { to: '/app/actualites', label: 'Actualités', icon: Newspaper },
   { to: '/app/ressources', label: 'Ressources', icon: Library },
   { to: '/app/classement', label: 'Classement', icon: Trophy },
   { to: '/app/events', label: 'Événements', icon: Calendar },
 ]
+
