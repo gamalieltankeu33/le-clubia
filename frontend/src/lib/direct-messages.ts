@@ -1,5 +1,5 @@
 import { supabase } from './supabase'
-import { fetchPublicProfile, type PublicProfile } from './public-profile'
+import { fetchPublicProfile } from './public-profile'
 
 export interface DirectMessage {
   id: string
@@ -9,6 +9,7 @@ export interface DirectMessage {
   content: string
   created_at: string
   is_read: boolean
+  is_edited?: boolean
 }
 
 export interface DirectConversation {
@@ -30,7 +31,6 @@ export interface DirectConversation {
 const LOCAL_STORAGE_KEY_CONVS = 'clubia_direct_conversations_v1'
 const LOCAL_STORAGE_KEY_MSGS = 'clubia_direct_messages_v1'
 
-// Helper to get local data
 function getLocalConversations(): any[] {
   try {
     const raw = localStorage.getItem(LOCAL_STORAGE_KEY_CONVS)
@@ -66,7 +66,7 @@ function saveLocalMessages(msgs: DirectMessage[]) {
 }
 
 /**
- * Find or create a conversation between currentUserId and targetUserId
+ * Get or create a conversation between 2 users
  */
 export async function getOrCreateConversation(
   currentUserId: string,
@@ -105,10 +105,10 @@ export async function getOrCreateConversation(
       }
     }
   } catch (e) {
-    console.warn('Supabase DB conversation table not available, using local fallback:', e)
+    console.warn('Supabase DB not available, using local fallback:', e)
   }
 
-  // 2. Fallback Local Storage
+  // 2. Local Storage Fallback
   const localConvs = getLocalConversations()
   let found = localConvs.find(
     (c) =>
@@ -133,7 +133,7 @@ export async function getOrCreateConversation(
 }
 
 /**
- * Fetch all active conversations for a user
+ * Fetch all conversations for current user with unread counts
  */
 export async function fetchUserConversations(
   currentUserId: string,
@@ -143,7 +143,6 @@ export async function fetchUserConversations(
   const results: DirectConversation[] = []
   let rawConvs: any[] = []
 
-  // 1. Try Supabase
   try {
     const { data, error } = await supabase
       .from('direct_conversations' as any)
@@ -155,7 +154,7 @@ export async function fetchUserConversations(
       rawConvs = data
     }
   } catch (e) {
-    console.warn('Supabase conversations fallback to localStorage:', e)
+    console.warn('Supabase convs error:', e)
   }
 
   if (rawConvs.length === 0) {
@@ -165,10 +164,17 @@ export async function fetchUserConversations(
     )
   }
 
-  // Populate profiles
+  // Populate profile info & unread message count
+  const allMsgs = getLocalMessages()
+
   for (const c of rawConvs) {
     const otherId = c.user1_id === currentUserId ? c.user2_id : c.user1_id
     const otherProfile = await fetchPublicProfile(otherId)
+
+    // Calculate unread count
+    const unreadCount = allMsgs.filter(
+      (m) => m.conversation_id === c.id && m.receiver_id === currentUserId && !m.is_read,
+    ).length
 
     results.push({
       id: c.id,
@@ -176,6 +182,7 @@ export async function fetchUserConversations(
       user2_id: c.user2_id,
       last_message_text: c.last_message_text || 'Nouvelle discussion',
       last_message_at: c.last_message_at || c.created_at || new Date().toISOString(),
+      unread_count: unreadCount,
       other_user: {
         id: otherId,
         first_name: otherProfile?.first_name || 'Membre',
@@ -192,14 +199,13 @@ export async function fetchUserConversations(
 }
 
 /**
- * Fetch messages for a specific conversation
+ * Fetch messages for a conversation
  */
 export async function fetchConversationMessages(
   conversationId: string,
 ): Promise<DirectMessage[]> {
   if (!conversationId) return []
 
-  // 1. Try Supabase
   try {
     const { data, error } = await supabase
       .from('direct_messages' as any)
@@ -211,10 +217,9 @@ export async function fetchConversationMessages(
       return data as DirectMessage[]
     }
   } catch (e) {
-    console.warn('Supabase messages fallback to localStorage:', e)
+    console.warn('Supabase msgs error:', e)
   }
 
-  // 2. Fallback Local Storage
   const allLocalMsgs = getLocalMessages()
   return allLocalMsgs
     .filter((m) => m.conversation_id === conversationId)
@@ -222,7 +227,7 @@ export async function fetchConversationMessages(
 }
 
 /**
- * Send a message in a conversation
+ * Send a new message
  */
 export async function sendDirectMessage(
   conversationId: string,
@@ -244,7 +249,6 @@ export async function sendDirectMessage(
     is_read: false,
   }
 
-  // 1. Try Supabase
   try {
     const { data, error } = await supabase
       .from('direct_messages' as any)
@@ -258,7 +262,6 @@ export async function sendDirectMessage(
       .single()
 
     if (!error && data) {
-      // Update last message in conv
       await supabase
         .from('direct_conversations' as any)
         .update({
@@ -273,7 +276,6 @@ export async function sendDirectMessage(
     console.warn('Supabase insert message error, using local fallback:', e)
   }
 
-  // 2. Fallback Local Storage
   const localMsgs = getLocalMessages()
   localMsgs.push(newMsg)
   saveLocalMessages(localMsgs)
@@ -287,4 +289,108 @@ export async function sendDirectMessage(
   }
 
   return newMsg
+}
+
+/**
+ * Edit an existing message
+ */
+export async function updateDirectMessage(
+  messageId: string,
+  newContent: string,
+): Promise<void> {
+  const trimmed = newContent.trim()
+  if (!trimmed) return
+
+  try {
+    await supabase
+      .from('direct_messages' as any)
+      .update({
+        content: trimmed,
+        is_edited: true,
+      })
+      .eq('id', messageId)
+  } catch (e) {
+    console.warn(e)
+  }
+
+  const localMsgs = getLocalMessages()
+  const msgIndex = localMsgs.findIndex((m) => m.id === messageId)
+  if (msgIndex !== -1) {
+    localMsgs[msgIndex].content = trimmed
+    localMsgs[msgIndex].is_edited = true
+    saveLocalMessages(localMsgs)
+  }
+}
+
+/**
+ * Delete a message
+ */
+export async function deleteDirectMessage(messageId: string): Promise<void> {
+  try {
+    await supabase
+      .from('direct_messages' as any)
+      .delete()
+      .eq('id', messageId)
+  } catch (e) {
+    console.warn(e)
+  }
+
+  const localMsgs = getLocalMessages()
+  const filtered = localMsgs.filter((m) => m.id !== messageId)
+  saveLocalMessages(filtered)
+}
+
+/**
+ * Delete an entire conversation
+ */
+export async function deleteConversation(conversationId: string): Promise<void> {
+  try {
+    await supabase
+      .from('direct_messages' as any)
+      .delete()
+      .eq('conversation_id', conversationId)
+
+    await supabase
+      .from('direct_conversations' as any)
+      .delete()
+      .eq('id', conversationId)
+  } catch (e) {
+    console.warn(e)
+  }
+
+  const localMsgs = getLocalMessages().filter((m) => m.conversation_id !== conversationId)
+  saveLocalMessages(localMsgs)
+
+  const localConvs = getLocalConversations().filter((c) => c.id !== conversationId)
+  saveLocalConversations(localConvs)
+}
+
+/**
+ * Mark all messages in a conversation as read
+ */
+export async function markConversationAsRead(
+  conversationId: string,
+  currentUserId: string,
+): Promise<void> {
+  try {
+    await supabase
+      .from('direct_messages' as any)
+      .update({ is_read: true })
+      .eq('conversation_id', conversationId)
+      .eq('receiver_id', currentUserId)
+  } catch (e) {
+    console.warn(e)
+  }
+
+  const localMsgs = getLocalMessages()
+  let changed = false
+  localMsgs.forEach((m) => {
+    if (m.conversation_id === conversationId && m.receiver_id === currentUserId && !m.is_read) {
+      m.is_read = true
+      changed = true
+    }
+  })
+  if (changed) {
+    saveLocalMessages(localMsgs)
+  }
 }
