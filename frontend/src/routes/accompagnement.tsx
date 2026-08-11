@@ -42,7 +42,13 @@ export const Route = createFileRoute('/accompagnement')({
 })
 
 const WHATSAPP_GROUP_URL = 'https://chat.whatsapp.com/LtTDYyQ2YZVERhAEsGTaJX?mode=gi_t'
+const FOUNDER_WHATSAPP_NUMBER = '33744125798'
 const CHARIOW_PAYMENT_URL = 'https://ekzckmyk.mychariow.shop/prd_wx1lpxcw?draft=true'
+
+export function getWhatsAppConfirmationLink(prenom: string): string {
+  const msg = `Bonjour Gamaliel ! Je viens de m'inscrire au Blueprint Business IA (${prenom}). Peux-tu me confirmer si j'ai bien rejoint le groupe VIP WhatsApp ?`
+  return `https://wa.me/${FOUNDER_WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`
+}
 
 const EASE = [0.16, 1, 0.3, 1] as const
 
@@ -974,7 +980,7 @@ function BookingModal({ isPaymentsOpen, onClose }: { isPaymentsOpen: boolean; on
       const prenom = parts[0] || ''
       const nom = parts.slice(1).join(' ') || 'Participant'
 
-      const redirectDestination = WHATSAPP_GROUP_URL
+      const redirectDestination = getWhatsAppConfirmationLink(prenom)
 
       const { error } = await supabase.from('accompagnement_candidatures').insert([
         {
@@ -1143,21 +1149,29 @@ function BookingModal({ isPaymentsOpen, onClose }: { isPaymentsOpen: boolean; on
                 Inscription réussie !
               </h3>
               <p className="text-xs sm:text-sm text-[#0F1E4D]/80 leading-relaxed max-w-xs mx-auto font-normal">
-                Félicitations <strong>{formData.name}</strong> ! Votre inscription est enregistrée. Vous allez être redirigé vers le groupe WhatsApp VIP...
+                Félicitations <strong>{formData.name}</strong> ! Votre inscription au Blueprint IA est enregistrée. Redirection vers WhatsApp...
               </p>
               <p className="text-xs text-[#2563EB] font-extrabold animate-pulse font-mono uppercase tracking-wider pt-2">
-                Redirection automatique vers WhatsApp...
+                Redirection vers le numéro principal WhatsApp...
               </p>
             </div>
-            <div className="pt-2">
+            <div className="pt-3 flex flex-col sm:flex-row items-center justify-center gap-3">
+              <a
+                href={getWhatsAppConfirmationLink(formData.name.split(' ')[0] || 'Participant')}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3.5 bg-[#25D366] hover:bg-[#1FAA50] text-white rounded-full text-xs font-extrabold uppercase tracking-wider transition-all shadow-xl hover:scale-[1.02]"
+              >
+                <MessageSquare className="w-4 h-4" />
+                <span>Message au Fondateur sur WhatsApp →</span>
+              </a>
               <a
                 href={WHATSAPP_GROUP_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-7 py-4 bg-[#25D366] hover:bg-[#1FAA50] text-white rounded-full text-xs font-extrabold uppercase tracking-wider transition-all shadow-xl hover:scale-[1.02]"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3.5 bg-[#0F1E4D] hover:bg-[#1E3A8A] text-white rounded-full text-xs font-extrabold uppercase tracking-wider transition-all shadow-md hover:scale-[1.02]"
               >
-                <MessageSquare className="w-4 h-4" />
-                <span>Rejoindre le Groupe WhatsApp VIP →</span>
+                <span>Groupe VIP WhatsApp →</span>
               </a>
             </div>
           </div>
