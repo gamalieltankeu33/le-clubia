@@ -183,15 +183,15 @@ function AdminDashboardPage() {
     if (periodFilter === 'today') {
       const todayEur = overview?.revenue_today_eur ?? 0
       const todayXof = overview?.revenue_today_xof ?? 0
-      return { eur: todayEur, xof: todayXof, label: "Gains aujourd'hui" }
+      return { eur: todayEur, xof: todayXof, label: "CA Encaissé du jour" }
     }
     const totalEur = filteredFinancials.reduce((sum, item) => sum + item.revenue_eur, 0)
     const totalXof = filteredFinancials.reduce((sum, item) => sum + item.revenue_xof, 0)
     const labels: Record<PeriodFilter, string> = {
-      today: "Gains aujourd'hui",
-      '7d': 'Gains (7 derniers jours)',
-      '30d': 'Gains (30 derniers jours)',
-      '90d': 'Gains (90 derniers jours)',
+      today: "CA Encaissé du jour",
+      '7d': 'CA Encaissé (7 jours)',
+      '30d': 'CA Encaissé (30 jours)',
+      '90d': 'CA Encaissé (90 jours)',
     }
     return { eur: totalEur, xof: totalXof, label: labels[periodFilter] }
   }, [filteredFinancials, periodFilter, overview])
@@ -214,7 +214,7 @@ function AdminDashboardPage() {
             </h1>
           </div>
           <p className="mt-2 text-[var(--muted-foreground)] first-letter:capitalize">
-            {today} — vue d'ensemble du Club.
+            {today} — vue d'ensemble et chiffre d'affaires du Club.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
@@ -225,7 +225,7 @@ function AdminDashboardPage() {
             </span>
             {(
               [
-                { id: 'today', label: "Aujourd'hui" },
+                { id: 'today', label: "Aujourd'hui (CA du jour)" },
                 { id: '7d', label: '7 jours' },
                 { id: '30d', label: '30 jours' },
                 { id: '90d', label: '90 jours' },
@@ -273,14 +273,25 @@ function AdminDashboardPage() {
 
       {/* KPIs */}
       <section className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {/* KPI 1 : CA Encaissé du jour (Permanent) */}
         <KpiCard
           icon={Coins}
-          label={periodRevenue.label}
-          valueDisplay={`${periodRevenue.eur.toLocaleString('fr-FR')} €`}
-          subtext={`${periodRevenue.xof.toLocaleString('fr-FR')} FCFA`}
+          label="CA Encaissé du jour"
+          valueDisplay={`${(overview?.revenue_today_eur ?? 0).toLocaleString('fr-FR')} €`}
+          subtext={`${(overview?.revenue_today_xof ?? 0).toLocaleString('fr-FR')} FCFA · Encaissés aujourd'hui`}
           highlight
           loading={query.isLoading}
         />
+        {/* KPI 2 : CA sur la période sélectionnée */}
+        {periodFilter !== 'today' && (
+          <KpiCard
+            icon={Coins}
+            label={periodRevenue.label}
+            valueDisplay={`${periodRevenue.eur.toLocaleString('fr-FR')} €`}
+            subtext={`${periodRevenue.xof.toLocaleString('fr-FR')} FCFA sur la période`}
+            loading={query.isLoading}
+          />
+        )}
         <KpiCard
           icon={Users}
           label="Membres totaux"
