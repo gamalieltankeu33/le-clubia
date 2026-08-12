@@ -61,10 +61,12 @@ serve(async (req) => {
     todayStart.setUTCHours(0, 0, 0, 0)
     const sevenDaysAgo = new Date(Date.now() - 7 * 86400 * 1000)
     const thirtyDaysAgo = new Date(Date.now() - 30 * 86400 * 1000)
+    const ninetyDaysAgo = new Date(Date.now() - 90 * 86400 * 1000)
 
     const todayIso = todayStart.toISOString()
     const sevenDaysAgoIso = sevenDaysAgo.toISOString()
     const thirtyDaysAgoIso = thirtyDaysAgo.toISOString()
+    const ninetyDaysAgoIso = ninetyDaysAgo.toISOString()
 
     const [
       membersTotalRes,
@@ -88,6 +90,8 @@ serve(async (req) => {
       mrrRes,
       learningEngagementRes,
       inactiveMembersRes,
+      pricingPlansRes,
+      subscriptions90dRes,
     ] = await Promise.all([
       sb.from('profiles').select('*', { count: 'exact', head: true }),
       sb
@@ -159,6 +163,13 @@ serve(async (req) => {
       sb.rpc('get_admin_learning_engagement'),
       // Membres inactifs (cf. 0031)
       sb.rpc('get_admin_inactive_members'),
+      // Pricing plans pour calcul des gains
+      sb.from('pricing_plans').select('id, price_xof'),
+      // Subscriptions sur 90 jours pour le filtre journalier et gains
+      sb
+        .from('subscriptions')
+        .select('created_at, plan_id, status')
+        .gte('created_at', ninetyDaysAgoIso),
     ])
 
     const membersTotal = membersTotalRes.count ?? 0
@@ -206,6 +217,56 @@ serve(async (req) => {
     }
     const signups_30d = Array.from(dayCounts.entries())
       .map(([date, count]) => ({ date, count }))
+      .sort((a, b) => a.date.localeCompare(b.date))
+
+    // Pricing plans map (id -> price_xof)
+    const planPrices = new Map<string, number>()
+    for (const p of pricingPlansRes.data ?? []) {
+      if (p.id && p.price_xof != null) {
+        planPrices.set(p.id as string, Number(p.price_xof))
+      }
+    }
+    // Fallbacks
+    if (!planPrices.has('annual')) planPrices.set('annual', 120000)
+    if (!planPrices.has('semestrial')) planPrices.set('semestrial', 65000)
+    if (!planPrices.has('trimestrial')) planPrices.set('trimestrial', 35000)
+    if (!planPrices.has('member')) planPrices.set('member', 120000)
+
+    // Structuration daily_financials_90d (90 derniers jours)
+    const dailyFinMap = new Map<
+      string,
+      { count: number; revenue_xof: number; revenue_eur: number }
+    >()
+    for (let i = 0; i < 90; i++) {
+      const d = new Date(ninetyDaysAgo.getTime() + i * 86400 * 1000)
+      dailyFinMap.set(ymd(d), { count: 0, revenue_xof: 0, revenue_eur: 0 })
+    }
+
+    let revenue_today_xof = 0
+    let revenue_today_eur = 0
+
+    for (const sub of subscriptions90dRes.data ?? []) {
+      if (!sub.created_at) continue
+      const subDate = new Date(sub.created_at as string)
+      const key = ymd(subDate)
+      const priceXof = planPrices.get((sub.plan_id as string) ?? 'annual') ?? 0
+      const priceEur = Math.round(priceXof / XOF_PER_EUR)
+
+      if (dailyFinMap.has(key)) {
+        const cur = dailyFinMap.get(key)!
+        cur.count += 1
+        cur.revenue_xof += priceXof
+        cur.revenue_eur += priceEur
+      }
+
+      if (subDate >= todayStart) {
+        revenue_today_xof += priceXof
+        revenue_today_eur += priceEur
+      }
+    }
+
+    const daily_financials_90d = Array.from(dailyFinMap.entries())
+      .map(([date, data]) => ({ date, ...data }))
       .sort((a, b) => a.date.localeCompare(b.date))
 
     // interests_distribution
@@ -326,6 +387,8 @@ serve(async (req) => {
         members_active_7d: membersActive7d,
         subscriptions_active: subsActive,
         mrr_estimate_eur: mrrEur,
+        revenue_today_eur: revenue_today_eur,
+        revenue_today_xof: revenue_today_xof,
         posts_total: postsTotal,
         posts_today: postsToday,
         formations_published: formationsPub,
@@ -340,6 +403,7 @@ serve(async (req) => {
         top_formations: learningEngagementRes.data?.top_formations ?? [],
       },
       signups_30d,
+      daily_financials_90d,
       interests_distribution,
       top_formations_categories,
       recent_signups,

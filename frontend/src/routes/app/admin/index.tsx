@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
@@ -7,6 +7,8 @@ import { fr } from 'date-fns/locale/fr'
 import {
   Activity,
   ArrowRight,
+  Calendar,
+  Coins,
   CreditCard,
   GraduationCap,
   LayoutDashboard,
@@ -22,6 +24,8 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import {
+  Area,
+  AreaChart,
   Bar,
   BarChart,
   CartesianGrid,
@@ -41,12 +45,16 @@ export const Route = createFileRoute('/app/admin/')({
   component: AdminDashboardPage,
 })
 
+type PeriodFilter = 'today' | '7d' | '30d' | '90d'
+
 interface OverviewStats {
   members_total: number
   members_today: number
   members_active_7d: number
   subscriptions_active: number
   mrr_estimate_eur: number
+  revenue_today_eur?: number
+  revenue_today_xof?: number
   posts_total: number
   posts_today: number
   formations_published: number
@@ -62,10 +70,18 @@ interface LearningEngagement {
   top_formations: { name: string; completions: number }[]
 }
 
+interface DailyFinancialItem {
+  date: string
+  count: number
+  revenue_xof: number
+  revenue_eur: number
+}
+
 interface AdminStatsPayload {
   overview: OverviewStats
   learning_engagement: LearningEngagement
   signups_30d: { date: string; count: number }[]
+  daily_financials_90d?: DailyFinancialItem[]
   interests_distribution: { interest: string; count: number }[]
   top_formations_categories: { category: string; completions: number }[]
   recent_signups: {
@@ -121,6 +137,8 @@ async function fetchAdminStats(): Promise<AdminStatsPayload> {
 }
 
 function AdminDashboardPage() {
+  const [periodFilter, setPeriodFilter] = useState<PeriodFilter>('30d')
+
   const query = useQuery({
     queryKey: ['admin-stats'],
     queryFn: fetchAdminStats,
@@ -148,6 +166,36 @@ function AdminDashboardPage() {
       })
     : null
 
+  // Filtrage des données journalières financières selon la période sélectionnée
+  const filteredFinancials = useMemo(() => {
+    if (!query.data?.daily_financials_90d) return []
+    const list = query.data.daily_financials_90d
+    const todayStr = new Date().toISOString().slice(0, 10)
+    if (periodFilter === 'today') {
+      return list.filter((item) => item.date === todayStr)
+    }
+    const days = periodFilter === '7d' ? 7 : periodFilter === '30d' ? 30 : 90
+    return list.slice(-days)
+  }, [query.data, periodFilter])
+
+  // Calcul des gains cumulés sur la période sélectionnée
+  const periodRevenue = useMemo(() => {
+    if (periodFilter === 'today') {
+      const todayEur = overview?.revenue_today_eur ?? 0
+      const todayXof = overview?.revenue_today_xof ?? 0
+      return { eur: todayEur, xof: todayXof, label: "Gains aujourd'hui" }
+    }
+    const totalEur = filteredFinancials.reduce((sum, item) => sum + item.revenue_eur, 0)
+    const totalXof = filteredFinancials.reduce((sum, item) => sum + item.revenue_xof, 0)
+    const labels: Record<PeriodFilter, string> = {
+      today: "Gains aujourd'hui",
+      '7d': 'Gains (7 derniers jours)',
+      '30d': 'Gains (30 derniers jours)',
+      '90d': 'Gains (90 derniers jours)',
+    }
+    return { eur: totalEur, xof: totalXof, label: labels[periodFilter] }
+  }, [filteredFinancials, periodFilter, overview])
+
   return (
     <div className="mx-auto max-w-6xl px-6 py-10 lg:py-14">
       <motion.div
@@ -169,7 +217,35 @@ function AdminDashboardPage() {
             {today} — vue d'ensemble du Club.
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Filtre journalier et temporel */}
+          <div className="flex items-center gap-1 rounded-xl border border-[var(--border)] bg-[var(--card)] p-1 text-xs shadow-sm">
+            <span className="px-2 font-medium text-[var(--muted-foreground)] flex items-center gap-1.5">
+              <Calendar className="h-3.5 w-3.5" /> Filtre :
+            </span>
+            {(
+              [
+                { id: 'today', label: "Aujourd'hui" },
+                { id: '7d', label: '7 jours' },
+                { id: '30d', label: '30 jours' },
+                { id: '90d', label: '90 jours' },
+              ] as const
+            ).map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setPeriodFilter(tab.id)}
+                className={cn(
+                  'rounded-lg px-2.5 py-1 font-semibold transition-all',
+                  periodFilter === tab.id
+                    ? 'bg-[var(--accent)] text-white shadow-sm'
+                    : 'text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--secondary)]/40',
+                )}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
           {generatedDistance && (
             <span className="text-xs text-[var(--muted-foreground)]">
               Mis à jour {generatedDistance}
@@ -197,6 +273,14 @@ function AdminDashboardPage() {
 
       {/* KPIs */}
       <section className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <KpiCard
+          icon={Coins}
+          label={periodRevenue.label}
+          valueDisplay={`${periodRevenue.eur.toLocaleString('fr-FR')} €`}
+          subtext={`${periodRevenue.xof.toLocaleString('fr-FR')} FCFA`}
+          highlight
+          loading={query.isLoading}
+        />
         <KpiCard
           icon={Users}
           label="Membres totaux"
@@ -252,6 +336,63 @@ function AdminDashboardPage() {
 
       {/* Charts */}
       <section className="mt-10 grid gap-6 lg:grid-cols-2">
+        <ChartCard
+          title={`Gains & Revenus jour par jour (${
+            periodFilter === 'today'
+              ? "Aujourd'hui"
+              : periodFilter === '7d'
+                ? '7j'
+                : periodFilter === '30d'
+                  ? '30j'
+                  : '90j'
+          })`}
+          loading={query.isLoading}
+        >
+          {filteredFinancials.length > 0 ? (
+            <ResponsiveContainer width="100%" height={240}>
+              <AreaChart
+                data={filteredFinancials}
+                margin={{ top: 5, right: 10, bottom: 0, left: -10 }}
+              >
+                <defs>
+                  <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="var(--accent)" stopOpacity={0.4} />
+                    <stop offset="95%" stopColor="var(--accent)" stopOpacity={0.0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid
+                  vertical={false}
+                  stroke="var(--border)"
+                  strokeDasharray="3 3"
+                />
+                <XAxis
+                  dataKey="date"
+                  tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
+                  tickFormatter={(d: string) => d.slice(5)}
+                />
+                <YAxis
+                  tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
+                  unit=" €"
+                />
+                <Tooltip content={<RevenueTooltip />} />
+                <Area
+                  type="monotone"
+                  dataKey="revenue_eur"
+                  name="Gains"
+                  stroke="var(--accent)"
+                  fillOpacity={1}
+                  fill="url(#revenueGradient)"
+                  strokeWidth={2.5}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          ) : (
+            <p className="py-12 text-center text-sm text-[var(--muted-foreground)]">
+              Aucun gain enregistré sur cette période.
+            </p>
+          )}
+        </ChartCard>
+
         <ChartCard title="Inscriptions sur 30 jours" loading={query.isLoading}>
           {query.data && (
             <ResponsiveContainer width="100%" height={240}>
@@ -586,25 +727,39 @@ function KpiCard({
   icon: Icon,
   label,
   value,
+  valueDisplay,
   unit,
   delta,
   deltaLabel,
   subtext,
   loading,
+  highlight,
 }: {
   icon: LucideIcon
   label: string
   value?: number
+  valueDisplay?: string
   unit?: string
   delta?: number
   deltaLabel?: string
   subtext?: string
   loading?: boolean
+  highlight?: boolean
 }) {
   return (
-    <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5">
+    <div
+      className={cn(
+        'rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 transition-all',
+        highlight && 'border-[var(--accent)]/40 bg-[var(--accent)]/5 shadow-sm',
+      )}
+    >
       <div className="flex items-center gap-3">
-        <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--primary)]/10 text-[var(--primary)]">
+        <span
+          className={cn(
+            'flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--primary)]/10 text-[var(--primary)]',
+            highlight && 'bg-[var(--accent)]/15 text-[var(--accent)]',
+          )}
+        >
           <Icon className="h-4 w-4" />
         </span>
         <span className="text-xs font-medium uppercase tracking-wider text-[var(--muted-foreground)]">
@@ -616,7 +771,7 @@ function KpiCard({
           <div className="h-8 w-20 animate-pulse rounded bg-[var(--secondary)]" />
         ) : (
           <p className="font-display text-3xl font-semibold tabular-nums">
-            {(value ?? 0).toLocaleString('fr-FR')}
+            {valueDisplay ?? (value ?? 0).toLocaleString('fr-FR')}
             {unit && <span className="ml-1 text-xl text-[var(--muted-foreground)]">{unit}</span>}
           </p>
         )}
@@ -787,6 +942,30 @@ function ChartTooltip(props: {
       <p className="text-[var(--muted-foreground)]">
         {props.payload[0].value}
       </p>
+    </div>
+  )
+}
+
+function RevenueTooltip(props: {
+  active?: boolean
+  payload?: Array<{ value: number; payload?: DailyFinancialItem }>
+  label?: string | number
+}) {
+  if (!props.active || !props.payload?.length) return null
+  const item = props.payload[0].payload
+  if (!item) return null
+
+  return (
+    <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-3 text-xs shadow-xl">
+      <p className="font-semibold text-[var(--foreground)]">{item.date}</p>
+      <div className="mt-1 space-y-0.5">
+        <p className="font-semibold text-[var(--accent)]">
+          {item.revenue_eur.toLocaleString('fr-FR')} € ({item.revenue_xof.toLocaleString('fr-FR')} FCFA)
+        </p>
+        <p className="text-[var(--muted-foreground)]">
+          {item.count} vente{item.count > 1 ? 's' : ''} / abonnement{item.count > 1 ? 's' : ''}
+        </p>
+      </div>
     </div>
   )
 }
