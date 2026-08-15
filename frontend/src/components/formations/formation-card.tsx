@@ -14,7 +14,9 @@ import {
 } from '@/lib/formation-helpers'
 import { deriveProgressInfo } from '@/lib/use-formation-progress'
 import {
+  ChallengeLockBadge,
   PremiumLockBadge,
+  useIsChallengeUser,
   useIsTrialUser,
 } from '@/components/shared/premium-lock'
 import { cn } from '@/lib/utils'
@@ -34,7 +36,10 @@ export interface FormationCardData extends Formation {
 
 export function FormationCard({ formation }: { formation: FormationCardData }) {
   const isTrial = useIsTrialUser()
-  const locked = Boolean(formation.is_premium && isTrial)
+  const isChallenge = useIsChallengeUser()
+  const lockedForTrial = Boolean(formation.is_premium && isTrial)
+  const lockedForChallenge = Boolean(isChallenge && !formation.is_challenge_allowed)
+  const locked = lockedForTrial || lockedForChallenge
 
   const derived = deriveProgressInfo({
     completed: formation.completed_count,
@@ -76,7 +81,13 @@ export function FormationCard({ formation }: { formation: FormationCardData }) {
           <span className="rounded-full bg-[var(--primary)]/10 px-2.5 py-0.5 text-xs font-medium text-[var(--primary)]">
             {formation.category}
           </span>
-          {locked ? <PremiumLockBadge /> : <StatusBadge status={status} />}
+          {lockedForChallenge ? (
+            <ChallengeLockBadge />
+          ) : lockedForTrial ? (
+            <PremiumLockBadge />
+          ) : (
+            <StatusBadge status={status} />
+          )}
         </div>
 
         <h3 className="mt-3 line-clamp-2 font-display text-lg font-semibold leading-snug">

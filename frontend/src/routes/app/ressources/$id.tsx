@@ -46,6 +46,7 @@ function ResourceDetailPage() {
   const navigate = useNavigate()
   const router = useRouter()
   const isTrial = useIsTrialUser()
+  const isChallenge = useIsChallengeUser()
 
   const query = useQuery({
     queryKey: ['resource-detail', id],
@@ -97,6 +98,11 @@ function ResourceDetailPage() {
   // ne JAMAIS exposer signed URL, content texte ou external_url premium.
   if (r.is_premium && isTrial) {
     return <PremiumLockedScreen backTo="/app/ressources" itemKind="ressource" />
+  }
+
+  // Verrou IA Business Challenge : seul le contenu autorisé est accessible.
+  if (isChallenge && !r.is_challenge_allowed) {
+    return <ChallengeLockedScreen backTo="/app/ressources" itemKind="ressource" />
   }
 
   const visual = RESOURCE_TYPE_VISUAL[r.resource_type]

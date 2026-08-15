@@ -41,7 +41,9 @@ import { saveProgressKeepalive } from '@/lib/save-progress-keepalive'
 import { useChapterProgressTracker } from '@/lib/use-chapter-progress-tracker'
 import { FormationReviewModal } from '@/components/formations/formation-review-modal'
 import {
+  ChallengeLockedScreen,
   PremiumLockedScreen,
+  useIsChallengeUser,
   useIsTrialUser,
 } from '@/components/shared/premium-lock'
 
@@ -493,6 +495,11 @@ function FormationDetailPage() {
   // niveau formation pour offrir un message clair plutôt qu'un état vide.
   if (formation.is_premium && isTrial) {
     return <PremiumLockedScreen backTo="/app/formations" itemKind="formation" />
+  }
+
+  // Verrou IA Business Challenge : seul le contenu autorisé au challenge est déverrouillé.
+  if (isChallenge && !formation.is_challenge_allowed) {
+    return <ChallengeLockedScreen backTo="/app/formations" itemKind="formation" />
   }
 
   return (

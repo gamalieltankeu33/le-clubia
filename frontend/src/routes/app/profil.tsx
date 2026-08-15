@@ -693,9 +693,11 @@ function SubscriptionCard() {
         ? 'Semestriel (6 mois)'
         : planId === 'trimestrial'
           ? 'Trimestriel (3 mois)'
-          : isLegacy
-            ? 'Annuel (ancien tarif)'
-            : 'Membre du Club')
+          : planId === 'challenge_ia_business'
+            ? 'IA Business Challenge (1 mois)'
+            : isLegacy
+              ? 'Annuel (ancien tarif)'
+              : 'Membre du Club')
 
   const priceLabel = planQuery.data
     ? `${planQuery.data.price_xof.toLocaleString('fr-FR').replace(/ |\s/g, ' ')} € / ${planQuery.data.duration_months} mois`

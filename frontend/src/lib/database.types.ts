@@ -316,6 +316,7 @@ export type Database = {
           duration_minutes: number
           is_published: boolean
           is_premium: boolean
+          is_challenge_allowed: boolean
           base_participants_count: number
           created_at: string
           updated_at: string
@@ -331,6 +332,7 @@ export type Database = {
           duration_minutes?: number
           is_published?: boolean
           is_premium?: boolean
+          is_challenge_allowed?: boolean
           base_participants_count?: number
           created_at?: string
           updated_at?: string
@@ -346,6 +348,7 @@ export type Database = {
           duration_minutes?: number
           is_published?: boolean
           is_premium?: boolean
+          is_challenge_allowed?: boolean
           base_participants_count?: number
           created_at?: string
           updated_at?: string
@@ -815,6 +818,7 @@ export type Database = {
           file_name: string | null
           is_published: boolean
           is_premium: boolean
+          is_challenge_allowed: boolean
           created_at: string
           updated_at: string
         }
@@ -833,6 +837,7 @@ export type Database = {
           file_name?: string | null
           is_published?: boolean
           is_premium?: boolean
+          is_challenge_allowed?: boolean
           created_at?: string
           updated_at?: string
         }
@@ -851,6 +856,7 @@ export type Database = {
           file_name?: string | null
           is_published?: boolean
           is_premium?: boolean
+          is_challenge_allowed?: boolean
           created_at?: string
           updated_at?: string
         }

@@ -2,12 +2,22 @@ import { createFileRoute } from '@tanstack/react-router'
 import { motion } from 'framer-motion'
 import { Target } from 'lucide-react'
 import { WeeklyChallenges } from '@/components/community/weekly-challenges'
+import {
+  ChallengeLockedScreen,
+  useIsChallengeUser,
+} from '@/components/shared/premium-lock'
 
 export const Route = createFileRoute('/app/challenges')({
   component: ChallengesPage,
 })
 
 function ChallengesPage() {
+  const isChallenge = useIsChallengeUser()
+
+  if (isChallenge) {
+    return <ChallengeLockedScreen backTo="/app/communaute" itemKind="formation" />
+  }
+
   return (
     <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:py-14">
       <motion.div

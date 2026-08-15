@@ -134,6 +134,7 @@ const PLAN_LABELS: Record<string, string> = {
   trimestrial: '3 mois',
   legacy_annual: 'Legacy 79k',
   trial: 'Essai 1 mois',
+  challenge_ia_business: 'AI Business Sprint',
 }
 
 const PLAN_DURATION_MONTHS: Record<string, number> = {
@@ -142,9 +143,16 @@ const PLAN_DURATION_MONTHS: Record<string, number> = {
   trimestrial: 3,
   legacy_annual: 12,
   trial: 1,
+  challenge_ia_business: 1,
 }
 
-type ActivatePlanId = 'annual' | 'semestrial' | 'trimestrial' | 'legacy_annual' | 'trial'
+type ActivatePlanId =
+  | 'annual'
+  | 'semestrial'
+  | 'trimestrial'
+  | 'legacy_annual'
+  | 'trial'
+  | 'challenge_ia_business'
 
 function AdminMembersPage() {
   const queryClient = useQueryClient()
@@ -842,7 +850,8 @@ function ActivateSubscriptionDialog({
       member.plan_id === 'semestrial' ||
       member.plan_id === 'trimestrial' ||
       member.plan_id === 'legacy_annual' ||
-      member.plan_id === 'trial'
+      member.plan_id === 'trial' ||
+      member.plan_id === 'challenge_ia_business'
     ) {
       setSelectedPlanId(member.plan_id)
       return
@@ -968,6 +977,14 @@ function ActivateSubscriptionDialog({
               hint="Plan Découverte · email de bienvenue + relances J+7 / J+21 / J+27 / J+30"
               checked={selectedPlanId === 'trial'}
               onChange={() => setSelectedPlanId('trial')}
+              disabled={submitting}
+            />
+            <PlanRadio
+              id="challenge_ia_business"
+              label="AI Business Sprint (1 mois)"
+              hint="Accès restreint à la formation AI Business Sprint & prompts (Communauté déverrouillée)"
+              checked={selectedPlanId === 'challenge_ia_business'}
+              onChange={() => setSelectedPlanId('challenge_ia_business')}
               disabled={submitting}
             />
 
@@ -1147,7 +1164,7 @@ function AddMemberDialog({
   onClose: () => void
   onConfirm: (input: {
     email: string
-    plan_id: 'annual' | 'semestrial' | 'trimestrial'
+    plan_id: 'annual' | 'semestrial' | 'trimestrial' | 'challenge_ia_business'
     first_name?: string
     last_name?: string
   }) => void
@@ -1156,7 +1173,7 @@ function AddMemberDialog({
   const [email, setEmail] = useState('')
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
-  const [planId, setPlanId] = useState<'annual' | 'semestrial' | 'trimestrial'>('semestrial')
+  const [planId, setPlanId] = useState<'annual' | 'semestrial' | 'trimestrial' | 'challenge_ia_business'>('semestrial')
 
   // Reset form à chaque ouverture
   useEffect(() => {
@@ -1302,6 +1319,14 @@ function AddMemberDialog({
                   hint="3 mois · ~33 €/mois"
                   checked={planId === 'trimestrial'}
                   onChange={() => setPlanId('trimestrial')}
+                  disabled={submitting}
+                />
+                <PlanRadio
+                  id="add-challenge"
+                  label="AI Business Sprint (1 mois)"
+                  hint="Accès restreint à la formation AI Business Sprint & prompts"
+                  checked={planId === 'challenge_ia_business'}
+                  onChange={() => setPlanId('challenge_ia_business')}
                   disabled={submitting}
                 />
               </div>

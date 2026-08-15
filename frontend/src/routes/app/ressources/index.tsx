@@ -15,7 +15,9 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { EmptyState } from '@/components/shared/empty-state'
 import {
+  ChallengeLockBadge,
   PremiumLockBadge,
+  useIsChallengeUser,
   useIsTrialUser,
 } from '@/components/shared/premium-lock'
 import { supabase } from '@/lib/supabase'
@@ -233,7 +235,10 @@ function ResourcesLibraryPage() {
 function ResourceCard({ resource }: { resource: Resource }) {
   const navigate = useNavigate()
   const isTrial = useIsTrialUser()
-  const locked = Boolean(resource.is_premium && isTrial)
+  const isChallenge = useIsChallengeUser()
+  const lockedForTrial = Boolean(resource.is_premium && isTrial)
+  const lockedForChallenge = Boolean(isChallenge && !resource.is_challenge_allowed)
+  const locked = lockedForTrial || lockedForChallenge
   const visual = RESOURCE_TYPE_VISUAL[resource.resource_type]
   const TypeIcon = visual.icon
   const isTool = resource.resource_type === 'tool_link'

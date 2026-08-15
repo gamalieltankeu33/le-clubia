@@ -25,7 +25,7 @@ const APP_URL = 'https://leclub-ia.com'
 
 interface CreateMemberRequest {
   email: string
-  plan_id: 'semestrial' | 'trimestrial' | 'legacy_annual'
+  plan_id: 'semestrial' | 'trimestrial' | 'legacy_annual' | 'challenge_ia_business'
   first_name?: string
   last_name?: string
 }
@@ -34,6 +34,7 @@ const PLAN_DURATION_MONTHS: Record<string, number> = {
   semestrial: 6,
   trimestrial: 3,
   legacy_annual: 12,
+  challenge_ia_business: 1,
 }
 
 serve(async (req: Request) => {
