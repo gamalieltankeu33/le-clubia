@@ -105,6 +105,7 @@ function FormationDetailPage() {
   const { slug } = Route.useParams()
   const userId = useAuthStore((s) => s.user?.id)
   const isTrial = useIsTrialUser()
+  const isChallenge = useIsChallengeUser()
   const refreshHistory = useCoachStore((s) => s.refreshHistory)
   const refreshQuota = useCoachStore((s) => s.refreshQuota)
   const setContext = useCoachStore((s) => s.setContext)
