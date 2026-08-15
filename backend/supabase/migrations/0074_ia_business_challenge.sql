@@ -1,5 +1,5 @@
 -- =====================================================================
--- Le Club IA -- Migration 0074 : Formation & Offre AI Business Sprint (5 jours)
+-- Le Club IA -- Migration 0074 : Offre AI Business Sprint (Accès restreint)
 -- =====================================================================
 
 -- 1. Colonnes is_challenge_allowed
@@ -33,132 +33,29 @@ on conflict (id) do update set
   is_active = true,
   duration_months = 1;
 
--- 3. Insertion de la Formation 5 jours (ON CONFLICT id)
-insert into public.formations (
-  id,
-  slug,
-  title,
-  description,
-  category,
-  level,
-  duration_minutes,
-  is_published,
-  is_premium,
-  is_challenge_allowed,
-  base_participants_count
-)
-values (
-  'd5a8f902-7b1e-4c3a-9210-8f74e6123456',
-  'creer-lancer-vendre-produit-digital-5j',
-  'AI Business Sprint : Créer, lancer et vendre son 1er produit digital en 5 jours',
-  'Le programme intensif de 5 jours pour concevoir ton produit digital avec l''IA, configurer ta boutique en ligne et réaliser tes premières ventes.',
-  'AI Business Sprint',
-  'debutant',
-  180,
-  true,
-  false,
-  true,
-  120
-)
-on conflict (id) do update set
-  title = excluded.title,
-  description = excluded.description,
-  category = excluded.category,
-  is_published = true,
-  is_challenge_allowed = true;
+-- 3. Nettoyage des doublons fictifs si créés précédemment
+delete from public.formations where id = 'd5a8f902-7b1e-4c3a-9210-8f74e6123456' and title ilike 'AI Business Sprint : Créer%';
+delete from public.resources where id = 'f912cd34-5678-4901-ab23-cdef01234567';
 
--- 4. Chapitres de la formation (ON CONFLICT id)
-insert into public.formation_chapters (
-  id,
-  formation_id,
-  order_index,
-  title,
-  description,
-  duration_minutes
-)
-values
-(
-  'e1a8f902-7b1e-4c3a-9210-8f74e6123451',
-  'd5a8f902-7b1e-4c3a-9210-8f74e6123456',
-  1,
-  'Jour 1 : Définir son offre irrésistible & cibler sa niche avec l''IA',
-  'Utilise ChatGPT et Claude pour identifier un problème douloureux et structurer une offre digitale à forte valeur ajoutée.',
-  35
-),
-(
-  'e1a8f902-7b1e-4c3a-9210-8f74e6123452',
-  'd5a8f902-7b1e-4c3a-9210-8f74e6123456',
-  2,
-  'Jour 2 : Créer son produit digital de A à Z (Ebook, Template, Formation)',
-  'Génère le contenu complet de ton produit digital (texte, structure, visuels) à l''aide des meilleurs prompts IA.',
-  40
-),
-(
-  'e1a8f902-7b1e-4c3a-9210-8f74e6123453',
-  'd5a8f902-7b1e-4c3a-9210-8f74e6123456',
-  3,
-  'Jour 3 : Configurer sa boutique en ligne & son système de paiement',
-  'Mets en place ta page de vente et intègre ton moyen de paiement pour encaisser tes premiers clients en toute simplicité.',
-  35
-),
-(
-  'e1a8f902-7b1e-4c3a-9210-8f74e6123454',
-  'd5a8f902-7b1e-4c3a-9210-8f74e6123456',
-  4,
-  'Jour 4 : Créer du contenu magnétique & capturer des prospects',
-  'Conçois un plan de contenu viral pour les réseaux sociaux et attire des prospects qualifiés vers ton offre.',
-  35
-),
-(
-  'e1a8f902-7b1e-4c3a-9210-8f74e6123455',
-  'd5a8f902-7b1e-4c3a-9210-8f74e6123456',
-  5,
-  'Jour 5 : Lancer sa campagne & réaliser ses premières ventes',
-  'Déploie ta stratégie de lancement, réponds aux objections et réalise tes premières ventes en 24 à 48 heures.',
-  35
-)
-on conflict (id) do update set
-  title = excluded.title,
-  description = excluded.description,
-  duration_minutes = excluded.duration_minutes;
-
--- 5. Insertion / Marquage des Formations & Ressources du Sprint
+-- 4. Activer l'accès pour la formation existante "AI Business Sprint" (ou la dernière formation créée)
 update public.formations
   set is_challenge_allowed = true
-  where title ilike '%sprint%' or title ilike '%challenge%' or slug ilike '%sprint%' or slug ilike '%challenge%';
+  where id in (
+    select id from public.formations order by created_at desc limit 1
+  )
+  or title ilike '%sprint%'
+  or title ilike '%business%'
+  or slug ilike '%sprint%';
 
-insert into public.resources (
-  id,
-  title,
-  description,
-  category,
-  resource_type,
-  download_url,
-  external_url,
-  is_published,
-  is_premium,
-  is_challenge_allowed
-)
-values (
-  'f912cd34-5678-4901-ab23-cdef01234567',
-  'Pack Prompts AI Business Sprint -- Classer les prompts',
-  'L''ensemble des prompts officiels et la ressource Classer les prompts pour trouver ton idée, rédiger ton offre, créer tes visuels et faire tes ventes.',
-  'Prompts & Workflows',
-  'prompt',
-  '#',
-  'https://leclub-ia.com',
-  true,
-  false,
-  true
-)
-on conflict (id) do update set
-  title = excluded.title,
-  description = excluded.description,
-  is_challenge_allowed = true;
-
+-- 5. Activer l'accès pour la ressource "Classer les prompts" (ou la dernière ressource créée)
 update public.resources
   set is_challenge_allowed = true
-  where title ilike '%prompt%' or title ilike '%classer%' or category ilike '%prompt%';
+  where id in (
+    select id from public.resources order by created_at desc limit 1
+  )
+  or title ilike '%classer%'
+  or title ilike '%prompt%'
+  or category ilike '%prompt%';
 
 -- 6. Helper SQL is_challenge_user
 create or replace function public.is_challenge_user(uid uuid)
