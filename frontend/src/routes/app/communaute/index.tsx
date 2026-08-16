@@ -28,6 +28,8 @@ import { PullToRefresh } from '@/components/shared/pull-to-refresh'
 import { htmlToPlainText } from '@/lib/sanitize-html'
 import { useConfirm } from '@/hooks/use-confirm'
 
+import { useIsChallengeUser, ChallengeLockedScreen } from '@/components/shared/premium-lock'
+
 // PostComposerModal embarque Tiptap (~120 kB). On le lazy-load pour ne le
 // télécharger qu'au moment où l'utilisateur clique "Créer un post".
 const PostComposerModal = lazy(() =>
@@ -41,6 +43,7 @@ export const Route = createFileRoute('/app/communaute/')({
 })
 
 function CommunityFeedPage() {
+  const isChallenge = useIsChallengeUser()
   const queryClient = useQueryClient()
   const user = useAuthStore((s) => s.user)
   const profile = useAuthStore((s) => s.profile)
@@ -49,6 +52,10 @@ function CommunityFeedPage() {
   const [composerOpen, setComposerOpen] = useState(false)
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
   const { confirm, ConfirmDialog } = useConfirm()
+
+  if (isChallenge) {
+    return <ChallengeLockedScreen backTo="/app/dashboard" itemKind="formation" />
+  }
 
   const feed = useInfiniteQuery({
     queryKey: ['community-feed', user?.id ?? null],

@@ -12,17 +12,24 @@ import { FeedSkeleton } from '@/components/community/feed-skeleton'
 import { htmlToPlainText } from '@/lib/sanitize-html'
 import { useConfirm } from '@/hooks/use-confirm'
 
+import { useIsChallengeUser, ChallengeLockedScreen } from '@/components/shared/premium-lock'
+
 export const Route = createFileRoute('/app/communaute/$postId')({
   component: PostDetailPage,
 })
 
 function PostDetailPage() {
+  const isChallenge = useIsChallengeUser()
   const { postId } = Route.useParams()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const user = useAuthStore((s) => s.user)
   const isAdmin = useAuthStore((s) => s.isAdmin)()
   const { confirm, ConfirmDialog } = useConfirm()
+
+  if (isChallenge) {
+    return <ChallengeLockedScreen backTo="/app/dashboard" itemKind="formation" />
+  }
 
   const postQuery = useQuery({
     queryKey: ['community-post', postId, user?.id ?? null],
