@@ -72,6 +72,10 @@ function AbonnementPage() {
   // Garde : seul un compte authentifié SANS abonnement actif a sa place ici.
   // Un membre actif ou admin → on l'envoie au dashboard directement.
   useEffect(() => {
+    void refreshUserData()
+  }, [refreshUserData])
+
+  useEffect(() => {
     if (!isInitialized) return
     if (!user) {
       navigate({ to: '/auth' })

@@ -48,12 +48,28 @@ function CheckoutPage() {
     }
   }
 
-  // Si pas de plan ou pas d'utilisateur, on redirige vers l'accueil ou auth
+  const subscription = useAuthStore((s) => s.subscription)
+  const isMember = useAuthStore((s) => s.isMember)
+  const refreshUserData = useAuthStore((s) => s.refreshUserData)
+
+  // Rafraîchir les données de l'utilisateur au montage au cas où son abonnement a été activé
   useEffect(() => {
+    void refreshUserData()
+  }, [refreshUserData])
+
+  // Si l'utilisateur a déjà un abonnement actif (ou admin), pas besoin de payer !
+  useEffect(() => {
+    const isAdmin = profile?.role === 'admin'
+    if (isMember() || isAdmin) {
+      toast.success('Votre abonnement est déjà actif !')
+      navigate({ to: '/app/dashboard' })
+      return
+    }
+
     if (!planId) {
       navigate({ to: '/' })
     }
-  }, [planId, navigate])
+  }, [isMember, profile, planId, navigate])
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-[var(--background)] px-6 py-12">
