@@ -40,13 +40,21 @@ const YT_PATTERNS = [
   /youtu\.be\/([\w-]{11})/,
   /youtube\.com\/embed\/([\w-]{11})/,
   /youtube\.com\/shorts\/([\w-]{11})/,
+  /youtube\.com\/live\/([\w-]{11})/,
+  /youtube\.com\/watch\/([\w-]{11})/,
+  /youtube\.com\/watch\?.*v=([\w-]{11})/,
 ]
 
 export function extractYouTubeId(url: string): string | null {
   if (!url) return null
+  const trimmed = url.trim()
   for (const pattern of YT_PATTERNS) {
-    const match = url.match(pattern)
+    const match = trimmed.match(pattern)
     if (match) return match[1]
+  }
+  // Fallback : si l'URL est juste un ID de 11 caractères
+  if (/^[\w-]{11}$/.test(trimmed)) {
+    return trimmed
   }
   return null
 }

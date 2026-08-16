@@ -63,25 +63,19 @@ function YouTubeChapterPlayer({
   const playerRef = useRef<YouTubePlayer | null>(null)
   const tickRef = useRef(onProgressTick)
   tickRef.current = onProgressTick
+  const [hasError, setHasError] = useState(false)
 
   const videoId = chapter.video_url ? extractYouTubeId(chapter.video_url) : null
 
-  // CRITICAL : on FIGE la position de départ au montage du chapitre.
-  // Sinon `start` dans opts.playerVars change à chaque sauvegarde de
-  // progression (toutes les ~5 s), et react-youtube interprète ce
-  // changement comme un ordre de cueVideoById() → la vidéo s'ARRÊTE
-  // et se recharge, ce qui se traduisait côté membre par "ça coupe
-  // toutes les 2 secondes". Capturer la valeur 1x via useMemo([chapter.id])
-  // évite ce remount silencieux. Voir react-youtube/dist/YouTube.js
-  // shouldUpdateVideo() qui compare prevVars.start !== vars.start.
   const stableStartSeconds = useMemo(
     () => Math.max(0, Math.floor(initialPositionSeconds)),
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- volontaire : capture une seule fois par chapitre
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [chapter.id],
   )
 
   useEffect(() => {
     playerRef.current = null
+    setHasError(false)
   }, [chapter.id])
 
   useEffect(() => {
@@ -99,16 +93,11 @@ function YouTubeChapterPlayer({
     return () => window.clearInterval(interval)
   }, [chapter.id])
 
-  // Ceinture + bretelles : on fige aussi l'OBJET opts entier via useMemo.
-  // Même si `start` est stable, react-youtube re-render à chaque tick
-  // (parent re-render) — fastDeepEqual sur un objet identique reste true,
-  // mais autant lui passer la même référence pour éliminer toute classe
-  // de régression future où quelqu'un ajouterait un champ réactif.
   const ytOpts = useMemo(
     () => ({
       width: '100%' as const,
       height: '100%' as const,
-      host: 'https://www.youtube-nocookie.com',
+      host: 'https://www.youtube.com',
       playerVars: {
         modestbranding: 1,
         rel: 0,
@@ -123,6 +112,20 @@ function YouTubeChapterPlayer({
 
   if (!videoId) return <UnsupportedPlayer />
 
+  if (hasError) {
+    return (
+      <div className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl bg-black">
+        <iframe
+          src={`https://www.youtube.com/embed/${videoId}?autoplay=0&rel=0&playsinline=1`}
+          title={chapter.title}
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+          className="absolute inset-0 block h-full w-full border-0"
+        />
+      </div>
+    )
+  }
+
   return (
     <div className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl bg-black">
       <YouTube
@@ -131,6 +134,7 @@ function YouTubeChapterPlayer({
         className="absolute inset-0 h-full w-full"
         iframeClassName="absolute inset-0 block h-full w-full border-0"
         opts={ytOpts}
+        onError={() => setHasError(true)}
         onReady={(event) => {
           playerRef.current = event.target
           try {

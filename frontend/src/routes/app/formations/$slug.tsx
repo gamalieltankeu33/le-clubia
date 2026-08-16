@@ -160,7 +160,21 @@ function FormationDetailPage() {
   const enrollmentsCount = enrollmentsCountQuery.data ?? 0
   const profile = useAuthStore((s) => s.profile)
   const isAdmin = profile?.role === 'admin'
-  const canAccess = isEnrolled || isAdmin
+  const isMember = useAuthStore((s) => s.isMember)()
+  const canAccess = isEnrolled || isAdmin || isMember || isChallenge
+
+  // Auto-inscription en arrière-plan pour les membres autorisés n'ayant pas encore de ligne d'enrollment
+  useEffect(() => {
+    if (canAccess && !isEnrolled && userId && formation?.id) {
+      void supabase
+        .from('formation_enrollments')
+        .insert({ user_id: userId, formation_id: formation.id })
+        .then(() => {
+          void enrollmentQuery.refetch()
+          void enrollmentsCountQuery.refetch()
+        })
+    }
+  }, [canAccess, isEnrolled, userId, formation?.id, enrollmentQuery, enrollmentsCountQuery])
 
   // Calculate total participants count
   const participantsCount = (formation?.base_participants_count ?? 0) + enrollmentsCount
