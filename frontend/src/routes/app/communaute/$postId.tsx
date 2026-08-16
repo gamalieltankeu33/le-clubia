@@ -19,17 +19,12 @@ export const Route = createFileRoute('/app/communaute/$postId')({
 })
 
 function PostDetailPage() {
-  const isChallenge = useIsChallengeUser()
   const { postId } = Route.useParams()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const user = useAuthStore((s) => s.user)
   const isAdmin = useAuthStore((s) => s.isAdmin)()
   const { confirm, ConfirmDialog } = useConfirm()
-
-  if (isChallenge) {
-    return <ChallengeLockedScreen backTo="/app/dashboard" itemKind="formation" />
-  }
 
   const postQuery = useQuery({
     queryKey: ['community-post', postId, user?.id ?? null],

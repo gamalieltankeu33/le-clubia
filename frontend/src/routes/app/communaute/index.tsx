@@ -43,7 +43,6 @@ export const Route = createFileRoute('/app/communaute/')({
 })
 
 function CommunityFeedPage() {
-  const isChallenge = useIsChallengeUser()
   const queryClient = useQueryClient()
   const user = useAuthStore((s) => s.user)
   const profile = useAuthStore((s) => s.profile)
@@ -52,10 +51,6 @@ function CommunityFeedPage() {
   const [composerOpen, setComposerOpen] = useState(false)
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
   const { confirm, ConfirmDialog } = useConfirm()
-
-  if (isChallenge) {
-    return <ChallengeLockedScreen backTo="/app/dashboard" itemKind="formation" />
-  }
 
   const feed = useInfiniteQuery({
     queryKey: ['community-feed', user?.id ?? null],
