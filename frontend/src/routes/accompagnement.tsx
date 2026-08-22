@@ -369,8 +369,13 @@ export function AccompagnementPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.3, ease: EASE }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-6"
+            className="flex flex-col items-center justify-center gap-6 pt-4"
           >
+            <div className="text-center">
+              <span className="text-4xl sm:text-5xl font-extrabold text-[#0F1E4D]">15 000 FCFA</span>
+            </div>
+            
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <button
               onClick={() => setShowBookingModal(true)}
               className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-10 py-5 bg-[#0F1E4D] hover:bg-[#1E3A8A] text-white rounded-full text-sm font-extrabold uppercase tracking-widest transition-all duration-300 shadow-xl hover:scale-105 cursor-pointer"
@@ -378,6 +383,7 @@ export function AccompagnementPage() {
               <span>Démarrer le Sprint</span>
               <Rocket className="w-5 h-5 text-[#60A5FA]" />
             </button>
+            </div>
           </motion.div>
 
           <motion.div
@@ -575,7 +581,7 @@ export function AccompagnementPage() {
               Rejoignez le Groupe VIP
             </h2>
             <div className="mb-6">
-              <span className="text-5xl sm:text-6xl font-extrabold text-[#F59E0B]">15 000 FCFA</span>
+              <span className="text-5xl sm:text-6xl font-extrabold text-white">15 000 FCFA</span>
             </div>
             <p className="text-zinc-300 text-lg sm:text-xl max-w-2xl mx-auto mb-12 font-medium">
               Inscrivez-vous maintenant pour sécuriser votre place pour le prochain sprint. L'accès inclut l'accompagnement complet, les ressources IA et 1 mois offert au Club IA.
