@@ -21,7 +21,9 @@ import {
 import type { Resource } from '@/lib/database.types'
 import { MarkdownRenderer } from '@/components/coach/markdown-renderer'
 import {
+  ChallengeLockedScreen,
   PremiumLockedScreen,
+  useIsChallengeUser,
   useIsTrialUser,
 } from '@/components/shared/premium-lock'
 import { cn } from '@/lib/utils'
