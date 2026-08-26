@@ -318,11 +318,18 @@ function PdfPreviewBlock({
           </div>
         </div>
       ) : (
-        <iframe
-          src={signedUrl}
-          title={resource.title}
+        <object
+          data={signedUrl}
+          type="application/pdf"
           className="h-[70vh] w-full rounded-2xl border border-[var(--border)] bg-white md:h-[80vh]"
-        />
+          aria-label={resource.title || 'PDF Document'}
+        >
+          <div className="flex h-full flex-col items-center justify-center p-6 text-center">
+            <p className="text-sm text-[var(--muted-foreground)]">
+              Le lecteur PDF intégré n'est pas supporté par ce navigateur.
+            </p>
+          </div>
+        </object>
       )}
 
       <p className="text-xs text-[var(--muted-foreground)]">
