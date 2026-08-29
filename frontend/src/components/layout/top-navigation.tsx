@@ -96,33 +96,13 @@ export function TopNavigation({ onOpenMobileMenu }: { onOpenMobileMenu: () => vo
         {/* Right Actions */}
         <div className="flex flex-1 items-center justify-end gap-1 sm:gap-2">
           {isAdmin && (
-            <DropdownMenu>
-              <DropdownMenuTrigger className="flex items-center gap-1.5 rounded-full bg-[var(--or)]/10 px-3 py-1.5 text-xs font-semibold text-[var(--or)] hover:bg-[var(--or)]/20 transition-colors mr-2 focus:outline-none">
-                <Shield className="h-3.5 w-3.5" />
-                Admin
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuItem className="cursor-pointer font-medium" onSelect={() => navigate({ to: '/app/admin' })}>
-                  📊 Tableau de bord
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="cursor-pointer" onSelect={() => navigate({ to: '/app/admin/formations/new' })}>
-                  ➕ Nouvelle formation
-                </DropdownMenuItem>
-                <DropdownMenuItem className="cursor-pointer" onSelect={() => navigate({ to: '/app/admin/ressources/new' })}>
-                  ➕ Nouvelle ressource
-                </DropdownMenuItem>
-                <DropdownMenuItem className="cursor-pointer" onSelect={() => navigate({ to: '/app/admin/actualites/new' })}>
-                  ➕ Nouvel article (Manuel)
-                </DropdownMenuItem>
-                <DropdownMenuItem className="cursor-pointer" onSelect={() => navigate({ to: '/app/admin/actualites' })}>
-                  🤖 Lancer l'Agent IA (Actualités)
-                </DropdownMenuItem>
-                <DropdownMenuItem className="cursor-pointer" onSelect={() => navigate({ to: '/app/admin/events' })}>
-                  📅 Programmer événement
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <Link
+              to="/app/admin"
+              className="flex items-center gap-1.5 rounded-full bg-[var(--or)]/10 px-3 py-1.5 text-xs font-semibold text-[var(--or)] hover:bg-[var(--or)]/20 transition-colors mr-2 focus:outline-none"
+            >
+              <Shield className="h-3.5 w-3.5" />
+              Admin
+            </Link>
           )}
           <Link to="/app/search" className="flex h-9 w-9 items-center justify-center rounded-full text-[var(--muted-foreground)] hover:bg-[var(--secondary)] hover:text-[var(--foreground)] transition-colors"><Search className="h-5 w-5" /></Link>
           <NotificationBell className="flex h-9 w-9 items-center justify-center rounded-full hover:bg-[var(--secondary)] hover:text-[var(--foreground)] transition-colors" />
