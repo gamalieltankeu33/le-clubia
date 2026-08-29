@@ -7,6 +7,8 @@ import {
 } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
 import {
+  AlertTriangle,
+  Bookmark,
   Image,
   Loader2,
   MessageSquare,
@@ -259,7 +261,7 @@ function CommunityFeedPage() {
         ) : feed.isError ? (
           <ErrorBox onRetry={() => feed.refetch()} />
         ) : allPosts.length === 0 ? (
-          <EmptyFeed onOpen={() => setComposerOpen(true)} />
+          <EmptyFeed onOpen={() => setComposerOpen(true)} filter={filter} category={category} />
         ) : (
           <div className="space-y-4">
             {allPosts.map((p) => (
@@ -341,10 +343,50 @@ function CommunityFeedPage() {
   )
 }
 
-function EmptyFeed({ onOpen }: { onOpen: () => void }) {
+function EmptyFeed({
+  onOpen,
+  filter,
+  category,
+}: {
+  onOpen: () => void
+  filter?: 'mine' | 'saved'
+  category?: string
+}) {
+  if (filter === 'saved') {
+    return (
+      <EmptyState
+        icon={<Bookmark className="h-8 w-8 text-amber-500" />}
+        title="Aucun post enregistré"
+        description="Tu n'as pas encore ajouté de publication à tes favoris."
+      />
+    )
+  }
+
+  if (filter === 'mine') {
+    return (
+      <EmptyState
+        icon={<MessageSquare className="h-8 w-8" />}
+        title="Aucune publication"
+        description="Tu n'as pas encore partagé de post avec la communauté."
+        cta={{ label: 'Publier maintenant', onClick: onOpen }}
+      />
+    )
+  }
+
+  if (category) {
+    return (
+      <EmptyState
+        icon={<MessageSquare className="h-8 w-8" />}
+        title={`Aucun post dans "${category.replace('-', ' ')}"`}
+        description="Sois la première personne à publier dans cette catégorie."
+        cta={{ label: 'Publier maintenant', onClick: onOpen }}
+      />
+    )
+  }
+
   return (
     <EmptyState
-      icon={<Sparkles className="h-7 w-7" />}
+      icon={<Sparkles className="h-8 w-8 text-[var(--primary)]" />}
       title="La communauté t'attend"
       description="Sois la première personne à briser la glace. Publie ton premier post."
       cta={{ label: 'Publier maintenant', onClick: onOpen }}
@@ -354,14 +396,12 @@ function EmptyFeed({ onOpen }: { onOpen: () => void }) {
 
 function ErrorBox({ onRetry }: { onRetry: () => void }) {
   return (
-    <div className="rounded-2xl border border-dashed border-[var(--border)] bg-[var(--card)] p-10 text-center">
-      <p className="text-sm text-[var(--muted-foreground)]">
-        Impossible de charger le fil. Réessaie.
-      </p>
-      <Button variant="outline" className="mt-4" onClick={onRetry}>
-        Réessayer
-      </Button>
-    </div>
+    <EmptyState
+      icon={<AlertTriangle className="h-8 w-8 text-red-500" />}
+      title="Oups, problème de connexion"
+      description="Impossible de charger le fil d'actualité pour le moment."
+      cta={{ label: 'Réessayer', onClick: onRetry }}
+    />
   )
 }
 

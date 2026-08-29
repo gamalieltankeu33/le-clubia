@@ -25,22 +25,28 @@ export function FeedSkeleton({ count = 3 }: { count?: number }) {
       {Array.from({ length: count }).map((_, i) => (
         <div
           key={i}
-          className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5"
+          className="overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5"
         >
-          <div className="flex items-center gap-3">
-            <div className="h-9 w-9 animate-pulse rounded-full bg-[var(--secondary)]" />
-            <div className="space-y-1.5">
+          {/* Header du post: Avatar + Noms */}
+          <div className="flex items-start gap-3">
+            <div className="h-10 w-10 shrink-0 animate-pulse rounded-full bg-[var(--secondary)]" />
+            <div className="flex flex-col gap-2 pt-1">
               <div className="h-3 w-32 animate-pulse rounded bg-[var(--secondary)]" />
-              <div className="h-3 w-20 animate-pulse rounded bg-[var(--secondary)]" />
+              <div className="h-2 w-20 animate-pulse rounded bg-[var(--secondary)]/70" />
             </div>
           </div>
-          <div className="mt-4 space-y-2">
+
+          {/* Corps du post */}
+          <div className="mt-5 space-y-3">
             <div className="h-3 w-full animate-pulse rounded bg-[var(--secondary)]" />
-            <div className="h-3 w-3/4 animate-pulse rounded bg-[var(--secondary)]" />
+            <div className="h-3 w-[90%] animate-pulse rounded bg-[var(--secondary)]" />
+            <div className="h-3 w-[60%] animate-pulse rounded bg-[var(--secondary)]" />
           </div>
-          <div className="mt-4 flex gap-3">
-            <div className="h-7 w-16 animate-pulse rounded bg-[var(--secondary)]" />
-            <div className="h-7 w-16 animate-pulse rounded bg-[var(--secondary)]" />
+
+          {/* Footer du post (Actions) */}
+          <div className="mt-6 flex items-center gap-3 border-t border-[var(--border)] pt-3">
+            <div className="h-8 flex-1 animate-pulse rounded-xl bg-[var(--secondary)]/50" />
+            <div className="h-8 flex-1 animate-pulse rounded-xl bg-[var(--secondary)]/50" />
           </div>
         </div>
       ))}
