@@ -2,6 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { motion } from 'framer-motion'
 import { Target } from 'lucide-react'
 import { WeeklyChallenges } from '@/components/community/weekly-challenges'
+import { FormationChallenges } from '@/components/community/formation-challenges'
 import {
   ChallengeLockedScreen,
   useIsChallengeUser,
@@ -41,7 +42,11 @@ function ChallengesPage() {
         </div>
       </motion.div>
 
-      <WeeklyChallenges />
+      <FormationChallenges />
+      
+      <div className="mt-8 border-t border-[var(--border)] pt-8">
+        <WeeklyChallenges />
+      </div>
     </div>
   )
 }
