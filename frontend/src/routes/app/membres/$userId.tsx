@@ -179,123 +179,189 @@ function MemberPublicProfilePage() {
     [p.first_name, p.last_name].filter(Boolean).join(' ').trim() ||
     'Sans nom'
 
+  const [activeTab, setActiveTab] = useState<'posts' | 'activite' | 'badges'>('posts')
+
   return (
-    <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6 lg:py-14">
-      <Button variant="outline" size="sm" onClick={handleBack}>
-        <ArrowLeft className="h-4 w-4" />
+    <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:py-10">
+      <Button variant="ghost" size="sm" onClick={handleBack} className="mb-4 text-[var(--muted-foreground)] hover:text-[var(--foreground)]">
+        <ArrowLeft className="mr-2 h-4 w-4" />
         Retour
       </Button>
 
-      {/* Header public */}
-      <motion.section
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-        className="mt-6 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 md:p-8"
-      >
-        <div className="flex flex-col items-start gap-5 sm:flex-row sm:items-center">
-          <AvatarDisplay
-            avatarUrl={p.avatar_url}
-            firstName={p.first_name}
-            lastName={p.last_name}
-            email={null}
-            isVerified={p.is_verified}
-            isMonthlyWinner={isMonthlyWinner}
-            size="xl"
-          />
-          <div className="min-w-0 flex-1">
+      {/* Header public avec Cover */}
+      <div className="overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)] shadow-sm">
+        {/* Cover Image (Dégradé premium temporaire) */}
+        <div className="h-32 sm:h-48 w-full bg-gradient-to-r from-blue-900 via-[#0F1E4D] to-indigo-900" />
+        
+        <div className="relative px-6 pb-8 sm:px-8">
+          <div className="-mt-12 sm:-mt-16 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+            <div className="relative inline-block rounded-full p-1 bg-[var(--card)]">
+              <AvatarDisplay
+                avatarUrl={p.avatar_url}
+                firstName={p.first_name}
+                lastName={p.last_name}
+                email={null}
+                isVerified={p.is_verified}
+                isMonthlyWinner={isMonthlyWinner}
+                size="xl"
+                className="ring-4 ring-[var(--card)]"
+              />
+            </div>
+            
+            <div className="flex items-center gap-3 mt-4 sm:mt-0">
+              {isMe ? (
+                <Button asChild variant="outline" size="sm" className="rounded-full font-medium">
+                  <Link to="/app/profil">
+                    <Pencil className="mr-2 h-3.5 w-3.5" />
+                    Modifier mon profil
+                  </Link>
+                </Button>
+              ) : (
+                <>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="rounded-full font-medium"
+                  >
+                    Suivre
+                  </Button>
+                  <Button
+                    size="sm"
+                    className="rounded-full bg-[var(--primary)] text-white hover:bg-[var(--primary-light)] shadow-sm font-medium"
+                    onClick={handleSendMessage}
+                    disabled={isStartingChat}
+                  >
+                    <MessageSquare className="mr-2 h-4 w-4" />
+                    {isStartingChat ? 'Ouverture...' : 'Message'}
+                  </Button>
+                </>
+              )}
+            </div>
+          </div>
+
+          <div className="mt-4">
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="inline-flex items-center gap-1.5 font-display text-2xl font-semibold tracking-tight md:text-3xl">
+              <h1 className="font-display text-2xl font-bold tracking-tight text-[var(--foreground)] sm:text-3xl">
                 {fullName}
-                {p.is_verified && (
-                  <VerifiedBadge className="h-5 w-5 md:h-6 md:w-6" />
-                )}
               </h1>
               {p.role === 'admin' && (
-                <span className="inline-flex rounded-full bg-[var(--primary)]/10 px-2 py-0.5 text-xs font-medium text-[var(--primary)]">
+                <span className="inline-flex rounded-full bg-[var(--primary)]/10 px-2.5 py-0.5 text-xs font-semibold text-[var(--primary)]">
                   Admin
                 </span>
               )}
             </div>
+            
             {p.bio && (
-              <p className="mt-2 max-w-prose whitespace-pre-wrap text-[var(--muted-foreground)]">
+              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[var(--foreground)]">
                 {p.bio}
               </p>
             )}
-            <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-1 text-sm text-[var(--muted-foreground)]">
-              <span>
-                <strong className="text-[var(--foreground)]">
-                  {posts_count}
-                </strong>{' '}
-                post{posts_count > 1 ? 's' : ''}
-              </span>
-              <span>
-                <strong className="text-[var(--foreground)]">
-                  {comments_count}
-                </strong>{' '}
-                commentaire{comments_count > 1 ? 's' : ''}
-              </span>
-              <span>
-                Membre depuis{' '}
-                {format(new Date(p.created_at), 'MMMM yyyy', { locale: fr })}
-              </span>
+
+            <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-[var(--muted-foreground)]">
+              <div className="flex items-center gap-1.5 cursor-pointer hover:text-[var(--foreground)] transition-colors">
+                <span className="font-semibold text-[var(--foreground)]">{posts_count}</span>
+                <span>Publications</span>
+              </div>
+              <div className="flex items-center gap-1.5 cursor-pointer hover:text-[var(--foreground)] transition-colors">
+                <span className="font-semibold text-[var(--foreground)]">{comments_count}</span>
+                <span>Commentaires</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span>Membre depuis {format(new Date(p.created_at), 'MMMM yyyy', { locale: fr })}</span>
+              </div>
             </div>
-            {isMe ? (
-              <Button asChild variant="outline" size="sm" className="mt-4">
-                <Link to="/app/profil">
-                  <Pencil className="h-3.5 w-3.5" />
-                  Modifier mon profil
-                </Link>
-              </Button>
-            ) : (
-              <Button
-                size="sm"
-                className="mt-4 bg-[var(--primary)] text-white hover:bg-[var(--primary-light)] gap-2 shadow-sm font-medium"
-                onClick={handleSendMessage}
-                disabled={isStartingChat}
-              >
-                <MessageSquare className="h-4 w-4" />
-                {isStartingChat ? 'Ouverture...' : 'Envoyer un message'}
-              </Button>
-            )}
           </div>
         </div>
-      </motion.section>
-
-      {/* Posts */}
-      <h2 className="mt-10 font-display text-xl font-semibold tracking-tight">
-        Posts
-      </h2>
-      <div className="mt-4">
-        {postsQuery.isLoading ? (
-          <FeedSkeleton count={2} />
-        ) : postsQuery.isError ? (
-          <div className="rounded-2xl border border-dashed border-[var(--border)] bg-[var(--card)] p-10 text-center">
-            <p className="text-sm text-[var(--muted-foreground)]">
-              Impossible de charger les posts.
-            </p>
-          </div>
-        ) : (postsQuery.data ?? []).length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-[var(--border)] bg-[var(--card)] p-10 text-center">
-            <p className="text-sm text-[var(--muted-foreground)]">
-              {isMe
-                ? "Tu n'as pas encore publié."
-                : "Ce membre n'a pas encore publié."}
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {postsQuery.data?.map((post) => (
-              <PostCard
-                key={post.id}
-                post={post}
-                currentUserId={currentUser?.id ?? null}
-                isAdmin={isAdmin}
-                onDelete={handleDelete}
-                pendingDelete={deleteMutation.isPending}
-              />
+        
+        {/* Navigation Tabs */}
+        <div className="border-t border-[var(--border)] px-6 sm:px-8">
+          <nav className="-mb-px flex space-x-8" aria-label="Tabs">
+            {[
+              { id: 'posts', label: 'Publications' },
+              { id: 'activite', label: 'Activité' },
+              { id: 'badges', label: 'Badges' },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as any)}
+                className={`
+                  whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium transition-colors
+                  ${activeTab === tab.id
+                    ? 'border-[var(--primary)] text-[var(--primary)]'
+                    : 'border-transparent text-[var(--muted-foreground)] hover:border-[var(--border)] hover:text-[var(--foreground)]'
+                  }
+                `}
+              >
+                {tab.label}
+              </button>
             ))}
-          </div>
+          </nav>
+        </div>
+      </div>
+
+      {/* Tab Content */}
+      <div className="mt-6">
+        {activeTab === 'posts' && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-4"
+          >
+            {postsQuery.isLoading ? (
+              <FeedSkeleton count={2} />
+            ) : postsQuery.isError ? (
+              <div className="rounded-2xl border border-dashed border-[var(--border)] bg-[var(--card)] p-10 text-center">
+                <p className="text-sm text-[var(--muted-foreground)]">
+                  Impossible de charger les publications.
+                </p>
+              </div>
+            ) : (postsQuery.data ?? []).length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-[var(--border)] bg-[var(--card)] p-10 text-center">
+                <p className="text-sm text-[var(--muted-foreground)]">
+                  {isMe
+                    ? "Tu n'as pas encore publié sur le Club."
+                    : "Ce membre n'a pas encore publié."}
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {postsQuery.data?.map((post) => (
+                  <PostCard
+                    key={post.id}
+                    post={post}
+                    currentUserId={currentUser?.id ?? null}
+                    isAdmin={isAdmin}
+                    onDelete={handleDelete}
+                    pendingDelete={deleteMutation.isPending}
+                  />
+                ))}
+              </div>
+            )}
+          </motion.div>
+        )}
+
+        {activeTab === 'activite' && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="rounded-2xl border border-dashed border-[var(--border)] bg-[var(--card)] p-10 text-center"
+          >
+            <p className="text-sm text-[var(--muted-foreground)]">
+              L'historique d'activité complète sera bientôt disponible.
+            </p>
+          </motion.div>
+        )}
+
+        {activeTab === 'badges' && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="rounded-2xl border border-dashed border-[var(--border)] bg-[var(--card)] p-10 text-center"
+          >
+            <p className="text-sm text-[var(--muted-foreground)]">
+              Les badges et hauts faits du membre apparaîtront ici.
+            </p>
+          </motion.div>
         )}
       </div>
 
