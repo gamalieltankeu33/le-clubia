@@ -71,22 +71,24 @@ interface FormState {
   is_published: boolean
 }
 
-const EMPTY_FORM: FormState = {
-  id: null,
-  title: '',
-  description: '',
-  type: 'coaching',
-  speaker_name: '',
-  speaker_bio: '',
-  starts_at_local: '',
-  duration_minutes: 90,
-  meet_url: '',
-  replay_url: '',
-  cover_image_url: null,
-  notify_on_publish: true,
-  notify_1_day_before: true,
-  notify_on_day: true,
-  is_published: false,
+function getInitialFormState(): FormState {
+  return {
+    id: null,
+    title: '',
+    description: '',
+    type: 'coaching',
+    speaker_name: '',
+    speaker_bio: '',
+    starts_at_local: isoToLocalDatetime(new Date().toISOString()),
+    duration_minutes: 90,
+    meet_url: '',
+    replay_url: '',
+    cover_image_url: null,
+    notify_on_publish: true,
+    notify_1_day_before: true,
+    notify_on_day: true,
+    is_published: false,
+  }
 }
 
 function isoToLocalDatetime(iso: string): string {
@@ -504,7 +506,7 @@ function AdminEventsPage() {
             </p>
           </div>
         </div>
-        <Button onClick={() => setEditing({ ...EMPTY_FORM })}>
+        <Button onClick={() => setEditing(getInitialFormState())}>
           <Plus className="h-4 w-4" />
           Nouvel événement
         </Button>
@@ -634,6 +636,14 @@ function AdminEventsPage() {
           onChange={setEditing}
           onCancel={() => setEditing(null)}
           onSubmit={() => {
+            if (!editing.title.trim()) {
+              toast.error("Merci d'indiquer un titre pour l'événement.")
+              return
+            }
+            if (!editing.starts_at_local) {
+              toast.error("Merci d'indiquer une date et heure.")
+              return
+            }
             const replay = editing.replay_url.trim()
             if (replay && !isValidVideoUrl(replay)) {
               toast.error(
@@ -1039,7 +1049,7 @@ function EventFormModal({
             <Button
               type="button"
               onClick={onSubmit}
-              disabled={!isValid || submitting}
+              disabled={submitting}
             >
               {submitting ? (
                 <>
