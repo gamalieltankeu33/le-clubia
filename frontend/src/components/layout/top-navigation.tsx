@@ -1,4 +1,4 @@
-import { Link, useLocation } from '@tanstack/react-router'
+import { Link, useLocation, useNavigate } from '@tanstack/react-router'
 import { Search, MessageSquare, Bookmark, Settings, LogOut, Shield } from 'lucide-react'
 import { NotificationBell } from '@/components/notifications/notification-bell'
 import { NotificationPanel } from '@/components/notifications/notification-panel'
@@ -10,6 +10,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 
 export function TopNavigation({ onOpenMobileMenu }: { onOpenMobileMenu: () => void }) {
   const { pathname } = useLocation()
+  const navigate = useNavigate()
   const user = useAuthStore((s) => s.user)
   const profile = useAuthStore((s) => s.profile)
   const isAdmin = useAuthStore((s) => s.isAdmin)()
@@ -73,20 +74,20 @@ export function TopNavigation({ onOpenMobileMenu }: { onOpenMobileMenu: () => vo
               <svg width="12" height="12" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.18179 6.18181C4.35753 6.00608 4.64245 6.00608 4.81819 6.18181L7.49999 8.86362L10.1818 6.18181C10.3575 6.00608 10.6424 6.00608 10.8182 6.18181C10.9939 6.35755 10.9939 6.64247 10.8182 6.81821L7.81819 9.81821C7.73379 9.9026 7.61934 9.95001 7.49999 9.95001C7.38064 9.95001 7.26618 9.9026 7.18179 9.81821L4.18179 6.81821C4.00605 6.64247 4.00605 6.35755 4.18179 6.18181Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"></path></svg>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="w-48">
-              <DropdownMenuItem asChild>
-                <Link to="/app/messages">Messagerie</Link>
+              <DropdownMenuItem className="cursor-pointer" onSelect={() => navigate({ to: '/app/messages' })}>
+                Messagerie
               </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/app/challenges">Challenges</Link>
+              <DropdownMenuItem className="cursor-pointer" onSelect={() => navigate({ to: '/app/challenges' })}>
+                Challenges
               </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/app/ressources">Ressources</Link>
+              <DropdownMenuItem className="cursor-pointer" onSelect={() => navigate({ to: '/app/ressources' })}>
+                Ressources
               </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/app/actualites">Actualités</Link>
+              <DropdownMenuItem className="cursor-pointer" onSelect={() => navigate({ to: '/app/actualites' })}>
+                Actualités
               </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/app/classement">Classement</Link>
+              <DropdownMenuItem className="cursor-pointer" onSelect={() => navigate({ to: '/app/classement' })}>
+                Classement
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -101,36 +102,24 @@ export function TopNavigation({ onOpenMobileMenu }: { onOpenMobileMenu: () => vo
                 Admin
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuItem asChild>
-                  <Link to="/app/admin" className="cursor-pointer font-medium">
-                    📊 Tableau de bord
-                  </Link>
+                <DropdownMenuItem className="cursor-pointer font-medium" onSelect={() => navigate({ to: '/app/admin' })}>
+                  📊 Tableau de bord
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link to="/app/admin/formations/new" className="cursor-pointer">
-                    ➕ Nouvelle formation
-                  </Link>
+                <DropdownMenuItem className="cursor-pointer" onSelect={() => navigate({ to: '/app/admin/formations/new' })}>
+                  ➕ Nouvelle formation
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link to="/app/admin/ressources/new" className="cursor-pointer">
-                    ➕ Nouvelle ressource
-                  </Link>
+                <DropdownMenuItem className="cursor-pointer" onSelect={() => navigate({ to: '/app/admin/ressources/new' })}>
+                  ➕ Nouvelle ressource
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link to="/app/admin/actualites/new" className="cursor-pointer">
-                    ➕ Nouvel article (Manuel)
-                  </Link>
+                <DropdownMenuItem className="cursor-pointer" onSelect={() => navigate({ to: '/app/admin/actualites/new' })}>
+                  ➕ Nouvel article (Manuel)
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link to="/app/admin/actualites" className="cursor-pointer">
-                    🤖 Lancer l'Agent IA (Actualités)
-                  </Link>
+                <DropdownMenuItem className="cursor-pointer" onSelect={() => navigate({ to: '/app/admin/actualites' })}>
+                  🤖 Lancer l'Agent IA (Actualités)
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link to="/app/admin/events" className="cursor-pointer">
-                    📅 Programmer événement
-                  </Link>
+                <DropdownMenuItem className="cursor-pointer" onSelect={() => navigate({ to: '/app/admin/events' })}>
+                  📅 Programmer événement
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -157,27 +146,21 @@ export function TopNavigation({ onOpenMobileMenu }: { onOpenMobileMenu: () => vo
                   </div>
                 </div>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link to="/app/membres/$userId" params={{ userId: user?.id || '' }} className="cursor-pointer">
-                    Voir mon profil
-                  </Link>
+                <DropdownMenuItem className="cursor-pointer" onSelect={() => navigate({ to: '/app/membres/$userId', params: { userId: user?.id || '' } })}>
+                  Voir mon profil
                 </DropdownMenuItem>
                 <DropdownMenuItem className="cursor-pointer">
                   Mes favoris
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link to="/app/profil" className="cursor-pointer">
-                    <Settings className="mr-2 h-4 w-4" />
-                    <span>Paramètres</span>
-                  </Link>
+                <DropdownMenuItem className="cursor-pointer" onSelect={() => navigate({ to: '/app/profil' })}>
+                  <Settings className="mr-2 h-4 w-4" />
+                  <span>Paramètres</span>
                 </DropdownMenuItem>
                 {isAdmin && (
-                  <DropdownMenuItem asChild>
-                    <Link to="/app/admin" className="cursor-pointer text-[var(--primary)] font-medium">
-                      <Shield className="mr-2 h-4 w-4" />
-                      <span>Administration</span>
-                    </Link>
+                  <DropdownMenuItem className="cursor-pointer text-[var(--primary)] font-medium" onSelect={() => navigate({ to: '/app/admin' })}>
+                    <Shield className="mr-2 h-4 w-4" />
+                    <span>Administration</span>
                   </DropdownMenuItem>
                 )}
                 <DropdownMenuSeparator />
