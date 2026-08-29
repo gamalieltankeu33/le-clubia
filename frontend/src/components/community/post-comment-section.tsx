@@ -904,6 +904,7 @@ function CommentComposer({
   onSubmit,
   onCancel,
   initialMention,
+  placeholder,
 }: CommentComposerProps) {
   const user = useAuthStore((s) => s.user)
   const profile = useAuthStore((s) => s.profile)
