@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
 import { Check, GraduationCap, Search, X } from 'lucide-react'
@@ -262,7 +262,6 @@ function CatalogSkeleton() {
   )
 }
 
-import { useNavigate } from '@tanstack/react-router'
 
 function EmptyCatalog() {
   const navigate = useNavigate()
