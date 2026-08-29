@@ -146,79 +146,99 @@ function CommunityFeedPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6 lg:py-14">
-      <motion.div
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-      >
-        <div className="flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--primary)]/10 text-[var(--primary)]">
-            <MessageSquare className="h-5 w-5" />
-          </span>
-          <h1 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl md:text-4xl">
-            Communauté
-          </h1>
-        </div>
-        <CommunityStatsPill />
-        <p className="mt-3 text-lg text-[var(--muted-foreground)]">
-          Le fil de tous les membres de Leclub.ia.
-        </p>
-      </motion.div>
+    <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:py-12">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_320px]">
+        {/* COLONNE PRINCIPALE (FEED) */}
+        <div className="space-y-6">
+          
+          {/* HEADER COMMUNAUTÉ */}
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className="flex flex-col gap-4"
+          >
+            <div className="flex items-center gap-3">
+              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--primary)]/10 text-[var(--primary)]">
+                <MessageSquare className="h-6 w-6" />
+              </span>
+              <div>
+                <h1 className="font-display text-2xl font-bold tracking-tight sm:text-3xl">
+                  Communauté
+                </h1>
+                <p className="mt-1 text-sm text-[var(--muted-foreground)]">
+                  Échange, partage et avance avec les membres du Club IA.
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <CommunityStatsPill className="mt-0" />
+            </div>
+          </motion.div>
 
-      {/* Composer entrypoint */}
-      <div className="mt-8 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-4 shadow-sm">
-        <button
-          type="button"
-          onClick={() => setComposerOpen(true)}
-          className="flex w-full items-center gap-3 text-left focus:outline-none group"
-        >
-          <AvatarDisplay
-            avatarUrl={profile?.avatar_url}
-            firstName={profile?.first_name}
-            lastName={profile?.last_name}
-            email={user?.email}
-            isVerified={profile?.is_verified ?? false}
-            size="md"
-          />
-          <div className="flex-1 rounded-full bg-[var(--secondary)]/50 px-4 py-2.5 text-sm text-[var(--muted-foreground)] transition-colors group-hover:bg-[var(--secondary)]">
-            Partager quelque chose avec la communauté...
+          {/* COMPOSER ENTRYPOINT */}
+          <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-4 shadow-sm transition-shadow hover:shadow-md">
+            <button
+              type="button"
+              onClick={() => setComposerOpen(true)}
+              className="group flex w-full items-center gap-3 text-left focus:outline-none"
+            >
+              <AvatarDisplay
+                avatarUrl={profile?.avatar_url}
+                firstName={profile?.first_name}
+                lastName={profile?.last_name}
+                email={user?.email}
+                isVerified={profile?.is_verified ?? false}
+                size="md"
+              />
+              <div className="flex-1 rounded-full bg-[var(--secondary)]/50 px-4 py-2.5 text-sm text-[var(--muted-foreground)] transition-colors group-hover:bg-[var(--secondary)]">
+                Partage une idée, une question ou une victoire...
+              </div>
+            </button>
+            <div className="mt-3.5 flex items-center gap-2 border-t border-[var(--border)]/60 pt-3 px-1">
+              <button
+                type="button"
+                onClick={() => setComposerOpen(true)}
+                className="flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold text-[var(--muted-foreground)] transition-colors hover:bg-[var(--secondary)] hover:text-[var(--foreground)]"
+              >
+                <Image className="h-4 w-4 text-sky-500" />
+                <span className="hidden sm:inline">Photo</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setComposerOpen(true)}
+                className="flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold text-[var(--muted-foreground)] transition-colors hover:bg-[var(--secondary)] hover:text-[var(--foreground)]"
+              >
+                <Video className="h-4 w-4 text-rose-500" />
+                <span className="hidden sm:inline">Vidéo</span>
+              </button>
+            </div>
           </div>
-        </button>
 
-        <div className="mt-3.5 flex items-center justify-between border-t border-[var(--border)]/60 pt-3 px-1">
-          <button
-            type="button"
-            onClick={() => setComposerOpen(true)}
-            className="flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold text-[var(--muted-foreground)] hover:bg-[var(--secondary)]/60 hover:text-[var(--foreground)] transition-colors"
-          >
-            <Image className="h-4.5 w-4.5 text-sky-500" />
-            <span>Photo / Image</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setComposerOpen(true)}
-            className="flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold text-[var(--muted-foreground)] hover:bg-[var(--secondary)]/60 hover:text-[var(--foreground)] transition-colors"
-          >
-            <Video className="h-4.5 w-4.5 text-rose-500" />
-            <span>Vidéo</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setComposerOpen(true)}
-            className="flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold text-[var(--muted-foreground)] hover:bg-[var(--secondary)]/60 hover:text-[var(--foreground)] transition-colors"
-          >
-            <Pencil className="h-4 w-4 text-violet-500" />
-            <span>Rédiger</span>
-          </button>
-        </div>
-      </div>
+          {/* NAVIGATION DU FEED */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide border-b border-[var(--border)]">
+            <button className="whitespace-nowrap border-b-2 border-[var(--primary)] px-3 py-2 text-sm font-semibold text-[var(--foreground)]">
+              Pour vous
+            </button>
+            <button className="whitespace-nowrap border-b-2 border-transparent px-3 py-2 text-sm font-medium text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]">
+              Récent
+            </button>
+            <button className="whitespace-nowrap border-b-2 border-transparent px-3 py-2 text-sm font-medium text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]">
+              Populaire
+            </button>
+            <button className="whitespace-nowrap border-b-2 border-transparent px-3 py-2 text-sm font-medium text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]">
+              Sans réponse
+            </button>
+          </div>
+
+
 
       <PullToRefresh
         onRefresh={async () => {
           await feed.refetch()
         }}
-        className="mt-8"
+        className="mt-6"
       >
         {feed.isLoading ? (
           <FeedSkeleton count={3} />
@@ -261,6 +281,32 @@ function CommunityFeedPage() {
           </div>
         )}
       </PullToRefresh>
+      
+      </div> {/* Fin Colonne Principale */}
+
+      {/* COLONNE DROITE (DESKTOP) */}
+      <aside className="hidden lg:flex flex-col gap-6">
+        <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-sm">
+          <h3 className="font-semibold text-[var(--foreground)] mb-4 flex items-center gap-2">
+            Membres en ligne
+            <span className="flex h-2 w-2 rounded-full bg-green-500 relative">
+               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75"></span>
+            </span>
+          </h3>
+          <div className="text-sm text-[var(--muted-foreground)]">
+            Les membres connectés apparaîtront ici.
+          </div>
+        </div>
+        
+        <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-sm">
+          <h3 className="font-semibold text-[var(--foreground)] mb-4">Événement à venir</h3>
+          <div className="text-sm text-[var(--muted-foreground)]">
+            Aucun événement prévu.
+          </div>
+        </div>
+      </aside>
+
+      </div> {/* Fin Grid */}
 
       {/* Suspense fallback rendu via null : le modal n'a pas besoin de
           fallback visible — il s'ouvre quand l'utilisateur clique le bouton.

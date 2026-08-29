@@ -44,6 +44,8 @@ export function AvatarDisplay({
   isVerified?: boolean
   /** Membre du mois en cours : affiche une couronne ambre en haut-droite. */
   isMonthlyWinner?: boolean
+  /** Indicateur de présence (point vert). */
+  isOnline?: boolean
   className?: string
 }) {
   const wrapper = cn('relative inline-block shrink-0', className)
@@ -73,7 +75,7 @@ export function AvatarDisplay({
       {isMonthlyWinner && (
         <span
           className={cn(
-            'absolute flex items-center justify-center rounded-full bg-[var(--or)] text-[var(--noir)] shadow-sm ring-2 ring-white',
+            'absolute flex items-center justify-center rounded-full bg-[var(--or)] text-[var(--noir)] shadow-sm ring-2 ring-[var(--card)]',
             CROWN_SIZE[size],
           )}
           aria-label="Membre du mois"
@@ -84,6 +86,19 @@ export function AvatarDisplay({
             strokeWidth={2.5}
           />
         </span>
+      )}
+      {isOnline && !isVerified && (
+        <span
+          className={cn(
+            'absolute rounded-full bg-green-500 ring-2 ring-[var(--card)]',
+            size === 'sm' ? 'h-2 w-2 bottom-0 right-0' :
+            size === 'md' ? 'h-2.5 w-2.5 bottom-0 right-0' :
+            size === 'lg' ? 'h-3 w-3 bottom-0.5 right-0.5' :
+            'h-4 w-4 bottom-1 right-1'
+          )}
+          aria-label="En ligne"
+          title="En ligne"
+        />
       )}
     </span>
   )

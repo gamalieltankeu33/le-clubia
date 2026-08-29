@@ -612,6 +612,7 @@ function CommentItem({
     [comment.author?.first_name, comment.author?.last_name]
       .filter(Boolean)
       .join(' ') || 'Membre'
+  const firstName = comment.author?.first_name || 'Membre'
 
   const repliesQuery = useQuery({
     queryKey: ['post-comment-replies', comment.id],
@@ -894,6 +895,7 @@ interface CommentComposerProps {
   /** Pré-remplit le composer avec une mention de l'auteur du commentaire
    *  parent (uniquement pour mode reply). */
   initialMention?: { id: string; label: string }
+  placeholder?: string
 }
 
 function CommentComposer({
@@ -921,10 +923,11 @@ function CommentComposer({
         link: false,
       }),
       Placeholder.configure({
-        placeholder:
+        placeholder: placeholder ?? (
           mode === 'reply'
             ? 'Écris ta réponse… utilise @ pour mentionner un membre.'
-            : 'Ajoute un commentaire… utilise @ pour mentionner un membre.',
+            : 'Ajoute un commentaire… utilise @ pour mentionner un membre.'
+        ),
       }),
       MentionExtension,
     ],

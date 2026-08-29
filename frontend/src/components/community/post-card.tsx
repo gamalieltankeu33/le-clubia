@@ -19,6 +19,7 @@ import { PostLikersPreview } from './post-likers-preview'
 import { sanitizePostHtml } from '@/lib/sanitize-html'
 import { cn } from '@/lib/utils'
 import { useToggleLike } from '@/hooks/use-toggle-like'
+import { Badge } from '@/components/ui/badge'
 
 // La PostCommentSection embarque Tiptap + extension mention (gros poids).
 // Lazy-loadée → on ne la charge que lorsque l'utilisateur clique pour
@@ -86,7 +87,11 @@ export function PostCard({
   // page détail (où le bloc commentaires est rendu séparément).
   const [commentsOpen, setCommentsOpen] = useState(false)
   const [likersOpen, setLikersOpen] = useState(false)
+  const [isTextExpanded, setIsTextExpanded] = useState(false)
   const cardRef = useRef<HTMLElement>(null)
+  
+  // Use a heuristic to show 'Voir plus' (assuming simple char count for now, proper way is ResizeObserver)
+  const isLongText = post.content.length > 300 || post.content.split('</p>').length > 4
 
   const fullName =
     [post.author?.first_name, post.author?.last_name]
@@ -243,10 +248,28 @@ export function PostCard({
       </header>
 
       {/* Contenu HTML sanitisé */}
-      <div
-        className="post-content mt-3 text-[15px] leading-relaxed [&_a]:text-[var(--primary)] [&_a]:underline [&_p]:mb-2 [&_p]:last:mb-0 [&_ul]:my-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1 [&_ol]:my-2 [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:space-y-1 [&_strong]:font-semibold [&_em]:italic [&_h3]:mt-3 [&_h3]:font-display [&_h3]:text-lg [&_h3]:font-semibold [&_blockquote]:my-2 [&_blockquote]:border-l-2 [&_blockquote]:border-[var(--border)] [&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:text-[var(--muted-foreground)] [&_code]:rounded [&_code]:bg-[var(--secondary)] [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:text-[0.85em]"
-        dangerouslySetInnerHTML={{ __html: safeHtml }}
-      />
+      <div className="mt-3 relative">
+        <div
+          className={cn(
+            "post-content text-[15px] leading-relaxed [&_a]:text-[var(--primary)] [&_a]:underline [&_p]:mb-2 [&_p]:last:mb-0 [&_ul]:my-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1 [&_ol]:my-2 [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:space-y-1 [&_strong]:font-semibold [&_em]:italic [&_h3]:mt-3 [&_h3]:font-display [&_h3]:text-lg [&_h3]:font-semibold [&_blockquote]:my-2 [&_blockquote]:border-l-2 [&_blockquote]:border-[var(--border)] [&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:text-[var(--muted-foreground)] [&_code]:rounded [&_code]:bg-[var(--secondary)] [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:text-[0.85em]",
+            !isTextExpanded && isLongText && "line-clamp-4 mask-bottom"
+          )}
+          dangerouslySetInnerHTML={{ __html: safeHtml }}
+        />
+        {!isTextExpanded && isLongText && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation()
+              setIsTextExpanded(true)
+            }}
+            className="mt-1 text-sm font-semibold text-[var(--primary)] hover:underline"
+            data-no-navigate
+          >
+            Voir plus
+          </button>
+        )}
+      </div>
 
       {post.link_url && (
         <LinkPreviewCard url={post.link_url} className="mt-3" />
@@ -272,13 +295,19 @@ export function PostCard({
 
       {post.hashtags.length > 0 && (
         <div className="mt-3 flex flex-wrap gap-1.5">
-          {post.hashtags.map((h) => (
-            <span
-              key={h}
-              className="rounded-full bg-[var(--primary)]/10 px-2 py-0.5 text-xs font-medium text-[var(--primary)]"
-            >
-              #{h}
-            </span>
+          {post.hashtags.map((h, i) => (
+            i === 0 ? (
+              <Badge key={h} variant="secondary" className="font-medium text-xs">
+                {h}
+              </Badge>
+            ) : (
+              <span
+                key={h}
+                className="rounded-full bg-[var(--primary)]/5 px-2 py-0.5 text-xs font-medium text-[var(--primary)]"
+              >
+                #{h}
+              </span>
+            )
           ))}
         </div>
       )}
