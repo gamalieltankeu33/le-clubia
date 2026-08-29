@@ -19,7 +19,9 @@ import { PostLikersPreview } from './post-likers-preview'
 import { sanitizePostHtml } from '@/lib/sanitize-html'
 import { cn } from '@/lib/utils'
 import { useToggleLike } from '@/hooks/use-toggle-like'
+import { useToggleSave } from '@/hooks/use-toggle-save'
 import { Badge } from '@/components/ui/badge'
+import { Bookmark } from 'lucide-react'
 
 // La PostCommentSection embarque Tiptap + extension mention (gros poids).
 // Lazy-loadée → on ne la charge que lorsque l'utilisateur clique pour
@@ -60,6 +62,7 @@ export interface FeedPost {
   } | null
   /** L'utilisateur courant a-t-il liké ce post ? */
   liked_by_me: boolean
+  saved_by_me: boolean
 }
 
 export function PostCard({
@@ -81,6 +84,10 @@ export function PostCard({
   const { liked, count, toggle, isPending: pendingLike } = useToggleLike(
     post,
     currentUserId,
+  )
+  const { saved, toggle: toggleSave, isPending: pendingSave } = useToggleSave(
+    post,
+    currentUserId
   )
   const [menuOpen, setMenuOpen] = useState(false)
   // Accordéon inline : visible uniquement quand on n'est pas déjà sur la
@@ -156,6 +163,13 @@ export function PostCard({
               Projet : {post.challenge_project_name}
             </span>
           )}
+        </div>
+      )}
+      {post.category && post.category !== 'general' && (
+        <div className="mb-3 flex items-center gap-2">
+          <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-[var(--secondary)] text-[var(--muted-foreground)]">
+            {post.category.replace('-', ' ')}
+          </span>
         </div>
       )}
       <header className="flex items-start gap-3">
@@ -394,7 +408,35 @@ export function PostCard({
               commentsOpen && 'fill-[var(--primary)]/15',
             )}
           />
-          <span>Commenter</span>
+          <span className="hidden sm:inline">Commenter</span>
+        </button>
+
+        {/* Bouton Enregistrer */}
+        <button
+          type="button"
+          aria-label={saved ? 'Retirer des favoris' : 'Enregistrer'}
+          aria-pressed={saved}
+          data-no-navigate
+          disabled={!currentUserId}
+          onClick={(e) => {
+            e.stopPropagation()
+            toggleSave()
+          }}
+          className={cn(
+            'flex-1 inline-flex items-center justify-center gap-2 rounded-xl py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50',
+            saved
+              ? 'text-amber-500 hover:bg-amber-50/50'
+              : 'text-[var(--muted-foreground)] hover:bg-[var(--secondary)]/60 hover:text-[var(--foreground)]',
+            pendingSave && 'opacity-90',
+          )}
+        >
+          <Bookmark
+            className={cn(
+              'h-4.5 w-4.5 transition-colors',
+              saved && 'fill-amber-500 text-amber-500',
+            )}
+          />
+          <span className="hidden sm:inline">Enregistrer</span>
         </button>
       </footer>
     </div>

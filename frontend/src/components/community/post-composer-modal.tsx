@@ -50,6 +50,7 @@ export function PostComposerModal({
   const [submitting, setSubmitting] = useState(false)
   const [showLinkInput, setShowLinkInput] = useState(false)
   const [linkUrl, setLinkUrl] = useState('')
+  const [category, setCategory] = useState('general')
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Compteur incrémenté à chaque update Tiptap → force le re-render React
@@ -98,6 +99,7 @@ export function PostComposerModal({
       setImagePreview(null)
       setShowLinkInput(false)
       setLinkUrl('')
+      setCategory('general')
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open])
@@ -213,6 +215,7 @@ export function PostComposerModal({
           image_url: imageUrl,
           link_url: finalLinkUrl,
           hashtags,
+          category,
         })
         .select('id')
         .single()
@@ -382,35 +385,50 @@ export function PostComposerModal({
             onChange={handleImagePick}
             className="hidden"
           />
-          <div className="flex items-center gap-1">
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={submitting || Boolean(imageFile)}
-            >
-              <ImageIcon className="h-4 w-4" />
-              <span className="hidden sm:inline">Image</span>
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                if (showLinkInput) {
-                  setShowLinkInput(false)
-                  setLinkUrl('')
-                } else {
-                  setShowLinkInput(true)
-                }
-              }}
+          <div className="flex flex-wrap items-center gap-1 sm:gap-3">
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
               disabled={submitting}
-              aria-pressed={showLinkInput}
+              className="text-xs font-medium bg-[var(--secondary)]/50 border border-[var(--border)] rounded-md px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-[var(--primary)] text-[var(--foreground)]"
             >
-              <Link2 className="h-4 w-4" />
-              <span className="hidden sm:inline">Lien</span>
-            </Button>
+              <option value="general">Discussions</option>
+              <option value="questions">Questions & entraide</option>
+              <option value="victoires">Victoires</option>
+            </select>
+
+            <div className="flex items-center gap-1">
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={submitting || Boolean(imageFile)}
+                className="h-8 px-2"
+              >
+                <ImageIcon className="h-4 w-4" />
+                <span className="hidden sm:inline ml-1">Image</span>
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  if (showLinkInput) {
+                    setShowLinkInput(false)
+                    setLinkUrl('')
+                  } else {
+                    setShowLinkInput(true)
+                  }
+                }}
+                disabled={submitting}
+                aria-pressed={showLinkInput}
+                className="h-8 px-2"
+              >
+                <Link2 className="h-4 w-4" />
+                <span className="hidden sm:inline ml-1">Lien</span>
+              </Button>
+            </div>
           </div>
 
           <Button

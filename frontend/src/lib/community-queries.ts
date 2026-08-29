@@ -31,6 +31,21 @@ async function fetchMyLikedPostIds(
   return (data ?? []) as { post_id: string }[]
 }
 
+async function fetchMySavedPostIds(
+  currentUserId: string | null,
+  postIds: string[],
+): Promise<{ post_id: string }[]> {
+  if (!currentUserId || postIds.length === 0) return []
+  const { data, error } = await supabase.rpc('get_my_saved_post_ids', {
+    p_post_ids: postIds,
+  })
+  if (error) {
+    console.warn('[community] get_my_saved_post_ids error:', error)
+    return []
+  }
+  return (data ?? []) as { post_id: string }[]
+}
+
 interface RawPost {
   id: string
   user_id: string
@@ -43,6 +58,7 @@ interface RawPost {
   is_pinned: boolean
   challenge_week_number: number | null
   challenge_project_name: string | null
+  category: string
   created_at: string
 }
 
@@ -60,16 +76,19 @@ export async function hydratePosts(
   const userIds = Array.from(new Set(rawPosts.map((p) => p.user_id)))
   const postIds = rawPosts.map((p) => p.id)
 
-  const [authors, likedRows] = await Promise.all([
+  const [authors, likedRows, savedRows] = await Promise.all([
     fetchPublicProfilesIn(userIds),
     fetchMyLikedPostIds(currentUserId, postIds),
+    fetchMySavedPostIds(currentUserId, postIds),
   ])
 
   const authorById = new Map(authors.map((a) => [a.id, a]))
+  
   const likedSet = new Set<string>()
-  for (const l of likedRows) {
-    likedSet.add(l.post_id)
-  }
+  for (const l of likedRows) likedSet.add(l.post_id)
+    
+  const savedSet = new Set<string>()
+  for (const s of savedRows) savedSet.add(s.post_id)
 
   return rawPosts.map((p) => {
     const author = authorById.get(p.user_id) ?? null
@@ -85,6 +104,7 @@ export async function hydratePosts(
       is_pinned: Boolean(p.is_pinned),
       challenge_week_number: p.challenge_week_number,
       challenge_project_name: p.challenge_project_name,
+      category: p.category,
       created_at: p.created_at,
       author: author
         ? {
@@ -96,6 +116,7 @@ export async function hydratePosts(
           }
         : null,
       liked_by_me: likedSet.has(p.id),
+      saved_by_me: savedSet.has(p.id),
     } satisfies FeedPost
   })
 }
@@ -110,25 +131,62 @@ const PAGE_SIZE = 20
 
 /**
  * Récupère une page de posts du feed global, avec auteurs et liked_by_me hydratés.
- * @param page index de la page (0-based)
+ * Permet de filtrer par catégorie et/ou type d'affichage.
  */
 export async function fetchFeedPage(
   page: number,
   currentUserId: string | null,
+  category?: string,
+  filter?: 'mine' | 'saved',
 ): Promise<FeedPage> {
   const from = page * PAGE_SIZE
   const to = from + PAGE_SIZE - 1
-  const { data, error } = await supabase
+  
+  // Base query
+  let query = supabase
     .from('posts')
-    .select(
-      'id, user_id, content, image_url, link_url, hashtags, likes_count, comments_count, is_pinned, challenge_week_number, challenge_project_name, created_at',
-    )
-    .order('is_pinned', { ascending: false })
-    .order('created_at', { ascending: false })
-    .range(from, to)
+    .select('id, user_id, content, image_url, link_url, hashtags, likes_count, comments_count, is_pinned, challenge_week_number, challenge_project_name, category, created_at')
+    
+  if (filter === 'mine' && currentUserId) {
+    query = query.eq('user_id', currentUserId)
+  }
+  
+  if (category && category !== 'general' && !filter) {
+    query = query.eq('category', category)
+  }
+  
+  // Traitement spécial pour les posts enregistrés
+  if (filter === 'saved' && currentUserId) {
+    // Si on veut les posts enregistrés, il vaut mieux faire une jointure ou une in-query.
+    // On passe par saved_posts
+    const { data: savedData, error: savedError } = await supabase
+      .from('saved_posts')
+      .select('post_id')
+      .eq('user_id', currentUserId)
+      
+    if (savedError) throw savedError
+    const savedIds = (savedData ?? []).map(row => row.post_id)
+    
+    if (savedIds.length === 0) {
+      return { posts: [], nextCursor: null }
+    }
+    query = query.in('id', savedIds)
+  }
+
+  // Appliquer le tri : les épinglés d'abord UNIQUEMENT si on est sur la page d'accueil (pas de filtres)
+  if (!category && !filter) {
+    query = query.order('is_pinned', { ascending: false })
+  }
+  
+  query = query.order('created_at', { ascending: false }).range(from, to)
+
+  const { data, error } = await query
+  
   if (error) throw error
+  
   const rows = (data ?? []) as RawPost[]
   const hydrated = await hydratePosts(rows, currentUserId)
+  
   return {
     posts: hydrated,
     nextCursor: rows.length === PAGE_SIZE ? page + 1 : null,
@@ -145,7 +203,7 @@ export async function fetchPostById(
   const { data, error } = await supabase
     .from('posts')
     .select(
-      'id, user_id, content, image_url, link_url, hashtags, likes_count, comments_count, is_pinned, challenge_week_number, challenge_project_name, created_at',
+      'id, user_id, content, image_url, link_url, hashtags, likes_count, comments_count, is_pinned, challenge_week_number, challenge_project_name, category, created_at',
     )
     .eq('id', postId)
     .maybeSingle()
@@ -165,7 +223,7 @@ export async function fetchUserPosts(
   const { data, error } = await supabase
     .from('posts')
     .select(
-      'id, user_id, content, image_url, link_url, hashtags, likes_count, comments_count, is_pinned, challenge_week_number, challenge_project_name, created_at',
+      'id, user_id, content, image_url, link_url, hashtags, likes_count, comments_count, is_pinned, challenge_week_number, challenge_project_name, category, created_at',
     )
     .eq('user_id', userId)
     .order('created_at', { ascending: false })

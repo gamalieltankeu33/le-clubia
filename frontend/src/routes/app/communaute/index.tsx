@@ -39,6 +39,12 @@ const PostComposerModal = lazy(() =>
 )
 
 export const Route = createFileRoute('/app/communaute/')({
+  validateSearch: (search: Record<string, unknown>) => {
+    return {
+      category: typeof search.category === 'string' ? search.category : undefined,
+      filter: typeof search.filter === 'string' ? (search.filter as 'mine' | 'saved') : undefined,
+    }
+  },
   component: CommunityFeedPage,
 })
 
@@ -52,10 +58,12 @@ function CommunityFeedPage() {
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
   const { confirm, ConfirmDialog } = useConfirm()
 
+  const { category, filter } = Route.useSearch()
+
   const feed = useInfiniteQuery({
-    queryKey: ['community-feed', user?.id ?? null],
+    queryKey: ['community-feed', user?.id ?? null, category, filter],
     queryFn: ({ pageParam = 0 }) =>
-      fetchFeedPage(pageParam as number, user?.id ?? null),
+      fetchFeedPage(pageParam as number, user?.id ?? null, category, filter),
     initialPageParam: 0,
     getNextPageParam: (lastPage) => lastPage.nextCursor,
     staleTime: 30_000,
@@ -163,11 +171,17 @@ function CommunityFeedPage() {
                 <MessageSquare className="h-6 w-6" />
               </span>
               <div>
-                <h1 className="font-display text-2xl font-bold tracking-tight sm:text-3xl">
-                  Communauté
+                <h1 className="font-display text-2xl font-bold tracking-tight sm:text-3xl capitalize">
+                  {filter === 'saved' ? 'Enregistrés' : filter === 'mine' ? 'Mes publications' : category ? category.replace('-', ' ') : 'Communauté'}
                 </h1>
                 <p className="mt-1 text-sm text-[var(--muted-foreground)]">
-                  Échange, partage et avance avec les membres du Club IA.
+                  {filter === 'saved' 
+                    ? 'Retrouve ici les posts que tu as sauvegardés.' 
+                    : filter === 'mine' 
+                    ? 'Historique de tes contributions.' 
+                    : category 
+                    ? `Filtré par la catégorie ${category}.`
+                    : 'Échange, partage et avance avec les membres du Club IA.'}
                 </p>
               </div>
             </div>

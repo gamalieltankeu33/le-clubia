@@ -24,7 +24,7 @@ export function TopNavigation({ onOpenMobileMenu }: { onOpenMobileMenu: () => vo
     <header className="sticky top-0 z-40 w-full border-b border-[var(--border)] bg-[var(--card)]/95 backdrop-blur supports-[backdrop-filter]:bg-[var(--card)]/80">
       <div className="flex h-14 items-center px-4 md:px-6">
         {/* Logo & Mobile Menu Toggle */}
-        <div className="flex items-center gap-4">
+        <div className="flex flex-1 items-center gap-4">
           <button
             onClick={onOpenMobileMenu}
             className="flex h-9 w-9 items-center justify-center rounded-md text-[var(--muted-foreground)] hover:bg-[var(--secondary)] lg:hidden"
@@ -40,7 +40,7 @@ export function TopNavigation({ onOpenMobileMenu }: { onOpenMobileMenu: () => vo
         </div>
 
         {/* Desktop Navigation Links */}
-        <nav className="mx-6 hidden items-center gap-6 lg:flex">
+        <nav className="hidden flex-1 items-center justify-center gap-6 lg:flex shrink-0">
           {navLinks.map((link) => {
             // Active si c'est la page exacte ou si on est dans un sous-dossier (ex: /app/communaute/*)
             // Sauf pour /app (accueil) où ça doit être exact.
@@ -85,7 +85,7 @@ export function TopNavigation({ onOpenMobileMenu }: { onOpenMobileMenu: () => vo
         </nav>
 
         {/* Right Actions */}
-        <div className="ml-auto flex items-center gap-1 sm:gap-2">
+        <div className="flex flex-1 items-center justify-end gap-1 sm:gap-2">
           <button className="flex h-9 w-9 items-center justify-center rounded-full text-[var(--muted-foreground)] hover:bg-[var(--secondary)] hover:text-[var(--foreground)] transition-colors">
             <Search className="h-5 w-5" />
           </button>
