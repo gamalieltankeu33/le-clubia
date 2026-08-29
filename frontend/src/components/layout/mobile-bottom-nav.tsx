@@ -1,8 +1,9 @@
 import { Link, useLocation } from '@tanstack/react-router'
 import {
   Bell,
+  CalendarDays,
   GraduationCap,
-  LayoutDashboard,
+  Home,
   MessagesSquare,
   User,
   type LucideIcon,
@@ -23,22 +24,27 @@ interface NavTab {
 
 const TABS: NavTab[] = [
   {
-    to: '/app/dashboard',
+    to: '/app',
     label: 'Accueil',
-    icon: LayoutDashboard,
-    matchPrefix: '/app/dashboard',
-  },
-  {
-    to: '/app/formations',
-    label: 'Formations',
-    icon: GraduationCap,
-    matchPrefix: '/app/formations',
+    icon: Home,
   },
   {
     to: '/app/communaute',
     label: 'Communauté',
     icon: MessagesSquare,
     matchPrefix: '/app/communaute',
+  },
+  {
+    to: '/app/evenements',
+    label: 'Événements',
+    icon: CalendarDays,
+    matchPrefix: '/app/evenements',
+  },
+  {
+    to: '/app/formations',
+    label: 'Formations',
+    icon: GraduationCap,
+    matchPrefix: '/app/formations',
   },
 ]
 

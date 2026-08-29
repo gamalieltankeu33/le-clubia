@@ -91,7 +91,7 @@ function resolveAction(
 ): FabAction | null {
   if (
     pathname.startsWith('/app/communaute') ||
-    pathname.startsWith('/app/dashboard')
+    pathname === '/app'
   ) {
     return {
       label: 'Publier',
