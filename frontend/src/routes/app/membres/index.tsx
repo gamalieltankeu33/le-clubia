@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { AvatarDisplay } from '@/components/avatar-display'
 import { VerifiedBadge } from '@/components/verified-badge'
 import { fetchDirectoryMembers } from '@/lib/directory'
+import { useRequireAuth } from '@/lib/use-require-auth'
 import { useDebounce } from '@/hooks/use-debounce'
 
 export const Route = createFileRoute('/app/membres/')({
@@ -14,10 +15,15 @@ export const Route = createFileRoute('/app/membres/')({
 })
 
 function MembersDirectoryPage() {
+  const allowed = useRequireAuth({ requireOnboarded: true, requireAdmin: true })
+  
   const [searchQuery, setSearchQuery] = useState('')
   const [roleFilter, setRoleFilter] = useState<string | null>(null)
   
   const debouncedSearch = useDebounce(searchQuery, 300)
+
+  if (!allowed) return null
+
 
   const { data: members, isLoading, isError } = useQuery({
     queryKey: ['directory-members', debouncedSearch, roleFilter],

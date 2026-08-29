@@ -1,5 +1,7 @@
 import { Link, useLocation } from '@tanstack/react-router'
-import { Search, MessageSquare, Bell, Bookmark, Settings, LogOut, Shield } from 'lucide-react'
+import { Search, MessageSquare, Bookmark, Settings, LogOut, Shield } from 'lucide-react'
+import { NotificationBell } from '@/components/notifications/notification-bell'
+import { NotificationPanel } from '@/components/notifications/notification-panel'
 import { cn } from '@/lib/utils'
 import { BrandLogo } from '@/components/brand-logo'
 import { AvatarDisplay } from '@/components/avatar-display'
@@ -93,20 +95,43 @@ export function TopNavigation({ onOpenMobileMenu }: { onOpenMobileMenu: () => vo
         {/* Right Actions */}
         <div className="flex flex-1 items-center justify-end gap-1 sm:gap-2">
           {isAdmin && (
-            <Link
-              to="/app/admin"
-              className="hidden sm:flex items-center gap-1.5 rounded-full bg-[var(--or)]/10 px-3 py-1.5 text-xs font-semibold text-[var(--or)] hover:bg-[var(--or)]/20 transition-colors mr-2"
-            >
-              <Shield className="h-3.5 w-3.5" />
-              Admin
-            </Link>
+            <DropdownMenu>
+              <DropdownMenuTrigger className="flex items-center gap-1.5 rounded-full bg-[var(--or)]/10 px-3 py-1.5 text-xs font-semibold text-[var(--or)] hover:bg-[var(--or)]/20 transition-colors mr-2 focus:outline-none">
+                <Shield className="h-3.5 w-3.5" />
+                Admin
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuItem asChild>
+                  <Link to="/app/admin" className="cursor-pointer font-medium">
+                    📊 Tableau de bord
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link to="/app/admin/formations/new" className="cursor-pointer">
+                    ➕ Nouvelle formation
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/app/admin/ressources/new" className="cursor-pointer">
+                    ➕ Nouvelle ressource
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/app/admin/actualites/new" className="cursor-pointer">
+                    ➕ Nouvel article
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/app/admin/events" className="cursor-pointer">
+                    📅 Programmer événement
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           )}
-          <button className="flex h-9 w-9 items-center justify-center rounded-full text-[var(--muted-foreground)] hover:bg-[var(--secondary)] hover:text-[var(--foreground)] transition-colors">
-            <Search className="h-5 w-5" />
-          </button>
-          <button className="flex h-9 w-9 items-center justify-center rounded-full text-[var(--muted-foreground)] hover:bg-[var(--secondary)] hover:text-[var(--foreground)] transition-colors">
-            <Bell className="h-5 w-5" />
-          </button>
+          <Link to="/app/search" className="flex h-9 w-9 items-center justify-center rounded-full text-[var(--muted-foreground)] hover:bg-[var(--secondary)] hover:text-[var(--foreground)] transition-colors"><Search className="h-5 w-5" /></Link>
+          <NotificationBell className="flex h-9 w-9 items-center justify-center rounded-full hover:bg-[var(--secondary)] hover:text-[var(--foreground)] transition-colors" />
           
           <div className="ml-2 pl-2 border-l border-[var(--border)]">
             <DropdownMenu>
@@ -160,6 +185,7 @@ export function TopNavigation({ onOpenMobileMenu }: { onOpenMobileMenu: () => vo
           </div>
         </div>
       </div>
+      <NotificationPanel />
     </header>
   )
 }
