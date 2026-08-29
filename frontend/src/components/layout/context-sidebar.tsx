@@ -50,18 +50,10 @@ function SectionHeading({ children }: { children: React.ReactNode }) {
 function CommunityMenu({ onClick }: { onClick?: () => void }) {
   return (
     <nav className="flex flex-col gap-1">
-      <NavItem to="/app" icon={Home} label="Pour vous" onClick={onClick} />
-      <NavItem to="/app/communaute?sort=new" icon={Sparkles} label="Nouveautés" onClick={onClick} />
-      <NavItem to="/app/communaute?sort=hot" icon={Flame} label="Populaire" onClick={onClick} />
-      
       <SectionHeading>Communauté</SectionHeading>
       <NavItem to="/app/communaute" icon={MessageCircle} label="Discussions" onClick={onClick} />
       <NavItem to="/app/communaute?category=questions" icon={HelpCircle} label="Questions & entraide" onClick={onClick} />
       <NavItem to="/app/communaute?category=victoires" icon={Trophy} label="Victoires" onClick={onClick} />
-      <NavItem to="/app/communaute?category=business" icon={Briefcase} label="Business IA" onClick={onClick} />
-      <NavItem to="/app/communaute?category=outils" icon={Bot} label="Outils IA" onClick={onClick} />
-      <NavItem to="/app/communaute?category=video" icon={Video} label="Création de contenu" onClick={onClick} />
-      <NavItem to="/app/communaute?category=auto" icon={Settings2} label="Automatisation" onClick={onClick} />
 
       <SectionHeading>Mes contenus</SectionHeading>
       <NavItem to="/app/communaute?filter=saved" icon={Bookmark} label="Enregistrés" onClick={onClick} />
