@@ -30,6 +30,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as CatalogueIndexRouteImport } from './routes/catalogue.index'
 import { Route as AppIndexRouteImport } from './routes/app/index'
 import { Route as CatalogueIdRouteImport } from './routes/catalogue.$id'
+import { Route as AppSearchRouteImport } from './routes/app/search'
 import { Route as AppProfilRouteImport } from './routes/app/profil'
 import { Route as AppMessagesRouteImport } from './routes/app/messages'
 import { Route as AppEventsRouteImport } from './routes/app/events'
@@ -38,6 +39,7 @@ import { Route as AppClassementRouteImport } from './routes/app/classement'
 import { Route as AppChallengesRouteImport } from './routes/app/challenges'
 import { Route as AppAdminRouteImport } from './routes/app/admin'
 import { Route as AppRessourcesIndexRouteImport } from './routes/app/ressources/index'
+import { Route as AppMembresIndexRouteImport } from './routes/app/membres/index'
 import { Route as AppFormationsIndexRouteImport } from './routes/app/formations/index'
 import { Route as AppCommunauteIndexRouteImport } from './routes/app/communaute/index'
 import { Route as AppAdminIndexRouteImport } from './routes/app/admin/index'
@@ -170,6 +172,11 @@ const CatalogueIdRoute = CatalogueIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => CatalogueRoute,
 } as any)
+const AppSearchRoute = AppSearchRouteImport.update({
+  id: '/search',
+  path: '/search',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppProfilRoute = AppProfilRouteImport.update({
   id: '/profil',
   path: '/profil',
@@ -208,6 +215,11 @@ const AppAdminRoute = AppAdminRouteImport.update({
 const AppRessourcesIndexRoute = AppRessourcesIndexRouteImport.update({
   id: '/ressources/',
   path: '/ressources/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMembresIndexRoute = AppMembresIndexRouteImport.update({
+  id: '/membres/',
+  path: '/membres/',
   getParentRoute: () => AppRoute,
 } as any)
 const AppFormationsIndexRoute = AppFormationsIndexRouteImport.update({
@@ -367,6 +379,7 @@ export interface FileRoutesByFullPath {
   '/app/events': typeof AppEventsRoute
   '/app/messages': typeof AppMessagesRoute
   '/app/profil': typeof AppProfilRoute
+  '/app/search': typeof AppSearchRoute
   '/catalogue/$id': typeof CatalogueIdRoute
   '/app/': typeof AppIndexRoute
   '/catalogue/': typeof CatalogueIndexRoute
@@ -386,6 +399,7 @@ export interface FileRoutesByFullPath {
   '/app/admin/': typeof AppAdminIndexRoute
   '/app/communaute/': typeof AppCommunauteIndexRoute
   '/app/formations/': typeof AppFormationsIndexRoute
+  '/app/membres/': typeof AppMembresIndexRoute
   '/app/ressources/': typeof AppRessourcesIndexRoute
   '/app/admin/actualites/$id': typeof AppAdminActualitesIdRoute
   '/app/admin/actualites/new': typeof AppAdminActualitesNewRoute
@@ -421,6 +435,7 @@ export interface FileRoutesByTo {
   '/app/events': typeof AppEventsRoute
   '/app/messages': typeof AppMessagesRoute
   '/app/profil': typeof AppProfilRoute
+  '/app/search': typeof AppSearchRoute
   '/catalogue/$id': typeof CatalogueIdRoute
   '/app': typeof AppIndexRoute
   '/catalogue': typeof CatalogueIndexRoute
@@ -440,6 +455,7 @@ export interface FileRoutesByTo {
   '/app/admin': typeof AppAdminIndexRoute
   '/app/communaute': typeof AppCommunauteIndexRoute
   '/app/formations': typeof AppFormationsIndexRoute
+  '/app/membres': typeof AppMembresIndexRoute
   '/app/ressources': typeof AppRessourcesIndexRoute
   '/app/admin/actualites/$id': typeof AppAdminActualitesIdRoute
   '/app/admin/actualites/new': typeof AppAdminActualitesNewRoute
@@ -479,6 +495,7 @@ export interface FileRoutesById {
   '/app/events': typeof AppEventsRoute
   '/app/messages': typeof AppMessagesRoute
   '/app/profil': typeof AppProfilRoute
+  '/app/search': typeof AppSearchRoute
   '/catalogue/$id': typeof CatalogueIdRoute
   '/app/': typeof AppIndexRoute
   '/catalogue/': typeof CatalogueIndexRoute
@@ -498,6 +515,7 @@ export interface FileRoutesById {
   '/app/admin/': typeof AppAdminIndexRoute
   '/app/communaute/': typeof AppCommunauteIndexRoute
   '/app/formations/': typeof AppFormationsIndexRoute
+  '/app/membres/': typeof AppMembresIndexRoute
   '/app/ressources/': typeof AppRessourcesIndexRoute
   '/app/admin/actualites/$id': typeof AppAdminActualitesIdRoute
   '/app/admin/actualites/new': typeof AppAdminActualitesNewRoute
@@ -538,6 +556,7 @@ export interface FileRouteTypes {
     | '/app/events'
     | '/app/messages'
     | '/app/profil'
+    | '/app/search'
     | '/catalogue/$id'
     | '/app/'
     | '/catalogue/'
@@ -557,6 +576,7 @@ export interface FileRouteTypes {
     | '/app/admin/'
     | '/app/communaute/'
     | '/app/formations/'
+    | '/app/membres/'
     | '/app/ressources/'
     | '/app/admin/actualites/$id'
     | '/app/admin/actualites/new'
@@ -592,6 +612,7 @@ export interface FileRouteTypes {
     | '/app/events'
     | '/app/messages'
     | '/app/profil'
+    | '/app/search'
     | '/catalogue/$id'
     | '/app'
     | '/catalogue'
@@ -611,6 +632,7 @@ export interface FileRouteTypes {
     | '/app/admin'
     | '/app/communaute'
     | '/app/formations'
+    | '/app/membres'
     | '/app/ressources'
     | '/app/admin/actualites/$id'
     | '/app/admin/actualites/new'
@@ -649,6 +671,7 @@ export interface FileRouteTypes {
     | '/app/events'
     | '/app/messages'
     | '/app/profil'
+    | '/app/search'
     | '/catalogue/$id'
     | '/app/'
     | '/catalogue/'
@@ -668,6 +691,7 @@ export interface FileRouteTypes {
     | '/app/admin/'
     | '/app/communaute/'
     | '/app/formations/'
+    | '/app/membres/'
     | '/app/ressources/'
     | '/app/admin/actualites/$id'
     | '/app/admin/actualites/new'
@@ -851,6 +875,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CatalogueIdRouteImport
       parentRoute: typeof CatalogueRoute
     }
+    '/app/search': {
+      id: '/app/search'
+      path: '/search'
+      fullPath: '/app/search'
+      preLoaderRoute: typeof AppSearchRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/profil': {
       id: '/app/profil'
       path: '/profil'
@@ -905,6 +936,13 @@ declare module '@tanstack/react-router' {
       path: '/ressources'
       fullPath: '/app/ressources/'
       preLoaderRoute: typeof AppRessourcesIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/membres/': {
+      id: '/app/membres/'
+      path: '/membres'
+      fullPath: '/app/membres/'
+      preLoaderRoute: typeof AppMembresIndexRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/formations/': {
@@ -1146,6 +1184,7 @@ interface AppRouteChildren {
   AppEventsRoute: typeof AppEventsRoute
   AppMessagesRoute: typeof AppMessagesRoute
   AppProfilRoute: typeof AppProfilRoute
+  AppSearchRoute: typeof AppSearchRoute
   AppIndexRoute: typeof AppIndexRoute
   AppActualitesSlugRoute: typeof AppActualitesSlugRoute
   AppCommunautePostIdRoute: typeof AppCommunautePostIdRoute
@@ -1155,6 +1194,7 @@ interface AppRouteChildren {
   AppActualitesIndexRoute: typeof AppActualitesIndexRoute
   AppCommunauteIndexRoute: typeof AppCommunauteIndexRoute
   AppFormationsIndexRoute: typeof AppFormationsIndexRoute
+  AppMembresIndexRoute: typeof AppMembresIndexRoute
   AppRessourcesIndexRoute: typeof AppRessourcesIndexRoute
 }
 
@@ -1166,6 +1206,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppEventsRoute: AppEventsRoute,
   AppMessagesRoute: AppMessagesRoute,
   AppProfilRoute: AppProfilRoute,
+  AppSearchRoute: AppSearchRoute,
   AppIndexRoute: AppIndexRoute,
   AppActualitesSlugRoute: AppActualitesSlugRoute,
   AppCommunautePostIdRoute: AppCommunautePostIdRoute,
@@ -1175,6 +1216,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppActualitesIndexRoute: AppActualitesIndexRoute,
   AppCommunauteIndexRoute: AppCommunauteIndexRoute,
   AppFormationsIndexRoute: AppFormationsIndexRoute,
+  AppMembresIndexRoute: AppMembresIndexRoute,
   AppRessourcesIndexRoute: AppRessourcesIndexRoute,
 }
 
