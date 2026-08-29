@@ -101,27 +101,30 @@ function FormationsCatalogPage() {
     selectedLevel !== null
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-10 lg:py-14">
+    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-8 sm:px-6">
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, ease: 'easeOut' }}
+        className="flex flex-col gap-4"
       >
-        <div className="flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--primary)]/10 text-[var(--primary)]">
-            <GraduationCap className="h-5 w-5" />
+        <div className="flex items-center gap-4">
+          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--primary)]/10 text-[var(--primary)]">
+            <GraduationCap className="h-6 w-6" />
           </span>
-          <h1 className="font-display text-3xl font-semibold tracking-tight md:text-4xl">
-            Catalogue de formations
-          </h1>
+          <div>
+            <h1 className="font-display text-2xl font-bold tracking-tight sm:text-3xl">
+              Catalogue de formations
+            </h1>
+            <p className="mt-1 text-sm text-[var(--muted-foreground)]">
+              Explore toutes les formations IA et choisis ta prochaine compétence.
+            </p>
+          </div>
         </div>
-        <p className="mt-3 max-w-2xl text-lg text-[var(--muted-foreground)]">
-          Explore toutes les formations IA et choisis ta prochaine compétence.
-        </p>
       </motion.div>
 
       {/* Search + filters */}
-      <div className="mt-8 space-y-4">
+      <div className="flex flex-col gap-4 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-4 shadow-sm">
         <div className="relative">
           <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--muted-foreground)]" />
           <Input
@@ -129,7 +132,7 @@ function FormationsCatalogPage() {
             placeholder="Rechercher une formation…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-10"
+            className="pl-10 rounded-xl bg-[var(--secondary)]/50 border-transparent focus-visible:border-[var(--ring)] focus-visible:bg-[var(--background)] transition-colors h-11"
           />
         </div>
 
@@ -198,7 +201,7 @@ function FormationsCatalogPage() {
       </div>
 
       {/* Results */}
-      <div className="mt-10">
+      <div className="mt-2">
         {formationsQuery.isLoading ? (
           <CatalogSkeleton />
         ) : formationsQuery.isError ? (

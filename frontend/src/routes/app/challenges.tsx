@@ -19,23 +19,26 @@ function ChallengesPage() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:py-14">
+    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-8 sm:px-6">
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
+        className="flex flex-col gap-4"
       >
-        <div className="flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--primary)]/10 text-[var(--primary)]">
-            <Target className="h-5 w-5" />
+        <div className="flex items-center gap-4">
+          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--primary)]/10 text-[var(--primary)]">
+            <Target className="h-6 w-6" />
           </span>
-          <h1 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl md:text-4xl">
-            Challenge de la semaine
-          </h1>
+          <div>
+            <h1 className="font-display text-2xl font-bold tracking-tight sm:text-3xl">
+              Challenge de la semaine
+            </h1>
+            <p className="mt-1 text-sm text-[var(--muted-foreground)]">
+              Relève les défis hebdomadaires pour lancer ton projet IA étape par étape.
+            </p>
+          </div>
         </div>
-        <p className="mt-3 text-lg text-[var(--muted-foreground)]">
-          Relève les défis hebdomadaires pour lancer ton projet IA étape par étape et accumuler des points.
-        </p>
       </motion.div>
 
       <WeeklyChallenges />
