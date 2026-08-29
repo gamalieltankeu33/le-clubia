@@ -66,10 +66,8 @@ function CommunityMenu({ onClick }: { onClick?: () => void }) {
 function LearningMenu({ onClick }: { onClick?: () => void }) {
   return (
     <nav className="flex flex-col gap-1">
-      <NavItem to="/app/formations" icon={PlayCircle} label="Continuer" onClick={onClick} />
-      <NavItem to="/app/formations/catalogue" icon={BookOpen} label="Catalogue" onClick={onClick} />
-      
-      <SectionHeading>Mes Formations</SectionHeading>
+      <SectionHeading>Formations</SectionHeading>
+      <NavItem to="/app/formations" icon={BookOpen} label="Catalogue" onClick={onClick} />
       <NavItem to="/app/formations?filter=progress" icon={PlayCircle} label="En cours" onClick={onClick} />
       <NavItem to="/app/formations?filter=done" icon={CheckCircle} label="Terminées" onClick={onClick} />
     </nav>
