@@ -36,9 +36,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     }
   }, [mobileOpen])
 
-  // Détermine si on affiche la RightRail selon la route
-  // Ex: Afficher sur /app et /app/communaute, mais cacher sur /app/messages ou /app/formations
+  // Détermine si on affiche la ContextSidebar (gauche) et la RightRail (droite) selon la route
   const showRightRail = pathname === '/app' || pathname.startsWith('/app/communaute')
+  const showLeftSidebar =
+    pathname === '/app' ||
+    pathname.startsWith('/app/communaute') ||
+    pathname.startsWith('/app/formations') ||
+    pathname.startsWith('/app/ressources') ||
+    pathname.startsWith('/app/challenges') ||
+    pathname.startsWith('/app/challenge')
 
   return (
     <div className="flex min-h-screen flex-col bg-[var(--background)]">
@@ -49,11 +55,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <div className="mx-auto flex w-full max-w-[1600px] flex-1 items-start">
         
         {/* 2. CONTEXT SIDEBAR (Desktop) */}
-        <aside className="hidden w-[240px] shrink-0 xl:w-[260px] lg:block">
-          <div className="sticky top-14 h-[calc(100vh-3.5rem)]">
-            <ContextSidebar />
-          </div>
-        </aside>
+        {showLeftSidebar && (
+          <aside className="hidden w-[240px] shrink-0 xl:w-[260px] lg:block">
+            <div className="sticky top-14 h-[calc(100vh-3.5rem)]">
+              <ContextSidebar />
+            </div>
+          </aside>
+        )}
 
         {/* MAIN CONTENT */}
         <main

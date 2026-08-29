@@ -9,12 +9,13 @@ export function ContextSidebar({ onNavigate }: { onNavigate?: () => void }) {
   const isLearning = pathname.startsWith('/app/formations') || pathname.startsWith('/app/ressources')
   const isChallenge = pathname.startsWith('/app/challenge')
   
+  if (!isCommunity && !isLearning && !isChallenge) return null
+
   return (
     <div className="flex h-full flex-col overflow-y-auto py-6 px-4">
       {isCommunity && <CommunityMenu onClick={onNavigate} />}
       {isLearning && <LearningMenu onClick={onNavigate} />}
       {isChallenge && <ChallengeMenu onClick={onNavigate} />}
-      {!isCommunity && !isLearning && !isChallenge && <CommunityMenu onClick={onNavigate} />}
     </div>
   )
 }
