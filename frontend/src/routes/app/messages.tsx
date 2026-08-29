@@ -616,10 +616,9 @@ function MessagesPage() {
             </div>
           )}
         </div>
+        
+        <ConfirmDialog />
       </div>
-
-      <ConfirmDialog />
-    </div>
   )
 }
 
