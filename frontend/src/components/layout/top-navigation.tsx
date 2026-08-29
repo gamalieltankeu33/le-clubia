@@ -17,8 +17,6 @@ export function TopNavigation({ onOpenMobileMenu }: { onOpenMobileMenu: () => vo
     { name: 'Accueil', path: '/app' },
     { name: 'Formations', path: '/app/formations' },
     { name: 'Communauté', path: '/app/communaute' },
-    { name: 'Challenges', path: '/app/challenges' },
-    { name: 'Messagerie', path: '/app/messages' },
     { name: 'Événements', path: '/app/events' },
   ]
 
@@ -74,6 +72,12 @@ export function TopNavigation({ onOpenMobileMenu }: { onOpenMobileMenu: () => vo
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="w-48">
               <DropdownMenuItem asChild>
+                <Link to="/app/messages">Messagerie</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/app/challenges">Challenges</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
                 <Link to="/app/ressources">Ressources</Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
@@ -82,15 +86,21 @@ export function TopNavigation({ onOpenMobileMenu }: { onOpenMobileMenu: () => vo
               <DropdownMenuItem asChild>
                 <Link to="/app/classement">Classement</Link>
               </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/app/membres">Annuaire</Link>
-              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </nav>
 
         {/* Right Actions */}
         <div className="flex flex-1 items-center justify-end gap-1 sm:gap-2">
+          {isAdmin && (
+            <Link
+              to="/app/admin"
+              className="hidden sm:flex items-center gap-1.5 rounded-full bg-[var(--or)]/10 px-3 py-1.5 text-xs font-semibold text-[var(--or)] hover:bg-[var(--or)]/20 transition-colors mr-2"
+            >
+              <Shield className="h-3.5 w-3.5" />
+              Admin
+            </Link>
+          )}
           <button className="flex h-9 w-9 items-center justify-center rounded-full text-[var(--muted-foreground)] hover:bg-[var(--secondary)] hover:text-[var(--foreground)] transition-colors">
             <Search className="h-5 w-5" />
           </button>
