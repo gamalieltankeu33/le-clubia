@@ -34,6 +34,7 @@ export function AvatarDisplay({
   size = 'md',
   isVerified = false,
   isMonthlyWinner = false,
+  isOnline = false,
   className,
 }: {
   avatarUrl?: string | null
