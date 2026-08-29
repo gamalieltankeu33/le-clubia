@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { BellOff, CheckCheck, Loader2, X } from 'lucide-react'
 import { useNotificationsStore } from '@/stores/notifications-store'
