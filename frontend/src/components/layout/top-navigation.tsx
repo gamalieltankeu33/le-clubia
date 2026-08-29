@@ -119,7 +119,12 @@ export function TopNavigation({ onOpenMobileMenu }: { onOpenMobileMenu: () => vo
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link to="/app/admin/actualites/new" className="cursor-pointer">
-                    ➕ Nouvel article
+                    ➕ Nouvel article (Manuel)
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/app/admin/actualites" className="cursor-pointer">
+                    🤖 Lancer l'Agent IA (Actualités)
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
