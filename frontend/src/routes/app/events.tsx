@@ -128,6 +128,7 @@ function escapeIcs(s: string): string {
 function EventsPage() {
   const allowed = useRequireAuth({ requireOnboarded: true })
   const [replayEvent, setReplayEvent] = useState<Event | null>(null)
+  const [activeTab, setActiveTab] = useState<'all' | 'upcoming' | 'replays' | 'coaching'>('all')
 
   const upcomingQuery = useQuery({
     queryKey: ['member-events-upcoming'],
@@ -148,6 +149,15 @@ function EventsPage() {
   const upcoming = upcomingQuery.data ?? []
   const past = pastQuery.data ?? []
 
+  const showUpcoming = activeTab === 'all' || activeTab === 'upcoming'
+  const showReplays = activeTab === 'all' || activeTab === 'replays' || activeTab === 'coaching'
+
+  const filteredPast = past.filter((ev) => {
+    if (activeTab === 'coaching') return ev.type === 'coaching'
+    if (activeTab === 'replays') return ev.type === 'masterclass' || ev.replay_url
+    return true
+  })
+
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 sm:py-10 lg:py-14">
       <motion.section
@@ -160,59 +170,129 @@ function EventsPage() {
             <CalendarDays className="h-5 w-5" />
           </span>
           <h1 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl md:text-4xl">
-            Événements
+            Événements & Replays
           </h1>
         </div>
         <p className="mt-2 max-w-2xl text-base text-[var(--muted-foreground)] sm:text-lg">
-          Coaching live mensuel, masterclasses et sessions Q&A. Tu reçois un
-          rappel par email J-1 et le jour J.
+          Coaching live mensuel, masterclasses, Q&A et accès à tous les replays des sessions passées.
         </p>
+
+        {/* Tab Filters */}
+        <div className="mt-6 flex flex-wrap items-center gap-2 border-b border-[var(--border)] pb-4">
+          <button
+            type="button"
+            onClick={() => setActiveTab('all')}
+            className={cn(
+              'rounded-full px-4 py-1.5 text-xs font-medium transition-colors',
+              activeTab === 'all'
+                ? 'bg-[var(--primary)] text-white shadow-sm'
+                : 'bg-[var(--secondary)] text-[var(--muted-foreground)] hover:text-[var(--foreground)]',
+            )}
+          >
+            Tous les événements
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('upcoming')}
+            className={cn(
+              'rounded-full px-4 py-1.5 text-xs font-medium transition-colors',
+              activeTab === 'upcoming'
+                ? 'bg-[var(--primary)] text-white shadow-sm'
+                : 'bg-[var(--secondary)] text-[var(--muted-foreground)] hover:text-[var(--foreground)]',
+            )}
+          >
+            📅 À venir ({upcoming.length})
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('replays')}
+            className={cn(
+              'rounded-full px-4 py-1.5 text-xs font-medium transition-colors',
+              activeTab === 'replays'
+                ? 'bg-[var(--primary)] text-white shadow-sm'
+                : 'bg-[var(--secondary)] text-[var(--muted-foreground)] hover:text-[var(--foreground)]',
+            )}
+          >
+            🎥 Replays & Masterclasses
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('coaching')}
+            className={cn(
+              'rounded-full px-4 py-1.5 text-xs font-medium transition-colors',
+              activeTab === 'coaching'
+                ? 'bg-[var(--primary)] text-white shadow-sm'
+                : 'bg-[var(--secondary)] text-[var(--muted-foreground)] hover:text-[var(--foreground)]',
+            )}
+          >
+            🎙️ Coaching Live
+          </button>
+        </div>
       </motion.section>
 
       {/* Prochains événements */}
-      <section className="mt-10">
-        <h2 className="font-display text-lg font-semibold tracking-tight">
-          À venir
-        </h2>
-        <div className="mt-4 space-y-4">
-          {upcomingQuery.isLoading ? (
-            <div className="flex items-center justify-center rounded-2xl border border-[var(--border)] bg-[var(--card)] p-12">
+      {showUpcoming && (
+        <section className="mt-8">
+          <h2 className="font-display text-lg font-semibold tracking-tight">
+            Événements à venir
+          </h2>
+          <div className="mt-4 space-y-4">
+            {upcomingQuery.isLoading ? (
+              <div className="flex items-center justify-center rounded-2xl border border-[var(--border)] bg-[var(--card)] p-12">
+                <Loader2 className="h-5 w-5 animate-spin text-[var(--muted-foreground)]" />
+              </div>
+            ) : upcoming.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-[var(--border)] bg-[var(--card)] p-10 text-center">
+                <Calendar className="mx-auto h-8 w-8 text-[var(--muted-foreground)]" />
+                <p className="mt-3 text-sm font-medium">
+                  Aucun événement à venir pour le moment
+                </p>
+                <p className="mt-1 text-xs text-[var(--muted-foreground)]">
+                  Le prochain coaching live et la prochaine masterclass seront bientôt annoncés.
+                </p>
+              </div>
+            ) : (
+              upcoming.map((ev) => <EventCard key={ev.id} event={ev} />)
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* Passés / Masterclass Replay */}
+      {showReplays && (
+        <section className="mt-12">
+          <h2 className="font-display text-lg font-semibold tracking-tight">
+            Replays des Lives & Masterclasses
+          </h2>
+          <p className="mt-1 text-sm text-[var(--muted-foreground)]">
+            Tu as manqué une session live ou un coaching ? Accède aux replays complets.
+          </p>
+
+          {pastQuery.isLoading ? (
+            <div className="mt-4 flex items-center justify-center rounded-2xl border border-[var(--border)] bg-[var(--card)] p-12">
               <Loader2 className="h-5 w-5 animate-spin text-[var(--muted-foreground)]" />
             </div>
-          ) : upcoming.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-[var(--border)] bg-[var(--card)] p-10 text-center">
-              <Calendar className="mx-auto h-8 w-8 text-[var(--muted-foreground)]" />
+          ) : filteredPast.length === 0 ? (
+            <div className="mt-4 rounded-2xl border border-dashed border-[var(--border)] bg-[var(--card)] p-10 text-center">
+              <Video className="mx-auto h-8 w-8 text-[var(--muted-foreground)]" />
               <p className="mt-3 text-sm font-medium">
-                Aucun événement programmé pour le moment
+                Aucun replay disponible dans cette catégorie pour l'instant
               </p>
               <p className="mt-1 text-xs text-[var(--muted-foreground)]">
-                Le prochain coaching live mensuel sera bientôt annoncé.
+                Les replays des sessions live et masterclasses coaching sont mis en ligne juste après chaque événement.
               </p>
             </div>
           ) : (
-            upcoming.map((ev) => <EventCard key={ev.id} event={ev} />)
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+              {filteredPast.map((ev) => (
+                <PastEventCard
+                  key={ev.id}
+                  event={ev}
+                  onWatch={() => setReplayEvent(ev)}
+                />
+              ))}
+            </div>
           )}
-        </div>
-      </section>
-
-      {/* Passés / Masterclass Replay */}
-      {past.length > 0 && (
-        <section className="mt-12">
-          <h2 className="font-display text-lg font-semibold tracking-tight">
-            Masterclass Replay
-          </h2>
-          <p className="mt-1 text-sm text-[var(--muted-foreground)]">
-            Tu as manqué une session live&nbsp;? Revois-la quand tu veux.
-          </p>
-          <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            {past.map((ev) => (
-              <PastEventCard
-                key={ev.id}
-                event={ev}
-                onWatch={() => setReplayEvent(ev)}
-              />
-            ))}
-          </div>
         </section>
       )}
 

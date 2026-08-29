@@ -43,7 +43,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     pathname.startsWith('/app/communaute') ||
     pathname.startsWith('/app/formations') ||
     pathname.startsWith('/app/ressources') ||
-    pathname.startsWith('/app/challenges')
+    pathname.startsWith('/app/challenges') ||
+    pathname.startsWith('/app/events')
 
   return (
     <div className="flex min-h-screen flex-col bg-[var(--background)]">

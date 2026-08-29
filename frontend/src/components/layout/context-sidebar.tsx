@@ -1,21 +1,23 @@
 import { Link, useLocation } from '@tanstack/react-router'
-import { Home, Sparkles, Flame, MessageCircle, HelpCircle, Trophy, Briefcase, Bot, Video, Settings2, PlayCircle, BookOpen, CheckCircle, Bookmark } from 'lucide-react'
+import { Home, Sparkles, Flame, MessageCircle, HelpCircle, Trophy, Briefcase, Bot, Video, Settings2, PlayCircle, BookOpen, CheckCircle, Bookmark, CalendarDays, Mic2 } from 'lucide-react'
 
 export function ContextSidebar({ onNavigate }: { onNavigate?: () => void }) {
   const { pathname } = useLocation()
   
-  // Déterminer le contexte actif (Communaute, Formations, Challenges, etc.)
+  // Déterminer le contexte actif (Communaute, Formations, Challenges, Événements, etc.)
   const isCommunity = pathname.startsWith('/app/communaute') || pathname === '/app'
   const isLearning = pathname.startsWith('/app/formations') || pathname.startsWith('/app/ressources')
   const isChallenge = pathname.startsWith('/app/challenges')
+  const isEvents = pathname.startsWith('/app/events')
   
-  if (!isCommunity && !isLearning && !isChallenge) return null
+  if (!isCommunity && !isLearning && !isChallenge && !isEvents) return null
 
   return (
     <div className="flex h-full flex-col overflow-y-auto py-6 px-4">
       {isCommunity && <CommunityMenu onClick={onNavigate} />}
       {isLearning && <LearningMenu onClick={onNavigate} />}
       {isChallenge && <ChallengeMenu onClick={onNavigate} />}
+      {isEvents && <EventsMenu onClick={onNavigate} />}
     </div>
   )
 }
@@ -79,6 +81,17 @@ function ChallengeMenu({ onClick }: { onClick?: () => void }) {
     <nav className="flex flex-col gap-1">
       <NavItem to="/app/challenges" icon={Flame} label="En cours" onClick={onClick} />
       <NavItem to="/app/challenges?filter=done" icon={CheckCircle} label="Terminés" onClick={onClick} />
+    </nav>
+  )
+}
+
+function EventsMenu({ onClick }: { onClick?: () => void }) {
+  return (
+    <nav className="flex flex-col gap-1">
+      <SectionHeading>Événements & Replays</SectionHeading>
+      <NavItem to="/app/events" icon={CalendarDays} label="À venir" onClick={onClick} />
+      <NavItem to="/app/events?tab=replays" icon={Video} label="Replays & Masterclasses" onClick={onClick} />
+      <NavItem to="/app/events?tab=coaching" icon={Mic2} label="Coaching Live" onClick={onClick} />
     </nav>
   )
 }
