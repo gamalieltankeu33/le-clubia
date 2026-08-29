@@ -33,6 +33,9 @@ const INTERESTS = [
   'Outils IA',
   'Business IA',
   'Veille IA',
+  'Produits digitaux',
+  'Créer un SaaS',
+  'Monétisation',
 ] as const
 
 type Step = 1 | 2 | 3 | 4
