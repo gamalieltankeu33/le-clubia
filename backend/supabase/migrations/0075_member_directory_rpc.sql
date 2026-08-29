@@ -41,7 +41,7 @@ as $$
   inner join public.subscriptions s on s.user_id = p.id
   cross join norm
   where s.status in ('active', 'trialing')
-    and (p_role is null or p.role = p_role)
+    and (p_role is null or p.role::text = p_role)
     and (
       norm.q = '' or
       lower(coalesce(p.first_name, '') || ' ' || coalesce(p.last_name, '')) like '%' || lower(norm.q) || '%'
