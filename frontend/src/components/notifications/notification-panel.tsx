@@ -68,11 +68,11 @@ export function NotificationPanel() {
                   <button
                     type="button"
                     onClick={() => void markAllAsRead()}
-                    className="text-xs font-semibold text-[var(--primary)] hover:underline"
+                    className="flex items-center gap-1.5 text-xs font-semibold text-[var(--primary)] hover:underline"
                   >
                     <CheckCheck className="h-4 w-4" />
                     <span className="hidden sm:inline">Tout lu</span>
-                  </Button>
+                  </button>
                 )}
                 <button
                   type="button"
