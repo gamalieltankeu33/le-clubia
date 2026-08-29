@@ -138,6 +138,8 @@ export type Database = {
           last_name: string | null
           avatar_url: string | null
           bio: string | null
+          whatsapp_number: string | null
+          country: string | null
           interests: string[]
           onboarding_completed: boolean
           role: UserRole
@@ -161,6 +163,8 @@ export type Database = {
           last_name?: string | null
           avatar_url?: string | null
           bio?: string | null
+          whatsapp_number?: string | null
+          country?: string | null
           interests?: string[]
           onboarding_completed?: boolean
           role?: UserRole
@@ -184,6 +188,8 @@ export type Database = {
           last_name?: string | null
           avatar_url?: string | null
           bio?: string | null
+          whatsapp_number?: string | null
+          country?: string | null
           interests?: string[]
           onboarding_completed?: boolean
           role?: UserRole

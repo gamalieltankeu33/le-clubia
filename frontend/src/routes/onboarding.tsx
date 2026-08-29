@@ -35,7 +35,7 @@ const INTERESTS = [
   'Veille IA',
 ] as const
 
-type Step = 1 | 2 | 3
+type Step = 1 | 2 | 3 | 4
 
 function OnboardingPage() {
   const navigate = useNavigate()
@@ -47,6 +47,8 @@ function OnboardingPage() {
   const [step, setStep] = useState<Step>(1)
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
+  const [whatsappNumber, setWhatsappNumber] = useState('')
+  const [country, setCountry] = useState('')
   const [interests, setInterests] = useState<string[]>([])
   const [saving, setSaving] = useState(false)
 
@@ -62,11 +64,12 @@ function OnboardingPage() {
     }
   }, [isInitialized, user, profile, navigate])
 
-  // Préremplit avec les valeurs existantes du profile au cas où
   useEffect(() => {
     if (profile) {
       if (profile.first_name) setFirstName(profile.first_name)
       if (profile.last_name) setLastName(profile.last_name)
+      if (profile.whatsapp_number) setWhatsappNumber(profile.whatsapp_number)
+      if (profile.country) setCountry(profile.country)
       if (profile.interests?.length) setInterests(profile.interests)
     }
   }, [profile])
@@ -83,8 +86,8 @@ function OnboardingPage() {
 
   function handleNext() {
     if (step === 1) {
-      if (!firstName.trim() || !lastName.trim()) {
-        toast.error('Renseigne ton prénom et ton nom.')
+      if (!firstName.trim() || !lastName.trim() || !whatsappNumber.trim() || !country.trim()) {
+        toast.error('Merci de renseigner tous les champs obligatoires.')
         return
       }
       setStep(2)
@@ -96,6 +99,11 @@ function OnboardingPage() {
         return
       }
       setStep(3)
+      return
+    }
+    if (step === 3) {
+      setStep(4)
+      return
     }
   }
 
@@ -103,9 +111,9 @@ function OnboardingPage() {
     setStep((s) => (s > 1 ? ((s - 1) as Step) : s))
   }
 
-  // Déclenche les confettis au passage à l'étape 3
+  // Déclenche les confettis au passage à l'étape 4
   useEffect(() => {
-    if (step === 3) {
+    if (step === 4) {
       const duration = 3 * 1000
       const animationEnd = Date.now() + duration
       const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 }
@@ -154,6 +162,8 @@ function OnboardingPage() {
       .update({
         first_name: cleanFirst,
         last_name: cleanLast,
+        whatsapp_number: whatsappNumber.trim(),
+        country: country.trim(),
         interests,
         onboarding_completed: true,
       })
@@ -225,6 +235,24 @@ function OnboardingPage() {
                       placeholder="Rousseau"
                     />
                   </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="whatsappNumber">Numéro WhatsApp</Label>
+                    <Input
+                      id="whatsappNumber"
+                      value={whatsappNumber}
+                      onChange={(e) => setWhatsappNumber(e.target.value)}
+                      placeholder="+33 6 12 34 56 78"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="country">Pays</Label>
+                    <Input
+                      id="country"
+                      value={country}
+                      onChange={(e) => setCountry(e.target.value)}
+                      placeholder="Ex: France, Cameroun, Canada..."
+                    />
+                  </div>
                 </div>
                 <NavButtons
                   onBack={null}
@@ -271,6 +299,31 @@ function OnboardingPage() {
 
             {step === 3 && (
               <StepWrap key="step3">
+                <StepHeader
+                  title="Vidéo d'introduction"
+                  subtitle="Attention, cette vidéo est importante. Suis cette vidéo pour comprendre exactement comment utiliser le club IA."
+                />
+                <div className="mt-8 aspect-video w-full overflow-hidden rounded-xl border border-[var(--border)] shadow-sm">
+                  <iframe
+                    width="100%"
+                    height="100%"
+                    src="https://www.youtube.com/embed/cd0oc4a0wb8"
+                    title="Introduction Club IA"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  ></iframe>
+                </div>
+                <NavButtons
+                  onBack={handleBack}
+                  onNext={handleNext}
+                  nextLabel="J'ai terminé la vidéo"
+                />
+              </StepWrap>
+            )}
+
+            {step === 4 && (
+              <StepWrap key="step4">
                 <div className="text-center">
                   <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--accent)]/15 text-[var(--accent)]">
                     <Sparkles className="h-6 w-6" />
@@ -311,7 +364,7 @@ function OnboardingPage() {
 function StepIndicator({ step }: { step: Step }) {
   return (
     <div className="flex items-center gap-2">
-      {[1, 2, 3].map((n) => (
+      {[1, 2, 3, 4].map((n) => (
         <span
           key={n}
           className={cn(
