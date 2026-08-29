@@ -207,6 +207,10 @@ function ResourcesLibraryPage() {
             icon={<Library className="h-7 w-7" />}
             title="Bibliothèque en construction"
             description="Les premières ressources arrivent bientôt."
+            cta={{
+              label: 'Découvrir la communauté',
+              onClick: () => { window.location.href = '/app/communaute' }
+            }}
           />
         ) : filtered.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-[var(--border)] bg-[var(--card)] p-12 text-center">

@@ -185,6 +185,10 @@ function EmptyAgent() {
       icon={<Sparkles className="h-7 w-7" />}
       title="Les premières actualités arrivent"
       description="L'agent IA est en train de les chercher. Reviens d'ici quelques heures."
+      cta={{
+        label: 'Voir les formations',
+        onClick: () => { window.location.href = '/app/formations' }
+      }}
     />
   )
 }

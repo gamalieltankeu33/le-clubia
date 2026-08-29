@@ -630,7 +630,7 @@ function FormationDetailPage() {
         ) : (
           <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-[35%_1fr]">
             {/* Colonne gauche : liste chapitres */}
-            <aside className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-4">
+            <aside className="order-2 lg:order-1 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-4">
               <h2 className="px-1 pb-2 text-sm font-semibold uppercase tracking-wider text-[var(--muted-foreground)]">
                 Chapitres
               </h2>
@@ -644,7 +644,7 @@ function FormationDetailPage() {
             </aside>
 
             {/* Colonne droite : player + détails */}
-            <div className="space-y-6">
+            <div className="order-1 lg:order-2 space-y-6">
               {activeChapter ? (
                 <>
                   <ChapterPlayer

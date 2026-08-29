@@ -16,7 +16,7 @@ import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/stores/auth-store'
 import { AvatarDisplay } from '@/components/avatar-display'
 import { BrandLogo } from '@/components/brand-logo'
-import { NAV_ITEMS } from './nav-items'
+import { NAV_GROUPS } from './nav-items'
 
 interface AdminNavItem {
   to: string
@@ -102,40 +102,44 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
       </div>
 
       {/* Navigation principale */}
-      <nav className="flex-1 overflow-y-auto px-4 py-2">
-        <p className="px-3 pb-3 pt-3 text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--muted-foreground)] opacity-60">
-          Navigation
-        </p>
-        <ul className="space-y-1.5">
-          {NAV_ITEMS.map((item) => {
-            const active = pathname === item.to
-            return (
-              <li key={item.to}>
-                <Link
-                  id={`nav-${item.to.split('/').pop()}`}
-                  to={item.to}
-                  onClick={onNavigate}
-                  className={cn(
-                    'group relative flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-300',
-                    active
-                      ? 'bg-[var(--primary)] text-white shadow-lg shadow-[var(--primary)]/20'
-                      : 'text-[var(--foreground)] hover:bg-[var(--primary)]/5 hover:text-[var(--primary)]',
-                  )}
-                >
-                  <item.icon
-                    className={cn(
-                      'h-[18px] w-[18px] shrink-0 transition-colors',
-                      active
-                        ? 'text-white'
-                        : 'text-[var(--muted-foreground)] group-hover:text-[var(--primary)]',
-                    )}
-                  />
-                  {item.label}
-                </Link>
-              </li>
-            )
-          })}
-        </ul>
+      <nav className="flex-1 overflow-y-auto px-4 py-2 space-y-6">
+        {NAV_GROUPS.map((group) => (
+          <div key={group.title}>
+            <p className="px-3 pb-2 pt-2 text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--muted-foreground)] opacity-60">
+              {group.title}
+            </p>
+            <ul className="space-y-1.5">
+              {group.items.map((item) => {
+                const active = pathname === item.to
+                return (
+                  <li key={item.to}>
+                    <Link
+                      id={`nav-${item.to.split('/').pop()}`}
+                      to={item.to}
+                      onClick={onNavigate}
+                      className={cn(
+                        'group relative flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-300',
+                        active
+                          ? 'bg-[var(--primary)] text-white shadow-lg shadow-[var(--primary)]/20'
+                          : 'text-[var(--foreground)] hover:bg-[var(--primary)]/5 hover:text-[var(--primary)]',
+                      )}
+                    >
+                      <item.icon
+                        className={cn(
+                          'h-[18px] w-[18px] shrink-0 transition-colors',
+                          active
+                            ? 'text-white'
+                            : 'text-[var(--muted-foreground)] group-hover:text-[var(--primary)]',
+                        )}
+                      />
+                      {item.label}
+                    </Link>
+                  </li>
+                )
+              })}
+            </ul>
+          </div>
+        ))}
 
         {/* Section Admin (visible uniquement si admin) */}
         {isAdmin && (

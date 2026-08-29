@@ -262,12 +262,19 @@ function CatalogSkeleton() {
   )
 }
 
+import { useNavigate } from '@tanstack/react-router'
+
 function EmptyCatalog() {
+  const navigate = useNavigate()
   return (
     <EmptyState
       icon={<GraduationCap className="h-7 w-7" />}
       title="Bientôt disponibles"
       description="Le catalogue se prépare. Reviens dans quelques jours."
+      cta={{
+        label: 'Découvrir la communauté',
+        onClick: () => navigate({ to: '/app/communaute' })
+      }}
     />
   )
 }
