@@ -1,5 +1,6 @@
 import { Link, useLocation } from '@tanstack/react-router'
 import { Search, MessageSquare, Bell, Bookmark, Settings, LogOut, Shield } from 'lucide-react'
+import { cn } from '@/lib/utils'
 import { BrandLogo } from '@/components/brand-logo'
 import { AvatarDisplay } from '@/components/avatar-display'
 import { useAuthStore } from '@/stores/auth-store'
