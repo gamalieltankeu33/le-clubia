@@ -70,6 +70,7 @@ function LearningMenu({ onClick }: { onClick?: () => void }) {
     <nav className="flex flex-col gap-1">
       <SectionHeading>Formations</SectionHeading>
       <NavItem to="/app/formations" icon={BookOpen} label="Catalogue" onClick={onClick} />
+      <NavItem to="/app/formations?category=Replays & Masterclasses" icon={Video} label="Replays & Masterclasses" onClick={onClick} />
       <NavItem to="/app/formations?filter=progress" icon={PlayCircle} label="En cours" onClick={onClick} />
       <NavItem to="/app/formations?filter=done" icon={CheckCircle} label="Terminées" onClick={onClick} />
     </nav>

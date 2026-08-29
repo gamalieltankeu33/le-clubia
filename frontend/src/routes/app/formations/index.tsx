@@ -22,6 +22,12 @@ import {
 import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute('/app/formations/')({
+  validateSearch: (search: Record<string, unknown>) => {
+    return {
+      category: typeof search.category === 'string' ? search.category : undefined,
+      filter: typeof search.filter === 'string' ? search.filter : undefined,
+    }
+  },
   component: FormationsCatalogPage,
 })
 
@@ -52,9 +58,12 @@ async function fetchFormationsWithProgress(): Promise<FormationCardData[]> {
 }
 
 function FormationsCatalogPage() {
+  const { category: paramCategory, filter: paramFilter } = Route.useSearch()
   const userId = useAuthStore((s) => s.user?.id)
   const [search, setSearch] = useState('')
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([])
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(
+    paramCategory ? [paramCategory] : [],
+  )
   const [selectedLevel, setSelectedLevel] = useState<FormationLevel | null>(
     null,
   )
@@ -79,9 +88,15 @@ function FormationsCatalogPage() {
         return false
       }
       if (selectedLevel && f.level !== selectedLevel) return false
+      if (paramFilter === 'progress' && (!f.has_started || f.progress_percent >= 100)) {
+        return false
+      }
+      if (paramFilter === 'done' && f.progress_percent < 100) {
+        return false
+      }
       return true
     })
-  }, [formations, search, selectedCategories, selectedLevel])
+  }, [formations, search, selectedCategories, selectedLevel, paramFilter])
 
   function toggleCategory(cat: string) {
     setSelectedCategories((prev) =>
