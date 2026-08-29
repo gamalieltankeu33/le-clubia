@@ -160,35 +160,41 @@ function OnboardingPage() {
       return
     }
 
+    const payloadWithWhatsApp = {
+      id: user.id,
+      email: user.email ?? '',
+      first_name: cleanFirst,
+      last_name: cleanLast,
+      whatsapp_number: whatsappNumber.trim() || null,
+      country: country.trim() || null,
+      interests,
+      onboarding_completed: true,
+    }
+
     let { error } = await supabase
       .from('profiles')
-      .update({
-        first_name: cleanFirst,
-        last_name: cleanLast,
-        whatsapp_number: whatsappNumber.trim(),
-        country: country.trim(),
-        interests,
-        onboarding_completed: true,
-      })
-      .eq('id', user.id)
+      .upsert(payloadWithWhatsApp as any, { onConflict: 'id' })
 
     // Fallback si la migration 0078 n'a pas encore été exécutée sur Supabase prod
     if (error) {
-      console.warn('Fallback onboarding update without whatsapp/country:', error)
+      console.warn('Fallback onboarding upsert without whatsapp/country:', error)
+      const payloadFallback = {
+        id: user.id,
+        email: user.email ?? '',
+        first_name: cleanFirst,
+        last_name: cleanLast,
+        interests,
+        onboarding_completed: true,
+      }
       const fallbackRes = await supabase
         .from('profiles')
-        .update({
-          first_name: cleanFirst,
-          last_name: cleanLast,
-          interests,
-          onboarding_completed: true,
-        })
-        .eq('id', user.id)
+        .upsert(payloadFallback as any, { onConflict: 'id' })
       error = fallbackRes.error
     }
 
     if (error) {
-      toast.error('Impossible de sauvegarder ton profil. Réessaie.')
+      console.error('Onboarding save error:', error)
+      toast.error(error.message || 'Impossible de sauvegarder ton profil. Réessaie.')
       setSaving(false)
       return
     }
