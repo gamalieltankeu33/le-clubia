@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react'
 import { useLocation } from '@tanstack/react-router'
 import { AnimatePresence, motion } from 'framer-motion'
 import { X } from 'lucide-react'
-import { AppSidebar } from './app-sidebar'
-import { AppHeader } from './app-header'
+import { TopNavigation } from './top-navigation'
+import { ContextSidebar } from './context-sidebar'
+import { RightRail } from './right-rail'
 import { MobileBottomNav } from './mobile-bottom-nav'
 import { FloatingActionButton } from './floating-action-button'
 import { FloatingCoachButton } from '@/components/coach/floating-coach-button'
@@ -35,16 +36,46 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     }
   }, [mobileOpen])
 
-  return (
-    <div className="flex min-h-screen bg-[var(--background)]">
-      {/* Sidebar desktop fixe */}
-      <aside className="hidden w-[260px] shrink-0 border-r border-[var(--border)] lg:block">
-        <div className="sticky top-0 h-screen">
-          <AppSidebar />
-        </div>
-      </aside>
+  // Détermine si on affiche la RightRail selon la route
+  // Ex: Afficher sur /app et /app/communaute, mais cacher sur /app/messages ou /app/formations
+  const showRightRail = pathname === '/app' || pathname.startsWith('/app/communaute')
 
-      {/* Drawer mobile */}
+  return (
+    <div className="flex min-h-screen flex-col bg-[var(--background)]">
+      {/* 1. TOP NAVIGATION (Fixe en haut) */}
+      <TopNavigation onOpenMobileMenu={() => setMobileOpen(true)} />
+
+      {/* ZONE CONTENU (flex pour Sidebar - Main - RightRail) */}
+      <div className="mx-auto flex w-full max-w-[1600px] flex-1 items-start">
+        
+        {/* 2. CONTEXT SIDEBAR (Desktop) */}
+        <aside className="hidden w-[240px] shrink-0 xl:w-[260px] lg:block">
+          <div className="sticky top-14 h-[calc(100vh-3.5rem)]">
+            <ContextSidebar />
+          </div>
+        </aside>
+
+        {/* MAIN CONTENT */}
+        <main
+          className="flex-1 min-w-0 pb-[80px] lg:pb-0"
+          style={{
+            scrollPaddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 80px)',
+          }}
+        >
+          <PageErrorBoundary>{children}</PageErrorBoundary>
+        </main>
+
+        {/* 3. CONTEXT RIGHT RAIL (Desktop) */}
+        {showRightRail && (
+          <aside className="hidden w-[280px] shrink-0 xl:w-[320px] lg:block">
+            <div className="sticky top-14 h-[calc(100vh-3.5rem)]">
+              <RightRail />
+            </div>
+          </aside>
+        )}
+      </div>
+
+      {/* Drawer mobile pour la sidebar */}
       <AnimatePresence>
         {mobileOpen && (
           <>
@@ -76,24 +107,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               >
                 <X className="h-5 w-5" />
               </button>
-              <AppSidebar onNavigate={() => setMobileOpen(false)} />
+              
+              {/* Le drawer affiche les liens contextuels */}
+              <div className="h-full pt-12">
+                <ContextSidebar onNavigate={() => setMobileOpen(false)} />
+              </div>
             </motion.aside>
           </>
         )}
       </AnimatePresence>
-
-      {/* Contenu */}
-      <div className="flex min-w-0 flex-1 flex-col">
-        <AppHeader onOpenSidebar={() => setMobileOpen(true)} />
-        <main
-          className="flex-1 pb-[80px] lg:pb-0"
-          style={{
-            scrollPaddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 80px)',
-          }}
-        >
-          <PageErrorBoundary>{children}</PageErrorBoundary>
-        </main>
-      </div>
 
       {/* Coach IA — bouton flottant + panneau latéral */}
       <FloatingCoachButton />
@@ -108,3 +130,4 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     </div>
   )
 }
+
