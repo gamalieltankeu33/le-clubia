@@ -252,36 +252,14 @@ function MessagesPage() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-2 sm:px-6 py-6 lg:py-10">
-      {/* Header Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-        <div>
-          <h1 className="font-display text-2xl font-bold md:text-3xl flex items-center gap-3 text-[var(--foreground)]">
-            <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--primary)] text-white shadow-md">
-              <MessagesSquare className="h-5 w-5" />
-            </span>
-            Messagerie Privée
-            {totalUnreadCount > 0 && (
-              <span className="inline-flex items-center justify-center h-6 min-w-6 px-2 text-xs font-extrabold rounded-full bg-[var(--or)] text-[var(--noir)] shadow-sm">
-                {totalUnreadCount}
-              </span>
-            )}
-          </h1>
-          <p className="text-sm text-[var(--muted-foreground)] mt-1">
-            Échanges sécurisés et instantanés entre membres du Club IA et le fondateur.
-          </p>
-        </div>
-      </div>
-
-      {/* Main Messenger Container */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-0 border border-[var(--border)] rounded-3xl bg-[var(--card)] shadow-xl overflow-hidden min-h-[600px] h-[calc(100vh-210px)] max-h-[750px]">
-        {/* Left Sidebar: Conversations List */}
-        <div
-          className={cn(
-            'md:col-span-4 border-r border-[var(--border)] flex flex-col bg-[var(--background-pure)]',
-            activeConvId && 'hidden md:flex',
-          )}
-        >
+    <div className="flex h-[calc(100vh-56px)] w-full overflow-hidden bg-[var(--background)]">
+      {/* Left Sidebar: Conversations List */}
+      <div
+        className={cn(
+          'w-full md:w-[320px] lg:w-[360px] shrink-0 border-r border-[var(--border)] flex flex-col bg-[var(--card)]',
+          activeConvId && 'hidden md:flex',
+        )}
+      >
           {/* Search & Filter Toolbar */}
           <div className="p-4 border-b border-[var(--border)] space-y-3">
             <div className="relative">
@@ -407,7 +385,7 @@ function MessagesPage() {
         {/* Right Main Chat Window */}
         <div
           className={cn(
-            'md:col-span-8 flex flex-col bg-[var(--card)] relative',
+            'flex-1 flex flex-col bg-[var(--background)] relative min-w-0',
             !activeConvId && 'hidden md:flex',
           )}
         >
@@ -477,7 +455,7 @@ function MessagesPage() {
               </div>
 
               {/* Chat Message History List */}
-              <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 bg-slate-50/60">
+              <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:px-12 space-y-6">
                 {messagesQuery.isLoading ? (
                   <div className="space-y-3">
                     <div className="h-12 w-2/3 animate-pulse rounded-2xl bg-gray-200" />
@@ -537,10 +515,10 @@ function MessagesPage() {
                           ) : (
                             <div
                               className={cn(
-                                'relative rounded-2xl px-4 py-2.5 text-sm whitespace-pre-wrap shadow-sm transition-all',
+                                'relative rounded-2xl px-4 py-2.5 text-[15px] whitespace-pre-wrap transition-all leading-relaxed',
                                 isMe
-                                  ? 'bg-[var(--primary)] text-white rounded-br-none'
-                                  : 'bg-white border border-[var(--border)] text-[var(--foreground)] rounded-bl-none',
+                                  ? 'bg-[var(--primary)] text-white rounded-br-sm'
+                                  : 'bg-[var(--card)] border border-[var(--border)] text-[var(--foreground)] rounded-bl-sm shadow-sm',
                               )}
                             >
                               {msg.content}
@@ -598,27 +576,35 @@ function MessagesPage() {
               </div>
 
               {/* Message Input Box */}
-              <form
-                onSubmit={handleSend}
-                className="p-3 sm:p-4 border-t border-[var(--border)] bg-[var(--background-pure)] flex items-center gap-2"
-              >
-                <input
-                  type="text"
-                  placeholder="Écris ton message en privé..."
-                  value={inputMessage}
-                  onChange={(e) => setInputMessage(e.target.value)}
-                  className="flex-1 px-4 py-3 text-sm rounded-2xl border border-[var(--border)] bg-[var(--secondary)]/70 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/20 transition"
-                />
-
-                <Button
-                  type="submit"
-                  size="icon"
-                  disabled={!inputMessage.trim() || sendMutation.isPending}
-                  className="h-11 w-11 shrink-0 rounded-2xl bg-[var(--primary)] text-white hover:bg-[var(--primary-light)] shadow-md transition"
+              <div className="p-4 sm:p-6 bg-[var(--background)]">
+                <form
+                  onSubmit={handleSend}
+                  className="flex items-end gap-2 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-2 shadow-sm transition-colors focus-within:border-[var(--primary)] focus-within:ring-1 focus-within:ring-[var(--primary)]"
                 >
-                  <Send className="h-4.5 w-4.5" />
-                </Button>
-              </form>
+                  <textarea
+                    placeholder="Écrire un message..."
+                    value={inputMessage}
+                    onChange={(e) => setInputMessage(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault()
+                        handleSend()
+                      }
+                    }}
+                    className="flex-1 max-h-32 min-h-[44px] resize-none bg-transparent px-3 py-3 text-[15px] focus:outline-none"
+                    rows={1}
+                  />
+
+                  <Button
+                    type="submit"
+                    size="icon"
+                    disabled={!inputMessage.trim() || sendMutation.isPending}
+                    className="mb-1 mr-1 h-9 w-9 shrink-0 rounded-xl bg-[var(--primary)] text-white hover:bg-[var(--primary-light)] transition"
+                  >
+                    <Send className="h-4 w-4" />
+                  </Button>
+                </form>
+              </div>
             </>
           ) : (
             <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
