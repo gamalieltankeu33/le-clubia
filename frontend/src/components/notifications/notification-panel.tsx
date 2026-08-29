@@ -13,6 +13,7 @@ export function NotificationPanel() {
   const unreadCount = useNotificationsStore((s) => s.unreadCount)
   const isLoading = useNotificationsStore((s) => s.isLoading)
   const markAllAsRead = useNotificationsStore((s) => s.markAllAsRead)
+  const panelRef = useRef<HTMLDivElement>(null)
 
   // Bloque le scroll du body quand le panel est ouvert (mobile fullscreen)
   useEffect(() => {
@@ -39,45 +40,35 @@ export function NotificationPanel() {
       {isPanelOpen && (
         <>
           <motion.div
-            key="overlay"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.18 }}
-            className="fixed inset-0 z-50 bg-black/30"
             onClick={closePanel}
-            aria-hidden="true"
+            className="fixed inset-0 z-40 bg-[var(--background)]/40 backdrop-blur-sm sm:hidden"
           />
+
           <motion.aside
-            key="panel"
-            initial={{ x: '100%' }}
-            animate={{ x: 0 }}
-            exit={{ x: '100%' }}
-            transition={{ duration: 0.25, ease: 'easeOut' }}
-            className="fixed inset-y-0 right-0 z-50 flex w-full flex-col border-l border-[var(--border)] bg-[var(--card)] shadow-2xl sm:w-[400px]"
+            ref={panelRef}
+            initial={{ opacity: 0, scale: 0.95, y: -10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: -10 }}
+            transition={{ duration: 0.2, ease: 'easeOut' }}
+            className="fixed right-0 top-0 z-50 flex h-[100dvh] w-full flex-col border-l border-[var(--border)] bg-[var(--card)] shadow-2xl sm:absolute sm:right-4 sm:top-14 sm:h-[600px] sm:max-h-[85vh] sm:w-[400px] sm:rounded-2xl sm:border sm:ring-1 sm:ring-black/5"
             role="dialog"
             aria-modal="true"
             aria-label="Notifications"
           >
             {/* Header */}
-            <div className="flex items-center justify-between gap-3 border-b border-[var(--border)] px-5 py-4">
-              <div>
-                <h2 className="font-display text-lg font-semibold tracking-tight">
-                  Notifications
-                </h2>
+            <div className="flex items-center justify-between border-b border-[var(--border)] px-4 py-3">
+              <h2 className="font-display text-base font-bold tracking-tight text-[var(--foreground)]">
+                Notifications
+              </h2>
+              <div className="flex items-center gap-2">
                 {unreadCount > 0 && (
-                  <p className="text-xs text-[var(--muted-foreground)]">
-                    {unreadCount} non lue{unreadCount > 1 ? 's' : ''}
-                  </p>
-                )}
-              </div>
-              <div className="flex items-center gap-1">
-                {unreadCount > 0 && (
-                  <Button
+                  <button
                     type="button"
-                    variant="ghost"
-                    size="sm"
                     onClick={() => void markAllAsRead()}
+                    className="text-xs font-semibold text-[var(--primary)] hover:underline"
                   >
                     <CheckCheck className="h-4 w-4" />
                     <span className="hidden sm:inline">Tout lu</span>

@@ -159,7 +159,7 @@ export function NotificationItem({
       type="button"
       onClick={handleClick}
       className={cn(
-        'group relative flex w-full items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-[var(--secondary)]',
+        'group relative flex w-full items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-[var(--secondary)]/50',
         !notification.is_read && 'bg-[var(--primary)]/5',
       )}
     >
@@ -167,20 +167,31 @@ export function NotificationItem({
       {!notification.is_read && (
         <span
           aria-hidden="true"
-          className="absolute left-1.5 top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full bg-[var(--primary)]"
+          className="absolute left-1.5 top-1/2 h-2 w-2 -translate-y-1/2 rounded-full bg-[var(--primary)] shadow-[0_0_8px_var(--primary)]"
         />
       )}
 
       {/* Avatar de l'actor si présent, sinon icône type-spécifique */}
       {actor ? (
-        <AvatarDisplay
-          avatarUrl={actor.avatar_url}
-          firstName={actor.first_name}
-          lastName={actor.last_name}
-          email={null}
-          isVerified={false}
-          size="md"
-        />
+        <div className="relative shrink-0">
+          <AvatarDisplay
+            avatarUrl={actor.avatar_url}
+            firstName={actor.first_name}
+            lastName={actor.last_name}
+            email={null}
+            isVerified={false}
+            size="md"
+          />
+          <span
+            className={cn(
+              'absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full ring-2 ring-[var(--card)]',
+              meta.iconBg,
+              meta.iconText,
+            )}
+          >
+            <Icon className="h-2 w-2" />
+          </span>
+        </div>
       ) : (
         <span
           className={cn(
@@ -197,10 +208,10 @@ export function NotificationItem({
         <p className="text-sm font-semibold leading-tight text-[var(--foreground)]">
           {notification.title}
         </p>
-        <p className="mt-0.5 line-clamp-2 text-xs text-[var(--muted-foreground)]">
+        <p className="mt-0.5 line-clamp-2 text-xs leading-relaxed text-[var(--muted-foreground)]">
           {notification.message}
         </p>
-        <p className="mt-1 text-[11px] text-[var(--muted-foreground)]">
+        <p className="mt-1 text-[10px] font-medium uppercase tracking-wider text-[var(--muted-foreground)] opacity-70">
           {timeAgo}
         </p>
       </div>
@@ -209,7 +220,7 @@ export function NotificationItem({
         type="button"
         onClick={handleDelete}
         aria-label="Supprimer"
-        className="hidden h-7 w-7 shrink-0 items-center justify-center rounded-md text-[var(--muted-foreground)] transition-colors hover:bg-[var(--background)] hover:text-[var(--foreground)] group-hover:flex"
+        className="hidden h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-[var(--secondary)] text-[var(--muted-foreground)] transition-colors hover:bg-red-50 hover:text-red-500 group-hover:flex"
       >
         <Trash2 className="h-3.5 w-3.5" />
       </button>

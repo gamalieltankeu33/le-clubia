@@ -16,8 +16,8 @@ export function NotificationBell({ className }: { className?: string }) {
     if (arrivalTick === lastTickRef.current) return
     lastTickRef.current = arrivalTick
     void controls.start({
-      rotate: [0, -12, 12, -8, 8, 0],
-      transition: { duration: 0.55, ease: 'easeInOut' },
+      rotate: [0, -15, 15, -10, 10, -5, 5, 0],
+      transition: { duration: 0.6, ease: 'easeOut' },
     })
   }, [arrivalTick, controls])
 
@@ -41,7 +41,7 @@ export function NotificationBell({ className }: { className?: string }) {
       {unreadCount > 0 && (
         <span
           aria-hidden="true"
-          className="absolute -right-0.5 -top-0.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-semibold leading-none text-white"
+          className="absolute -right-0.5 -top-0.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold leading-none text-white shadow-sm ring-2 ring-[var(--background)]"
         >
           {unreadCount > 99 ? '99+' : unreadCount}
         </span>
