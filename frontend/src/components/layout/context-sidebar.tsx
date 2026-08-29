@@ -7,7 +7,7 @@ export function ContextSidebar({ onNavigate }: { onNavigate?: () => void }) {
   // Déterminer le contexte actif (Communaute, Formations, Challenges, etc.)
   const isCommunity = pathname.startsWith('/app/communaute') || pathname === '/app'
   const isLearning = pathname.startsWith('/app/formations') || pathname.startsWith('/app/ressources')
-  const isChallenge = pathname.startsWith('/app/challenge')
+  const isChallenge = pathname.startsWith('/app/challenges')
   
   if (!isCommunity && !isLearning && !isChallenge) return null
 
@@ -77,8 +77,8 @@ function LearningMenu({ onClick }: { onClick?: () => void }) {
 function ChallengeMenu({ onClick }: { onClick?: () => void }) {
   return (
     <nav className="flex flex-col gap-1">
-      <NavItem to="/app/challenge" icon={Flame} label="En cours" onClick={onClick} />
-      <NavItem to="/app/challenge?filter=done" icon={CheckCircle} label="Terminés" onClick={onClick} />
+      <NavItem to="/app/challenges" icon={Flame} label="En cours" onClick={onClick} />
+      <NavItem to="/app/challenges?filter=done" icon={CheckCircle} label="Terminés" onClick={onClick} />
     </nav>
   )
 }
