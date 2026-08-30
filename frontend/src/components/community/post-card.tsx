@@ -342,9 +342,9 @@ export function PostCard({
         </div>
       )}
 
-      {/* Barre de stats réactions & commentaires façon LinkedIn */}
+      {/* Barre de stats réactions & commentaires */}
       {(count > 0 || post.comments_count > 0) && (
-        <div className="mt-3 flex items-center justify-between text-xs text-[var(--muted-foreground)]">
+        <div className="mt-2.5 flex items-center justify-between text-xs text-[var(--muted-foreground)] px-0.5">
           <div>
             {count > 0 && (
               <PostLikersPreview
@@ -368,7 +368,7 @@ export function PostCard({
         </div>
       )}
 
-      <footer className="mt-3 flex items-center gap-2 border-t border-[var(--border)] pt-2.5">
+      <footer className="mt-2 flex items-center gap-1 border-t border-[var(--border)]/40 pt-1.5">
         {/* Bouton Like */}
         <button
           type="button"
@@ -381,23 +381,23 @@ export function PostCard({
             toggle()
           }}
           className={cn(
-            'flex-1 inline-flex items-center justify-center gap-2 rounded-xl py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50',
+            'h-9 flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg px-2 text-xs sm:text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50',
             liked
-              ? 'text-red-500 hover:bg-red-50/50'
-              : 'text-[var(--muted-foreground)] hover:bg-[var(--secondary)]/60 hover:text-[var(--foreground)]',
+              ? 'text-red-500 bg-red-500/10'
+              : 'text-[var(--muted-foreground)] hover:bg-[var(--secondary)]/70 hover:text-[var(--foreground)]',
             pendingLike && 'opacity-90',
           )}
         >
           <motion.span
             key={String(liked)}
             initial={{ scale: 1 }}
-            animate={{ scale: liked ? [1, 1.3, 1] : [1, 0.9, 1] }}
-            transition={{ duration: 0.25, ease: 'easeOut' }}
+            animate={{ scale: liked ? [1, 1.25, 1] : [1, 0.9, 1] }}
+            transition={{ duration: 0.2, ease: 'easeOut' }}
             className="inline-flex"
           >
             <Heart
               className={cn(
-                'h-4.5 w-4.5 transition-colors',
+                'h-4 w-4 transition-colors',
                 liked && 'fill-red-500 text-red-500',
               )}
             />
@@ -412,19 +412,19 @@ export function PostCard({
           data-no-navigate
           onClick={handleCommentClick}
           className={cn(
-            'flex-1 inline-flex items-center justify-center gap-2 rounded-xl py-2 text-sm font-medium transition-colors',
+            'h-9 flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg px-2 text-xs sm:text-sm font-medium transition-colors',
             commentsOpen
-              ? 'text-[var(--primary)] bg-[var(--secondary)]/60'
-              : 'text-[var(--muted-foreground)] hover:bg-[var(--secondary)]/60 hover:text-[var(--foreground)]',
+              ? 'text-[var(--primary)] bg-[var(--primary)]/10 font-semibold'
+              : 'text-[var(--muted-foreground)] hover:bg-[var(--secondary)]/70 hover:text-[var(--foreground)]',
           )}
         >
           <MessageCircle
             className={cn(
-              'h-4.5 w-4.5',
-              commentsOpen && 'fill-[var(--primary)]/15',
+              'h-4 w-4',
+              commentsOpen && 'fill-[var(--primary)]/20 text-[var(--primary)]',
             )}
           />
-          <span className="hidden sm:inline">Commenter</span>
+          <span>Commenter</span>
         </button>
 
         {/* Bouton Enregistrer */}
@@ -439,20 +439,20 @@ export function PostCard({
             toggleSave()
           }}
           className={cn(
-            'flex-1 inline-flex items-center justify-center gap-2 rounded-xl py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50',
+            'h-9 flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg px-2 text-xs sm:text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50',
             saved
-              ? 'text-amber-500 hover:bg-amber-50/50'
-              : 'text-[var(--muted-foreground)] hover:bg-[var(--secondary)]/60 hover:text-[var(--foreground)]',
+              ? 'text-amber-500 bg-amber-500/10'
+              : 'text-[var(--muted-foreground)] hover:bg-[var(--secondary)]/70 hover:text-[var(--foreground)]',
             pendingSave && 'opacity-90',
           )}
         >
           <Bookmark
             className={cn(
-              'h-4.5 w-4.5 transition-colors',
+              'h-4 w-4 transition-colors',
               saved && 'fill-amber-500 text-amber-500',
             )}
           />
-          <span className="hidden sm:inline">Enregistrer</span>
+          <span>Enregistrer</span>
         </button>
       </footer>
     </div>
@@ -466,15 +466,15 @@ export function PostCard({
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.25, ease: 'easeOut' }}
-              className="overflow-hidden border-t border-[var(--border)] bg-[var(--secondary)]/45"
+              transition={{ duration: 0.2, ease: 'easeOut' }}
+              className="overflow-hidden border-t border-[var(--border)]/30 bg-[var(--secondary)]/25"
               data-no-navigate
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="p-4 sm:p-5">
+              <div className="p-3 sm:p-3.5">
                 <Suspense
                   fallback={
-                    <div className="flex items-center justify-center py-6 text-sm text-[var(--muted-foreground)]">
+                    <div className="flex items-center justify-center py-4 text-xs text-[var(--muted-foreground)]">
                       <Loader2 className="h-4 w-4 animate-spin" />
                     </div>
                   }

@@ -487,8 +487,8 @@ export function PostCommentSection({
       <div
         className={
           isInline
-            ? 'border-b border-[var(--border)] pb-4'
-            : 'mt-4 border-b border-[var(--border)] pb-5'
+            ? 'border-b border-[var(--border)]/30 pb-2.5'
+            : 'mt-3 border-b border-[var(--border)]/30 pb-3'
         }
       >
         <CommentComposer
@@ -505,17 +505,17 @@ export function PostCommentSection({
       </div>
 
       {/* Liste des commentaires racine */}
-      <div className="mt-5">
+      <div className="mt-2.5">
         {rootCommentsQuery.isLoading ? (
-          <p className="py-4 text-sm text-[var(--muted-foreground)]">
+          <p className="py-2 text-xs text-[var(--muted-foreground)]">
             Chargement…
           </p>
         ) : rootCommentsQuery.isError ? (
-          <p className="py-4 text-sm text-[var(--muted-foreground)]">
+          <p className="py-2 text-xs text-[var(--muted-foreground)]">
             Impossible de charger les commentaires.
           </p>
         ) : (rootCommentsQuery.data ?? []).length === 0 ? (
-          <p className="py-4 text-center text-sm text-[var(--muted-foreground)]">
+          <p className="py-2 text-center text-xs text-[var(--muted-foreground)]">
             Sois le premier à commenter.
           </p>
         ) : (() => {
@@ -525,15 +525,15 @@ export function PostCommentSection({
           const remainingCount = comments.length - 2
           return (
             <div>
-              <ul className="space-y-6">
+              <ul className="space-y-2">
                 <AnimatePresence initial={false}>
                   {displayedComments.map((c) => (
                     <motion.li
                       key={c.id}
-                      initial={{ opacity: 0, y: 12 }}
+                      initial={{ opacity: 0, y: 8 }}
                       animate={{ opacity: c.isPending ? 0.55 : 1, y: 0 }}
-                      exit={{ opacity: 0, y: -8, transition: { duration: 0.15 } }}
-                      transition={{ duration: 0.25, ease: 'easeOut' }}
+                      exit={{ opacity: 0, y: -6, transition: { duration: 0.12 } }}
+                      transition={{ duration: 0.2, ease: 'easeOut' }}
                       id={`comment-${c.id}`}
                     >
                       <CommentItem
@@ -563,7 +563,7 @@ export function PostCommentSection({
                 <button
                   type="button"
                   onClick={() => setShowAllComments(true)}
-                  className="w-full text-left text-xs font-semibold text-[var(--primary)] hover:underline py-1.5 px-1 mt-4 flex items-center gap-1.5"
+                  className="w-full text-left text-xs font-semibold text-[var(--primary)] hover:underline py-1 px-1 mt-2 flex items-center gap-1.5"
                 >
                   <span>
                     {remainingCount === 1
