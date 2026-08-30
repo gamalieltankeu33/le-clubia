@@ -26,21 +26,20 @@ export function nextRouteAfterAuth(
 ): string | null {
   if (!profile) return null
 
+  // 1. Onboarding d'abord si pas complété
+  if (!profile.onboarding_completed) return '/onboarding'
+
   const isAdmin = profile.role === 'admin'
   const isActive =
     (subscription?.status === 'active' || subscription?.status === 'trialing') &&
     (!subscription?.current_period_end ||
       new Date(subscription.current_period_end) > new Date())
 
-  // ── 1. Non-membre : on PRIORISE le paiement ────────────────────────
+  // 2. Si l'abonnement n'a pas encore été activé par l'admin -> En attente de validation
   if (!isActive && !isAdmin) {
-    if (profile.desired_plan_id) {
-      return `/checkout?plan=${profile.desired_plan_id}`
-    }
-    return '/abonnement'
+    return '/en-attente-validation'
   }
 
-  // ── 2. Membre (ou admin) : onboarding puis communauté ──────────────
-  if (!profile.onboarding_completed) return '/onboarding'
+  // 3. Membre actif / validé -> Communauté
   return '/app/communaute'
 }

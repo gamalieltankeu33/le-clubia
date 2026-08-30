@@ -156,12 +156,8 @@ function AuthPage() {
             await useAuthStore.getState().refreshUserData()
           }
         }
-        // Message de transition : on annonce explicitement la prochaine
-        // étape (paiement) pour que l'utilisateur sache où il en est.
         toast.success(
-          desiredPlanId
-            ? 'Compte créé. Direction le paiement pour activer ton accès.'
-            : 'Compte créé. Plus qu’une étape : choisis ton abonnement.',
+          'Compte créé avec succès ! Ton abonnement est en attente de validation.',
           { duration: 5000 },
         )
       }

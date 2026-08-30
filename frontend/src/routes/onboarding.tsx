@@ -200,19 +200,8 @@ function OnboardingPage() {
     }
 
     await refreshUserData()
-    // Aiguillage après onboarding : /checkout si un plan est en attente,
-    // sinon /app/dashboard pour un user déjà membre (ex : admin), sinon
-    // retour landing pour qu'il choisisse un plan.
     const { profile: p, subscription: s } = useAuthStore.getState()
-    const target = nextRouteAfterAuth(p, s)
-    if (target === null) {
-      toast.info(
-        'Choisis ton abonnement pour finaliser ton inscription.',
-        { duration: 6000 },
-      )
-      navigate({ to: '/', hash: 'tarif' })
-      return
-    }
+    const target = nextRouteAfterAuth(p, s) || '/en-attente-validation'
     navigate({ to: target })
   }
 

@@ -44,25 +44,8 @@ export function useRequireAuth(opts: RequireAuthOptions = {}): boolean {
       const isAdmin = profile?.role === 'admin'
       const active =
         subscription?.status === 'active' || subscription?.status === 'trialing'
-      // Au retour de paiement (?payment=success) la subscription locale
-      // n'a pas encore été refresh : on laisse passer pour que le
-      // PaymentSuccessHandler puisse vérifier la transaction Chariow. Si la
-      // vérif échoue, le user repassera sur cette guard au prochain
-      // render et sera redirigé proprement.
-      const isPaymentReturn =
-        typeof window !== 'undefined' &&
-        new URLSearchParams(window.location.search).get('payment') === 'success'
-      if (!active && !isAdmin && !isPaymentReturn) {
-        // Si on connaît son plan en attente, on l'amène directement
-        // sur le checkout pré-rempli ; sinon retour landing.
-        if (profile?.desired_plan_id) {
-          navigate({ to: `/checkout?plan=${profile.desired_plan_id}` })
-        } else {
-          toast.error(
-            "L'accès au Club est réservé aux membres ayant un abonnement actif.",
-          )
-          navigate({ to: '/', hash: 'tarif' })
-        }
+      if (!active && !isAdmin) {
+        navigate({ to: '/en-attente-validation' })
         return
       }
     }

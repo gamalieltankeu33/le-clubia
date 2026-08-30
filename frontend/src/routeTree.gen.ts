@@ -15,6 +15,7 @@ import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as MentionsLegalesRouteImport } from './routes/mentions-legales'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as EnAttenteValidationRouteImport } from './routes/en-attente-validation'
 import { Route as ConfidentialiteRouteImport } from './routes/confidentialite'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as ChallengeRouteImport } from './routes/challenge'
@@ -95,6 +96,11 @@ const LoginRoute = LoginRouteImport.update({
 const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
   id: '/forgot-password',
   path: '/forgot-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EnAttenteValidationRoute = EnAttenteValidationRouteImport.update({
+  id: '/en-attente-validation',
+  path: '/en-attente-validation',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ConfidentialiteRoute = ConfidentialiteRouteImport.update({
@@ -366,6 +372,7 @@ export interface FileRoutesByFullPath {
   '/challenge': typeof ChallengeRoute
   '/checkout': typeof CheckoutRoute
   '/confidentialite': typeof ConfidentialiteRoute
+  '/en-attente-validation': typeof EnAttenteValidationRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/mentions-legales': typeof MentionsLegalesRoute
@@ -423,6 +430,7 @@ export interface FileRoutesByTo {
   '/challenge': typeof ChallengeRoute
   '/checkout': typeof CheckoutRoute
   '/confidentialite': typeof ConfidentialiteRoute
+  '/en-attente-validation': typeof EnAttenteValidationRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/mentions-legales': typeof MentionsLegalesRoute
@@ -482,6 +490,7 @@ export interface FileRoutesById {
   '/challenge': typeof ChallengeRoute
   '/checkout': typeof CheckoutRoute
   '/confidentialite': typeof ConfidentialiteRoute
+  '/en-attente-validation': typeof EnAttenteValidationRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/mentions-legales': typeof MentionsLegalesRoute
@@ -543,6 +552,7 @@ export interface FileRouteTypes {
     | '/challenge'
     | '/checkout'
     | '/confidentialite'
+    | '/en-attente-validation'
     | '/forgot-password'
     | '/login'
     | '/mentions-legales'
@@ -600,6 +610,7 @@ export interface FileRouteTypes {
     | '/challenge'
     | '/checkout'
     | '/confidentialite'
+    | '/en-attente-validation'
     | '/forgot-password'
     | '/login'
     | '/mentions-legales'
@@ -658,6 +669,7 @@ export interface FileRouteTypes {
     | '/challenge'
     | '/checkout'
     | '/confidentialite'
+    | '/en-attente-validation'
     | '/forgot-password'
     | '/login'
     | '/mentions-legales'
@@ -718,6 +730,7 @@ export interface RootRouteChildren {
   ChallengeRoute: typeof ChallengeRoute
   CheckoutRoute: typeof CheckoutRoute
   ConfidentialiteRoute: typeof ConfidentialiteRoute
+  EnAttenteValidationRoute: typeof EnAttenteValidationRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   LoginRoute: typeof LoginRoute
   MentionsLegalesRoute: typeof MentionsLegalesRoute
@@ -768,6 +781,13 @@ declare module '@tanstack/react-router' {
       path: '/forgot-password'
       fullPath: '/forgot-password'
       preLoaderRoute: typeof ForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/en-attente-validation': {
+      id: '/en-attente-validation'
+      path: '/en-attente-validation'
+      fullPath: '/en-attente-validation'
+      preLoaderRoute: typeof EnAttenteValidationRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/confidentialite': {
@@ -1249,6 +1269,7 @@ const rootRouteChildren: RootRouteChildren = {
   ChallengeRoute: ChallengeRoute,
   CheckoutRoute: CheckoutRoute,
   ConfidentialiteRoute: ConfidentialiteRoute,
+  EnAttenteValidationRoute: EnAttenteValidationRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,
   MentionsLegalesRoute: MentionsLegalesRoute,
