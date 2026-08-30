@@ -64,6 +64,7 @@ function YouTubeChapterPlayer({
   const tickRef = useRef(onProgressTick)
   tickRef.current = onProgressTick
   const [hasError, setHasError] = useState(false)
+  const [isReady, setIsReady] = useState(false)
 
   const videoId = chapter.video_url ? extractYouTubeId(chapter.video_url) : null
 
@@ -76,7 +77,22 @@ function YouTubeChapterPlayer({
   useEffect(() => {
     playerRef.current = null
     setHasError(false)
+    setIsReady(false)
   }, [chapter.id])
+
+  // Safety timer pour mobile (iOS Safari/Android Chrome) : si react-youtube
+  // prend plus de 2.5s à s'initialiser (API JS bloquée par le navigateur mobile),
+  // on bascule automatiquement vers le player iframe natif youtube-nocookie.
+  useEffect(() => {
+    if (isReady || hasError) return
+    const timer = setTimeout(() => {
+      if (!playerRef.current) {
+        console.warn('[YouTubeChapterPlayer] Timeout IFrame API YouTube sur mobile — bascule vers le fallback iframe natif')
+        setHasError(true)
+      }
+    }, 2500)
+    return () => clearTimeout(timer)
+  }, [chapter.id, isReady, hasError])
 
   useEffect(() => {
     const interval = window.setInterval(() => {
@@ -93,30 +109,35 @@ function YouTubeChapterPlayer({
     return () => window.clearInterval(interval)
   }, [chapter.id])
 
+  const currentOrigin = typeof window !== 'undefined' ? window.location.origin : 'https://leclub-ia.com'
+
   const ytOpts = useMemo(
     () => ({
       width: '100%' as const,
       height: '100%' as const,
-      host: 'https://www.youtube.com',
+      host: 'https://www.youtube-nocookie.com',
       playerVars: {
         modestbranding: 1,
         rel: 0,
         showinfo: 0,
         autoplay: 0,
         playsinline: 1,
+        enablejsapi: 1,
+        origin: currentOrigin,
         start: stableStartSeconds,
       },
     }),
-    [stableStartSeconds],
+    [stableStartSeconds, currentOrigin],
   )
 
   if (!videoId) return <UnsupportedPlayer />
 
   if (hasError) {
+    const startParam = stableStartSeconds > 0 ? `&start=${stableStartSeconds}` : ''
     return (
       <div className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl bg-black">
         <iframe
-          src={`https://www.youtube.com/embed/${videoId}?autoplay=0&rel=0&playsinline=1`}
+          src={`https://www.youtube-nocookie.com/embed/${videoId}?autoplay=0&rel=0&playsinline=1&enablejsapi=1&origin=${encodeURIComponent(currentOrigin)}${startParam}`}
           title={chapter.title}
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen
@@ -137,6 +158,7 @@ function YouTubeChapterPlayer({
         onError={() => setHasError(true)}
         onReady={(event) => {
           playerRef.current = event.target
+          setIsReady(true)
           try {
             if (stableStartSeconds > 0) {
               event.target.seekTo?.(stableStartSeconds, true)
