@@ -52,6 +52,7 @@ export interface FeedPost {
   is_pinned: boolean
   challenge_week_number: number | null
   challenge_project_name: string | null
+  category?: string
   created_at: string
   author: {
     id: string
@@ -59,8 +60,9 @@ export interface FeedPost {
     last_name: string | null
     avatar_url: string | null
     is_verified: boolean
+    bio?: string | null
+    role?: string | null
   } | null
-  /** L'utilisateur courant a-t-il liké ce post ? */
   liked_by_me: boolean
   saved_by_me: boolean
 }
@@ -97,8 +99,9 @@ export function PostCard({
   const [isTextExpanded, setIsTextExpanded] = useState(false)
   const cardRef = useRef<HTMLElement>(null)
   
-  // Use a heuristic to show 'Voir plus' (assuming simple char count for now, proper way is ResizeObserver)
-  const isLongText = post.content.length > 300 || post.content.split('</p>').length > 4
+  // Troncature intelligente : uniquement si le post dépasse ~450 chars ou 6 paragraphes
+  const paragraphCount = (post.content.match(/<\/p>/g) || []).length
+  const isLongText = post.content.length > 450 || paragraphCount > 6
 
   const fullName =
     [post.author?.first_name, post.author?.last_name]
@@ -145,15 +148,16 @@ export function PostCard({
           'cursor-pointer hover:border-[var(--primary)]/30 hover:shadow-sm active:scale-[0.99] active:bg-[var(--muted)]/30',
       )}
       data-card-surface="true"
-    ><div className="p-5">
+    >
+      <div className="p-4 sm:p-4.5">
       {post.is_pinned && (
-        <div className="mb-4 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[var(--emerald-deep)]">
+        <div className="mb-3 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[var(--emerald-deep)]">
           <Pin className="h-3.5 w-3.5 fill-[var(--emerald)]/15" />
           Épinglé par Le Club
         </div>
       )}
       {post.challenge_week_number && (
-        <div className="mb-4 flex flex-wrap items-center gap-2">
+        <div className="mb-3 flex flex-wrap items-center gap-2">
           <span className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)]/10 px-2.5 py-1 text-xs font-semibold text-[var(--primary)] ring-1 ring-[var(--primary)]/10">
             <span className="flex h-2 w-2 rounded-full bg-[var(--accent)] animate-pulse" />
             Challenge Semaine {post.challenge_week_number}
@@ -166,7 +170,7 @@ export function PostCard({
         </div>
       )}
       {post.category && post.category !== 'general' && (
-        <div className="mb-3 flex items-center gap-2">
+        <div className="mb-2.5 flex items-center gap-2">
           <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-[var(--secondary)] text-[var(--muted-foreground)]">
             {post.category.replace('-', ' ')}
           </span>
@@ -187,19 +191,31 @@ export function PostCard({
             size="md"
           />
         </Link>
-        <div className="min-w-0 flex-1">
-          <Link
-            to="/app/membres/$userId"
-            params={{ userId: post.user_id }}
-            onClick={(e) => e.stopPropagation()}
-            className="inline-flex items-center gap-1 text-sm font-medium hover:underline"
-          >
-            {fullName}
-            {post.author?.is_verified && (
-              <VerifiedBadge className="h-3.5 w-3.5 shrink-0" />
+        <div className="min-w-0 flex-1 leading-snug">
+          <div className="flex flex-wrap items-center gap-1.5">
+            <Link
+              to="/app/membres/$userId"
+              params={{ userId: post.user_id }}
+              onClick={(e) => e.stopPropagation()}
+              className="inline-flex items-center gap-1 text-sm font-semibold hover:underline text-[var(--foreground)]"
+            >
+              {fullName}
+              {post.author?.is_verified && (
+                <VerifiedBadge className="h-3.5 w-3.5 shrink-0" />
+              )}
+            </Link>
+            {post.author?.role && post.author.role !== 'member' && (
+              <span className="rounded-full bg-[var(--primary)]/10 px-2 py-0.5 text-[10px] font-semibold text-[var(--primary)] uppercase tracking-wider">
+                {post.author.role}
+              </span>
             )}
-          </Link>
-          <p className="text-xs text-[var(--muted-foreground)]">
+          </div>
+          {post.author?.bio && (
+            <p className="truncate text-xs text-[var(--muted-foreground)]">
+              {post.author.bio.split('\n')[0]}
+            </p>
+          )}
+          <p className="text-[11px] text-[var(--muted-foreground)] mt-0.5">
             {formatDistanceToNow(new Date(post.created_at), {
               addSuffix: true,
               locale: fr,
@@ -262,11 +278,11 @@ export function PostCard({
       </header>
 
       {/* Contenu HTML sanitisé */}
-      <div className="mt-3 relative">
+      <div className="mt-2.5 relative">
         <div
           className={cn(
-            "post-content text-[15px] leading-relaxed [&_a]:text-[var(--primary)] [&_a]:underline [&_p]:mb-2 [&_p]:last:mb-0 [&_ul]:my-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1 [&_ol]:my-2 [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:space-y-1 [&_strong]:font-semibold [&_em]:italic [&_h3]:mt-3 [&_h3]:font-display [&_h3]:text-lg [&_h3]:font-semibold [&_blockquote]:my-2 [&_blockquote]:border-l-2 [&_blockquote]:border-[var(--border)] [&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:text-[var(--muted-foreground)] [&_code]:rounded [&_code]:bg-[var(--secondary)] [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:text-[0.85em]",
-            !isTextExpanded && isLongText && "line-clamp-4 mask-bottom"
+            "post-content text-[14px] sm:text-[15px] leading-relaxed [&_a]:text-[var(--primary)] [&_a]:underline [&_p]:mb-1.5 [&_p]:last:mb-0 [&_ul]:my-1.5 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-0.5 [&_ol]:my-1.5 [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:space-y-0.5 [&_strong]:font-semibold [&_em]:italic [&_h3]:mt-2 [&_h3]:font-display [&_h3]:text-base [&_h3]:font-semibold [&_blockquote]:my-1.5 [&_blockquote]:border-l-2 [&_blockquote]:border-[var(--border)] [&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:text-[var(--muted-foreground)] [&_code]:rounded [&_code]:bg-[var(--secondary)] [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:text-[0.85em]",
+            !isTextExpanded && isLongText && "line-clamp-5 sm:line-clamp-6 mask-bottom"
           )}
           dangerouslySetInnerHTML={{ __html: safeHtml }}
         />
@@ -277,10 +293,10 @@ export function PostCard({
               e.stopPropagation()
               setIsTextExpanded(true)
             }}
-            className="mt-1 text-sm font-semibold text-[var(--primary)] hover:underline"
+            className="mt-1 text-xs font-semibold text-[var(--primary)] hover:underline inline-block"
             data-no-navigate
           >
-            Voir plus
+            ... Voir plus
           </button>
         )}
       </div>

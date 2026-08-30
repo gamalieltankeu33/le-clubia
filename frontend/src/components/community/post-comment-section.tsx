@@ -55,6 +55,8 @@ interface CommentRow {
     last_name: string | null
     avatar_url: string | null
     is_verified: boolean
+    bio?: string | null
+    role?: string | null
   } | null
 }
 
@@ -108,6 +110,8 @@ async function hydrateAuthors(rows: RawCommentRow[]): Promise<CommentRow[]> {
       last_name: p.last_name,
       avatar_url: p.avatar_url,
       is_verified: p.is_verified,
+      bio: p.bio,
+      role: p.role,
     })
   }
   return rows.map((c) => ({
@@ -612,7 +616,6 @@ function CommentItem({
     [comment.author?.first_name, comment.author?.last_name]
       .filter(Boolean)
       .join(' ') || 'Membre'
-  const firstName = comment.author?.first_name || 'Membre'
 
   const repliesQuery = useQuery({
     queryKey: ['post-comment-replies', comment.id],
@@ -630,11 +633,11 @@ function CommentItem({
   }, [showReplyComposer, comment.replies_count])
 
   return (
-    <div className="group flex items-start gap-3">
+    <div className="group flex items-start gap-2.5">
       <Link
         to="/app/membres/$userId"
         params={{ userId: comment.user_id }}
-        className="shrink-0"
+        className="shrink-0 pt-0.5"
       >
         <AvatarDisplay
           avatarUrl={comment.author?.avatar_url}
@@ -642,24 +645,36 @@ function CommentItem({
           lastName={comment.author?.last_name}
           email={null}
           isVerified={comment.author?.is_verified ?? false}
-          size="md"
+          size="sm"
         />
       </Link>
       <div className="min-w-0 flex-1">
-        <div className="rounded-2xl border border-[var(--border)]/40 bg-[var(--card)] px-4 py-2.5 shadow-sm">
-          <Link
-            to="/app/membres/$userId"
-            params={{ userId: comment.user_id }}
-            className="inline-flex items-center gap-1 text-xs font-semibold hover:underline text-[var(--primary)]"
-          >
-            {fullName}
-            {comment.author?.is_verified && (
-              <VerifiedBadge className="h-3 w-3 shrink-0" />
+        <div className="rounded-xl border border-[var(--border)]/30 bg-[var(--secondary)]/30 px-3.5 py-2">
+          <div className="flex flex-wrap items-center gap-1.5 leading-none">
+            <Link
+              to="/app/membres/$userId"
+              params={{ userId: comment.user_id }}
+              className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--foreground)] hover:underline"
+            >
+              {fullName}
+              {comment.author?.is_verified && (
+                <VerifiedBadge className="h-3 w-3 shrink-0" />
+              )}
+            </Link>
+            {comment.author?.role && comment.author.role !== 'member' && (
+              <span className="rounded bg-[var(--primary)]/10 px-1.5 py-0.2 text-[9px] font-semibold text-[var(--primary)] uppercase">
+                {comment.author.role}
+              </span>
             )}
-          </Link>
+            {comment.author?.bio && (
+              <span className="truncate text-[11px] text-[var(--muted-foreground)] opacity-80">
+                · {comment.author.bio.split('\n')[0]}
+              </span>
+            )}
+          </div>
           <CommentBody html={comment.content} />
         </div>
-        <div className="mt-1 flex items-center gap-3 text-xs text-[var(--muted-foreground)]">
+        <div className="mt-1 flex items-center gap-3 text-[11px] text-[var(--muted-foreground)] px-1">
           <span>
             {formatDistanceToNow(new Date(comment.created_at), {
               addSuffix: true,
@@ -670,9 +685,8 @@ function CommentItem({
             <button
               type="button"
               onClick={() => setShowReplyComposer((s) => !s)}
-              className="inline-flex items-center gap-1 hover:text-[var(--foreground)] hover:underline"
+              className="inline-flex items-center gap-1 font-medium hover:text-[var(--foreground)] hover:underline"
             >
-              <MessageSquare className="h-3 w-3" />
               Répondre
             </button>
           )}
@@ -682,18 +696,17 @@ function CommentItem({
               onClick={onDelete}
               className="inline-flex items-center gap-1 text-red-600 opacity-0 transition-opacity hover:underline group-hover:opacity-100"
             >
-              <Trash2 className="h-3 w-3" />
               Supprimer
             </button>
           )}
         </div>
 
-        {/* Zone réponses : bouton "Voir N réponses" + liste */}
+        {/* Zone réponses : bouton "Voir N réponses" + liste avec filiation */}
         {comment.replies_count > 0 && (
           <button
             type="button"
             onClick={() => setShowReplies((s) => !s)}
-            className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-[var(--primary)] hover:underline"
+            className="mt-1.5 inline-flex items-center gap-1 text-xs font-semibold text-[var(--primary)] hover:underline px-1"
           >
             {showReplies ? (
               <>
@@ -721,17 +734,17 @@ function CommentItem({
               transition={{ duration: 0.2 }}
               className="overflow-hidden"
             >
-              <div className="mt-3 space-y-4 border-l-2 border-[var(--border)] pl-3 sm:pl-5">
+              <div className="mt-2.5 space-y-3 border-l-2 border-[var(--primary)]/20 pl-3 sm:pl-4">
                 {repliesQuery.isLoading ? (
-                  <p className="py-2 text-xs text-[var(--muted-foreground)]">
+                  <p className="py-1 text-xs text-[var(--muted-foreground)]">
                     Chargement…
                   </p>
                 ) : (repliesQuery.data ?? []).length === 0 ? (
-                  <p className="py-2 text-xs text-[var(--muted-foreground)]">
+                  <p className="py-1 text-xs text-[var(--muted-foreground)]">
                     Aucune réponse pour l'instant.
                   </p>
                 ) : (
-                  <ul className="space-y-4">
+                  <ul className="space-y-3">
                     <AnimatePresence initial={false}>
                       {repliesQuery.data?.map((reply) => {
                         const replyName =
@@ -759,12 +772,12 @@ function CommentItem({
                             }}
                             transition={{ duration: 0.2, ease: 'easeOut' }}
                             id={`comment-${reply.id}`}
-                            className="group/reply flex items-start gap-2.5"
+                            className="group/reply flex items-start gap-2"
                           >
                             <Link
                               to="/app/membres/$userId"
                               params={{ userId: reply.user_id }}
-                              className="shrink-0"
+                              className="shrink-0 pt-0.5"
                             >
                               <AvatarDisplay
                                 avatarUrl={reply.author?.avatar_url}
@@ -778,20 +791,27 @@ function CommentItem({
                               />
                             </Link>
                             <div className="min-w-0 flex-1">
-                              <div className="rounded-2xl border border-[var(--border)]/45 bg-[var(--card)] px-3.5 py-2 shadow-sm">
-                                <Link
-                                  to="/app/membres/$userId"
-                                  params={{ userId: reply.user_id }}
-                                  className="inline-flex items-center gap-1 text-xs font-semibold hover:underline text-[var(--primary)]"
-                                >
-                                  {replyName}
-                                  {reply.author?.is_verified && (
-                                    <VerifiedBadge className="h-3 w-3 shrink-0" />
+                              <div className="rounded-xl border border-[var(--border)]/30 bg-[var(--card)] px-3 py-1.5 shadow-2xs">
+                                <div className="flex flex-wrap items-center gap-1 leading-none">
+                                  <Link
+                                    to="/app/membres/$userId"
+                                    params={{ userId: reply.user_id }}
+                                    className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--foreground)] hover:underline"
+                                  >
+                                    {replyName}
+                                    {reply.author?.is_verified && (
+                                      <VerifiedBadge className="h-3 w-3 shrink-0" />
+                                    )}
+                                  </Link>
+                                  {reply.author?.bio && (
+                                    <span className="truncate text-[10px] text-[var(--muted-foreground)] opacity-75">
+                                      · {reply.author.bio.split('\n')[0]}
+                                    </span>
                                   )}
-                                </Link>
+                                </div>
                                 <CommentBody html={reply.content} />
                               </div>
-                              <div className="mt-1 flex items-center gap-3 text-xs text-[var(--muted-foreground)]">
+                              <div className="mt-0.5 flex items-center gap-3 text-[11px] text-[var(--muted-foreground)] px-1">
                                 <span>
                                   {formatDistanceToNow(
                                     new Date(reply.created_at),
@@ -808,7 +828,6 @@ function CommentItem({
                                     disabled={deletingReply}
                                     className="inline-flex items-center gap-1 text-red-600 opacity-0 transition-opacity hover:underline group-hover/reply:opacity-100 disabled:opacity-50"
                                   >
-                                    <Trash2 className="h-3 w-3" />
                                     Supprimer
                                   </button>
                                 )}
@@ -990,60 +1009,64 @@ function CommentComposer({
   }
 
   return (
-    <div className="flex items-start gap-3">
+    <div className="flex items-start gap-2.5">
       <AvatarDisplay
         avatarUrl={profile?.avatar_url}
         firstName={profile?.first_name}
         lastName={profile?.last_name}
         email={user?.email}
         isVerified={profile?.is_verified ?? false}
-        size={mode === 'reply' ? 'sm' : 'md'}
+        size="sm"
       />
-      <div className="flex-1 space-y-2">
+      <div className="flex-1 space-y-1.5">
         <ComposerEditor editor={editor} disabled={submitting} />
-        <div className="flex items-center justify-between gap-2">
-          <span
-            className={
-              overLimit
-                ? 'text-xs text-red-600'
-                : 'text-xs text-[var(--muted-foreground)]'
-            }
-          >
-            {charCount}/{MAX_CHARS}
-          </span>
-          <div className="flex items-center gap-2">
-            {onCancel && (
+        {(!isEmpty || onCancel) && (
+          <div className="flex items-center justify-between gap-2 pt-0.5">
+            <span
+              className={
+                overLimit
+                  ? 'text-[11px] font-medium text-red-600'
+                  : 'text-[11px] text-[var(--muted-foreground)]'
+              }
+            >
+              {charCount > 750 ? `${charCount}/${MAX_CHARS}` : ''}
+            </span>
+            <div className="flex items-center gap-1.5">
+              {onCancel && (
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  onClick={onCancel}
+                  disabled={submitting}
+                  className="h-7 px-2 text-xs"
+                >
+                  <X className="h-3 w-3" />
+                  Annuler
+                </Button>
+              )}
               <Button
                 type="button"
                 size="sm"
-                variant="ghost"
-                onClick={onCancel}
-                disabled={submitting}
+                onClick={handleSubmit}
+                disabled={isEmpty || overLimit || submitting}
+                className="h-7 px-3 text-xs bg-[var(--primary)] text-white hover:bg-[var(--primary)]/90"
               >
-                <X className="h-3.5 w-3.5" />
-                Annuler
+                {submitting ? (
+                  <>
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                    Envoi…
+                  </>
+                ) : (
+                  <>
+                    <Send className="h-3 w-3" />
+                    {mode === 'reply' ? 'Répondre' : 'Publier'}
+                  </>
+                )}
               </Button>
-            )}
-            <Button
-              type="button"
-              size="sm"
-              onClick={handleSubmit}
-              disabled={isEmpty || overLimit || submitting}
-            >
-              {submitting ? (
-                <>
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  Envoi…
-                </>
-              ) : (
-                <>
-                  <Send className="h-3.5 w-3.5" />
-                  {mode === 'reply' ? 'Répondre' : 'Commenter'}
-                </>
-              )}
-            </Button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   )
@@ -1064,7 +1087,7 @@ function ComposerEditor({
   return (
     <EditorContent
       editor={editor}
-      className="comment-editor min-h-12 rounded-xl border border-[var(--border)] bg-[var(--card)] px-3 py-2.5 text-sm leading-relaxed focus-within:border-[var(--primary)]/70 focus-within:ring-2 focus-within:ring-[var(--primary)]/10 [&_.ProseMirror]:min-h-9 [&_.ProseMirror]:outline-none [&_.ProseMirror_p]:m-0 [&_.ProseMirror_p+p]:mt-2 [&_.ProseMirror_p.is-editor-empty:first-child::before]:pointer-events-none [&_.ProseMirror_p.is-editor-empty:first-child::before]:float-left [&_.ProseMirror_p.is-editor-empty:first-child::before]:h-0 [&_.ProseMirror_p.is-editor-empty:first-child::before]:text-[var(--muted-foreground)] [&_.ProseMirror_p.is-editor-empty:first-child::before]:content-[attr(data-placeholder)]"
+      className="comment-editor min-h-8 rounded-xl border border-[var(--border)]/50 bg-[var(--card)] px-3 py-1.5 text-xs sm:text-sm leading-relaxed focus-within:border-[var(--primary)]/70 focus-within:ring-2 focus-within:ring-[var(--primary)]/10 [&_.ProseMirror]:min-h-5 [&_.ProseMirror]:outline-none [&_.ProseMirror_p]:m-0 [&_.ProseMirror_p+p]:mt-1.5 [&_.ProseMirror_p.is-editor-empty:first-child::before]:pointer-events-none [&_.ProseMirror_p.is-editor-empty:first-child::before]:float-left [&_.ProseMirror_p.is-editor-empty:first-child::before]:h-0 [&_.ProseMirror_p.is-editor-empty:first-child::before]:text-[var(--muted-foreground)] [&_.ProseMirror_p.is-editor-empty:first-child::before]:content-[attr(data-placeholder)]"
     />
   )
 }

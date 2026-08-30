@@ -113,6 +113,8 @@ export async function hydratePosts(
             last_name: author.last_name,
             avatar_url: author.avatar_url,
             is_verified: author.is_verified,
+            bio: author.bio,
+            role: author.role,
           }
         : null,
       liked_by_me: likedSet.has(p.id),

@@ -254,7 +254,7 @@ function CommunityFeedPage() {
         onRefresh={async () => {
           await feed.refetch()
         }}
-        className="mt-6"
+        className="mt-4"
       >
         {feed.isLoading ? (
           <FeedSkeleton count={3} />
