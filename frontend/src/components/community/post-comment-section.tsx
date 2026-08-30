@@ -449,20 +449,7 @@ export function PostCommentSection({
     },
   })
 
-  const { confirm, ConfirmDialog } = useConfirm()
-
-  async function handleDelete(comment: CommentRow, parentId: string | null) {
-    const ok = await confirm({
-      title: 'Supprimer ce commentaire ?',
-      contentPreview: htmlToPlainText(comment.content).slice(0, 160),
-      description:
-        parentId === null
-          ? "Cette action est irréversible. Les réponses associées seront aussi supprimées."
-          : 'Cette action est irréversible.',
-      confirmLabel: 'Supprimer',
-      variant: 'destructive',
-    })
-    if (!ok) return
+  function handleDelete(comment: CommentRow, parentId: string | null) {
     deleteMutation.mutate({ id: comment.id, parentId })
   }
 
@@ -576,8 +563,6 @@ export function PostCommentSection({
           )
         })()}
   </div>
-
-      <ConfirmDialog />
     </section>
   )
 }
