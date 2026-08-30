@@ -47,12 +47,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     pathname.startsWith('/app/events')
 
   return (
-    <div className="flex min-h-screen flex-col bg-[var(--background)]">
+    <div className="flex min-h-screen flex-col bg-[var(--background)] max-w-full overflow-x-clip">
       {/* 1. TOP NAVIGATION (Fixe en haut) */}
       <TopNavigation onOpenMobileMenu={() => setMobileOpen(true)} />
 
       {/* ZONE CONTENU (flex pour Sidebar - Main - RightRail) */}
-      <div className="mx-auto flex w-full max-w-[1600px] flex-1 items-start">
+      <div className="mx-auto flex w-full max-w-[1600px] flex-1 items-start min-w-0">
         
         {/* 2. CONTEXT SIDEBAR (Desktop) */}
         {showLeftSidebar && (
@@ -65,7 +65,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
         {/* MAIN CONTENT */}
         <main
-          className="flex-1 min-w-0 pb-[80px] lg:pb-0"
+          className="flex-1 min-w-0 max-w-full pb-[80px] lg:pb-0"
           style={{
             scrollPaddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 80px)',
           }}

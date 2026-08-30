@@ -108,19 +108,20 @@
 }
 
 @layer base {
-  * {
+  *, ::before, ::after {
     border-color: var(--border);
+    box-sizing: border-box;
   }
   html {
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
-    /* iOS Safari : overflow-x:hidden seul ne suffit pas quand un enfant
-       a un transform animé (ex: marquee). overflow-x:clip est mieux
-       supporté et n'introduit pas de scroll container. */
+    /* iOS Safari : overflow-x:clip évite les décalages horizontaux sans scroll container */
     overflow-x: clip;
     overscroll-behavior-x: none;
     max-width: 100%;
+    width: 100%;
+    touch-action: manipulation;
   }
   body {
     background-color: var(--background);
@@ -145,11 +146,15 @@
     line-height: 1.1;
   }
   p, li, span, h1, h2, h3, h4, h5, h6, a {
-    overflow-wrap: break-word;
-    word-wrap: break-word;
+    overflow-wrap: anywhere;
+    word-break: break-word;
   }
-  img, video, iframe {
+  img, video, iframe, canvas, svg, table, pre, code {
     max-width: 100%;
+  }
+  pre {
+    overflow-x: auto;
+    white-space: pre-wrap;
   }
 
   body::before {

@@ -70,10 +70,10 @@ export function MobileBottomNav() {
   return (
     <nav
       aria-label="Navigation principale"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-[var(--border)] bg-[var(--card)]/90 backdrop-blur-xl lg:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 w-full max-w-full overflow-hidden border-t border-[var(--border)] bg-[var(--card)]/90 backdrop-blur-xl lg:hidden"
       style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
     >
-      <ul className="flex h-[64px] items-stretch justify-around">
+      <ul className="flex h-[64px] w-full max-w-full items-stretch justify-around">
         {TABS.map((tab) => {
           const active = tab.matchPrefix
             ? pathname.startsWith(tab.matchPrefix)

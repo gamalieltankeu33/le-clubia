@@ -24,10 +24,10 @@ export function TopNavigation({ onOpenMobileMenu }: { onOpenMobileMenu: () => vo
   ]
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-[var(--border)] bg-[var(--card)]/95 backdrop-blur supports-[backdrop-filter]:bg-[var(--card)]/80">
-      <div className="flex h-14 items-center px-4 md:px-6">
+    <header className="sticky top-0 z-40 w-full max-w-full overflow-hidden border-b border-[var(--border)] bg-[var(--card)]/95 backdrop-blur supports-[backdrop-filter]:bg-[var(--card)]/80">
+      <div className="flex h-14 w-full items-center px-3 sm:px-4 md:px-6">
         {/* Logo & Mobile Menu Toggle */}
-        <div className="flex flex-1 items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-4 shrink-0">
           <button
             onClick={onOpenMobileMenu}
             className="flex h-9 w-9 items-center justify-center rounded-md text-[var(--muted-foreground)] hover:bg-[var(--secondary)] lg:hidden"
