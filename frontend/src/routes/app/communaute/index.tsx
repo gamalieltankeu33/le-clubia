@@ -300,28 +300,6 @@ function CommunityFeedPage() {
       
       </div> {/* Fin Colonne Principale */}
 
-      {/* COLONNE DROITE (DESKTOP) */}
-      <aside className="hidden lg:flex flex-col gap-6">
-        <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-sm">
-          <h3 className="font-semibold text-[var(--foreground)] mb-4 flex items-center gap-2">
-            Membres en ligne
-            <span className="flex h-2 w-2 rounded-full bg-green-500 relative">
-               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75"></span>
-            </span>
-          </h3>
-          <div className="text-sm text-[var(--muted-foreground)]">
-            Les membres connectés apparaîtront ici.
-          </div>
-        </div>
-        
-        <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-sm">
-          <h3 className="font-semibold text-[var(--foreground)] mb-4">Événement à venir</h3>
-          <div className="text-sm text-[var(--muted-foreground)]">
-            Aucun événement prévu.
-          </div>
-        </div>
-      </aside>
-
       </div> {/* Fin Grid */}
 
       {/* Suspense fallback rendu via null : le modal n'a pas besoin de
