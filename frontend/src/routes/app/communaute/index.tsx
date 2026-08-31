@@ -156,10 +156,8 @@ function CommunityFeedPage() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:py-12">
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_320px]">
-        {/* COLONNE PRINCIPALE (FEED) */}
-        <div className="space-y-6">
+    <div className="mx-auto max-w-3xl px-3 py-4 sm:px-6 sm:py-6">
+      <div className="space-y-4">
           
           {/* HEADER COMMUNAUTÉ */}
           <motion.div
@@ -299,8 +297,6 @@ function CommunityFeedPage() {
       </PullToRefresh>
       
       </div> {/* Fin Colonne Principale */}
-
-      </div> {/* Fin Grid */}
 
       {/* Suspense fallback rendu via null : le modal n'a pas besoin de
           fallback visible — il s'ouvre quand l'utilisateur clique le bouton.

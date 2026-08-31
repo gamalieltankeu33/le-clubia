@@ -211,7 +211,7 @@ export function PostCard({
             )}
           </div>
           {post.author?.bio && (
-            <p className="truncate text-xs text-[var(--muted-foreground)]">
+            <p className="line-clamp-1 text-xs text-[var(--muted-foreground)]">
               {post.author.bio.split('\n')[0]}
             </p>
           )}
@@ -381,10 +381,10 @@ export function PostCard({
             toggle()
           }}
           className={cn(
-            'h-9 flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg px-2 text-xs sm:text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50',
+            'h-9 flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg px-2 text-xs sm:text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50 hover:bg-[var(--secondary)]/70',
             liked
-              ? 'text-red-500 bg-red-500/10'
-              : 'text-[var(--muted-foreground)] hover:bg-[var(--secondary)]/70 hover:text-[var(--foreground)]',
+              ? 'text-red-500 font-semibold'
+              : 'text-[var(--muted-foreground)] hover:text-[var(--foreground)]',
             pendingLike && 'opacity-90',
           )}
         >
@@ -398,7 +398,7 @@ export function PostCard({
             <Heart
               className={cn(
                 'h-4 w-4 transition-colors',
-                liked && 'fill-red-500 text-red-500',
+                liked ? 'fill-red-500 text-red-500' : 'text-[var(--muted-foreground)]',
               )}
             />
           </motion.span>
@@ -412,16 +412,16 @@ export function PostCard({
           data-no-navigate
           onClick={handleCommentClick}
           className={cn(
-            'h-9 flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg px-2 text-xs sm:text-sm font-medium transition-colors',
+            'h-9 flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg px-2 text-xs sm:text-sm font-medium transition-colors hover:bg-[var(--secondary)]/70',
             commentsOpen
-              ? 'text-[var(--primary)] bg-[var(--primary)]/10 font-semibold'
-              : 'text-[var(--muted-foreground)] hover:bg-[var(--secondary)]/70 hover:text-[var(--foreground)]',
+              ? 'text-[var(--primary)] font-semibold'
+              : 'text-[var(--muted-foreground)] hover:text-[var(--foreground)]',
           )}
         >
           <MessageCircle
             className={cn(
               'h-4 w-4',
-              commentsOpen && 'fill-[var(--primary)]/20 text-[var(--primary)]',
+              commentsOpen ? 'fill-[var(--primary)]/20 text-[var(--primary)]' : 'text-[var(--muted-foreground)]',
             )}
           />
           <span>Commenter</span>
@@ -439,17 +439,17 @@ export function PostCard({
             toggleSave()
           }}
           className={cn(
-            'h-9 flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg px-2 text-xs sm:text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50',
+            'h-9 flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg px-2 text-xs sm:text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50 hover:bg-[var(--secondary)]/70',
             saved
-              ? 'text-amber-500 bg-amber-500/10'
-              : 'text-[var(--muted-foreground)] hover:bg-[var(--secondary)]/70 hover:text-[var(--foreground)]',
+              ? 'text-amber-500 font-semibold'
+              : 'text-[var(--muted-foreground)] hover:text-[var(--foreground)]',
             pendingSave && 'opacity-90',
           )}
         >
           <Bookmark
             className={cn(
               'h-4 w-4 transition-colors',
-              saved && 'fill-amber-500 text-amber-500',
+              saved ? 'fill-amber-500 text-amber-500' : 'text-[var(--muted-foreground)]',
             )}
           />
           <span>Enregistrer</span>
