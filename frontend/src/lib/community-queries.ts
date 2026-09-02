@@ -59,7 +59,13 @@ interface RawPost {
   challenge_week_number: number | null
   challenge_project_name: string | null
   category: string
+  post_type: string
   created_at: string
+  poll_options?: {
+    id: string
+    option_text: string
+    poll_votes: { user_id: string }[]
+  }[]
 }
 
 /**
@@ -119,6 +125,24 @@ export async function hydratePosts(
         : null,
       liked_by_me: likedSet.has(p.id),
       saved_by_me: savedSet.has(p.id),
+      post_type: p.post_type,
+      poll: p.post_type === 'poll' && p.poll_options ? (() => {
+        let has_voted = false;
+        let total_votes = 0;
+        const options = p.poll_options.map(opt => {
+          const votes = opt.poll_votes?.length || 0;
+          const is_my_vote = opt.poll_votes?.some(v => v.user_id === currentUserId) || false;
+          if (is_my_vote) has_voted = true;
+          total_votes += votes;
+          return {
+            id: opt.id,
+            text: opt.option_text,
+            votes,
+            is_my_vote
+          }
+        });
+        return { has_voted, total_votes, options };
+      })() : null,
     } satisfies FeedPost
   })
 }
@@ -147,7 +171,7 @@ export async function fetchFeedPage(
   // Base query
   let query = supabase
     .from('posts')
-    .select('id, user_id, content, image_url, link_url, hashtags, likes_count, comments_count, is_pinned, challenge_week_number, challenge_project_name, category, created_at')
+    .select('id, user_id, content, image_url, link_url, hashtags, likes_count, comments_count, is_pinned, challenge_week_number, challenge_project_name, category, post_type, created_at, poll_options(id, option_text, poll_votes(user_id))')
     
   if (filter === 'mine' && currentUserId) {
     query = query.eq('user_id', currentUserId)
@@ -204,11 +228,9 @@ export async function fetchPostById(
 ): Promise<FeedPost | null> {
   const { data, error } = await supabase
     .from('posts')
-    .select(
-      'id, user_id, content, image_url, link_url, hashtags, likes_count, comments_count, is_pinned, challenge_week_number, challenge_project_name, category, created_at',
-    )
+    .select('id, user_id, content, image_url, link_url, hashtags, likes_count, comments_count, is_pinned, challenge_week_number, challenge_project_name, category, post_type, created_at, poll_options(id, option_text, poll_votes(user_id))')
     .eq('id', postId)
-    .maybeSingle()
+    .single()
   if (error || !data) return null
   const [hydrated] = await hydratePosts([data as RawPost], currentUserId)
   return hydrated ?? null

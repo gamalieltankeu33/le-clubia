@@ -503,6 +503,7 @@ export type Database = {
           is_pinned: boolean
           challenge_week_number: number | null
           challenge_project_name: string | null
+          post_type: string
           created_at: string
           updated_at: string
         }
@@ -518,6 +519,7 @@ export type Database = {
           is_pinned?: boolean
           challenge_week_number?: number | null
           challenge_project_name?: string | null
+          post_type?: string
           created_at?: string
           updated_at?: string
         }
@@ -533,10 +535,86 @@ export type Database = {
           is_pinned?: boolean
           challenge_week_number?: number | null
           challenge_project_name?: string | null
+          post_type?: string
           created_at?: string
           updated_at?: string
         }
         Relationships: []
+      }
+      poll_options: {
+        Row: {
+          id: string
+          post_id: string
+          option_text: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          post_id: string
+          option_text: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          post_id?: string
+          option_text?: string
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "poll_options_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      poll_votes: {
+        Row: {
+          id: string
+          poll_option_id: string
+          user_id: string
+          post_id: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          poll_option_id: string
+          user_id: string
+          post_id: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          poll_option_id?: string
+          user_id?: string
+          post_id?: string
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "poll_votes_poll_option_id_fkey"
+            columns: ["poll_option_id"]
+            isOneToOne: false
+            referencedRelation: "poll_options"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "poll_votes_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "poll_votes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       challenge_tracks: {
         Row: {

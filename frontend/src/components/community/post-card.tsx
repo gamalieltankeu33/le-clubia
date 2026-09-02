@@ -22,6 +22,8 @@ import { useToggleLike } from '@/hooks/use-toggle-like'
 import { useToggleSave } from '@/hooks/use-toggle-save'
 import { Badge } from '@/components/ui/badge'
 import { Bookmark } from 'lucide-react'
+import { supabase } from '@/lib/supabase'
+import { toast } from 'sonner'
 
 // La PostCommentSection embarque Tiptap + extension mention (gros poids).
 // Lazy-loadée → on ne la charge que lorsque l'utilisateur clique pour
@@ -65,6 +67,17 @@ export interface FeedPost {
   } | null
   liked_by_me: boolean
   saved_by_me: boolean
+  post_type: string
+  poll?: {
+    has_voted: boolean;
+    total_votes: number;
+    options: {
+      id: string;
+      text: string;
+      votes: number;
+      is_my_vote: boolean;
+    }[];
+  } | null
 }
 
 export function PostCard({
@@ -135,6 +148,37 @@ export function PostCard({
       return
     }
     setCommentsOpen((v) => !v)
+  }
+
+  const [voting, setVoting] = useState(false)
+  async function handleVote(optionId: string) {
+    if (!currentUserId || voting) return
+    setVoting(true)
+    try {
+      const { error } = await supabase.from('poll_votes').insert({
+        poll_option_id: optionId,
+        post_id: post.id,
+        user_id: currentUserId,
+      })
+      if (error) {
+        if (error.code === '23505') {
+          toast.error('Tu as déjà voté à ce sondage.')
+        } else {
+          throw error
+        }
+      } else {
+        toast.success('A voté !')
+        // En vrai, il faudrait mettre à jour le cache React Query ou le state local.
+        // Pour un feedback immédiat, on pourrait recharger la page ou invalidation React Query, mais vu qu'on n'a pas accès direct à queryClient ici sans le passer, on peut juste forcer un rafraîchissement avec window.location.reload() si c'est vraiment nécessaire, ou laisser le realtime s'en charger si implémenté.
+        // On va juste faire un simple refresh pour le MVP, ou re-fetch.
+        window.location.reload()
+      }
+    } catch (err) {
+      console.error(err)
+      toast.error('Erreur lors du vote.')
+    } finally {
+      setVoting(false)
+    }
   }
 
   return (
@@ -300,6 +344,55 @@ export function PostCard({
           </button>
         )}
       </div>
+
+      {post.post_type === 'poll' && post.poll && (
+        <div className="mt-4 space-y-3 rounded-xl border border-[var(--border)] bg-[var(--background)] p-4">
+          <div className="space-y-2">
+            {post.poll.options.map((opt) => {
+              const percentage = post.poll!.total_votes > 0 
+                ? Math.round((opt.votes / post.poll!.total_votes) * 100) 
+                : 0;
+              
+              if (post.poll!.has_voted) {
+                return (
+                  <div key={opt.id} className="relative overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--secondary)]/30 p-3">
+                    <div 
+                      className={cn(
+                        "absolute inset-y-0 left-0 bg-[var(--primary)]/10 transition-all duration-500",
+                        opt.is_my_vote ? "bg-[var(--primary)]/20" : ""
+                      )}
+                      style={{ width: `${percentage}%` }}
+                    />
+                    <div className="relative flex items-center justify-between gap-3 text-sm font-medium">
+                      <span className="truncate">{opt.text} {opt.is_my_vote && '✓'}</span>
+                      <span className="shrink-0">{percentage}%</span>
+                    </div>
+                  </div>
+                );
+              }
+              
+              return (
+                <button
+                  key={opt.id}
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleVote(opt.id)
+                  }}
+                  disabled={voting}
+                  className="w-full text-left rounded-lg border border-[var(--border)] bg-transparent p-3 text-sm font-medium transition-colors hover:border-[var(--primary)] hover:bg-[var(--primary)]/5 disabled:opacity-50"
+                  data-no-navigate
+                >
+                  {opt.text}
+                </button>
+              );
+            })}
+          </div>
+          <div className="text-xs text-[var(--muted-foreground)] text-right">
+            {post.poll.total_votes} {post.poll.total_votes > 1 ? 'votes' : 'vote'}
+          </div>
+        </div>
+      )}
 
       {post.link_url && (
         <LinkPreviewCard url={post.link_url} className="mt-3" />

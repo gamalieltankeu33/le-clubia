@@ -16,6 +16,8 @@ import {
   Send,
   Trash2,
   X,
+  BarChart2,
+  Plus,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -51,6 +53,8 @@ export function PostComposerModal({
   const [showLinkInput, setShowLinkInput] = useState(false)
   const [linkUrl, setLinkUrl] = useState('')
   const [category, setCategory] = useState('general')
+  const [isPoll, setIsPoll] = useState(false)
+  const [pollOptions, setPollOptions] = useState(['', ''])
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Compteur incrémenté à chaque update Tiptap → force le re-render React
@@ -100,6 +104,8 @@ export function PostComposerModal({
       setShowLinkInput(false)
       setLinkUrl('')
       setCategory('general')
+      setIsPoll(false)
+      setPollOptions(['', ''])
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open])
@@ -142,6 +148,15 @@ export function PostComposerModal({
 
   async function handleSubmit() {
     if (!user || isEmpty || overLimit || submitting) return
+
+    let validPollOptions: string[] = []
+    if (isPoll) {
+      validPollOptions = pollOptions.map(o => o.trim()).filter(o => o.length > 0)
+      if (validPollOptions.length < 2) {
+        toast.error('Un sondage doit comporter au moins 2 options.')
+        return
+      }
+    }
 
     // Validation lien : 100% défensif.
     //  - Si l'input lien est fermé OU vide après trim → on envoie NULL en DB
@@ -216,11 +231,24 @@ export function PostComposerModal({
           link_url: finalLinkUrl,
           hashtags,
           category,
+          post_type: isPoll ? 'poll' : 'text',
         })
         .select('id')
         .single()
       if (error || !data) {
         throw error ?? new Error('Insert sans réponse.')
+      }
+
+      if (isPoll && validPollOptions.length > 0) {
+        const { error: pollError } = await supabase
+          .from('poll_options')
+          .insert(
+            validPollOptions.map((opt) => ({
+              post_id: data.id,
+              option_text: opt,
+            }))
+          )
+        if (pollError) throw pollError
       }
 
       toast.success('Post publié !')
@@ -374,6 +402,69 @@ export function PostComposerModal({
               </button>
             </div>
           )}
+
+          {isPoll && (
+            <div className="mt-4 space-y-3 rounded-xl border border-[var(--border)] bg-[var(--background)] p-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-medium">Options du sondage</h3>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsPoll(false)
+                    setPollOptions(['', ''])
+                  }}
+                  className="text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+                >
+                  Retirer
+                </button>
+              </div>
+              <div className="space-y-2">
+                {pollOptions.map((opt, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={opt}
+                      onChange={(e) => {
+                        const newOpts = [...pollOptions]
+                        newOpts[i] = e.target.value
+                        setPollOptions(newOpts)
+                      }}
+                      placeholder={`Option ${i + 1}`}
+                      disabled={submitting}
+                      className="flex-1 rounded-md border border-[var(--border)] bg-transparent px-3 py-1.5 text-sm focus:border-[var(--primary)] focus:outline-none"
+                    />
+                    {pollOptions.length > 2 && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const newOpts = [...pollOptions]
+                          newOpts.splice(i, 1)
+                          setPollOptions(newOpts)
+                        }}
+                        disabled={submitting}
+                        className="text-[var(--muted-foreground)] hover:text-red-500"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+              {pollOptions.length < 5 && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setPollOptions([...pollOptions, ''])}
+                  disabled={submitting}
+                  className="mt-2 text-xs"
+                >
+                  <Plus className="mr-1 h-3 w-3" />
+                  Ajouter une option
+                </Button>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Footer */}
@@ -427,6 +518,18 @@ export function PostComposerModal({
               >
                 <Link2 className="h-4 w-4" />
                 <span className="hidden sm:inline ml-1">Lien</span>
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsPoll(!isPoll)}
+                disabled={submitting}
+                aria-pressed={isPoll}
+                className="h-8 px-2"
+              >
+                <BarChart2 className="h-4 w-4" />
+                <span className="hidden sm:inline ml-1">Sondage</span>
               </Button>
             </div>
           </div>
