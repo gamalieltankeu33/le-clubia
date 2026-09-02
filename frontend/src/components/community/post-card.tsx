@@ -10,6 +10,7 @@ import {
   MoreHorizontal,
   Pin,
   Trash2,
+  Crown,
 } from 'lucide-react'
 import { AvatarDisplay } from '@/components/avatar-display'
 import { VerifiedBadge } from '@/components/verified-badge'
@@ -249,8 +250,14 @@ export function PostCard({
               )}
             </Link>
             {post.author?.role && post.author.role !== 'member' && (
-              <span className="rounded-full bg-[var(--primary)]/10 px-2 py-0.5 text-[10px] font-semibold text-[var(--primary)] uppercase tracking-wider">
-                {post.author.role}
+              <span className={cn(
+                "inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider",
+                post.author.role === 'admin'
+                  ? "bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 text-amber-600 shadow-sm"
+                  : "bg-[var(--primary)]/10 text-[var(--primary)]"
+              )}>
+                {post.author.role === 'admin' && <Crown className="h-3 w-3 fill-amber-500 text-amber-500" />}
+                {post.author.role === 'admin' ? 'Fondateur' : post.author.role}
               </span>
             )}
           </div>
