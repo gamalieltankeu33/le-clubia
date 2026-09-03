@@ -151,10 +151,10 @@ export function PostCard({
     setCommentsOpen((v) => !v)
   }
 
-  const [voting, setVoting] = useState(false)
+  let isVoting = false
   async function handleVote(optionId: string) {
-    if (!currentUserId || voting) return
-    setVoting(true)
+    if (!currentUserId || isVoting) return
+    isVoting = true
     try {
       const { error } = await supabase.from('poll_votes').insert({
         poll_option_id: optionId,
@@ -178,7 +178,7 @@ export function PostCard({
       console.error(err)
       toast.error('Erreur lors du vote.')
     } finally {
-      setVoting(false)
+      isVoting = false
     }
   }
 
@@ -386,8 +386,7 @@ export function PostCard({
                     e.stopPropagation();
                     handleVote(opt.id)
                   }}
-                  disabled={voting}
-                  className="w-full text-left rounded-lg border border-[var(--border)] bg-transparent p-3 text-sm font-medium transition-colors hover:border-[var(--primary)] hover:bg-[var(--primary)]/5 disabled:opacity-50"
+                  className="w-full text-left rounded-lg border border-[var(--border)] bg-transparent p-3 text-sm font-medium transition-colors hover:border-[var(--primary)] hover:bg-[var(--primary)]/5"
                   data-no-navigate
                 >
                   {opt.text}
